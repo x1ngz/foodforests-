@@ -10,7 +10,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="غابات الغذاء">
     <link id="appleTouchIcon" rel="apple-touch-icon" href="">
-    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <style>
         :root {
             --primary: #15803d; --primary-dark: #166534; --blue: #0284c7;
@@ -19,7 +18,7 @@
             --muted: #64748b; --border: #cbd5e1;
         }
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif; }
-        body { background: var(--bg); margin: 0; padding: 0 0 86px 0; color: var(--text); overflow-x: hidden; }
+        body { background: var(--bg); margin: 0; padding: 0 0 88px 0; color: var(--text); overflow-x: hidden; }
         body.alpha-pad { padding-left: 30px; }
 
         /* Header */
@@ -40,6 +39,20 @@
         .day-badge { background: rgba(255,255,255,0.22); padding: 2px 6px; border-radius: 5px; font-size: 11px; }
         .dfl-box { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; }
         .dfl-num { background: white; color: var(--primary-dark); border: none; border-radius: 5px; width: 48px; padding: 3px 4px; font-weight: bold; text-align: center; font-size: 13px; }
+
+        /* Sticky Live Section History Banner */
+        .sticky-sec-bar {
+            position: sticky; top: 82px; z-index: 920;
+            background: rgba(255,255,255,0.97);
+            border: 1.5px solid var(--blue); border-right: 6px solid var(--blue);
+            border-radius: 10px; padding: 7px 10px; margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(15,23,42,0.10);
+            display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;
+        }
+        .sticky-sec-bar.empty-bar { border-color: var(--border); border-right-color: var(--muted); }
+        .sticky-sec-info { flex: 1; min-width: 170px; font-size: 11.5px; line-height: 1.4; }
+        .sticky-sec-title { font-weight: bold; color: var(--blue); font-size: 11px; }
+        .sticky-sec-actions { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 
         /* Reminder & Toast */
         .meter-reminder { background: #fef3c7; border-bottom: 2px solid #f59e0b; color: #92400e; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; }
@@ -65,7 +78,7 @@
         .btn-orange { background: var(--orange); }
         .btn-purple { background: var(--purple); }
         .btn-outline { background: #f8fafc; color: var(--text); border: 1px solid var(--border); }
-        .btn-sm { padding: 5px 8px; font-size: 11px; border-radius: 6px; }
+        .btn-sm { padding: 4px 8px; font-size: 11px; border-radius: 6px; }
         .btn-full { width: 100%; margin-bottom: 10px; padding: 12px; font-size: 14px; }
         .inp { width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: #f8fafc; color: var(--text); margin-bottom: 8px; }
         .inp:focus { outline: none; border-color: var(--blue); background: white; }
@@ -114,9 +127,8 @@
         .irrigated-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 9px; padding: 9px; margin-bottom: 8px; }
 
         /* Inventory */
-        .sticky-last { position: sticky; top: 82px; z-index: 900; background: rgba(255,255,255,0.97); border: 2px solid var(--blue); border-right: 7px solid var(--blue); border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .alpha-bar { position: fixed; left: 2px; top: 53%; transform: translateY(-50%); z-index: 950; background: rgba(255,255,255,0.94); border: 1px solid var(--border); border-radius: 12px; padding: 3px 1px; display: flex; flex-direction: column; align-items: center; touch-action: none; user-select: none; max-height: 70vh; overflow: hidden; }
-        .alpha-ch { width: 20px; height: 16px; font-size: 10px; font-weight: bold; color: #94a3b8; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .alpha-bar { position: fixed; left: 2px; top: 55%; transform: translateY(-50%); z-index: 950; background: rgba(255,255,255,0.94); border: 1px solid var(--border); border-radius: 12px; padding: 3px 1px; display: flex; flex-direction: column; align-items: center; touch-action: none; user-select: none; max-height: 68vh; overflow: hidden; }
+        .alpha-ch { width: 20px; height: 15px; font-size: 10px; font-weight: bold; color: #94a3b8; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .alpha-ch.has { color: #1d4ed8; }
         .plant-box { background: white; border: 1px solid var(--border); border-radius: 11px; padding: 12px; margin-bottom: 12px; }
         .cond-box { border-radius: 9px; padding: 8px; color: #000; display: flex; flex-direction: column; justify-content: space-between; }
@@ -144,7 +156,7 @@
             <select id="siteSelect" class="site-select" onchange="onSiteSelectChange(this.value)"></select>
             <div class="header-tools">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
-                <button class="icon-btn" onclick="openHistoryModal()" title="سجل الحركات والأرشيف">📜</button>
+                <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
                 <span id="savePill" class="save-pill">✓ محفوظ</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
@@ -152,7 +164,7 @@
         <div class="header-row2">
             <div class="date-box">
                 <input type="date" id="dateInput" class="date-input" onchange="onDateChange(this.value)">
-                <span id="dayBadge" class="day-badge">Sunday</span>
+                <span id="dayBadge" class="day-badge">Monday</span>
             </div>
             <div class="dfl-box">
                 <span>DFL-</span>
@@ -175,6 +187,7 @@
     <main class="main-wrap">
         <!-- TAB 1: Attendance -->
         <div id="tab-att" class="tab-pane active">
+            <div id="stickyHist-att"></div>
             <div class="card">
                 <div class="card-head">
                     <h3 class="card-title">👷 الحضور والكادر (القسم 2)</h3>
@@ -191,9 +204,15 @@
 
         <!-- TAB 2: Tasks & Irrigation -->
         <div id="tab-tasks" class="tab-pane">
-            <div class="grid-2" style="margin-bottom:10px;">
+            <div id="stickyHist-tasks"></div>
+            <div class="grid-2" style="margin-bottom:8px;">
                 <button class="btn btn-blue" style="margin:0;" onclick="loadSiteIrrigationPlan()">⚡ خطة ري <span id="planDayLabel"></span></button>
                 <button class="btn btn-outline" style="margin:0;" onclick="openPlanEditorModal()">🗓️ تعديل الخطة</button>
+            </div>
+            <div style="margin-bottom:8px;">
+                <span class="chip" onclick="quickAddNonIrrTask('Weeding  /  إزالة الأعشاب', 'Waste collection and weeding and grass cutting', '1:00 hr')">🌿 إزالة أعشاب وتنظيف</span>
+                <span class="chip" onclick="quickAddNonIrrTask('Other  /  أخرى', 'Cleaning all Equipment and tool', '1:00 hr')">🧹 تنظيف المعدات</span>
+                <span class="chip" onclick="quickAddNonIrrTask('Water System Check  /  فحص نظام الري', 'Routine line inspection, valve checks, filter cleaning', '1:00 hr')">🔧 فحص شبكة الري</span>
             </div>
             <div id="tasksContainer"></div>
             <button class="btn btn-green btn-full" onclick="openTaskModal()">+ إضافة مهمة جديدة (أو مهمة حرة)</button>
@@ -201,6 +220,7 @@
 
         <!-- TAB 3: Readings & Tools -->
         <div id="tab-tools" class="tab-pane">
+            <div id="stickyHist-tools"></div>
             <!-- 5A: Separated Moisture Readings Card -->
             <div class="card">
                 <div class="card-head">
@@ -223,7 +243,10 @@
             <div class="card">
                 <div class="card-head">
                     <h3 class="card-title">💦 أداء نظام الري (القسم 5C)</h3>
-                    <button class="btn btn-outline btn-sm" onclick="syncIrrigatedZonesFromTasks(true)">🔄 تحديث من المهام</button>
+                    <div style="display:flex;gap:4px;">
+                        <button class="btn btn-outline btn-sm" onclick="syncIrrigatedZonesFromTasks(true)">🔄 المناطق</button>
+                        <button class="btn btn-outline btn-sm" onclick="calcIrrigationHoursFromTasks()">⏱️ الساعات</button>
+                    </div>
                 </div>
                 <div class="irrigated-box">
                     <label class="lbl" style="color:var(--primary-dark);">📍 المناطق التي تم ريها اليوم (تُجلب تلقائياً من المهام المكتملة):</label>
@@ -248,9 +271,13 @@
                 <label class="lbl">ملاحظات الضغط (Pressure Notes):</label>
                 <input type="text" id="pressureNotesInput" class="inp" placeholder="ملاحظات الضغط..." onchange="updatePerfField('pressureNotes', this.value)">
                 <label class="lbl">ملاحظات الأداء (Performance Notes):</label>
-                <div style="display:flex;gap:5px;">
+                <div style="display:flex;gap:5px;margin-bottom:5px;">
                     <input type="text" id="sysNotesInput" class="inp" style="margin:0;" placeholder="مثلاً: وجود تسريب يحتاج صيانة..." onchange="updatePerfField('notes', this.value)">
                     <button class="btn btn-outline btn-sm" onclick="startDictation('sysNotesInput', v => updatePerfField('notes', v))">🎤</button>
+                </div>
+                <div>
+                    <span class="chip" onclick="setPerfNotePreset('النظام يعمل بكفاءة طبيعية بدون تسريبات')">✓ كفاءة طبيعية</span>
+                    <span class="chip" onclick="setPerfNotePreset('وجود تسريب في خطوط التنقيط يحتاج صيانة')">⚠️ تسريب يحتاج صيانة</span>
                 </div>
             </div>
 
@@ -291,13 +318,14 @@
 
         <!-- TAB 4: Plant Inventory & Health -->
         <div id="tab-inv" class="tab-pane">
-            <div id="lastInvTracker"></div>
+            <div id="stickyHist-inv"></div>
             <div id="invContainer"></div>
             <div id="alphaScroller"></div>
         </div>
 
-        <!-- TAB 5: Issues, IR/SDL, OAR & Export -->
+        <!-- TAB 5: Issues, IR/SDL, OAR & Lightweight Gemini Export -->
         <div id="tab-export" class="tab-pane">
+            <div id="stickyHist-issues"></div>
             <div class="card">
                 <div class="card-head">
                     <h3 class="card-title">⚠️ متتبع المشاكل المستمر (Issue Tracker)</h3>
@@ -330,15 +358,12 @@
                 <textarea id="oarRec" class="inp" rows="2" onchange="saveOarFields()"></textarea>
             </div>
 
-            <button class="btn btn-green btn-full" style="padding:15px;font-size:15px;" onclick="runPreExportCheck()">📊 تصدير ملف DFL V03 (Excel + الصور مدمجة)</button>
+            <button class="btn btn-green btn-full" style="padding:15px;font-size:15px;" onclick="runPreExportCheck()">🤖 تصدير ملف DFL خفيف + أمر Gemini المضبوط</button>
             <div class="grid-2" style="margin-bottom:8px;">
-                <button class="btn btn-blue" onclick="exportLightGeminiPack()">🤖 تصدير خفيف لـ Gemini</button>
-                <button class="btn btn-outline" onclick="openTemplateUploadModal()">📄 قالب الـ DFL</button>
-            </div>
-            <div class="grid-2">
+                <button class="btn btn-blue" onclick="downloadTodayStampedPhotos()">📸 تنزيل صور اليوم المختومة</button>
                 <button class="btn btn-purple" onclick="downloadFullBackup()">💾 نسخة احتياطية</button>
-                <button class="btn btn-outline" onclick="triggerBackupRestore()">📂 استيراد / دمج</button>
             </div>
+            <button class="btn btn-outline btn-full" onclick="triggerBackupRestore()">📂 استيراد / دمج نسخة احتياطية</button>
         </div>
     </main>
 
@@ -354,7 +379,6 @@
     <!-- Hidden File Inputs -->
     <input type="file" id="camFileInput" accept="image/*" capture="environment" style="display:none" onchange="onPhotoSelected(event)">
     <input type="file" id="galFileInput" accept="image/*" style="display:none" onchange="onPhotoSelected(event)">
-    <input type="file" id="tplFileInput" accept=".xlsx" style="display:none" onchange="onTemplateFileSelected(event)">
     <input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="onBackupFileLoaded(event)">
 
     <!-- Modals -->
