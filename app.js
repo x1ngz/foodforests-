@@ -1,11 +1,11 @@
 /* ==========================================================================
    منصة غابات الغذاء (The Food Forests) - النظام الميداني المتكامل V03
+   الهستوري الحي المرتبط بكل قسم + التصدير الخفيف المحصّن لـ Gemini
    ========================================================================== */
 
-const DB_NAME = 'TFF_FOS_DB_V3';
+const DB_NAME = 'TFF_FOS_DB_V4';
 const DB_STORE = 'state';
 let db = null, saveTimer = null, pendingPhotoCtx = null, activeInvZoneId = null, activeEntryPrompt = null;
-let cachedTemplateArrayBuffer = null;
 let undoStack = [];
 
 const MASTER_ZONES = ['OL1','OL2','OR1','OR2','AL1','AL2','AR1','AR2','AR3','AR4','AR5','B1','B2','B3','B4','C1','C2','C3','C4','E1','E2','D1','H1','H2','H3','H4','H5','OH','Admin','Nursery','AC','W','عام / General'];
@@ -23,6 +23,22 @@ const IRR_DESC_PRESETS = [
     { label: 'Hose (spray gun)', text: 'Hose with multi-outlet spray gun', dur: '0:30 hr' },
     { label: 'Seedlings hose', text: 'Irrigate seedlings using a hose with multi-outlet spray gun', dur: '0:30 hr' },
     { label: 'Water tanker', text: 'Irrigating the area using a water tanker', dur: '1:00 hr' }
+];
+const QUICK_NOTE_PHRASES = [
+    { label: 'كسر أنبوب رئيسي', text: 'Main supply pipe break / كسر في أنبوب التغذية الرئيسي' },
+    { label: 'تسريب أنبوب تنقيط', text: 'Drip line leak / تسريب في أنبوب التنقيط' },
+    { label: 'عطل صمام / قفل', text: 'Valve malfunction / عطل في صمام الري' },
+    { label: 'أعمال حفريات', text: 'Blocked due to excavation works / متوقف بسبب أعمال الحفريات' },
+    { label: 'عدم توفر حوضية', text: 'Water tanker was not provided / عدم توفر حوضية مياه' },
+    { label: 'غير مشمول بخطة اليوم', text: 'Not included in the current irrigation plan for today' }
+];
+const DICTATION_CORRECTIONS = [
+    [/عيري بيك|يري بيك|اير بيك|عيري بايب/gi, 'irrigation pipe'],
+    [/سبلاي بايب|سبلاي بيك/gi, 'supply pipe'],
+    [/درب لاين|دريب لاين/gi, 'drip line'],
+    [/سبرنكلر|سبريكلر/gi, 'sprinklers'],
+    [/تانكر|تنكر/gi, 'water tanker'],
+    [/فالف|فلف/gi, 'valve']
 ];
 const DEFAULT_STAFF = [
     { name: 'Hussein M. Abed  /  حسين مرتضى عبد', type: 'Employee  /  موظف', tIn: '08:00', tOut: '17:00' },
@@ -115,7 +131,6 @@ let state = {
         outsideRate: 25000,
         heightUnit: 'م',
         photoQuality: 'uhd',
-        templateName: '',
         staffPool: [...DEFAULT_STAFF],
         customTasks: [...MASTER_TASKS],
         customTools: DEFAULT_TOOLS.map(t => t.name),
@@ -137,61 +152,24 @@ let state = {
             inventory: [],
             issues: [],
             stopMarker: null,
-            lastInvAction: null,
             logs: {}
         }
     }
 };
 
-/* ================= IndexedDB & Global Undo / History ================= */
+/* ================= IndexedDB Storage ================= */
 function initDB() {
     return new Promise(resolve => {
         const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = e => {
-            const d = e.target.result;
-            if (!d.objectStoreNames.contains(DB_STORE)) d.createObjectStore(DB_STORE);
-            if (!d.objectStoreNames.contains('files')) d.createObjectStore('files');
-        };
+        req.onupgradeneeded = e => e.target.result.createObjectStore(DB_STORE);
         req.onsuccess = e => {
             db = e.target.result;
-            const tx = db.transaction([DB_STORE, 'files'], 'readonly');
-            tx.objectStore(DB_STORE).get('root').onsuccess = r1 => {
-                if (r1.target.result && r1.target.result.sites) state = r1.target.result;
-            };
-            tx.objectStore('files').get('dfl_template').onsuccess = r2 => {
-                if (r2.target.result) cachedTemplateArrayBuffer = r2.target.result;
-            };
-            tx.oncomplete = () => resolve();
+            const tx = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get('root');
+            tx.onsuccess = () => { if (tx.result && tx.result.sites) state = tx.result; resolve(); };
             tx.onerror = () => resolve();
         };
         req.onerror = () => resolve();
     });
-}
-
-function pushUndo(actionLabel) {
-    try {
-        const snap = JSON.stringify(state);
-        undoStack.push({ label: actionLabel, time: new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' }), snap });
-        if (undoStack.length > 15) undoStack.shift();
-        const btn = document.getElementById('globalUndoBtn');
-        if (btn) btn.disabled = false;
-
-        const log = getDayLog();
-        if (!log.audit) log.audit = [];
-        log.audit.unshift({ time: new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' }), label: actionLabel });
-        if (log.audit.length > 40) log.audit.pop();
-    } catch {}
-}
-
-function globalUndo() {
-    if (!undoStack.length) { showToast('لا توجد خطوة سابقة للتراجع'); return; }
-    const last = undoStack.pop();
-    state = JSON.parse(last.snap);
-    const btn = document.getElementById('globalUndoBtn');
-    if (btn) btn.disabled = undoStack.length === 0;
-    saveState();
-    renderAll();
-    showToast('↩️ تم التراجع عن: ' + last.label);
 }
 
 function saveState() {
@@ -203,13 +181,6 @@ function saveState() {
         const tx = db.transaction(DB_STORE, 'readwrite').objectStore(DB_STORE).put(state, 'root');
         tx.onsuccess = () => { if (pill) { pill.className = 'save-pill'; pill.textContent = '✓ محفوظ'; } };
     }, 180);
-}
-
-function saveTemplateToDB(buf, fileName) {
-    cachedTemplateArrayBuffer = buf;
-    state.company.templateName = fileName;
-    if (db) db.transaction('files', 'readwrite').objectStore('files').put(buf, 'dfl_template');
-    saveState();
 }
 
 function getSite() { return state.sites[state.activeSiteId] || Object.values(state.sites)[0]; }
@@ -239,20 +210,270 @@ function getDayLog(dateStr = state.activeDate) {
             tools: [],
             incidents: [],
             sdls: [],
-            audit: [],
+            secHistory: { att: [], tasks: [], tools: [], inv: [], issues: [] },
             oar: { obs: '', ana: '', rec: '' }
         };
         saveState();
     }
     const l = site.logs[dateStr];
+    if (!l.secHistory) l.secHistory = { att: [], tasks: [], tools: [], inv: [], issues: [] };
+    ['att', 'tasks', 'tools', 'inv', 'issues'].forEach(k => { if (!l.secHistory[k]) l.secHistory[k] = []; });
     if (!l.machinery) l.machinery = { pumpHrs: '', genHrs: '', fuelL: '' };
     if (!l.incidents) l.incidents = [];
     if (!l.sdls) l.sdls = [];
-    if (!l.audit) l.audit = [];
     if (!l.perf) l.perf = { status: 'جيد', duration: '', zonesIrrigated: '', zonesManualEdit: false, pressureNotes: '', notes: '' };
     return l;
 }
 
+/* ================= Two-Way Linked Section History & Global Undo ================= */
+function pushUndo(actionLabel) {
+    try {
+        const snap = JSON.stringify(state);
+        undoStack.push({ label: actionLabel, snap });
+        if (undoStack.length > 20) undoStack.shift();
+        const btn = document.getElementById('globalUndoBtn');
+        if (btn) btn.disabled = false;
+    } catch {}
+}
+
+function globalUndo() {
+    if (!undoStack.length) { showToast('لا توجد خطوة سابقة للتراجع'); return; }
+    const last = undoStack.pop();
+    state = JSON.parse(last.snap);
+    const btn = document.getElementById('globalUndoBtn');
+    if (btn) btn.disabled = undoStack.length === 0;
+    saveState();
+    renderAll();
+    showToast('↩️ تم التراجع عن: ' + last.label);
+}
+
+function logSectionHistory(secKey, actionType, summary, refData = {}) {
+    const log = getDayLog();
+    const timeStr = new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
+    log.secHistory[secKey].unshift({
+        hid: 'h_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        time: timeStr,
+        actionType,
+        summary,
+        ref: refData
+    });
+    if (log.secHistory[secKey].length > 50) log.secHistory[secKey].pop();
+}
+
+function renderStickySectionHistory(secKey, containerId, labelTitle) {
+    const box = document.getElementById(containerId);
+    if (!box) return;
+    const log = getDayLog();
+    const site = getSite();
+    const list = log.secHistory[secKey] || [];
+    const latest = list[0];
+
+    if (!latest) {
+        box.innerHTML = `
+        <div class="sticky-sec-bar empty-bar">
+            <div class="sticky-sec-info" style="color:var(--muted);">🕒 سجل ${labelTitle}: لا توجد حركات مسجلة بعد</div>
+            <div class="sticky-sec-actions">
+                ${secKey === 'inv' ? `<button class="btn btn-outline btn-sm" onclick="setStopMarker()">🎀 علامة</button>` : ''}
+                <button class="btn btn-outline btn-sm" onclick="openSectionHistoryModal('${secKey}', '${labelTitle}')">📜 السجل (0)</button>
+            </div>
+        </div>`;
+        return;
+    }
+
+    box.innerHTML = `
+    <div class="sticky-sec-bar">
+        <div class="sticky-sec-info">
+            <div class="sticky-sec-title">🕒 آخر حركة في ${labelTitle} (${esc(latest.time)}):</div>
+            <div style="font-weight:bold;color:var(--text);">${esc(latest.summary)}</div>
+            ${secKey === 'inv' && site.stopMarker ? `<div style="color:var(--red);font-size:10.5px;font-weight:bold;">🎀 علامة التوقف: ${esc(site.stopMarker)}</div>` : ''}
+        </div>
+        <div class="sticky-sec-actions">
+            ${secKey === 'inv' ? `<button class="btn btn-outline btn-sm" onclick="setStopMarker()">🎀</button>` : ''}
+            <button class="btn btn-outline btn-sm" onclick="editHistoryItem('${secKey}', '${latest.hid}')" title="تعديل">✏️</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteHistoryItem('${secKey}', '${latest.hid}')" title="حذف من السجل والقسم">🗑️</button>
+            <button class="btn btn-blue btn-sm" onclick="openSectionHistoryModal('${secKey}', '${labelTitle}')">📜 (${list.length})</button>
+        </div>
+    </div>`;
+}
+
+function openSectionHistoryModal(secKey, labelTitle) {
+    const list = getDayLog().secHistory[secKey] || [];
+    openModal(`
+        <h3 class="card-title">📜 سجل وملخص ${labelTitle} (${list.length})</h3>
+        <p style="font-size:11px;color:var(--muted);margin-top:0;">الحذف أو التعديل من هنا ينعكس مباشرة على بيانات القسم والتقرير النهائي:</p>
+        <div style="max-height:330px;overflow-y:auto;margin-bottom:10px;">
+            ${list.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:15px;">السجل فارغ</div>' :
+            list.map(h => `
+                <div class="meter-card" style="padding:8px;display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                    <div style="flex:1;">
+                        <div style="font-size:10px;color:var(--blue);font-weight:bold;">${esc(h.time)}</div>
+                        <div style="font-size:12px;font-weight:bold;">${esc(h.summary)}</div>
+                    </div>
+                    <div style="display:flex;gap:4px;">
+                        <button class="btn btn-outline btn-sm" onclick="closeModal();editHistoryItem('${secKey}', '${h.hid}')">✏️</button>
+                        <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteHistoryItem('${secKey}', '${h.hid}', true, '${labelTitle}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
+    `);
+}
+
+function deleteHistoryItem(secKey, hid, reopenModal = false, labelTitle = '') {
+    const site = getSite();
+    const log = getDayLog();
+    const list = log.secHistory[secKey] || [];
+    const hIdx = list.findIndex(x => x.hid === hid);
+    if (hIdx === -1) return;
+    const item = list[hIdx];
+    pushUndo('حذف من سجل ' + secKey);
+
+    // Reverse/Delete underlying data in the section!
+    const ref = item.ref || {};
+    if (secKey === 'tasks' && ref.taskId) {
+        log.tasks = log.tasks.filter(t => t.id !== ref.taskId);
+        syncIrrigatedZonesFromTasks(false);
+    } else if (secKey === 'inv' && ref.zoneId && ref.plantId) {
+        const z = site.inventory.find(x => x.id === ref.zoneId);
+        const p = z ? z.plants.find(x => x.id === ref.plantId) : null;
+        if (p) {
+            if (ref.condId && p.counts[ref.condId] > 0) p.counts[ref.condId]--;
+            if (ref.entryId && p.entries) p.entries = p.entries.filter(e => e.id !== ref.entryId);
+        }
+    } else if (secKey === 'att' && ref.workerId) {
+        if (item.actionType === 'add') {
+            log.attendance = log.attendance.filter(w => w.id !== ref.workerId);
+        } else {
+            const w = log.attendance.find(x => x.id === ref.workerId);
+            if (w) w.status = 'Present / حاضر';
+        }
+    } else if (secKey === 'tools') {
+        if (ref.toolIdx != null && log.tools[ref.toolIdx]) log.tools.splice(ref.toolIdx, 1);
+        else if (ref.meterId) {
+            const m = log.meters.find(x => x.id === ref.meterId);
+            if (m) m.curr = '';
+        } else if (ref.gaugeId) {
+            const g = log.gauges.find(x => x.id === ref.gaugeId);
+            if (g) g.val = '';
+        }
+    } else if (secKey === 'issues' && ref.issueId) {
+        site.issues = site.issues.filter(i => i.id !== ref.issueId);
+    }
+
+    list.splice(hIdx, 1);
+    saveState();
+    renderAll();
+    showToast('🗑️ تم حذف السجل وإلغاء العملية من القسم');
+    if (reopenModal) openSectionHistoryModal(secKey, labelTitle);
+}
+
+function editHistoryItem(secKey, hid) {
+    const site = getSite();
+    const log = getDayLog();
+    const item = (log.secHistory[secKey] || []).find(x => x.hid === hid);
+    if (!item) return;
+    const ref = item.ref || {};
+
+    if (secKey === 'tasks' && ref.taskId) {
+        const tIdx = log.tasks.findIndex(t => t.id === ref.taskId);
+        if (tIdx === -1) { showToast('المهمة محذوفة مسبقاً'); return; }
+        const t = log.tasks[tIdx];
+        openModal(`
+            <h3 class="card-title">✏️ تعديل المهمة من السجل</h3>
+            <label class="lbl">المناطق:</label><input id="ehZones" class="inp" value="${esc(t.zones)}">
+            <label class="lbl">الوصف المختصر:</label><input id="ehDesc" class="inp" value="${esc(t.desc)}">
+            <div class="grid-2">
+                <div><label class="lbl">المدة:</label><input id="ehDur" class="inp" value="${esc(t.dur)}"></div>
+                <div><label class="lbl">الحالة:</label>
+                    <select id="ehSt" class="inp">
+                        <option value="Completed / مكتمل" ${t.status.includes('Completed')?'selected':''}>مكتمل</option>
+                        <option value="In Progress / جاري" ${t.status.includes('Progress')?'selected':''}>جاري</option>
+                        <option value="Blocked / متوقف" ${t.status.includes('Blocked')?'selected':''}>متوقف</option>
+                    </select>
+                </div>
+            </div>
+            <label class="lbl">ملاحظات:</label><input id="ehNote" class="inp" value="${esc(t.note || '')}">
+            <div class="grid-2"><button class="btn btn-green" onclick="saveEditedTaskHistory(${tIdx}, '${hid}')">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
+        `);
+    } else if (secKey === 'inv' && ref.zoneId && ref.plantId) {
+        const z = site.inventory.find(x => x.id === ref.zoneId);
+        const p = z ? z.plants.find(x => x.id === ref.plantId) : null;
+        const ent = p && ref.entryId ? (p.entries || []).find(e => e.id === ref.entryId) : null;
+        if (!p || !ent) { showToast('القيد غير موجود'); return; }
+        openModal(`
+            <h3 class="card-title">✏️ تعديل قيد الجرد (${esc(p.name)})</h3>
+            <label class="lbl">الحالة الصحية:</label>
+            <select id="ehCond" class="inp">
+                ${HEALTH_CONDITIONS.map(c => `<option value="${c.id}" ${ent.condId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+            </select>
+            <label class="lbl">الطول (${state.company.heightUnit}):</label>
+            <input type="number" step="any" id="ehHeight" class="inp" value="${ent.height || ''}">
+            <div class="grid-2"><button class="btn btn-green" onclick="saveEditedInvHistory('${ref.zoneId}','${ref.plantId}','${ref.entryId}','${hid}')">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
+        `);
+    } else if (secKey === 'att' && ref.workerId) {
+        const wIdx = log.attendance.findIndex(w => w.id === ref.workerId);
+        if (wIdx !== -1) editWorkerModal(wIdx);
+    } else if (secKey === 'tools') {
+        if (ref.meterId) {
+            const mIdx = log.meters.findIndex(m => m.id === ref.meterId);
+            if (mIdx !== -1) {
+                const v = prompt('تعديل القراءة الحالية للعداد:', log.meters[mIdx].curr);
+                if (v !== null) { updateMeterField(mIdx, 'curr', v); item.summary = `تحديث عداد ${log.meters[mIdx].name}: ${v}`; saveState(); renderAll(); }
+            }
+        } else if (ref.toolIdx != null && log.tools[ref.toolIdx]) {
+            editToolQty(ref.toolIdx);
+        }
+    } else if (secKey === 'issues' && ref.issueId) {
+        const iss = site.issues.find(i => i.id === ref.issueId);
+        if (iss) {
+            const d = prompt('تعديل وصف المشكلة:', iss.desc);
+            if (d !== null && d.trim()) { iss.desc = d.trim(); item.summary = `${iss.code} [${iss.zone}]: ${iss.desc}`; saveState(); renderAll(); }
+        }
+    }
+}
+
+function saveEditedTaskHistory(tIdx, hid) {
+    pushUndo('تعديل مهمة من السجل');
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    t.zones = document.getElementById('ehZones').value.trim() || t.zones;
+    t.desc = document.getElementById('ehDesc').value.trim();
+    t.dur = document.getElementById('ehDur').value.trim() || t.dur;
+    t.status = document.getElementById('ehSt').value;
+    t.note = document.getElementById('ehNote').value.trim();
+    const hItem = log.secHistory.tasks.find(x => x.hid === hid);
+    if (hItem) hItem.summary = `${t.status.split('/')[1] || t.status}: ${t.zones} (${t.desc})`;
+    syncIrrigatedZonesFromTasks(false);
+    closeModal(); saveState(); renderAll(); showToast('✓ تم تحديث المهمة والسجل');
+}
+
+function saveEditedInvHistory(zoneId, plantId, entryId, hid) {
+    pushUndo('تعديل جرد من السجل');
+    const site = getSite();
+    const z = site.inventory.find(x => x.id === zoneId);
+    const p = z ? z.plants.find(x => x.id === plantId) : null;
+    const ent = p ? (p.entries || []).find(e => e.id === entryId) : null;
+    if (p && ent) {
+        const newCond = document.getElementById('ehCond').value;
+        const newH = parseFloat(document.getElementById('ehHeight').value);
+        if (ent.condId !== newCond) {
+            if (p.counts[ent.condId] > 0) p.counts[ent.condId]--;
+            p.counts[newCond] = (p.counts[newCond] || 0) + 1;
+            ent.condId = newCond;
+        }
+        ent.height = (!isNaN(newH) && newH > 0) ? newH : null;
+        const cObj = HEALTH_CONDITIONS.find(c => c.id === newCond);
+        const hItem = getDayLog().secHistory.inv.find(x => x.hid === hid);
+        if (hItem) {
+            hItem.ref.condId = newCond;
+            hItem.summary = `${z.name} | ${p.name} — ${cObj ? cObj.name : ''} ${ent.height ? `(${ent.height} ${state.company.heightUnit})` : ''}`;
+        }
+    }
+    closeModal(); saveState(); renderAll(); showToast('✓ تم تحديث الجرد والسجل');
+}
+
+/* ================= Helpers ================= */
 function showToast(msg) {
     const el = document.getElementById('toastBar');
     el.textContent = msg;
@@ -269,7 +490,19 @@ function getDayNameEn(dateStr) {
     return days[new Date(dateStr + 'T12:00:00').getDay()];
 }
 
-/* ================= Auto-Sync Irrigated Zones (Tasks -> Section 5C) ================= */
+function applySpellAndDictationGuard(rawText) {
+    let fixed = String(rawText || '');
+    let changed = false;
+    DICTATION_CORRECTIONS.forEach(([regex, replacement]) => {
+        if (regex.test(fixed)) {
+            fixed = fixed.replace(regex, replacement);
+            changed = true;
+        }
+    });
+    return { text: fixed, changed };
+}
+
+/* ================= Auto-Sync Irrigated Zones & Hours (Tasks -> Section 5C) ================= */
 function syncIrrigatedZonesFromTasks(force = false) {
     const log = getDayLog();
     if (!force && log.perf.zonesManualEdit) return;
@@ -288,6 +521,22 @@ function syncIrrigatedZonesFromTasks(force = false) {
         renderReadingsAndTools(log);
         showToast('🔄 تم تحديث المناطق المروية من المهام المكتملة');
     }
+}
+
+function calcIrrigationHoursFromTasks() {
+    const log = getDayLog();
+    let totalMins = 0;
+    log.tasks.forEach(t => {
+        if (t.task.includes('Irrigation') && t.status.includes('Completed')) {
+            const m = String(t.dur || '').match(/(\d+):(\d+)/);
+            if (m) totalMins += parseInt(m[1]) * 60 + parseInt(m[2]);
+        }
+    });
+    const hrs = (totalMins / 60).toFixed(1);
+    log.perf.duration = hrs;
+    saveState();
+    renderReadingsAndTools(log);
+    showToast(`⏱️ إجمالي ساعات الري المكتملة: ${hrs} ساعة`);
 }
 
 /* ================= Rendering & Navigation ================= */
@@ -349,20 +598,13 @@ function onSiteSelectChange(val) {
     showToast('📍 تم التبديل إلى: ' + getSite().name);
 }
 
-/* ================= History & Archive Modal ================= */
-function openHistoryModal() {
+/* ================= Full Archive Modal ================= */
+function openFullArchiveModal() {
     const site = getSite();
-    const log = getDayLog();
     const allDates = Object.keys(site.logs).sort().reverse();
     openModal(`
-        <h3 class="card-title">📜 سجل الحركات وأرشيف الأيام</h3>
-        <label class="lbl">حركات اليوم (${state.activeDate}):</label>
-        <div style="max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:10px;background:#f8fafc;">
-            ${(log.audit || []).length === 0 ? '<div style="font-size:11px;color:var(--muted);text-align:center;">لا توجد حركات مسجلة اليوم</div>' :
-            log.audit.map(a => `<div style="font-size:11px;padding:4px 0;border-bottom:1px solid #e2e8f0;"><b>${esc(a.time)}</b> — ${esc(a.label)}</div>`).join('')}
-        </div>
-        <label class="lbl">أرشيف الأيام المسجلة في (${esc(site.name.split('/')[0])}):</label>
-        <div style="max-height:200px;overflow-y:auto;margin-bottom:10px;">
+        <h3 class="card-title">📅 أرشيف أيام (${esc(site.name.split('/')[0])})</h3>
+        <div style="max-height:320px;overflow-y:auto;margin-bottom:10px;">
             ${allDates.map(d => {
                 const dl = site.logs[d];
                 const pres = (dl.attendance || []).filter(w => !w.status.includes('Absent')).length;
@@ -380,16 +622,11 @@ function openHistoryModal() {
         <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
     `);
 }
-function jumpToArchiveDate(d) {
-    state.activeDate = d;
-    closeModal();
-    saveState();
-    renderAll();
-    showToast('📅 تم فتح سجل يوم ' + d);
-}
+function jumpToArchiveDate(d) { state.activeDate = d; closeModal(); saveState(); renderAll(); showToast('📅 تم فتح سجل يوم ' + d); }
 
 /* ================= TAB 1: Attendance ================= */
 function renderAttendance(log) {
+    renderStickySectionHistory('att', 'stickyHist-att', 'الحضور');
     let presentCount = 0, outsidePresent = 0, totalOt = 0;
     log.attendance.forEach(w => {
         if (!w.status.includes('Absent')) {
@@ -435,13 +672,26 @@ function renderAttendance(log) {
     }).join('');
 }
 
-function setWorkerAtt(idx, st) { pushUndo('تغيير حالة حضور'); getDayLog().attendance[idx].status = st; saveState(); renderAttendance(getDayLog()); }
+function setWorkerAtt(idx, st) {
+    pushUndo('تغيير حالة حضور');
+    const w = getDayLog().attendance[idx];
+    w.status = st;
+    logSectionHistory('att', 'status', `${w.name.split('/')[1] || w.name}: ${st.split('/')[1] || st}`, { workerId: w.id });
+    saveState(); renderAttendance(getDayLog());
+}
 function updateWorkerField(idx, k, v) { pushUndo('تعديل وقت/أوفرتايم عامل'); getDayLog().attendance[idx][k] = v; saveState(); renderAttendance(getDayLog()); }
-function markAllPresent() { pushUndo('تسجيل الجميع حاضرين'); getDayLog().attendance.forEach(w => w.status = 'Present / حاضر'); saveState(); renderAttendance(getDayLog()); showToast('✓ تم تسجيل الجميع حاضرين'); }
+function markAllPresent() {
+    pushUndo('تسجيل الجميع حاضرين');
+    getDayLog().attendance.forEach(w => w.status = 'Present / حاضر');
+    logSectionHistory('att', 'bulk', 'تسجيل جميع الكادر حاضرين', {});
+    saveState(); renderAttendance(getDayLog()); showToast('✓ تم تسجيل الجميع حاضرين');
+}
 function deleteWorkerFromToday(idx) {
     if (confirm('حذف العامل من قائمة اليوم؟')) {
         pushUndo('حذف عامل من اليوم');
+        const w = getDayLog().attendance[idx];
         getDayLog().attendance.splice(idx, 1);
+        logSectionHistory('att', 'delete', `حذف من اليوم: ${w.name.split('/')[1] || w.name}`, {});
         saveState(); renderAttendance(getDayLog());
     }
 }
@@ -453,6 +703,7 @@ function copyYesterdayCrew() {
     getDayLog().attendance = JSON.parse(JSON.stringify(site.logs[prevDate].attendance)).map((w, i) => ({
         ...w, id: 'w_' + i + '_' + Date.now(), ot: 0, note: ''
     }));
+    logSectionHistory('att', 'copy', 'نسخ كادر الأمس بالكامل', {});
     saveState(); renderAttendance(getDayLog()); showToast('📋 تم نسخ كادر الأمس');
 }
 function editWorkerModal(idx) {
@@ -476,6 +727,7 @@ function saveEditWorker(idx) {
     w.name = document.getElementById('edWName').value.trim() || w.name;
     w.type = document.getElementById('edWType').value;
     w.note = document.getElementById('edWNote').value.trim();
+    logSectionHistory('att', 'edit', `تعديل بيانات: ${w.name.split('/')[1] || w.name}`, { workerId: w.id });
     closeModal(); saveState(); renderAttendance(getDayLog());
 }
 function promptAddWorker() {
@@ -498,14 +750,16 @@ function confirmAddWorker() {
     if (!name) return;
     pushUndo('إضافة عامل: ' + name);
     const tOut = type.includes('Employee') ? '17:00' : '16:00';
-    getDayLog().attendance.push({ id: 'w_' + Date.now(), name, type, status: 'Present / حاضر', tIn: '08:00', tOut, ot: 0, note: '' });
+    const wid = 'w_' + Date.now();
+    getDayLog().attendance.push({ id: wid, name, type, status: 'Present / حاضر', tIn: '08:00', tOut, ot: 0, note: '' });
     if (document.getElementById('newWSavePool').checked && !state.company.staffPool.some(s => s.name === name)) {
         state.company.staffPool.push({ name, type, tIn: '08:00', tOut });
     }
+    logSectionHistory('att', 'add', `إضافة عامل: ${name}`, { workerId: wid });
     closeModal(); saveState(); renderAttendance(getDayLog()); showToast('✓ تمت إضافة ' + name);
 }
 
-/* ================= TAB 2: Tasks (Editable Brief Desc, Zone Split, Plan Editor) ================= */
+/* ================= TAB 2: Tasks & Linked History ================= */
 function loadSiteIrrigationPlan() {
     const site = getSite();
     const log = getDayLog();
@@ -514,8 +768,9 @@ function loadSiteIrrigationPlan() {
     if (planItems.length === 0) { showToast('⚠️ لا توجد خطة ري مسجلة لهذا اليوم'); return; }
     pushUndo('تحميل خطة ري ' + dayEn);
     planItems.forEach((item, i) => {
+        const tid = 't_' + Date.now() + '_' + i;
         log.tasks.push({
-            id: 't_' + Date.now() + '_' + i,
+            id: tid,
             task: item.task, desc: item.desc, zones: item.zones, dur: item.dur || '1:00 hr',
             status: 'Completed / مكتمل', workers: [], note: '',
             isTanker: !!item.isTanker || (item.desc || '').toLowerCase().includes('tanker'),
@@ -523,11 +778,26 @@ function loadSiteIrrigationPlan() {
             agroName: '', agroDose: '', photo: null
         });
     });
+    logSectionHistory('tasks', 'plan', `تحميل خطة ري ${dayEn} (${planItems.length} مهام)`, {});
     syncIrrigatedZonesFromTasks(false);
     saveState(); renderTasks(log); showToast(`⚡ تم تحميل ${planItems.length} مهام ري ليوم ${dayEn}`);
 }
 
+function quickAddNonIrrTask(taskName, desc, dur) {
+    pushUndo('إضافة مهمة: ' + desc);
+    const tid = 't_' + Date.now();
+    getDayLog().tasks.push({
+        id: tid, task: taskName, desc, zones: 'عام / General', dur,
+        status: 'Completed / مكتمل', workers: [], note: '',
+        isTanker: false, tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية',
+        agroName: '', agroDose: '', photo: null
+    });
+    logSectionHistory('tasks', 'add', `مكتمل: عام / General (${desc})`, { taskId: tid });
+    saveState(); renderTasks(getDayLog()); showToast('✓ تمت إضافة المهمة');
+}
+
 function renderTasks(log) {
+    renderStickySectionHistory('tasks', 'stickyHist-tasks', 'المهام');
     const el = document.getElementById('tasksContainer');
     if (log.tasks.length === 0) {
         el.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);padding:24px;">💧 اضغط على زر خطة الري أعلاه أو أضف مهمة جديدة</div>`;
@@ -589,16 +859,16 @@ function renderTasks(log) {
 
             ${isBlock ? `
             <div class="block-drawer">
-                <label class="lbl" style="color:var(--red);">سبب التوقف:</label>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <label class="lbl" style="color:var(--red);margin:0;">سبب التوقف:</label>
+                    <button class="btn btn-red btn-sm" style="padding:2px 6px;font-size:10px;" onclick="escalateTaskToIssue(${idx})">🚨 تصعيد لمشكلة</button>
+                </div>
                 <div style="display:flex;gap:4px;margin-bottom:6px;">
                     <input id="tnote_${idx}" class="inp" style="margin:0;background:white;" value="${esc(t.note)}" placeholder="اكتب السبب..." onchange="updateTaskNote(${idx}, this.value)">
                     <button class="btn btn-outline btn-sm" onclick="startDictation('tnote_${idx}', v => updateTaskNote(${idx}, v))">🎤</button>
                 </div>
                 <div>
-                    <span class="chip" onclick="setTaskNoteChip(${idx}, 'Not included in the current irrigation plan for today')">غير مشمول بخطة اليوم</span>
-                    <span class="chip" onclick="setTaskNoteChip(${idx}, 'Blocked due to leak/break in drip/main supply pipe')">كسر/تسريب أنبوب</span>
-                    <span class="chip" onclick="setTaskNoteChip(${idx}, 'Blocked due to soil preparation and excavation works')">أعمال حفريات/تربة</span>
-                    <span class="chip" onclick="setTaskNoteChip(${idx}, 'Water tanker was not provided')">عدم توفر حوضية</span>
+                    ${QUICK_NOTE_PHRASES.map(q => `<span class="chip" onclick="setTaskNoteChip(${idx}, '${esc(q.text)}')">${q.label}</span>`).join('')}
                 </div>
             </div>` : `
             <div style="display:flex;gap:4px;margin-top:8px;">
@@ -609,13 +879,20 @@ function renderTasks(log) {
     }).join('');
 }
 
-function updateTaskDesc(idx, val) { pushUndo('تعديل وصف مهمة'); getDayLog().tasks[idx].desc = val; saveState(); }
+function updateTaskDesc(idx, val) {
+    pushUndo('تعديل وصف مهمة');
+    const t = getDayLog().tasks[idx];
+    const res = applySpellAndDictationGuard(val);
+    t.desc = res.text;
+    logSectionHistory('tasks', 'edit', `تعديل وصف ${t.zones}: ${t.desc}`, { taskId: t.id });
+    saveState(); renderTasks(getDayLog());
+}
 function applyIrrPreset(idx, txt, dur) {
     pushUndo('تغيير نوع الري');
     const t = getDayLog().tasks[idx];
-    t.desc = txt;
-    t.dur = dur;
+    t.desc = txt; t.dur = dur;
     t.isTanker = txt.toLowerCase().includes('tanker');
+    logSectionHistory('tasks', 'edit', `${t.zones}: ${txt}`, { taskId: t.id });
     saveState(); renderTasks(getDayLog());
 }
 function splitTaskZones(idx) {
@@ -626,6 +903,7 @@ function splitTaskZones(idx) {
     pushUndo('تفريق مناطق مهمة');
     const expanded = zones.map((z, i) => ({ ...JSON.parse(JSON.stringify(t)), id: 't_' + Date.now() + '_' + i, zones: z }));
     log.tasks.splice(idx, 1, ...expanded);
+    logSectionHistory('tasks', 'split', `تفريق ${t.zones} إلى ${zones.length} بطاقات مستقلة`, {});
     saveState(); renderTasks(log); showToast(`✂️ تم تفريق المهمة إلى ${zones.length} مناطق`);
 }
 function duplicateTask(idx) {
@@ -634,6 +912,7 @@ function duplicateTask(idx) {
     const copy = JSON.parse(JSON.stringify(log.tasks[idx]));
     copy.id = 't_' + Date.now();
     log.tasks.splice(idx + 1, 0, copy);
+    logSectionHistory('tasks', 'add', `نسخ مهمة: ${copy.zones} (${copy.desc})`, { taskId: copy.id });
     saveState(); renderTasks(log); showToast('📋 تم نسخ المهمة');
 }
 function openZonePickerModal(tIdx) {
@@ -658,22 +937,51 @@ function openZonePickerModal(tIdx) {
 }
 function savePickedZones(tIdx) {
     const val = document.getElementById('customZonesInp').value.trim();
-    if (val) { pushUndo('تعديل مناطق مهمة'); getDayLog().tasks[tIdx].zones = val; }
+    if (val) {
+        pushUndo('تعديل مناطق مهمة');
+        const t = getDayLog().tasks[tIdx];
+        t.zones = val;
+        logSectionHistory('tasks', 'edit', `تعديل مناطق إلى: ${val}`, { taskId: t.id });
+    }
     syncIrrigatedZonesFromTasks(false);
     closeModal(); saveState(); renderTasks(getDayLog());
 }
 function setTaskStatus(idx, st) {
     pushUndo('تغيير حالة مهمة');
-    getDayLog().tasks[idx].status = st;
+    const t = getDayLog().tasks[idx];
+    t.status = st;
+    logSectionHistory('tasks', 'status', `${st.split('/')[1] || st}: ${t.zones} (${t.desc})`, { taskId: t.id });
     syncIrrigatedZonesFromTasks(false);
     saveState(); renderTasks(getDayLog());
 }
-function updateTaskNote(idx, v) { getDayLog().tasks[idx].note = v; saveState(); }
+function updateTaskNote(idx, v) {
+    const t = getDayLog().tasks[idx];
+    const res = applySpellAndDictationGuard(v);
+    t.note = res.text;
+    if (res.changed) showToast('✨ تم تصحيح المصطلح الإنجليزي تلقائياً');
+    saveState(); renderTasks(getDayLog());
+}
 function setTaskNoteChip(idx, v) { pushUndo('تعديل سبب توقف'); getDayLog().tasks[idx].note = v; saveState(); renderTasks(getDayLog()); }
-function deleteTask(idx) { pushUndo('حذف مهمة'); getDayLog().tasks.splice(idx, 1); syncIrrigatedZonesFromTasks(false); saveState(); renderTasks(getDayLog()); }
+function deleteTask(idx) {
+    pushUndo('حذف مهمة');
+    const t = getDayLog().tasks[idx];
+    getDayLog().tasks.splice(idx, 1);
+    logSectionHistory('tasks', 'delete', `حذف مهمة: ${t.zones} (${t.desc})`, {});
+    syncIrrigatedZonesFromTasks(false);
+    saveState(); renderTasks(getDayLog());
+}
 function editTaskDuration(idx) {
     const val = prompt('أدخل المدة (مثلاً: 0:30 hr أو 1:00 hr):', getDayLog().tasks[idx].dur);
     if (val) { pushUndo('تعديل مدة مهمة'); getDayLog().tasks[idx].dur = val; saveState(); renderTasks(getDayLog()); }
+}
+function escalateTaskToIssue(idx) {
+    const t = getDayLog().tasks[idx];
+    const site = getSite();
+    const code = 'ISS-' + String(site.issues.length + 1).padStart(2, '0');
+    const iid = 'i_' + Date.now();
+    site.issues.unshift({ id: iid, code, date: state.activeDate, zone: t.zones, severity: 'High', desc: `${t.desc}: ${t.note || 'توقف الري'}`, status: 'Open', resolvedDate: '', photo: t.photo || null });
+    logSectionHistory('issues', 'add', `تصعيد ${code} [${t.zones}]: ${t.note || t.desc}`, { issueId: iid });
+    saveState(); renderExportAndIssues(site, getDayLog()); showToast(`🚨 تم تصعيد العطل إلى متتبع المشاكل (${code})`);
 }
 
 function openTaskModal() {
@@ -697,20 +1005,23 @@ function openTaskModal() {
 }
 function saveNewTask() {
     const rawTask = document.getElementById('mTaskType').value.trim() || 'Other  /  أخرى';
-    const desc = document.getElementById('mTaskDesc').value.trim();
+    const desc = applySpellAndDictationGuard(document.getElementById('mTaskDesc').value.trim()).text;
     const zones = document.getElementById('mTaskZones').value.trim() || 'عام / General';
     const dur = document.getElementById('mTaskDur').value.trim() || '1:00 hr';
     const isTanker = document.getElementById('mTaskTanker').checked || desc.toLowerCase().includes('tanker');
     const isStandard = MASTER_TASKS.includes(rawTask);
+    const finalDesc = isStandard ? desc : (desc ? `${rawTask} — ${desc}` : rawTask);
+    const tid = 't_' + Date.now();
     pushUndo('إضافة مهمة: ' + zones);
     getDayLog().tasks.push({
-        id: 't_' + Date.now(),
+        id: tid,
         task: isStandard ? rawTask : 'Other  /  أخرى',
-        desc: isStandard ? desc : (desc ? `${rawTask} — ${desc}` : rawTask),
+        desc: finalDesc,
         zones, dur, status: 'Completed / مكتمل', workers: [], note: '',
         isTanker, tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية',
         agroName: '', agroDose: '', photo: null
     });
+    logSectionHistory('tasks', 'add', `إضافة مهمة: ${zones} (${finalDesc})`, { taskId: tid });
     syncIrrigatedZonesFromTasks(false);
     closeModal(); saveState(); renderTasks(getDayLog()); showToast('✓ تمت إضافة المهمة');
 }
@@ -735,7 +1046,9 @@ function openAssignWorkersModal(tIdx) {
 }
 function saveAssignedWorkers(tIdx) {
     pushUndo('تعيين عمال لمهمة');
-    getDayLog().tasks[tIdx].workers = Array.from(document.querySelectorAll('.wk-chk:checked')).map(c => c.value);
+    const t = getDayLog().tasks[tIdx];
+    t.workers = Array.from(document.querySelectorAll('.wk-chk:checked')).map(c => c.value);
+    logSectionHistory('tasks', 'workers', `عمال ${t.zones}: ${t.workers.join(' / ')}`, { taskId: t.id });
     closeModal(); saveState(); renderTasks(getDayLog());
 }
 
@@ -768,7 +1081,10 @@ function saveTankerData(tIdx) {
     t.tankerLiters = document.getElementById('tkL').value;
     t.tankerPpm = document.getElementById('tkPpm').value;
     t.tankerVisual = document.getElementById('tkVis').value;
-    if (t.tankerLiters) t.note = `${t.tankerPpm ? t.tankerPpm + ' ppm \\ ' : ''}${Number(t.tankerLiters).toLocaleString()} L`;
+    if (t.tankerLiters) {
+        t.note = `${t.tankerPpm ? t.tankerPpm + ' ppm \\ ' : ''}${Number(t.tankerLiters).toLocaleString()} L`;
+        logSectionHistory('tasks', 'tanker', `تنكر ${t.zones}: ${t.note}`, { taskId: t.id });
+    }
     closeModal(); saveState(); renderTasks(getDayLog()); renderReadingsAndTools(getDayLog());
 }
 
@@ -789,6 +1105,7 @@ function saveAgroData(tIdx) {
     if (t.agroName) {
         t.note = `المادة: ${t.agroName} (${t.agroDose})`;
         getDayLog().tools.push({ name: t.agroName, cat: 'Materials / مادة', qty: 1, cond: 'Good / جيد', note: t.agroDose });
+        logSectionHistory('tasks', 'agro', `تسميد/علاج ${t.zones}: ${t.agroName}`, { taskId: t.id });
     }
     closeModal(); saveState(); renderTasks(getDayLog()); renderReadingsAndTools(getDayLog());
 }
@@ -832,6 +1149,7 @@ function removePlanItem(dayEn, idx) { getSite().plan[dayEn].splice(idx, 1); save
 function jumpToMeters() { switchTab('tools'); window.scrollTo(0, 0); }
 
 function renderReadingsAndTools(log) {
+    renderStickySectionHistory('tools', 'stickyHist-tools', 'القراءات والأدوات');
     document.getElementById('moistureContainer').innerHTML = log.moisture.map((mo, idx) => `
         <div style="display:flex;gap:5px;margin-bottom:5px;">
             <input list="globalZonesList" class="inp" style="margin:0;padding:6px;flex:1;" value="${esc(mo.zone)}" placeholder="المنطقة ${mo.id}" onchange="updateMoisture(${idx},'zone',this.value)">
@@ -911,11 +1229,19 @@ function renderReadingsAndTools(log) {
             </div>`).join('');
 }
 
-function setMeterStatus(idx, st) { pushUndo('تغيير حالة عداد'); getDayLog().meters[idx].status = st; saveState(); renderReadingsAndTools(getDayLog()); }
+function setMeterStatus(idx, st) {
+    pushUndo('تغيير حالة عداد');
+    const m = getDayLog().meters[idx];
+    m.status = st;
+    logSectionHistory('tools', 'meter', `حالة عداد ${m.name}: ${st === 'working' ? 'شغال' : 'عاطل'}`, { meterId: m.id });
+    saveState(); renderReadingsAndTools(getDayLog());
+}
 function updateMeterField(idx, k, v) {
     pushUndo('تحديث قراءة عداد');
-    getDayLog().meters[idx][k] = v;
+    const m = getDayLog().meters[idx];
+    m[k] = v;
     if (k === 'curr' && v !== '' && getSite().meters[idx]) getSite().meters[idx].lastReading = parseFloat(v);
+    logSectionHistory('tools', 'meter', `قراءة ${m.name}: ${v}`, { meterId: m.id });
     saveState(); renderReadingsAndTools(getDayLog());
 }
 function clearMeterReading(idx) { pushUndo('مسح قراءة عداد'); getDayLog().meters[idx].curr = ''; getDayLog().meters[idx].photo = null; saveState(); renderReadingsAndTools(getDayLog()); showToast('🧹 تم مسح قراءة العداد'); }
@@ -933,9 +1259,16 @@ function addCustomMeter() {
     const id = 'm_' + Date.now();
     getSite().meters.push({ id, name, lastReading: 0 });
     getDayLog().meters.push({ id, name, status: 'working', prev: 0, curr: '', visual: 'Clear / صافية', note: '', photo: null });
+    logSectionHistory('tools', 'meter', `إضافة عداد: ${name}`, { meterId: id });
     saveState(); renderReadingsAndTools(getDayLog());
 }
-function updateGaugeVal(idx, v) { pushUndo('تحديث قراءة مقياس ضغط'); getDayLog().gauges[idx].val = v; saveState(); renderReadingsAndTools(getDayLog()); }
+function updateGaugeVal(idx, v) {
+    pushUndo('تحديث قراءة مقياس ضغط');
+    const g = getDayLog().gauges[idx];
+    g.val = v;
+    logSectionHistory('tools', 'gauge', `ضغط ${g.name}: ${v} bar`, { gaugeId: g.id });
+    saveState(); renderReadingsAndTools(getDayLog());
+}
 function deleteGauge(idx) { if (confirm('حذف مقياس الضغط؟')) { pushUndo('حذف مقياس ضغط'); getDayLog().gauges.splice(idx, 1); getSite().gauges.splice(idx, 1); saveState(); renderReadingsAndTools(getDayLog()); } }
 function addCustomGauge() {
     const name = prompt('اسم مقياس الضغط الجديد:');
@@ -949,10 +1282,12 @@ function addCustomGauge() {
 function updateMachinery(k, v) { getDayLog().machinery[k] = v; saveState(); }
 function updatePerfField(k, v) {
     const log = getDayLog();
-    log.perf[k] = v;
+    const res = applySpellAndDictationGuard(v);
+    log.perf[k] = res.text;
     if (k === 'zonesIrrigated') log.perf.zonesManualEdit = true;
     saveState();
 }
+function setPerfNotePreset(txt) { getDayLog().perf.notes = txt; saveState(); renderReadingsAndTools(getDayLog()); }
 function updateMoisture(idx, k, v) { getDayLog().moisture[idx][k] = v; saveState(); }
 function copyYesterdayTools() {
     const site = getSite();
@@ -960,6 +1295,7 @@ function copyYesterdayTools() {
     const sourceTools = (prevDate && site.logs[prevDate].tools.length) ? site.logs[prevDate].tools : DEFAULT_TOOLS;
     pushUndo('نسخ أدوات الأمس');
     getDayLog().tools = JSON.parse(JSON.stringify(sourceTools));
+    logSectionHistory('tools', 'copy', `نسخ ${sourceTools.length} معدات/أدوات`, {});
     saveState(); renderReadingsAndTools(getDayLog()); showToast('📋 تم نسخ قائمة الأدوات');
 }
 function clearTodayTools() { if (confirm('مسح جميع الأدوات المسجلة اليوم؟')) { pushUndo('مسح أدوات اليوم'); getDayLog().tools = []; saveState(); renderReadingsAndTools(getDayLog()); } }
@@ -984,33 +1320,20 @@ function saveNewTool() {
     const name = document.getElementById('tlName').value.trim();
     if (!name) return;
     pushUndo('إضافة أداة: ' + name);
-    getDayLog().tools.push({ name, cat: document.getElementById('tlCat').value, qty: parseFloat(document.getElementById('tlQty').value) || 1, cond: document.getElementById('tlCond').value, note: '' });
+    const qty = parseFloat(document.getElementById('tlQty').value) || 1;
+    const tIdx = getDayLog().tools.length;
+    getDayLog().tools.push({ name, cat: document.getElementById('tlCat').value, qty, cond: document.getElementById('tlCond').value, note: '' });
     if (!state.company.customTools.includes(name)) state.company.customTools.push(name);
+    logSectionHistory('tools', 'add', `إضافة أداة: ${name} (×${qty})`, { toolIdx: tIdx });
     closeModal(); saveState(); renderReadingsAndTools(getDayLog());
 }
 function deleteTool(idx) { pushUndo('حذف أداة'); getDayLog().tools.splice(idx, 1); saveState(); renderReadingsAndTools(getDayLog()); }
 
-/* ================= TAB 4: Plant Inventory ================= */
+/* ================= TAB 4: Plant Inventory & Linked Sticky History ================= */
 function renderInventory(site) {
-    const lastBox = document.getElementById('lastInvTracker');
+    renderStickySectionHistory('inv', 'stickyHist-inv', 'الجرد');
     const invBox = document.getElementById('invContainer');
     const alphaBox = document.getElementById('alphaScroller');
-
-    if (site.lastInvAction) {
-        const la = site.lastInvAction;
-        lastBox.innerHTML = `
-        <div class="sticky-last">
-            <div style="font-size:12px;">
-                <div style="color:var(--blue);font-weight:bold;">🕒 آخر إضافة (${esc(la.time)}): ${esc(la.zoneName)}</div>
-                <div><b>${esc(la.plantName)}</b> — ${esc(la.condName)} ${la.height ? `(${la.height} ${state.company.heightUnit})` : ''}</div>
-                ${site.stopMarker ? `<div style="color:var(--red);font-size:11px;">🎀 علامة التوقف: ${esc(site.stopMarker)}</div>` : ''}
-            </div>
-            <div style="display:flex;gap:4px;">
-                <button class="btn btn-outline btn-sm" onclick="setStopMarker()">🎀 علامة</button>
-                <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="undoLastInv()">↩️ تراجع</button>
-            </div>
-        </div>`;
-    } else { lastBox.innerHTML = ''; }
 
     if (!activeInvZoneId) {
         alphaBox.innerHTML = '';
@@ -1167,6 +1490,7 @@ function addInvPlant() { const z = getSite().inventory.find(x => x.id === active
 function renameInvPlant(pIdx, val) { const z = getSite().inventory.find(x => x.id === activeInvZoneId); if (z) { z.plants[pIdx].name = val; saveState(); } }
 function deleteInvPlant(pIdx) { const z = getSite().inventory.find(x => x.id === activeInvZoneId); if (z && confirm('حذف النبات؟')) { pushUndo('حذف صنف نبات'); z.plants.splice(pIdx, 1); saveState(); renderInventory(getSite()); } }
 function updateInvPlantNote(pIdx, val) { const z = getSite().inventory.find(x => x.id === activeInvZoneId); if (z) { z.plants[pIdx].note = val; saveState(); } }
+
 function changePlantCount(pIdx, cId, delta) {
     const site = getSite();
     const z = site.inventory.find(x => x.id === activeInvZoneId);
@@ -1178,13 +1502,14 @@ function changePlantCount(pIdx, cId, delta) {
     if (!p.entries) p.entries = [];
     const cObj = HEALTH_CONDITIONS.find(c => c.id === cId);
     if (delta > 0) {
-        const entry = { id: 'e_' + Date.now(), date: state.activeDate, condId: cId, height: null, photo: null };
+        const entryId = 'e_' + Date.now();
+        const entry = { id: entryId, date: state.activeDate, condId: cId, height: null, photo: null };
         p.entries.push(entry);
-        const nowStr = new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
-        site.lastInvAction = { zoneId: z.id, zoneName: z.name, plantId: p.id, plantName: p.name, condId: cId, condName: cObj.name, height: null, time: nowStr };
-        activeEntryPrompt = { plantId: p.id, condId: cId, entryId: entry.id, seq: p.entries.length };
+        logSectionHistory('inv', 'add', `${z.name} | ${p.name} — ${cObj.name} (+1)`, { zoneId: z.id, plantId: p.id, condId: cId, entryId });
+        activeEntryPrompt = { plantId: p.id, condId: cId, entryId, seq: p.entries.length };
     } else {
         for (let i = p.entries.length - 1; i >= 0; i--) { if (p.entries[i].condId === cId) { p.entries.splice(i, 1); break; } }
+        logSectionHistory('inv', 'dec', `${z.name} | ${p.name} — ${cObj.name} (-1)`, {});
         activeEntryPrompt = null;
     }
     saveState(); renderInventory(site);
@@ -1196,22 +1521,17 @@ function setPlantEntryHeight(pIdx, entryId, val) {
     const ent = (p.entries || []).find(e => e.id === entryId);
     const num = parseFloat(val);
     if (ent) ent.height = (!isNaN(num) && num > 0) ? num : null;
-    if (site.lastInvAction && site.lastInvAction.plantId === p.id) site.lastInvAction.height = ent ? ent.height : null;
+    const latestInvH = (getDayLog().secHistory.inv || [])[0];
+    if (latestInvH && latestInvH.ref && latestInvH.ref.entryId === entryId) {
+        const cObj = HEALTH_CONDITIONS.find(c => c.id === ent.condId);
+        latestInvH.summary = `${z.name} | ${p.name} — ${cObj ? cObj.name : ''} ${ent.height ? `(${ent.height} ${state.company.heightUnit})` : ''}`;
+    }
     saveState(); renderInventory(site);
 }
-function undoLastInv() {
-    const site = getSite(); const la = site.lastInvAction; if (!la) return;
-    const z = site.inventory.find(x => x.id === la.zoneId);
-    const p = z ? z.plants.find(x => x.id === la.plantId) : null;
-    if (p && p.counts[la.condId] > 0) {
-        p.counts[la.condId]--;
-        for (let i = (p.entries || []).length - 1; i >= 0; i--) { if (p.entries[i].condId === la.condId) { p.entries.splice(i, 1); break; } }
-    }
-    site.lastInvAction = null; activeEntryPrompt = null; saveState(); renderInventory(site); showToast('↩️ تم التراجع');
-}
 
-/* ================= TAB 5: Issues, IR, SDL, OAR & V03 Export ================= */
+/* ================= TAB 5: Issues, IR, SDL, OAR & Lightweight Gemini Export ================= */
 function renderExportAndIssues(site, log) {
+    renderStickySectionHistory('issues', 'stickyHist-issues', 'المشاكل والحوادث');
     document.getElementById('issuesContainer').innerHTML = site.issues.length === 0
         ? `<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px;">لا توجد مشاكل مفتوحة</div>`
         : site.issues.map((iss, idx) => {
@@ -1223,7 +1543,7 @@ function renderExportAndIssues(site, log) {
                     <span class="badge" style="background:${isOpen ? '#fee2e2' : '#dcfce7'};color:${isOpen ? '#b91c1c' : '#166534'};">${isOpen ? 'Open' : 'Resolved'}</span>
                 </div>
                 <div style="font-size:12px;margin:5px 0;">${esc(iss.desc)}</div>
-                <div style="display:flex;gap:5px;">
+                <div style="display:flex;gap:5px;flex-wrap:wrap;">
                     ${isOpen ? `<button class="btn btn-green btn-sm" onclick="resolveIssue(${idx})">✓ إغلاق</button>` : ''}
                     <button class="btn btn-outline btn-sm" onclick="openPhotoSourceChoice('issue', ${idx})">📸 ${iss.photo ? '✓' : 'صورة'}</button>
                     <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteIssue(${idx})">✕</button>
@@ -1255,14 +1575,23 @@ function openIssueModal() {
 }
 function saveNewIssue() {
     const site = getSite();
-    const desc = document.getElementById('issDesc').value.trim();
+    const desc = applySpellAndDictationGuard(document.getElementById('issDesc').value.trim()).text;
     if (!desc) return;
     pushUndo('تسجيل مشكلة ميدانية');
     const code = 'ISS-' + String(site.issues.length + 1).padStart(2, '0');
-    site.issues.unshift({ id: 'i_' + Date.now(), code, date: state.activeDate, zone: document.getElementById('issZone').value.trim() || 'General', severity: document.getElementById('issSev').value, desc, status: 'Open', resolvedDate: '', photo: null });
+    const zone = document.getElementById('issZone').value.trim() || 'General';
+    const iid = 'i_' + Date.now();
+    site.issues.unshift({ id: iid, code, date: state.activeDate, zone, severity: document.getElementById('issSev').value, desc, status: 'Open', resolvedDate: '', photo: null });
+    logSectionHistory('issues', 'add', `${code} [${zone}]: ${desc}`, { issueId: iid });
     closeModal(); saveState(); renderExportAndIssues(site, getDayLog());
 }
-function resolveIssue(idx) { pushUndo('إغلاق مشكلة'); const iss = getSite().issues[idx]; iss.status = 'Resolved'; iss.resolvedDate = state.activeDate; saveState(); renderExportAndIssues(getSite(), getDayLog()); }
+function resolveIssue(idx) {
+    pushUndo('إغلاق مشكلة');
+    const iss = getSite().issues[idx];
+    iss.status = 'Resolved'; iss.resolvedDate = state.activeDate;
+    logSectionHistory('issues', 'resolve', `إغلاق ${iss.code} [${iss.zone}]`, { issueId: iss.id });
+    saveState(); renderExportAndIssues(getSite(), getDayLog());
+}
 function deleteIssue(idx) { pushUndo('حذف مشكلة'); getSite().issues.splice(idx, 1); saveState(); renderExportAndIssues(getSite(), getDayLog()); }
 
 let tempModalPhoto = null;
@@ -1291,12 +1620,14 @@ function saveIncident() {
     pushUndo('إضافة تقرير حادث');
     const log = getDayLog();
     const code = 'IR-' + String(log.incidents.length + 1).padStart(3, '0');
+    const zone = document.getElementById('irZone').value.trim() || 'General';
     log.incidents.push({
-        code, time: document.getElementById('irTime').value, zone: document.getElementById('irZone').value.trim() || 'General',
+        code, time: document.getElementById('irTime').value, zone,
         type: document.getElementById('irType').value.trim(), severity: document.getElementById('irSev').value,
         persons: document.getElementById('irPersons').value.trim(), timeline: document.getElementById('irTimeline').value.trim(),
         action: document.getElementById('irAction').value.trim(), medical: document.getElementById('irMed').value, photo: tempModalPhoto
     });
+    logSectionHistory('issues', 'ir', `تقرير حادث ${code} [${zone}]`, {});
     tempModalPhoto = null; closeModal(); saveState(); renderExportAndIssues(getSite(), log); showToast('🚨 تم حفظ تقرير الحادث ' + code);
 }
 function deleteIncident(i) { pushUndo('حذف تقرير حادث'); getDayLog().incidents.splice(i, 1); saveState(); renderExportAndIssues(getSite(), getDayLog()); }
@@ -1324,21 +1655,23 @@ function saveSdl() {
     pushUndo('إضافة سجل انحراف');
     const log = getDayLog();
     const code = 'SDL-' + String(log.sdls.length + 1).padStart(3, '0');
+    const zone = document.getElementById('sdlZone').value.trim() || 'General';
     log.sdls.push({
-        code, subject: document.getElementById('sdlSub').value.trim(), zone: document.getElementById('sdlZone').value.trim() || 'General',
+        code, subject: document.getElementById('sdlSub').value.trim(), zone,
         severity: document.getElementById('sdlSev').value, type: document.getElementById('sdlType').value.trim(),
         party: document.getElementById('sdlParty').value.trim(), obs: document.getElementById('sdlObs').value.trim(),
         ana: document.getElementById('sdlAna').value.trim(), rec: document.getElementById('sdlRec').value.trim(), photo: tempModalPhoto
     });
+    logSectionHistory('issues', 'sdl', `سجل انحراف ${code} [${zone}]`, {});
     tempModalPhoto = null; closeModal(); saveState(); renderExportAndIssues(getSite(), log); showToast('📑 تم حفظ سجل الانحراف ' + code);
 }
 function deleteSdl(i) { pushUndo('حذف سجل انحراف'); getDayLog().sdls.splice(i, 1); saveState(); renderExportAndIssues(getSite(), getDayLog()); }
 
 function saveOarFields() {
     const log = getDayLog();
-    log.oar.obs = document.getElementById('oarObs').value;
-    log.oar.ana = document.getElementById('oarAna').value;
-    log.oar.rec = document.getElementById('oarRec').value;
+    log.oar.obs = applySpellAndDictationGuard(document.getElementById('oarObs').value).text;
+    log.oar.ana = applySpellAndDictationGuard(document.getElementById('oarAna').value).text;
+    log.oar.rec = applySpellAndDictationGuard(document.getElementById('oarRec').value).text;
     saveState();
 }
 
@@ -1369,34 +1702,45 @@ function autoGenerateOAR() {
     saveState(); renderExportAndIssues(site, log); showToast('🔄 تم توليد مسودة OAR تلقائياً');
 }
 
-/* ================= Direct ExcelJS Export Mapped to V03 Template ================= */
-function openTemplateUploadModal() {
-    openModal(`
-        <h3 class="card-title">📄 قالب الـ DFL V03 المنظّف</h3>
-        <p style="font-size:12px;color:var(--muted);line-height:1.5;">
-            الحالة الحالية: <b>${cachedTemplateArrayBuffer ? '✓ محفوظ (' + esc(state.company.templateName) + ')' : '⚠️ لم يُرفع بعد'}</b><br>
-            ارفع ملف القالب المنظّف (<code>Al-Mutahida_DFL_V03_Clean.xlsx</code>) مرة واحدة ليحفظه التطبيق في ذاكرة الهاتف.
-        </p>
-        <div class="grid-2">
-            <button class="btn btn-green" onclick="document.getElementById('tplFileInput').click()">📂 اختيار القالب</button>
-            <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
-        </div>
-    `);
-}
-function onTemplateFileSelected(e) {
-    const f = e.target.files && e.target.files[0];
-    if (!f) return;
-    const r = new FileReader();
-    r.onload = ev => { saveTemplateToDB(ev.target.result, f.name); closeModal(); showToast('✓ تم حفظ قالب V03 في ذاكرة التطبيق'); };
-    r.readAsArrayBuffer(f);
+/* ================= Lightweight JSON Export + Hardened Gemini Prompt ================= */
+function collectTodayPhotos() {
+    const site = getSite();
+    const log = getDayLog();
+    const photos = [];
+    const reg = (b64, section, desc) => {
+        if (!b64) return '';
+        const fname = `PHOTO_${String(photos.length + 1).padStart(2, '0')}.jpg`;
+        photos.push({ fileName: fname, section, description: desc, dataUrl: b64 });
+        return fname;
+    };
+
+    const taskPhotoRefs = log.tasks.map(t => reg(t.photo, 'Section 3 - Tasks', `${t.task} - ${t.zones}`));
+    const meterPhotoRefs = log.meters.map(m => reg(m.photo, 'Section 5B - Water Meters', m.name));
+    const sickPlants = [];
+    site.inventory.forEach(z => z.plants.forEach(p => {
+        const todayEntries = (p.entries || []).filter(e => e.date === state.activeDate);
+        const aff = todayEntries.filter(e => e.condId !== 'c1');
+        if (aff.length > 0) {
+            const cObj = HEALTH_CONDITIONS.find(c => c.id === aff[0].condId);
+            const pEnt = aff.find(e => e.photo) || todayEntries.find(e => e.photo);
+            const ref = reg(pEnt ? pEnt.photo : null, 'Section 6 - Plants Health', `${p.name} (${z.name})`);
+            sickPlants.push({
+                plantName: p.name,
+                scientificName: state.company.speciesDict[p.name] || '',
+                healthStatusDFL: cObj ? cObj.dfl : 'متوسط',
+                visibleSigns: `${cObj ? cObj.name : ''} (${aff.length})${p.note ? ' - ' + p.note : ''}`,
+                zone: z.name,
+                imageRef: ref
+            });
+        }
+    }));
+    const activeIssues = site.issues.filter(i => i.status === 'Open' || i.date === state.activeDate);
+    const issuePhotoRefs = activeIssues.map(i => reg(i.photo, 'Section 7 - Issues', `${i.code} - ${i.zone}`));
+
+    return { photos, taskPhotoRefs, meterPhotoRefs, sickPlants, activeIssues, issuePhotoRefs };
 }
 
 function runPreExportCheck() {
-    if (!cachedTemplateArrayBuffer) {
-        showToast('⚠️ يرجى اختيار ملف القالب المنظّف أولاً');
-        openTemplateUploadModal();
-        return;
-    }
     const log = getDayLog();
     const warnings = [];
     if (log.meters.some(m => m.status === 'working' && m.curr === '')) warnings.push('• توجد قراءة عداد شغال غير مدخلة.');
@@ -1407,405 +1751,186 @@ function runPreExportCheck() {
         openModal(`
             <h3 class="card-title">🔍 تنبيهات ما قبل التصدير</h3>
             <div style="font-size:12px;color:#92400e;background:#fef3c7;padding:10px;border-radius:8px;margin-bottom:10px;line-height:1.6;">${warnings.join('<br>')}</div>
-            <div class="grid-2"><button class="btn btn-green" onclick="closeModal();generateV03Excel()">تصدير على أي حال</button><button class="btn btn-outline" onclick="closeModal()">مراجعة</button></div>
+            <div class="grid-2"><button class="btn btn-green" onclick="closeModal();exportLightweightDFL()">تصدير على أي حال</button><button class="btn btn-outline" onclick="closeModal()">مراجعة</button></div>
         `);
     } else {
-        generateV03Excel();
+        exportLightweightDFL();
     }
 }
 
-async function generateV03Excel() {
-    if (typeof ExcelJS === 'undefined') { showToast('⚠️ مكتبة ExcelJS غير محملة، تأكد من الإنترنت مرة واحدة'); return; }
-    showToast('⏳ جاري بناء ملف DFL V03 وزرع الصور...');
-    try {
-        const site = getSite();
-        const log = getDayLog();
-        const dayEn = getDayNameEn(state.activeDate);
-        syncIrrigatedZonesFromTasks(false);
-
-        const wb = new ExcelJS.Workbook();
-        await wb.xlsx.load(cachedTemplateArrayBuffer.slice(0));
-        const ws = wb.getWorksheet('Daily Field Log');
-        if (!ws) throw new Error('ورقة Daily Field Log غير موجودة في القالب');
-
-        const embedPhotoInCell = (base64Url, targetWs, colZeroIdx, rowZeroIdx, widthPx = 105, heightPx = 68) => {
-            if (!base64Url) return;
-            const imgId = wb.addImage({ base64: base64Url, extension: 'jpeg' });
-            targetWs.addImage(imgId, {
-                tl: { col: colZeroIdx + 0.08, row: rowZeroIdx + 0.08 },
-                ext: { width: widthPx, height: heightPx }
-            });
-            const rObj = targetWs.getRow(rowZeroIdx + 1);
-            if (!rObj.height || rObj.height < 60) rObj.height = 62;
-        };
-
-        const photoRegistry = [];
-        const registerPhoto = (b64, section, desc) => {
-            if (!b64) return '';
-            const fname = `PHOTO_${String(photoRegistry.length + 1).padStart(2, '0')}.jpg`;
-            photoRegistry.push({ fileName: fname, section, description: desc, b64 });
-            return fname;
-        };
-
-        // Metadata (V03)
-        ws.getCell('F5').value = log.dflNum;
-        ws.getCell('F6').value = site.name;
-        ws.getCell('B7').value = state.activeDate;
-        ws.getCell('F7').value = dayEn;
-        ws.getCell('B8').value = state.company.teamLead;
-        ws.getCell('B9').value = state.company.shift;
-        ws.getCell('F9').value = state.company.supervisor || 'Maitham Ibrahim';
-        ws.getCell('B10').value = state.company.outsideRate;
-
-        // Section 2: Attendance (Rows 18..22 in V03)
-        for (let r = 18; r <= 22; r++) {
-            const w = log.attendance[r - 18];
-            const row = ws.getRow(r);
-            if (w) {
-                row.hidden = false;
-                ws.getCell(`A${r}`).value = r - 17;
-                ws.getCell(`B${r}`).value = w.name;
-                ws.getCell(`C${r}`).value = w.type;
-                ws.getCell(`D${r}`).value = w.status;
-                ws.getCell(`E${r}`).value = w.status.includes('Absent') ? '' : w.tIn;
-                ws.getCell(`F${r}`).value = w.status.includes('Absent') ? '' : w.tOut;
-                ws.getCell(`G${r}`).value = parseFloat(w.ot) || 0;
-                ws.getCell(`H${r}`).value = w.note || '';
-            } else {
-                row.hidden = true;
-            }
-        }
-
-        // Section 3: Tasks (Rows 27..59 in V03 — safe unmerge + 1 zone per row + vertical group merge)
-        const existingMerges = Object.keys(ws._merges || {});
-        existingMerges.forEach(m => {
-            const match = m.match(/^[A-L](\d+):[A-L](\d+)$/);
-            if (match && parseInt(match[1]) >= 27 && parseInt(match[2]) <= 59) {
-                try { ws.unMergeCells(m); } catch {}
-            }
-        });
-        for (let r = 27; r <= 59; r++) {
-            ['A','B','C','D','E','F','G','H','K','L'].forEach(col => { ws.getCell(`${col}${r}`).value = null; });
-            try { ws.mergeCells(`H${r}:J${r}`); } catch {}
-        }
-
-        const expandedRows = [];
-        log.tasks.forEach((t, gIdx) => {
-            const zList = (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean);
-            zList.forEach((z, zIdx) => {
-                expandedRows.push({
-                    groupKey: `${gIdx}_${t.task}_${t.desc}_${t.dur}_${(t.workers || []).join('/')}`,
-                    task: t.task,
-                    desc: t.desc,
-                    zone: z,
-                    dur: t.dur,
-                    workersCount: (t.workers || []).length || 1,
-                    status: t.status,
-                    note: t.note || '',
-                    workersStr: (t.workers || []).join(' / '),
-                    photo: zIdx === 0 ? t.photo : null
-                });
-            });
-        });
-
-        const usedTaskCount = Math.min(expandedRows.length, 33);
-        let rCursor = 27;
-        let idx = 0;
-        let taskSeq = 1;
-        while (idx < usedTaskCount) {
-            let endIdx = idx;
-            while (endIdx + 1 < usedTaskCount && expandedRows[endIdx + 1].groupKey === expandedRows[idx].groupKey) {
-                endIdx++;
-            }
-            const startR = rCursor;
-            const endR = rCursor + (endIdx - idx);
-            const first = expandedRows[idx];
-
-            ws.getCell(`A${startR}`).value = taskSeq++;
-            ws.getCell(`B${startR}`).value = first.task;
-            ws.getCell(`C${startR}`).value = first.desc;
-            ws.getCell(`F${startR}`).value = first.workersCount;
-            ws.getCell(`K${startR}`).value = first.workersStr;
-
-            if (endR > startR) {
-                try {
-                    ws.mergeCells(`A${startR}:A${endR}`);
-                    ws.mergeCells(`B${startR}:B${endR}`);
-                    ws.mergeCells(`C${startR}:C${endR}`);
-                    ws.mergeCells(`F${startR}:F${endR}`);
-                    ws.mergeCells(`K${startR}:K${endR}`);
-                } catch {}
-            }
-
-            for (let k = idx; k <= endIdx; k++) {
-                const curR = rCursor + (k - idx);
-                const item = expandedRows[k];
-                ws.getRow(curR).hidden = false;
-                ws.getCell(`D${curR}`).value = item.zone;
-                ws.getCell(`E${curR}`).value = item.dur;
-                ws.getCell(`G${curR}`).value = item.status;
-                ws.getCell(`H${curR}`).value = item.note;
-                if (item.photo) {
-                    const ref = registerPhoto(item.photo, 'Section 3 - Tasks', `${item.task} - ${item.zone}`);
-                    ws.getCell(`L${curR}`).value = ref;
-                    embedPhotoInCell(item.photo, ws, 11, curR - 1, 95, 60);
-                }
-            }
-            rCursor = endR + 1;
-            idx = endIdx + 1;
-        }
-        for (let r = rCursor; r <= 59; r++) ws.getRow(r).hidden = true;
-
-        // Section 4: Equipment / Tools / Materials (Rows 64..66 in V03)
-        for (let r = 64; r <= 66; r++) {
-            const tl = log.tools[r - 64];
-            const row = ws.getRow(r);
-            if (tl) {
-                row.hidden = false;
-                ws.getCell(`A${r}`).value = r - 63;
-                ws.getCell(`B${r}`).value = tl.name;
-                ws.getCell(`C${r}`).value = tl.cat;
-                ws.getCell(`D${r}`).value = tl.qty;
-                ws.getCell(`E${r}`).value = tl.cond;
-                ws.getCell(`F${r}`).value = tl.note || '';
-            } else {
-                row.hidden = true;
-            }
-        }
-
-        // Section 5A: Moisture Readings (Rows 71..75 in V03)
-        for (let r = 71; r <= 75; r++) {
-            const mo = log.moisture[r - 71];
-            ws.getCell(`B${r}`).value = mo ? mo.zone : '';
-            ws.getCell(`D${r}`).value = mo && mo.pct !== '' ? parseFloat(mo.pct) : null;
-            ws.getCell(`E${r}`).value = mo ? (mo.note || '') : '';
-        }
-
-        // Section 5B: Water Meters (Rows 79..80 in V03)
-        for (let r = 79; r <= 80; r++) {
-            const m = log.meters[r - 79];
-            const row = ws.getRow(r);
-            if (m) {
-                row.hidden = false;
-                ws.getCell(`B${r}`).value = m.name;
-                ws.getCell(`E${r}`).value = m.visual;
-                if (m.status === 'faulty') {
-                    ws.getCell(`F${r}`).value = 'Faulty';
-                    ws.getCell(`G${r}`).value = 'Faulty';
-                    ws.getCell(`H${r}`).value = 'Faulty';
-                    ws.getCell(`I${r}`).value = `Faulty Meter: ${m.note || 'عاطل'}`;
-                } else {
-                    ws.getCell(`F${r}`).value = parseFloat(m.prev) || 0;
-                    ws.getCell(`G${r}`).value = m.curr !== '' ? parseFloat(m.curr) : null;
-                    ws.getCell(`I${r}`).value = m.note || '';
-                }
-                if (m.photo) {
-                    registerPhoto(m.photo, 'Section 5B - Water Meters', m.name);
-                    embedPhotoInCell(m.photo, ws, 9, r - 1, 95, 60);
-                }
-            } else {
-                row.hidden = true;
-            }
-        }
-
-        // Section 5C: Irrigation System Performance (Rows 83..85 in V03)
-        const totalTankerL = log.tasks.reduce((s, t) => s + (parseFloat(t.tankerLiters) || 0), 0);
-        const machNote = (log.machinery.pumpHrs || log.machinery.genHrs || log.machinery.fuelL)
-            ? ` | Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h, Fuel: ${log.machinery.fuelL || 0}L` : '';
-        const tankerNote = totalTankerL > 0 ? ` | Tanker Total: ${totalTankerL.toLocaleString()} L` : '';
-        ws.getCell('B83').value = log.perf.status;
-        ws.getCell('E83').value = log.perf.duration;
-        ws.getCell('B84').value = log.perf.zonesIrrigated || '';
-        ws.getCell('E84').value = log.perf.pressureNotes || '';
-        ws.getCell('B85').value = (log.perf.notes || '') + tankerNote + machNote;
-
-        // Section 5D: Bar Gauges (Rows 89..94 in V03)
-        for (let r = 89; r <= 94; r++) {
-            const g = log.gauges[r - 89];
-            const row = ws.getRow(r);
-            if (g) {
-                row.hidden = false;
-                ws.getCell(`B${r}`).value = g.name;
-                ws.getCell(`C${r}`).value = g.val !== '' ? parseFloat(g.val) : null;
-                ws.getCell(`E${r}`).value = g.normal;
-                ws.getCell(`F${r}`).value = (g.val !== '' && parseFloat(g.val) < g.normal) ? 'Low / منخفض' : (g.val !== '' ? 'Normal / طبيعي' : '');
-            } else {
-                row.hidden = true;
-            }
-        }
-
-        // Section 6: Plants Health (Rows 98..102 in V03)
-        const sickPlantsToday = [];
-        site.inventory.forEach(z => z.plants.forEach(p => {
-            const todayEntries = (p.entries || []).filter(e => e.date === state.activeDate);
-            const aff = todayEntries.filter(e => e.condId !== 'c1');
-            if (aff.length > 0) {
-                const cObj = HEALTH_CONDITIONS.find(c => c.id === aff[0].condId);
-                const pEnt = aff.find(e => e.photo) || todayEntries.find(e => e.photo);
-                sickPlantsToday.push({
-                    name: p.name,
-                    sci: state.company.speciesDict[p.name] || '',
-                    status: cObj ? cObj.dfl : 'متوسط',
-                    signs: `${cObj ? cObj.name : ''} (${aff.length})${p.note ? ' - ' + p.note : ''}`,
-                    zone: z.name,
-                    photo: pEnt ? pEnt.photo : null
-                });
-            }
-        }));
-        for (let r = 98; r <= 102; r++) {
-            const sp = sickPlantsToday[r - 98];
-            const row = ws.getRow(r);
-            if (sp) {
-                row.hidden = false;
-                ws.getCell(`B${r}`).value = sp.name;
-                ws.getCell(`D${r}`).value = sp.sci;
-                ws.getCell(`E${r}`).value = sp.status;
-                ws.getCell(`F${r}`).value = sp.signs;
-                ws.getCell(`H${r}`).value = sp.zone;
-                if (sp.photo) {
-                    const ref = registerPhoto(sp.photo, 'Section 6 - Plants Health', `${sp.name} (${sp.zone})`);
-                    ws.getCell(`I${r}`).value = ref;
-                    embedPhotoInCell(sp.photo, ws, 8, r - 1, 95, 60);
-                }
-            } else {
-                row.hidden = true;
-            }
-        }
-
-        // Section 7: Incidents & Issues (Rows 106..109 in V03)
-        const activeIssues = site.issues.filter(i => i.status === 'Open' || i.date === state.activeDate);
-        for (let r = 106; r <= 109; r++) {
-            const iss = activeIssues[r - 106];
-            const row = ws.getRow(r);
-            if (iss) {
-                row.hidden = false;
-                ws.getCell(`B${r}`).value = `${iss.code} [${iss.zone}] (${iss.status}): ${iss.desc}`;
-                ws.getCell(`F${r}`).value = iss.severity;
-                ws.getCell(`G${r}`).value = iss.code;
-                if (iss.photo) registerPhoto(iss.photo, 'Section 7 - Issues', `${iss.code} - ${iss.zone}`);
-            } else {
-                row.hidden = true;
-            }
-        }
-
-        // Section 8: Photo References (Rows 113..118 in V03)
-        for (let r = 113; r <= 118; r++) {
-            const pr = photoRegistry[r - 113];
-            const row = ws.getRow(r);
-            if (pr) {
-                row.hidden = false;
-                ws.getCell(`B${r}`).value = pr.fileName;
-                ws.getCell(`E${r}`).value = pr.section;
-                ws.getCell(`H${r}`).value = pr.description;
-            } else {
-                row.hidden = true;
-            }
-        }
-
-        // Section 9 & 10: OAR (A123, A125, A127) & Sign-Off (Row 131 in V03)
-        ws.getCell('A123').value = log.oar.obs || '';
-        ws.getCell('A125').value = log.oar.ana || '';
-        ws.getCell('A127').value = log.oar.rec || '';
-        ws.getCell('A131').value = `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`;
-        ws.getCell('H131').value = `Date & Time  /  التاريخ والوقت: ${state.activeDate}`;
-
-        // Incident Report sheet
-        const wsIr = wb.getWorksheet('Incident Report');
-        if (wsIr && log.incidents.length > 0) {
-            const ir = log.incidents[0];
-            wsIr.getCell('G5').value = ir.code;
-            wsIr.getCell('G6').value = site.name;
-            wsIr.getCell('D7').value = state.activeDate;
-            wsIr.getCell('G7').value = ir.time;
-            wsIr.getCell('D8').value = state.company.teamLead;
-            wsIr.getCell('D9').value = `DFL-${log.dflNum}`;
-            wsIr.getCell('G9').value = state.activeDate;
-            wsIr.getCell('D12').value = ir.severity;
-            wsIr.getCell('G16').value = ir.zone;
-            wsIr.getCell('D19').value = ir.type;
-            wsIr.getCell('C23').value = ir.persons;
-            wsIr.getCell('D31').value = ir.timeline;
-            wsIr.getCell('B39').value = ir.action;
-            wsIr.getCell('D45').value = ir.medical;
-            if (ir.photo) embedPhotoInCell(ir.photo, wsIr, 1, 39, 140, 90);
-        }
-
-        // Site Deviation Log sheet
-        const wsSdl = wb.getWorksheet('Site Deviation Log');
-        if (wsSdl && log.sdls.length > 0) {
-            const sd = log.sdls[0];
-            wsSdl.getCell('G5').value = sd.code;
-            wsSdl.getCell('G6').value = site.name;
-            wsSdl.getCell('D7').value = state.activeDate;
-            wsSdl.getCell('D8').value = state.company.teamLead;
-            wsSdl.getCell('D11').value = 'Open / مفتوح';
-            wsSdl.getCell('G11').value = sd.severity;
-            wsSdl.getCell('D15').value = sd.subject;
-            wsSdl.getCell('D16').value = sd.zone;
-            wsSdl.getCell('D17').value = sd.type;
-            wsSdl.getCell('D18').value = sd.party;
-            wsSdl.getCell('C30').value = sd.obs;
-            wsSdl.getCell('C32').value = sd.ana;
-            wsSdl.getCell('C34').value = sd.rec;
-            if (sd.photo) embedPhotoInCell(sd.photo, wsSdl, 2, 37, 140, 90);
-        }
-
-        const outBuffer = await wb.xlsx.writeBuffer();
-        const blob = new Blob([outBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const a = document.createElement('a');
-        const outName = `Al-Mutahida_DFL_${log.dflNum}_${state.activeDate}.xlsx`;
-        a.href = URL.createObjectURL(blob);
-        a.download = outName;
-        a.click();
-        showToast(`✅ تم تنزيل ${outName} بالصور المدمجة!`);
-    } catch (err) {
-        alert('حدث خطأ أثناء توليد الإكسيل: ' + err.message);
-    }
-}
-
-/* ================= Lightweight Gemini Export (No Heavy Base64 Inside JSON) ================= */
-function exportLightGeminiPack() {
+function exportLightweightDFL() {
     const site = getSite();
     const log = getDayLog();
     const dayEn = getDayNameEn(state.activeDate);
     syncIrrigatedZonesFromTasks(false);
 
+    const { photos, taskPhotoRefs, meterPhotoRefs, sickPlants, activeIssues, issuePhotoRefs } = collectTodayPhotos();
+    const rowOffset = Math.max(0, log.attendance.length - 5);
+
+    const totalTankerL = log.tasks.reduce((s, t) => s + (parseFloat(t.tankerLiters) || 0), 0);
+    const machNote = (log.machinery.pumpHrs || log.machinery.genHrs || log.machinery.fuelL)
+        ? ` | Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h, Fuel: ${log.machinery.fuelL || 0}L` : '';
+    const tankerNote = totalTankerL > 0 ? ` | Tanker Total: ${totalTankerL.toLocaleString()} L` : '';
+
+    // Lightweight JSON (< 15 KB — zero heavy base64 images inside!)
     const lightPayload = {
-        templateVersion: 'V03',
-        metadata: { formId: log.dflNum, siteName: site.name, date: state.activeDate, day: dayEn, teamLead: state.company.teamLead, shift: state.company.shift, supervisor: state.company.supervisor, outsideRate: state.company.outsideRate },
-        attendance_rows_18_22: log.attendance,
-        tasks_rows_27_59: log.tasks.map(({ photo, ...rest }) => ({ ...rest, hasPhoto: !!photo })),
-        equipment_rows_64_66: log.tools,
-        moisture_rows_71_75: log.moisture.filter(m => m.zone || m.pct),
-        meters_rows_79_80: log.meters.map(({ photo, ...rest }) => ({ ...rest, hasPhoto: !!photo })),
-        irrigationPerf_rows_83_85: log.perf,
-        gauges_rows_89_94: log.gauges,
-        issues_rows_106_109: site.issues.filter(i => i.status === 'Open' || i.date === state.activeDate).map(({ photo, ...rest }) => rest),
-        oar_rows_123_125_127: log.oar
+        templateVersion: 'V03_Clean',
+        rowOffsetForExtraWorkers: rowOffset,
+        metadata: {
+            F5_formId: log.dflNum,
+            F6_siteName: site.name,
+            B7_date: state.activeDate,
+            F7_day: dayEn,
+            B8_teamLead: state.company.teamLead,
+            B9_shift: state.company.shift,
+            F9_supervisor: state.company.supervisor || 'Maitham Ibrahim',
+            B10_outsideWorkerRateIQD: state.company.outsideRate
+        },
+        section2_attendance: log.attendance.map((w, idx) => ({
+            seq: idx + 1,
+            name: w.name,
+            type: w.type,
+            status: w.status,
+            timeIn: w.status.includes('Absent') ? '' : w.tIn,
+            timeOut: w.status.includes('Absent') ? '' : w.tOut,
+            overtimeHrs: parseFloat(w.ot) || 0,
+            notes: w.note || ''
+        })),
+        section3_tasks: log.tasks.map((t, idx) => ({
+            task: t.task,
+            briefDescription: t.desc,
+            zonesList: (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean),
+            time: t.dur,
+            workersCount: (t.workers || []).length || 1,
+            status: t.status,
+            notes: t.note || '',
+            workersAssigned: (t.workers || []).join(' / '),
+            imageRef: taskPhotoRefs[idx] || ''
+        })),
+        section4_equipment: log.tools,
+        section5_siteReadings: {
+            moisture5A: log.moisture.filter(m => m.zone || m.pct),
+            waterMeters5B: log.meters.map((m, idx) => ({
+                name: m.name,
+                status: m.status,
+                visualQuality: m.visual,
+                prevReading: m.status === 'working' ? (parseFloat(m.prev) || 0) : 'Faulty',
+                currReading: m.status === 'working' ? (m.curr !== '' ? parseFloat(m.curr) : '') : 'Faulty',
+                notes: m.status === 'faulty' ? `Faulty Meter: ${m.note || 'عاطل'}` : (m.note || ''),
+                imageRef: meterPhotoRefs[idx] || ''
+            })),
+            irrigationPerformance5C: {
+                B83_systemStatus: log.perf.status,
+                E83_durationHrs: log.perf.duration,
+                B84_zonesIrrigated: log.perf.zonesIrrigated,
+                E84_pressureNotes: log.perf.pressureNotes || '',
+                B85_performanceNotes: (log.perf.notes || '') + tankerNote + machNote
+            },
+            barGauges5D: log.gauges
+        },
+        section6_plantsHealth: sickPlants,
+        section7_incidentsAndIssues: activeIssues.map((iss, idx) => ({
+            code: iss.code,
+            description: `${iss.code} [${iss.zone}] (${iss.status}): ${iss.desc}`,
+            severity: iss.severity,
+            imageRef: issuePhotoRefs[idx] || ''
+        })),
+        section8_photoReferences: photos.map((p, i) => ({
+            seq: i + 1,
+            fileName: p.fileName,
+            section: p.section,
+            description: p.description
+        })),
+        section9_teamLeadOAR: {
+            OBS: log.oar.obs || '',
+            ANA: log.oar.ana || '',
+            REC: log.oar.rec || ''
+        },
+        section10_signOff: {
+            A_teamLead: `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`,
+            H_dateTime: `Date & Time  /  التاريخ والوقت: ${state.activeDate}`
+        },
+        incidentReportsSheet: log.incidents.map(({ photo, ...r }) => r),
+        siteDeviationLogSheet: log.sdls.map(({ photo, ...r }) => r)
     };
 
     const fname = `TFF_Light_DFL${log.dflNum}_${state.activeDate}.json`;
-    const blob = new Blob([JSON.stringify(lightPayload, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(lightPayload, null, 2)], { type: 'application/json;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = fname;
     a.click();
 
-    const promptTxt = `مرحباً Gemini،
-مرفق لك قالب الـ DFL المنظّف (Al-Mutahida_DFL_V03_Clean.xlsx) وملف بيانات اليوم الخفيف (${fname}).
-املأ القالب مباشرة عبر Python (In-Place) مع الحفاظ التام على الألوان والخطوط وأحجام الخلايا:
-- اجلب طقس مدينة الحلة لتاريخ ${state.activeDate} واملأ الصف 13.
-- املأ الحضور (صفوف 18-22)، المهام (صفوف 27-59 مع تفريق منطقة واحدة لكل صف ودمج خلايا المهمة/الوصف/العمال للمناطق المتتابعة المتشابهة وإخفاء الصفوف الفارغة)، المعدات (64-66)، الرطوبة (71-75)، العدادات (79-80)، أداء الري (83-85 والمناطق المروية في B84)، مقاييس الضغط (89-94)، المشاكل (106-109)، والـ OAR في A123 و A125 و A127.`;
+    const hardenedPrompt = `أنت خبير أتمتة التقارير الميدانية لشركة غابات الغذاء (The Food Forests).
+مرفق لك:
+1. قالب Excel النظيف (Al-Mutahida_DFL_V03_Clean.xlsx).
+2. ملف بيانات اليوم الخفيف (${fname}).
+
+اكتب ونفّذ كود Python (باستخدام openpyxl) لتعبئة ورقة 'Daily Field Log' مباشرة (In-Place) مع الحفاظ التام على الألوان والخطوط والحدود. التزم بالقواعد الصارمة التالية لتفادي أي خطأ:
+
+1. إزاحة الصفوف للعمالة الإضافية (offset = ${rowOffset}):
+   - القالب يحتوي على 5 صفوف للحضور (18 إلى 22).
+   - إذا كان rowOffsetForExtraWorkers > 0: أدرج ${rowOffset} صفوف عند صف 23 (ws.insert_rows(23, ${rowOffset})) قبل كتابة أي بيانات أسفل صف 22، وانسخ ارتفاع الصف (42.75) والحدود ودمج H{r}:K{r} من صف 22.
+   - أضف offset = ${rowOffset} لأرقام صفوف جميع الأقسام من القسم 3 حتى القسم 10.
+
+2. البيانات التعريفية (Metadata) — املأها بالكامل:
+   - F5 = ${log.dflNum} | F6 = "${site.name}" | B7 = "${state.activeDate}" | F7 = "${dayEn}" | B8 = "${state.company.teamLead}" | B9 = "${state.company.shift}" | F9 = "${state.company.supervisor || 'Maitham Ibrahim'}" | B10 = ${state.company.outsideRate}
+
+3. القسم 1 (Weather — صف 13):
+   - ابحث عن طقس مدينة الحلة لتاريخ ${state.activeDate} واملأ B13 (الأحوال)، C13 (الصغرى رقم)، D13 (العظمى رقم)، E13 (الرياح)، F13 (الرطوبة % رقم أو اتركها فارغة — ممنوع وضع رمز '-').
+
+4. القسم 2 (Attendance — صفوف 18 إلى ${17 + log.attendance.length}):
+   - املأ section2_attendance، وأخفِ أي صف فارغ متبقٍ حتى صف 22.
+
+5. القسم 3 (Tasks — يبدأ من صف ${27 + rowOffset} حتى ${59 + rowOffset}):
+   - ضع منطقة واحدة فقط في كل صف في العمود D (فكّ أي قائمة مناطق إلى صفوف متتالية).
+   - ادمج عمودياً الأعمدة (A, B, C, F, K) فقط عبر الصفوف المتتالية التي تشترك في نفس المهمة والوصف والعمال.
+   - ممنوع منعاً باتاً دمج عمود الملاحظات H:J عمودياً! أبقِ H{r}:J{r} مدمجاً أفقياً لكل صف على حدة فقط.
+   - افصل أسماء العمال في K باستخدام ' / '.
+   - في العمود L: اكتب اسم ملف الصورة المرجعي مثل 'PHOTO_01.jpg' فقط إذا وُجد، واتركه فارغاً تماماً إذا لم توجد صورة (ممنوع كتابة Yes أو No).
+   - أخفِ جميع الصفوف الفارغة المتبقية في هذا القسم (ws.row_dimensions[r].hidden = True).
+
+6. الأقسام 4 و 5 و 6 و 7 و 8 (مُزاحة بمقدار offset = ${rowOffset}):
+   - القسم 4 (المعدات، يبدأ من ${64 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
+   - القسم 5A (الرطوبة، ${71 + rowOffset}..${75 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
+   - القسم 5B (العدادات، ${79 + rowOffset}..${80 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
+   - القسم 5C (أداء الري): B${83 + rowOffset} (الحالة)، E${83 + rowOffset} (المدة)، B${84 + rowOffset} (المناطق المروية)، E${84 + rowOffset} (ملاحظات الضغط)، B${85 + rowOffset} (ملاحظات الأداء).
+   - القسم 5D (مقاييس الضغط، ${89 + rowOffset}..${94 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
+   - القسم 6 (صحة النبات، ${98 + rowOffset}..${102 + rowOffset}) والقسم 7 (الحوادث، ${106 + rowOffset}..${109 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
+   - القسم 8 (مراجع الصور، ${113 + rowOffset}..${118 + rowOffset}): املأ section8_photoReferences وأخفِ الصفوف الفارغة.
+
+7. القسم 9 (OAR) والقسم 10 (Sign-off):
+   - اكتب OBS في A${123 + rowOffset}، ANA في A${125 + rowOffset}، REC في A${127 + rowOffset}.
+   - اكتب اسم قائد الفريق في A${131 + rowOffset} والتاريخ في H${131 + rowOffset}.
+
+احفظ الملف بصيغة .xlsx وقدّم رابط التحميل مباشرة.`;
 
     openModal(`
-        <h3 class="card-title">🤖 تم تنزيل الملف الخفيف لـ Gemini!</h3>
-        <p style="font-size:12px;color:var(--muted);">هذا الملف خفيف جداً (بدون صور ثقيلة) حتى ينفذه Gemini في ثوانٍ بدون أي تعليق:</p>
-        <textarea id="gmLightBox" class="inp" rows="8" readonly style="font-size:12px;">${esc(promptTxt)}</textarea>
+        <h3 class="card-title">🤖 تم تنزيل ملف اليوم الخفيف بنجاح!</h3>
+        <p style="font-size:12px;color:var(--muted);line-height:1.5;">
+            تم تنزيل <b>${esc(fname)}</b> (حجم خفيف جداً بدون صور ثقيلة).<br>
+            افتح <b>محادثة جديدة</b> في Gemini، ارفع <code>Al-Mutahida_DFL_V03_Clean.xlsx</code> مع هذا الملف، والصق الأمر التالي:
+        </p>
+        <textarea id="gmHardPrompt" class="inp" rows="9" readonly style="font-size:11.5px;">${esc(hardenedPrompt)}</textarea>
         <div class="grid-2">
-            <button class="btn btn-blue" onclick="navigator.clipboard.writeText(document.getElementById('gmLightBox').value);showToast('📋 تم نسخ الأمر!')">📋 نسخ الأمر</button>
+            <button class="btn btn-blue" onclick="navigator.clipboard.writeText(document.getElementById('gmHardPrompt').value);showToast('📋 تم نسخ الأمر المحصّن!')">📋 نسخ الأمر</button>
             <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
         </div>
     `);
+}
+
+function downloadTodayStampedPhotos() {
+    const { photos } = collectTodayPhotos();
+    if (!photos.length) { showToast('⚠️ لا توجد صور ملتقطة اليوم'); return; }
+    photos.forEach((p, idx) => {
+        setTimeout(() => {
+            const a = document.createElement('a');
+            a.href = p.dataUrl;
+            a.download = p.fileName;
+            a.click();
+        }, idx * 250);
+    });
+    showToast(`📸 جاري تنزيل ${photos.length} صور مختومة بأسماء Section 8`);
 }
 
 /* ================= Camera, Gallery & Voice Dictation ================= */
@@ -1856,11 +1981,18 @@ function onPhotoSelected(e) {
             const dataUrl = c.toDataURL('image/jpeg', 0.88);
             const log = getDayLog();
             pushUndo('إرفاق صورة');
-            if (type === 'task') log.tasks[ctx].photo = dataUrl;
-            else if (type === 'meter') log.meters[ctx].photo = dataUrl;
-            else if (type === 'issue') getSite().issues[ctx].photo = dataUrl;
-            else if (type === 'ir_temp' || type === 'sdl_temp') { tempModalPhoto = dataUrl; showToast('📸 تم إرفاق الصورة للنموذج'); return; }
-            else if (type === 'plant') {
+            if (type === 'task') {
+                log.tasks[ctx].photo = dataUrl;
+                logSectionHistory('tasks', 'photo', `توثيق بصورة: ${log.tasks[ctx].zones}`, { taskId: log.tasks[ctx].id });
+            } else if (type === 'meter') {
+                log.meters[ctx].photo = dataUrl;
+                logSectionHistory('tools', 'photo', `صورة عداد: ${log.meters[ctx].name}`, { meterId: log.meters[ctx].id });
+            } else if (type === 'issue') {
+                getSite().issues[ctx].photo = dataUrl;
+                logSectionHistory('issues', 'photo', `صورة مشكلة: ${getSite().issues[ctx].code}`, { issueId: getSite().issues[ctx].id });
+            } else if (type === 'ir_temp' || type === 'sdl_temp') {
+                tempModalPhoto = dataUrl; showToast('📸 تم إرفاق الصورة للنموذج'); return;
+            } else if (type === 'plant') {
                 const z = getSite().inventory.find(x => x.id === activeInvZoneId);
                 const p = z ? z.plants[ctx.pIdx] : null;
                 const ent = p ? (p.entries || []).find(x => x.id === ctx.entryId) : null;
@@ -1881,10 +2013,14 @@ function startDictation(targetId, onDone) {
     rec.interimResults = false;
     showToast('🎤 تحدث الآن...');
     rec.onresult = e => {
-        const text = e.results[0][0].transcript;
+        const raw = e.results[0][0].transcript;
+        const { text, changed } = applySpellAndDictationGuard(raw);
         const el = document.getElementById(targetId);
-        if (el) { el.value = (el.value ? el.value + ' ' : '') + text; if (onDone) onDone(el.value); }
-        showToast('✓ تم تحويل الصوت إلى نص');
+        if (el) {
+            el.value = (el.value ? el.value + ' ' : '') + text;
+            if (onDone) onDone(el.value);
+        }
+        showToast(changed ? `✨ تم التحويل والتصحيح: ${text}` : `✓ تم التحويل: ${text}`);
     };
     rec.onerror = () => showToast('⚠️ تعذر التقاط الصوت');
     rec.start();
@@ -1910,7 +2046,7 @@ function createNewSite() {
         zones: zones.length ? zones : ['Z1', 'عام / General'],
         meters: [{ id: 'm_' + Date.now(), name: 'Main Water Meter', lastReading: 0 }],
         gauges: [{ id: 'g_' + Date.now(), name: 'Main-PWG', normal: 2.0 }],
-        plan: {}, inventory: [], issues: [], stopMarker: null, lastInvAction: null, logs: {}
+        plan: {}, inventory: [], issues: [], stopMarker: null, logs: {}
     };
     state.activeSiteId = id; activeInvZoneId = null; getDayLog();
     closeModal(); saveState(); renderAll(); showToast('✓ تم إنشاء الموقع: ' + name);
@@ -1925,8 +2061,7 @@ function openSettingsModal() {
             <div><label class="lbl">وحدة الأطوال:</label><select id="stUnit" class="inp"><option value="م" ${state.company.heightUnit === 'م' ? 'selected' : ''}>المتر (م)</option><option value="سم" ${state.company.heightUnit === 'سم' ? 'selected' : ''}>السنتيمتر (سم)</option></select></div>
             <div><label class="lbl">أجر العامل الخارجي:</label><input type="number" id="stRate" class="inp" value="${state.company.outsideRate}"></div>
         </div>
-        <button class="btn btn-blue btn-full" onclick="closeModal();openTemplateUploadModal()">📄 تحديث قالب الـ DFL V03</button>
-        <button class="btn btn-outline btn-full" style="color:var(--red);" onclick="purgeOldPhotos()">🧹 تنظيف الصور الأقدم من 30 يوم</button>
+        <button class="btn btn-outline btn-full" style="color:var(--red);" onclick="purgeOldPhotos()">🧹 تنظيف الصور الأقدم من 30 يوم (لتخفيف الذاكرة)</button>
         <div class="grid-2"><button class="btn btn-green" onclick="saveSettings()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إغلاق</button></div>
     `);
 }
