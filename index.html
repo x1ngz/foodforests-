@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة غابات الغذاء - إدارة العمليات الميدانية</title>
+    <title>منصة غابات الغذاء - إدارة العمليات الميدانية V03</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,13 +24,14 @@
 
         /* Header */
         .app-header { background: linear-gradient(135deg, #15803d, #166534); color: white; padding: 10px 12px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 3px 10px rgba(0,0,0,0.16); }
-        .header-row1 { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 7px; }
-        .site-select { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); color: white; padding: 6px 8px; border-radius: 8px; font-weight: bold; font-size: 13px; max-width: 58%; }
+        .header-row1 { display: flex; justify-content: space-between; align-items: center; gap: 5px; margin-bottom: 7px; }
+        .site-select { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); color: white; padding: 6px 7px; border-radius: 8px; font-weight: bold; font-size: 12px; max-width: 48%; }
         .site-select option { color: #0f172a; background: white; }
-        .header-tools { display: flex; align-items: center; gap: 5px; }
-        .save-pill { font-size: 11px; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 99px; font-weight: bold; white-space: nowrap; }
+        .header-tools { display: flex; align-items: center; gap: 4px; }
+        .save-pill { font-size: 10px; background: rgba(255,255,255,0.2); padding: 4px 7px; border-radius: 99px; font-weight: bold; white-space: nowrap; }
         .save-pill.saving { background: #f59e0b; }
-        .icon-btn { background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 7px; padding: 5px 8px; font-size: 13px; cursor: pointer; font-weight: bold; }
+        .icon-btn { background: rgba(255,255,255,0.22); border: none; color: white; border-radius: 7px; padding: 5px 8px; font-size: 12px; cursor: pointer; font-weight: bold; }
+        .icon-btn:disabled { opacity: 0.4; cursor: default; }
 
         .header-row2 { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.18); padding: 6px 9px; border-radius: 8px; gap: 6px; flex-wrap: wrap; }
         .date-box { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: bold; }
@@ -110,6 +111,7 @@
         .meter-card.faulty { background: #fef2f2; border-color: #fca5a5; }
         .gauge-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 9px; padding: 9px; text-align: center; }
         .gauge-box.low { background: #fef2f2; border-color: #ef4444; }
+        .irrigated-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 9px; padding: 9px; margin-bottom: 8px; }
 
         /* Inventory */
         .sticky-last { position: sticky; top: 82px; z-index: 900; background: rgba(255,255,255,0.97); border: 2px solid var(--blue); border-right: 7px solid var(--blue); border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -141,8 +143,10 @@
         <div class="header-row1">
             <select id="siteSelect" class="site-select" onchange="onSiteSelectChange(this.value)"></select>
             <div class="header-tools">
+                <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
+                <button class="icon-btn" onclick="openHistoryModal()" title="سجل الحركات والأرشيف">📜</button>
                 <span id="savePill" class="save-pill">✓ محفوظ</span>
-                <button class="icon-btn" onclick="openSettingsModal()">⚙️</button>
+                <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
         <div class="header-row2">
@@ -197,6 +201,15 @@
 
         <!-- TAB 3: Readings & Tools -->
         <div id="tab-tools" class="tab-pane">
+            <!-- 5A: Separated Moisture Readings Card -->
+            <div class="card">
+                <div class="card-head">
+                    <h3 class="card-title">🌱 قراءات الرطوبة (القسم 5A — 5 مناطق)</h3>
+                </div>
+                <div id="moistureContainer"></div>
+            </div>
+
+            <!-- 5B: Water Meters -->
             <div class="card">
                 <div class="card-head">
                     <h3 class="card-title">💧 عدادات المياه (القسم 5B)</h3>
@@ -206,37 +219,15 @@
                 <div id="metersContainer"></div>
             </div>
 
+            <!-- 5C: Separated Irrigation System Performance Card -->
             <div class="card">
                 <div class="card-head">
-                    <h3 class="card-title">🎛️ مقاييس الضغط (Bar Gauges - 5D)</h3>
-                    <button class="btn btn-outline btn-sm" onclick="addCustomGauge()">+ مقياس</button>
+                    <h3 class="card-title">💦 أداء نظام الري (القسم 5C)</h3>
+                    <button class="btn btn-outline btn-sm" onclick="syncIrrigatedZonesFromTasks(true)">🔄 تحديث من المهام</button>
                 </div>
-                <div id="gaugesContainer" class="grid-2"></div>
-            </div>
-
-            <div class="card">
-                <div class="card-head">
-                    <h3 class="card-title">⛽ المضخات والمولدات والوقود</h3>
-                </div>
-                <div class="grid-3">
-                    <div>
-                        <label class="lbl">ساعات المضخة:</label>
-                        <input type="number" step="0.5" id="pumpHrsInput" class="inp" placeholder="0" onchange="updateMachinery('pumpHrs', this.value)">
-                    </div>
-                    <div>
-                        <label class="lbl">ساعات المولدة:</label>
-                        <input type="number" step="0.5" id="genHrsInput" class="inp" placeholder="0" onchange="updateMachinery('genHrs', this.value)">
-                    </div>
-                    <div>
-                        <label class="lbl">الوقود (لتر):</label>
-                        <input type="number" step="1" id="fuelLitersInput" class="inp" placeholder="0" onchange="updateMachinery('fuelL', this.value)">
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-head">
-                    <h3 class="card-title">💦 أداء الري والرطوبة (5A & 5C)</h3>
+                <div class="irrigated-box">
+                    <label class="lbl" style="color:var(--primary-dark);">📍 المناطق التي تم ريها اليوم (تُجلب تلقائياً من المهام المكتملة):</label>
+                    <input type="text" id="irrigatedZonesInput" class="inp" style="margin:0;background:white;font-weight:bold;" placeholder="تظهر هنا المناطق المكتملة تلقائياً..." onchange="updatePerfField('zonesIrrigated', this.value)">
                 </div>
                 <div class="grid-2">
                     <div>
@@ -254,15 +245,37 @@
                         <input type="text" id="sysDurationInput" class="inp" placeholder="مثلاً: 4.5" onchange="updatePerfField('duration', this.value)">
                     </div>
                 </div>
-                <label class="lbl">ملاحظات الأداء والضغط:</label>
-                <div style="display:flex;gap:5px;margin-bottom:8px;">
+                <label class="lbl">ملاحظات الضغط (Pressure Notes):</label>
+                <input type="text" id="pressureNotesInput" class="inp" placeholder="ملاحظات الضغط..." onchange="updatePerfField('pressureNotes', this.value)">
+                <label class="lbl">ملاحظات الأداء (Performance Notes):</label>
+                <div style="display:flex;gap:5px;">
                     <input type="text" id="sysNotesInput" class="inp" style="margin:0;" placeholder="مثلاً: وجود تسريب يحتاج صيانة..." onchange="updatePerfField('notes', this.value)">
                     <button class="btn btn-outline btn-sm" onclick="startDictation('sysNotesInput', v => updatePerfField('notes', v))">🎤</button>
                 </div>
-                <label class="lbl">قراءات الرطوبة (5 مناطق):</label>
-                <div id="moistureContainer"></div>
             </div>
 
+            <!-- 5D: Bar Gauges -->
+            <div class="card">
+                <div class="card-head">
+                    <h3 class="card-title">🎛️ مقاييس الضغط (Bar Gauges — 5D)</h3>
+                    <button class="btn btn-outline btn-sm" onclick="addCustomGauge()">+ مقياس</button>
+                </div>
+                <div id="gaugesContainer" class="grid-2"></div>
+            </div>
+
+            <!-- Machinery & Fuel -->
+            <div class="card">
+                <div class="card-head">
+                    <h3 class="card-title">⛽ المضخات والمولدات والوقود</h3>
+                </div>
+                <div class="grid-3">
+                    <div><label class="lbl">ساعات المضخة:</label><input type="number" step="0.5" id="pumpHrsInput" class="inp" placeholder="0" onchange="updateMachinery('pumpHrs', this.value)"></div>
+                    <div><label class="lbl">ساعات المولدة:</label><input type="number" step="0.5" id="genHrsInput" class="inp" placeholder="0" onchange="updateMachinery('genHrs', this.value)"></div>
+                    <div><label class="lbl">الوقود (لتر):</label><input type="number" step="1" id="fuelLitersInput" class="inp" placeholder="0" onchange="updateMachinery('fuelL', this.value)"></div>
+                </div>
+            </div>
+
+            <!-- Section 4: Tools & Materials -->
             <div class="card">
                 <div class="card-head">
                     <h3 class="card-title">🧰 المعدات والأدوات والمواد (القسم 4)</h3>
@@ -306,7 +319,7 @@
 
             <div class="card">
                 <div class="card-head">
-                    <h3 class="card-title">📝 خلاصة قائد الفريق (OAR - القسم 9)</h3>
+                    <h3 class="card-title">📝 خلاصة قائد الفريق (OAR — القسم 9)</h3>
                     <button class="btn btn-blue btn-sm" onclick="autoGenerateOAR()">🔄 توليد ذكي</button>
                 </div>
                 <label class="lbl">OBS — الملاحظة: <button class="btn btn-outline btn-sm" style="padding:1px 6px;" onclick="startDictation('oarObs', saveOarFields)">🎤</button></label>
@@ -317,9 +330,9 @@
                 <textarea id="oarRec" class="inp" rows="2" onchange="saveOarFields()"></textarea>
             </div>
 
-            <button class="btn btn-green btn-full" style="padding:15px;font-size:16px;" onclick="runPreExportCheck()">📊 تصدير ملف DFL الرسمي (Excel + الصور مدمجة)</button>
+            <button class="btn btn-green btn-full" style="padding:15px;font-size:15px;" onclick="runPreExportCheck()">📊 تصدير ملف DFL V03 (Excel + الصور مدمجة)</button>
             <div class="grid-2" style="margin-bottom:8px;">
-                <button class="btn btn-blue" onclick="exportGeminiWeatherPrompt()">🤖 أمر الطقس/التحليل لـ Gemini</button>
+                <button class="btn btn-blue" onclick="exportLightGeminiPack()">🤖 تصدير خفيف لـ Gemini</button>
                 <button class="btn btn-outline" onclick="openTemplateUploadModal()">📄 قالب الـ DFL</button>
             </div>
             <div class="grid-2">
