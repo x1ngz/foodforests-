@@ -1,1 +1,2778 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تطبيق جرد النباتات الميداني</title>
+    
+    <!-- إعدادات تطبيق الويب التقدمي (PWA) للأندرويد والآيفون -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#15803d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="جرد النباتات">
+    <link id="appleTouchIcon" rel="apple-touch-icon" href="">
 
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f4f8; margin: 0; padding: 12px; padding-bottom: 85px; color: #1e293b; }
+        body.in-zone-mode { padding-left: 34px; }
+        
+        /* الشريط العلوي */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 5px; }
+        .top-title { font-size: 17px; font-weight: bold; color: #0f172a; margin: 0; text-align: center; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .top-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
+        /* شريط حالة حفظ الملف على الهاتف */
+        .file-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+        .file-status-bar.unsaved {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+        }
+        .file-status-bar.saved {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+        .btn-quick-save-file {
+            background: #d97706;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 6px 11px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .file-status-bar.saved .btn-quick-save-file {
+            background: #059669;
+        }
+
+        /* شريط التوثيق السريع */
+        .audit-strip {
+            background: #e2e8f0;
+            color: #334155;
+            padding: 7px 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .audit-strip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .audit-edit-link { color: #0284c7; text-decoration: underline; flex-shrink: 0; }
+
+        /* شريط آخر نبتة مضافة - مثبت دائماً في أعلى الشاشة (Sticky) */
+        .sticky-tracker-wrap {
+            position: sticky;
+            top: 6px;
+            z-index: 950;
+            margin-bottom: 12px;
+        }
+        .last-action-bar {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(6px);
+            border: 2px solid #0284c7;
+            border-right: 8px solid #0284c7;
+            border-radius: 12px;
+            padding: 9px 11px;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.16);
+        }
+        .last-action-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .last-action-info { flex: 1; min-width: 0; }
+        .last-action-header { font-size: 11px; font-weight: bold; color: #0369a1; margin-bottom: 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+        .last-action-details { font-size: 14px; font-weight: bold; color: #0f172a; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+        .last-cond-pill { padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; color: #000; border: 1px solid rgba(0,0,0,0.15); }
+        .last-zone-tag { background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 5px; font-size: 11px; }
+        .last-action-btns { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+        .btn-undo-last { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 7px; padding: 5px 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn-marker-last { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 7px; padding: 5px 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .field-marker-badge {
+            margin-top: 6px;
+            padding-top: 5px;
+            border-top: 1px dashed #bae6fd;
+            font-size: 12px;
+            font-weight: bold;
+            color: #9a3412;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* شريط التنبيهات (Toast) */
+        .toast-banner { background-color: #16a34a; color: white; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: bold; margin-bottom: 10px; text-align: center; box-shadow: 0 4px 10px rgba(22,163,74,0.25); animation: fadeIn 0.2s ease; }
+        .toast-banner.error { background-color: #dc2626; box-shadow: 0 4px 10px rgba(220,38,38,0.25); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* الأزرار العامة */
+        .btn { padding: 9px 11px; border: none; border-radius: 10px; font-size: 13px; font-weight: bold; cursor: pointer; color: white; touch-action: manipulation; }
+        .btn:active { opacity: 0.85; transform: scale(0.98); }
+        .btn-settings { background-color: #475569; }
+        .btn-backup { background-color: #7c3aed; }
+        .btn-backup.needs-save { background-color: #d97706; }
+        .btn-dash { background-color: #0d9488; }
+        .btn-back { background-color: #0284c7; }
+        .btn-primary-full { background-color: #2563eb; width: 100%; margin-top: 12px; padding: 15px; font-size: 17px; box-shadow: 0 4px 6px rgba(37,99,235,0.2); }
+        .btn-open-file-full { background-color: #7c3aed; width: 100%; margin-top: 10px; padding: 14px; font-size: 16px; box-shadow: 0 4px 6px rgba(124,58,237,0.2); }
+        .btn-secondary-full { background-color: #0f766e; width: 100%; margin-top: 10px; padding: 13px; font-size: 15px; }
+        .btn-export { background-color: #15803d; width: 100%; padding: 15px; font-size: 16px; position: fixed; bottom: 0; right: 0; border-radius: 0; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.15); }
+
+        /* شريط الترتيب الأبجدي الجانبي (Alphabet Index Scroller) */
+        .alpha-scroller {
+            position: fixed;
+            left: 3px;
+            top: 52%;
+            transform: translateY(-50%);
+            z-index: 960;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(4px);
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 4px 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
+            touch-action: none;
+            user-select: none;
+            max-height: 74vh;
+            overflow: hidden;
+        }
+        .alpha-letter {
+            width: 22px;
+            height: 18px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .alpha-letter.has-items {
+            color: #1d4ed8;
+            font-weight: 800;
+        }
+        .alpha-letter.active-touch {
+            background: #2563eb;
+            color: #ffffff;
+            transform: scale(1.25);
+        }
+        .alpha-bubble {
+            position: fixed;
+            left: 46px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.94);
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+            z-index: 1200;
+            pointer-events: none;
+        }
+        .alpha-bubble.visible { display: flex; }
+
+        /* مربع الترتيب الأبجدي داخل المنطقة */
+        .zone-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 11px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            gap: 8px;
+        }
+        .btn-sort-alpha {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-sort-alpha:active { background: #dbeafe; transform: scale(0.98); }
+        .zone-count-hint { font-size: 13px; color: #64748b; font-weight: bold; }
+
+        /* بطاقات المناطق */
+        .empty-state { text-align: center; background: white; padding: 28px 18px; border-radius: 14px; color: #64748b; margin-top: 10px; border: 2px dashed #cbd5e1; }
+        .zone-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-right: 6px solid #2563eb; }
+        .zone-card:active { background-color: #f8fafc; }
+        .zone-info h3 { margin: 0 0 6px 0; font-size: 20px; color: #0f172a; }
+        .zone-stats { font-size: 14px; color: #64748b; font-weight: 500; }
+        .zone-actions { display: flex; gap: 6px; }
+        .btn-sm { padding: 7px 10px; font-size: 13px; border-radius: 7px; border: none; color: white; font-weight: bold; cursor: pointer; }
+        .btn-edit { background-color: #f59e0b; }
+        .btn-del { background-color: #e11d48; }
+        .btn-copy { background-color: #0d9488; }
+
+        /* بطاقة النبات */
+        .plant-card {
+            background: white;
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: border-color 0.25s, box-shadow 0.25s, background-color 0.4s;
+            scroll-margin-top: 118px;
+        }
+        .plant-card.is-last-edited { border-color: #0284c7; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15); }
+        .plant-card.jump-highlight { background-color: #eff6ff; border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); }
+        .plant-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; gap: 8px; }
+        .plant-name { font-size: 18px; font-weight: bold; border: 1px solid #cbd5e1; padding: 8px 10px; border-radius: 8px; flex: 1; background: #f8fafc; min-width: 0; }
+        .plant-name:focus { outline: none; border-color: #2563eb; background: #fff; }
+        .plant-actions { display: flex; gap: 5px; flex-shrink: 0; }
+        
+        /* شريط الإجمالي + زر سجل التسلسل */
+        .plant-meta-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            background: #eff6ff;
+            padding: 7px 10px;
+            border-radius: 9px;
+        }
+        .total-text { font-size: 16px; font-weight: bold; color: #1d4ed8; display: flex; align-items: center; gap: 6px; }
+        .last-edited-pill { background: #0284c7; color: white; font-size: 10px; padding: 2px 7px; border-radius: 99px; }
+        .btn-seq-log {
+            background: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        .btn-seq-log:active { transform: scale(0.96); }
+        
+        /* شبكة الحالات الصحية */
+        .conditions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .condition-box { border-radius: 10px; padding: 9px; color: #000; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.08); border: 3px solid transparent; }
+        .condition-box.is-last-cond { border-color: #0f172a; }
+        .condition-title { text-align: center; font-weight: bold; margin-bottom: 8px; font-size: 14px; background: rgba(255,255,255,0.55); border-radius: 6px; padding: 4px; }
+        
+        /* أزرار العداد (الناقص يمين والزائد يسار) */
+        .counter-controls { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.6); border-radius: 8px; padding: 4px; }
+        .counter-btn { width: 42px; height: 42px; border: none; border-radius: 8px; font-size: 24px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.9); color: #1e293b; touch-action: manipulation; }
+        .counter-btn:active { transform: scale(0.9); background-color: #fff; }
+        .count-val { font-size: 22px; font-weight: bold; }
+
+        /* المستطيل الصغير لإضافة صورة بعد الضغط على (+) */
+        .photo-prompt-rect {
+            grid-column: 1 / -1;
+            background: #f8fafc;
+            border: 2px dashed #0284c7;
+            border-radius: 10px;
+            padding: 9px 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.2s ease;
+        }
+        .photo-prompt-label { font-size: 13px; font-weight: bold; color: #0f172a; line-height: 1.35; }
+        .photo-prompt-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        .btn-cam-now { background: #0284c7; color: white; border: none; border-radius: 7px; padding: 8px 11px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn-gal-now { background: #475569; color: white; border: none; border-radius: 7px; padding: 8px 10px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn-close-prompt { background: #e2e8f0; color: #334155; border: none; border-radius: 7px; padding: 8px 9px; font-size: 13px; font-weight: bold; cursor: pointer; }
+
+        /* قسم الملاحظات والمواقع */
+        .notes-section { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
+        .notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .notes-label { font-size: 14px; font-weight: bold; color: #334155; }
+        .btn-add-note { background-color: #e2e8f0; color: #0f172a; border: none; padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        
+        .note-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+        .note-input { width: 100%; padding: 8px 10px; border: 1px solid #fcd34d; border-radius: 8px; font-size: 14px; resize: none; overflow: hidden; min-height: 40px; line-height: 1.45; background: #ffffff; color: #1e293b; }
+        .note-input:focus { outline: none; border-color: #f59e0b; }
+        
+        .gps-info-bar { display: flex; justify-content: space-between; align-items: center; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 6px 10px; border-radius: 7px; font-size: 13px; margin-top: 7px; font-weight: 600; }
+        .gps-info-bar a { color: #047857; text-decoration: underline; font-weight: bold; }
+        .gps-status-msg { font-size: 12px; color: #b45309; margin-top: 6px; font-weight: 600; }
+
+        .note-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .btn-gps { flex: 1; min-width: 95px; background-color: #0284c7; color: white; border: none; border-radius: 7px; padding: 8px 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 3px; }
+        .btn-gps.has-loc { background-color: #0d9488; }
+        .btn-ribbon { background-color: #d97706; color: white; border: none; border-radius: 7px; padding: 8px 9px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-wa { flex: 1; min-width: 95px; background-color: #16a34a; color: white; border: none; border-radius: 7px; padding: 8px 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 3px; }
+        .btn-del-note { background: #fee2e2; color: #dc2626; border: none; border-radius: 7px; padding: 8px 10px; font-weight: bold; font-size: 14px; cursor: pointer; }
+
+        /* النوافذ المنبثقة */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.68); z-index: 2000; padding: 14px; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 18px; border-radius: 14px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.25); }
+        .modal-title { margin-top: 0; margin-bottom: 12px; font-size: 18px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+        .modal-input, .modal-select { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; margin-bottom: 12px; background: white; }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btns button { flex: 1; padding: 12px; font-size: 16px; }
+
+        /* قائمة سجل تسلسل الإضافات */
+        .seq-summary-strip { display: flex; justify-content: space-between; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; color: #334155; margin-bottom: 12px; }
+        .seq-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 9px 10px;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+        .seq-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+        .seq-num { background: #1e293b; color: white; font-size: 12px; font-weight: bold; padding: 3px 7px; border-radius: 6px; flex-shrink: 0; }
+        .seq-cond-badge { padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; color: #000; border: 1px solid rgba(0,0,0,0.12); white-space: nowrap; }
+        .seq-time { font-size: 12px; color: #64748b; font-weight: 600; white-space: nowrap; }
+        .seq-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .badge-has-photo { background: #dcfce7; color: #166534; border: 1px solid #86efac; padding: 5px 8px; border-radius: 7px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .badge-no-photo { background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; padding: 5px 8px; border-radius: 7px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn-del-seq { background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; padding: 5px 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+        /* نافذة معاينة الصورة */
+        .photo-preview-img { width: 100%; max-height: 62vh; object-fit: contain; border-radius: 10px; background: #0f172a; margin-bottom: 12px; }
+        
+        /* إعدادات */
+        .settings-group { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+        .settings-group h4 { margin: 0 0 10px 0; font-size: 15px; color: #0f172a; }
+        .field-label { display: block; font-size: 13px; font-weight: bold; color: #475569; margin-bottom: 4px; }
+        .setting-row { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; gap: 10px; }
+        .setting-row input[type="text"] { flex: 1; padding: 9px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; }
+        .setting-row input[type="color"] { width: 48px; height: 40px; border: none; border-radius: 6px; cursor: pointer; background: none; }
+
+        /* لوحة الإحصائيات */
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+        .kpi-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; }
+        .kpi-num { font-size: 22px; font-weight: bold; color: #0f172a; }
+        .kpi-lbl { font-size: 12px; color: #64748b; font-weight: bold; margin-top: 2px; }
+        .dash-section-title { font-size: 15px; font-weight: bold; color: #0f172a; margin: 14px 0 8px 0; }
+        .cond-summary-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 14px; font-weight: bold; color: #000; }
+        .species-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
+        .species-table th { background: #1e293b; color: white; padding: 8px 6px; text-align: right; }
+        .species-table td { border-bottom: 1px solid #e2e8f0; padding: 8px 6px; }
+        .species-table tr:nth-child(even) { background: #f8fafc; }
+        .badge-warn { background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 5px; font-weight: bold; font-size: 12px; }
+        .badge-ok { background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 5px; font-weight: bold; font-size: 12px; }
+
+        /* تنسيق نافذة الحفظ والاسترجاع */
+        .backup-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+        .backup-box h4 { margin: 0 0 6px 0; font-size: 16px; color: #0f172a; }
+        .backup-box p { margin: 0 0 12px 0; font-size: 13px; color: #475569; line-height: 1.45; }
+        .backup-btn-stack { display: flex; flex-direction: column; gap: 8px; }
+        .btn-full-action { width: 100%; padding: 12px; border: none; border-radius: 9px; font-size: 15px; font-weight: bold; color: white; cursor: pointer; text-align: center; }
+        .merge-prompt { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 10px; padding: 12px; margin-top: 10px; }
+        .merge-prompt p { margin: 0 0 10px 0; font-size: 13px; font-weight: bold; color: #92400e; }
+
+        /* نافذة نسخ الأصناف */
+        .import-zone-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
+        .import-zone-item:active { background: #e0f2fe; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar" id="topBar"></div>
+    <div id="fileStatusBarContainer"></div>
+    <div id="auditBarContainer"></div>
+    
+    <!-- شريط آخر نبتة ضفتها - مثبت في أعلى الشاشة دائماً -->
+    <div class="sticky-tracker-wrap" id="lastActionContainer"></div>
+    
+    <div id="toastContainer"></div>
+    <div id="mainContainer"></div>
+
+    <!-- شريط تمرير الحروف الأبجدية الجانبي وفقاعة الحرف -->
+    <div id="alphaScrollerContainer"></div>
+    <div id="alphaBubble" class="alpha-bubble">أ</div>
+
+    <!-- قائمة الإكمال التلقائي لأسماء النباتات -->
+    <datalist id="plantNamesList"></datalist>
+
+    <button class="btn btn-export" id="exportBtn" onclick="exportXLSX()">📊 تصدير إكسيل بالصور عالية الجودة (.xlsx)</button>
+
+    <!-- مدخلات مخفية للكاميرا والمعرض وملف الاسترجاع -->
+    <input type="file" id="cameraFileInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoFileSelected(event)">
+    <input type="file" id="galleryFileInput" accept="image/*" style="display:none" onchange="handlePhotoFileSelected(event)">
+    <input type="file" id="restoreFileInput" accept=".json,application/json,text/plain" style="display:none" onchange="handleRestoreFile(event)">
+
+    <!-- نافذة سجل تسلسل الإضافات للنبات -->
+    <div id="sequenceModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="sequenceModalTitle">📜 سجل تسلسل الإضافات</h3>
+            <div id="sequenceModalBody"></div>
+            <button class="btn" style="width:100%; background-color: #64748b; padding:12px; margin-top:8px;" onclick="closeSequenceModal()">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة معاينة الصورة الملتقطة -->
+    <div id="photoViewerModal" class="modal" style="z-index: 2500;">
+        <div class="modal-content">
+            <h3 class="modal-title" id="photoViewerTitle">📸 صورة النبتة</h3>
+            <img id="photoViewerImg" class="photo-preview-img" src="" alt="صورة النبتة">
+            <div style="display:flex; gap:8px;">
+                <button class="btn" style="flex:1; background:#0284c7; padding:11px;" onclick="replaceCurrentViewedPhoto()">📸 تغيير الصورة</button>
+                <button class="btn" style="flex:1; background:#dc2626; padding:11px;" onclick="deleteCurrentViewedPhoto()">🗑️ حذف الصورة</button>
+                <button class="btn" style="flex:1; background:#64748b; padding:11px;" onclick="closePhotoViewer()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة لوحة الإحصائيات الشاملة -->
+    <div id="dashboardModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">📊 ملخص الجرد العام للموقع</h3>
+            <div id="dashboardBody"></div>
+            <div style="display:flex; gap:8px; margin-top:12px;">
+                <button class="btn" style="flex:1; background-color: #16a34a; padding:12px; font-size:15px;" onclick="shareDashboardWhatsApp()">📤 إرسال الملخص واتساب</button>
+                <button class="btn" style="flex:1; background-color: #64748b; padding:12px; font-size:15px;" onclick="closeDashboard()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة استيراد قائمة الأصناف من منطقة سابقة -->
+    <div id="importSpeciesModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">📋 نسخ قائمة الأصناف من منطقة سابقة</h3>
+            <p style="font-size:13px; color:#475569; margin-top:0;">اختر المنطقة التي تريد نسخ أسماء نباتاتها إلى هذه المنطقة (ستكون العدادات مصفّرة وجاهزة للعدّ بنفس الأسماء الموحدة):</p>
+            <div id="importSpeciesList"></div>
+            <button class="btn" style="width:100%; background-color: #64748b; padding:12px; margin-top:8px;" onclick="closeImportSpeciesModal()">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- نافذة علامة التوقف الميداني -->
+    <div id="markerModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">🎀 تسجيل علامة التوقف الميداني</h3>
+            <p style="font-size:13px; color:#475569; margin-top:0;">اكتب لون الشريط أو العلامة التي ربطتها على آخر شجرة في الحقل لكي تبدأ منها غداً دون تكرار:</p>
+            <input type="text" id="markerInput" class="modal-input" placeholder="مثلاً: شريط أحمر - نهاية خط 3 يمين الصمام" onkeydown="if(event.key==='Enter') saveFieldMarker()">
+            <div class="modal-btns">
+                <button class="btn" style="background-color: #d97706;" onclick="saveFieldMarker()">حفظ العلامة</button>
+                <button class="btn" style="background-color: #64748b;" onclick="closeMarkerModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الحفظ والفتح المباشر على الهاتف -->
+    <div id="backupModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">💾 حفظ وفتح ملف الجرد على الهاتف</h3>
+            
+            <div class="backup-box">
+                <h4>1. حفظ الجرد والصور عالية الجودة كملف على الهاتف</h4>
+                <p>يتم حفظ البيانات مباشرة كملف <b>(.json)</b> في ذاكرة هاتفك دون استخدام ذاكرة المتصفح، ليحتفظ بجميع الصور بدقتها العالية.</p>
+                <div class="backup-btn-stack">
+                    <button class="btn-full-action" style="background-color: #7c3aed;" onclick="shareBackupFile()">📤 حفظ في الملفات / مشاركة (للآيفون والأندرويد)</button>
+                    <button class="btn-full-action" style="background-color: #0284c7;" onclick="downloadBackupFile()">📥 تنزيل الملف مباشرة إلى ذاكرة الهاتف (.json)</button>
+                </div>
+            </div>
+
+            <div class="backup-box">
+                <h4>2. فتح ملف جرد محفوظ من الهاتف</h4>
+                <p>اختر ملف الجرد <b>(.json)</b> من مجلد التنزيلات أو تطبيق الملفات لإظهار جميع المناطق والصور وتكملة العمل.</p>
+                <button class="btn-full-action" style="background-color: #16a34a;" onclick="triggerRestoreFile()">📂 اختيار ملف الجرد من الهاتف</button>
+                <div id="mergePromptContainer"></div>
+            </div>
+
+            <button class="btn" style="width:100%; background-color: #64748b; padding:12px;" onclick="closeBackupModal()">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة / تعديل منطقة -->
+    <div id="zoneModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="zoneModalTitle">إضافة منطقة جديدة</h3>
+            <input type="text" id="zoneNameInput" class="modal-input" placeholder="اكتب اسم المنطقة (مثلاً: AR5)" onkeydown="if(event.key==='Enter') saveZoneModal()">
+            <div class="modal-btns">
+                <button class="btn" style="background-color: #16a34a;" onclick="saveZoneModal()">حفظ ودخول</button>
+                <button class="btn" style="background-color: #64748b;" onclick="closeZoneModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الإعدادات والتوثيق وجودة الصور -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">⚙️ الإعدادات والتوثيق وجودة الصور</h3>
+            
+            <div class="settings-group">
+                <h4>📸 جودة الصور الملتقطة (تُحفظ في الملف)</h4>
+                <label class="field-label">اختر دقة الصور عند الالتقاط:</label>
+                <select id="photoQualitySelect" class="modal-select" style="margin-bottom:4px;" onchange="updateAuditMeta()">
+                    <option value="hd">جودة عالية HD (1600px - واضحة وسريعة في الإكسيل)</option>
+                    <option value="original">الجودة الأصلية الكاملة (Original - أكبر حجم)</option>
+                </select>
+            </div>
+
+            <div class="settings-group">
+                <h4>👤 بيانات التوثيق (تُطبع في تقرير الإكسيل)</h4>
+                <label class="field-label">اسم الموقع / المشروع:</label>
+                <input type="text" id="siteNameInput" class="modal-input" placeholder="مثلاً: موقع 5 دونم - مشروع التشجير" oninput="updateAuditMeta()">
+                <label class="field-label">اسم الشخص القائم بالجرد:</label>
+                <input type="text" id="surveyorNameInput" class="modal-input" style="margin-bottom:0;" placeholder="اكتب اسمك هنا..." oninput="updateAuditMeta()">
+            </div>
+
+            <div class="settings-group">
+                <h4>🎨 أسماء الحالات الصحية والألوان</h4>
+                <div id="settingsContainer"></div>
+            </div>
+
+            <button class="btn btn-primary-full" style="background-color: #16a34a; margin-top:4px;" onclick="toggleSettings()">حفظ وإغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        // تسجيل Service Worker ليعمل التطبيق أوفلاين بالكامل بعد التثبيت
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
+
+        // توليد أيقونة PNG عالية الدقة تلقائياً لشاشة الآيفون الرئيسية
+        (function generateAppleIcon() {
+            try {
+                const c = document.createElement('canvas');
+                c.width = 512;
+                c.height = 512;
+                const ctx = c.getContext('2d');
+                ctx.fillStyle = '#15803d';
+                ctx.fillRect(0, 0, 512, 512);
+                ctx.font = '260px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🌱', 256, 270);
+                const link = document.getElementById('appleTouchIcon');
+                if (link) link.href = c.toDataURL('image/png');
+            } catch (e) {}
+        })();
+
+        const ARABIC_ALPHABET = [
+            'أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش',
+            'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي', '#'
+        ];
+
+        let config = [
+            { id: 'c1', name: 'بصحة جيدة', color: '#81c784' },
+            { id: 'c2', name: 'مصفر', color: '#fff176' },
+            { id: 'c3', name: 'هالك', color: '#e0e0e0' },
+            { id: 'c4', name: 'محروق الأطراف', color: '#ffb74d' },
+            { id: 'c5', name: 'مجهدة', color: '#ff8a65' },
+            { id: 'c6', name: 'حالة حرجة', color: '#e57373' }
+        ];
+
+        let meta = {
+            siteName: 'موقع 5 دونم',
+            surveyorName: '',
+            photoQuality: 'hd'
+        };
+
+        let zones = [];
+        let lastAction = null;
+        let activeZoneId = null;
+        let editingZoneId = null;
+        let confirmDeleteKey = null;
+        let gpsLoadingMap = {};
+        let gpsErrorMap = {};
+        let pendingImportData = null;
+        let toastTimer = null;
+
+        let activePhotoPrompt = null;
+        let pendingPhotoTarget = null;
+        let viewingSequencePlantId = null;
+        let viewingPhotoTarget = null;
+        let currentScrubLetter = null;
+
+        let hasUnsavedChanges = false;
+        let lastSavedFileLabel = '';
+
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedChanges && zones.length > 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        function markUnsaved() {
+            hasUnsavedChanges = true;
+            renderTopBar();
+            renderFileStatusBar();
+        }
+
+        function markSavedToFile(filename) {
+            hasUnsavedChanges = false;
+            lastSavedFileLabel = `${filename} (${formatCurrentTime()})`;
+            renderTopBar();
+            renderFileStatusBar();
+        }
+
+        function normalizeArabicFirstLetter(name) {
+            const trimmed = (name || '').trim();
+            if (!trimmed) return '#';
+            const ch = trimmed.charAt(0);
+            if ('أإآاٱ'.includes(ch)) return 'أ';
+            if (ch === 'ة' || ch === 'ه') return 'هـ';
+            if (ch === 'ى' || ch === 'ي' || ch === 'ئ') return 'ي';
+            if (ch === 'ؤ' || ch === 'و') return 'و';
+            if (ARABIC_ALPHABET.includes(ch)) return ch;
+            return '#';
+        }
+
+        function formatCurrentTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        function formatCurrentDateTimeFull() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd} (${formatCurrentTime()})`;
+        }
+
+        function showToast(msg, isError = false) {
+            const container = document.getElementById('toastContainer');
+            container.innerHTML = `<div class="toast-banner ${isError ? 'error' : ''}">${escapeHtml(msg)}</div>`;
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { container.innerHTML = ''; }, 3800);
+        }
+
+        function normalizeZones(rawZones) {
+            return (rawZones || []).map(z => ({
+                id: z.id || Date.now() + Math.random(),
+                name: z.name || 'منطقة بدون اسم',
+                plants: (z.plants || []).map(p => ({
+                    id: p.id || Date.now() + Math.random(),
+                    name: p.name || 'نبات',
+                    counts: p.counts || { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 },
+                    entries: Array.isArray(p.entries) ? p.entries.map(ent => ({
+                        id: ent.id || String(Date.now() + Math.random()),
+                        condId: ent.condId || 'c1',
+                        time: ent.time || '',
+                        photo: ent.photo || null
+                    })) : [],
+                    notes: (p.notes || []).map(n =>
+                        typeof n === 'string'
+                            ? { text: n, lat: null, lng: null, acc: null }
+                            : { text: n.text || '', lat: n.lat ?? null, lng: n.lng ?? null, acc: n.acc ?? null }
+                    )
+                }))
+            }));
+        }
+
+        function render() {
+            document.body.classList.toggle('in-zone-mode', activeZoneId !== null);
+            renderTopBar();
+            renderFileStatusBar();
+            renderAuditBar();
+            renderLastActionBar();
+            updatePlantNamesDatalist();
+            if (activeZoneId === null) {
+                renderZonesList();
+                renderAlphaScroller(null);
+            } else {
+                renderPlantsInZone();
+                renderAlphaScroller(getActiveZone());
+            }
+            if (viewingSequencePlantId !== null) {
+                renderSequenceModalContent();
+            }
+            renderSettings();
+            resizeAllNotes();
+        }
+
+        function renderTopBar() {
+            const topBar = document.getElementById('topBar');
+            const saveBtnClass = hasUnsavedChanges ? 'btn btn-backup needs-save' : 'btn btn-backup';
+            const saveBtnLabel = hasUnsavedChanges ? '💾 احفظ الملف*' : '💾 ملف الجرد';
+
+            if (activeZoneId === null) {
+                topBar.innerHTML = `
+                    <h2 class="top-title" style="text-align:right;">📍 المناطق</h2>
+                    <div class="top-actions">
+                        <button class="btn btn-dash" onclick="openDashboard()">📊 الملخص</button>
+                        <button class="${saveBtnClass}" onclick="openBackupModal()">${saveBtnLabel}</button>
+                        <button class="btn btn-settings" onclick="toggleSettings()">⚙️</button>
+                    </div>
+                `;
+            } else {
+                const zone = zones.find(z => z.id === activeZoneId);
+                topBar.innerHTML = `
+                    <button class="btn btn-back" onclick="exitZone()">➡️ المناطق</button>
+                    <h2 class="top-title">${escapeHtml(zone ? zone.name : '')}</h2>
+                    <div class="top-actions">
+                        <button class="btn btn-dash" onclick="openDashboard()">📊</button>
+                        <button class="${saveBtnClass}" onclick="openBackupModal()">${hasUnsavedChanges ? '💾*' : '💾'}</button>
+                        <button class="btn btn-settings" onclick="toggleSettings()">⚙️</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderFileStatusBar() {
+            const container = document.getElementById('fileStatusBarContainer');
+            if (zones.length === 0 && !lastSavedFileLabel) {
+                container.innerHTML = '';
+                return;
+            }
+            if (hasUnsavedChanges) {
+                container.innerHTML = `
+                    <div class="file-status-bar unsaved">
+                        <span>⚠️ توجد بيانات/صور جديدة لم تُحفظ كملف على الهاتف بعد</span>
+                        <button class="btn-quick-save-file" onclick="openBackupModal()">💾 حفظ الملف الآن</button>
+                    </div>
+                `;
+            } else if (lastSavedFileLabel) {
+                container.innerHTML = `
+                    <div class="file-status-bar saved">
+                        <span>✅ محفوظ في ملف: ${escapeHtml(lastSavedFileLabel)}</span>
+                        <button class="btn-quick-save-file" onclick="openBackupModal()">💾 تحديث الملف</button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '';
+            }
+        }
+
+        function renderAuditBar() {
+            const container = document.getElementById('auditBarContainer');
+            if (activeZoneId !== null) {
+                container.innerHTML = '';
+                return;
+            }
+            const siteText = meta.siteName ? meta.siteName : 'موقع غير محدد';
+            const survText = meta.surveyorName ? meta.surveyorName : 'غير مسجل';
+            const qualText = meta.photoQuality === 'original' ? 'أصلية' : 'عالية HD';
+            container.innerHTML = `
+                <div class="audit-strip" onclick="toggleSettings()">
+                    <span>🏞️ ${escapeHtml(siteText)} | 👤 ${escapeHtml(survText)} | 📸 ${qualText}</span>
+                    <span class="audit-edit-link">تعديل</span>
+                </div>
+            `;
+        }
+
+        function updatePlantNamesDatalist() {
+            const datalist = document.getElementById('plantNamesList');
+            const namesSet = new Set();
+            zones.forEach(z => {
+                z.plants.forEach(p => {
+                    const clean = (p.name || '').trim();
+                    if (clean && !clean.startsWith('نبات ')) {
+                        namesSet.add(clean);
+                    }
+                });
+            });
+            let optionsHtml = '';
+            namesSet.forEach(name => {
+                optionsHtml += `<option value="${escapeHtml(name)}"></option>`;
+            });
+            datalist.innerHTML = optionsHtml;
+        }
+
+        // --- شريط آخر نبتة مضافة ---
+        function renderLastActionBar() {
+            const container = document.getElementById('lastActionContainer');
+            if (!lastAction) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const targetZone = zones.find(z => z.id === lastAction.zoneId);
+            const targetPlant = targetZone ? targetZone.plants.find(p => p.id === lastAction.plantId) : null;
+            const targetCond = config.find(c => c.id === lastAction.condId);
+
+            if (!targetZone || !targetPlant) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const displayZone = targetZone.name;
+            const displayPlant = targetPlant.name;
+            const displayCond = targetCond ? targetCond.name : lastAction.condName;
+            const displayColor = targetCond ? targetCond.color : lastAction.condColor;
+            const currentCount = targetPlant.counts[lastAction.condId] || 0;
+            const seqNum = lastAction.seqNumber ? `#${lastAction.seqNumber}` : '';
+            const fieldMarker = lastAction.fieldMarker || '';
+
+            container.innerHTML = `
+                <div class="last-action-bar">
+                    <div class="last-action-top">
+                        <div class="last-action-info">
+                            <div class="last-action-header">
+                                <span>🕒 آخر نبتة ضفتها (${escapeHtml(lastAction.time)}):</span>
+                                ${activeZoneId === null ? `<span class="last-zone-tag">منطقة: ${escapeHtml(displayZone)}</span>` : ''}
+                            </div>
+                            <div class="last-action-details">
+                                <span>🌿 ${escapeHtml(displayPlant)} ${seqNum ? `<small style="color:#0284c7;">(${seqNum})</small>` : ''}</span>
+                                <span>←</span>
+                                <span class="last-cond-pill" style="background-color: ${displayColor};">${escapeHtml(displayCond)} (${currentCount})</span>
+                            </div>
+                        </div>
+                        <div class="last-action-btns">
+                            <button class="btn-marker-last" onclick="openMarkerModal()">🎀 توقف</button>
+                            ${currentCount > 0 ? `<button class="btn-undo-last" onclick="undoLastAction()">↩️ تراجع</button>` : ''}
+                        </div>
+                    </div>
+                    ${fieldMarker ? `<div class="field-marker-badge">🎀 علامة التوقف الميداني: ${escapeHtml(fieldMarker)}</div>` : ''}
+                </div>
+            `;
+        }
+
+        function openMarkerModal() {
+            if (!lastAction) return;
+            const input = document.getElementById('markerInput');
+            input.value = lastAction.fieldMarker || '';
+            document.getElementById('markerModal').classList.add('active');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeMarkerModal() {
+            document.getElementById('markerModal').classList.remove('active');
+        }
+
+        function saveFieldMarker() {
+            if (!lastAction) return;
+            lastAction.fieldMarker = document.getElementById('markerInput').value.trim();
+            markUnsaved();
+            closeMarkerModal();
+            renderLastActionBar();
+            showToast('🎀 تم حفظ علامة التوقف الميداني');
+        }
+
+        function undoLastAction() {
+            if (!lastAction) return;
+            const targetZone = zones.find(z => z.id === lastAction.zoneId);
+            const targetPlant = targetZone ? targetZone.plants.find(p => p.id === lastAction.plantId) : null;
+            if (!targetPlant) return;
+
+            const current = targetPlant.counts[lastAction.condId] || 0;
+            if (current > 0) {
+                targetPlant.counts[lastAction.condId] = current - 1;
+                if (Array.isArray(targetPlant.entries)) {
+                    for (let i = targetPlant.entries.length - 1; i >= 0; i--) {
+                        if (targetPlant.entries[i].condId === lastAction.condId) {
+                            targetPlant.entries.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+                lastAction.newCount = current - 1;
+                activePhotoPrompt = null;
+                markUnsaved();
+                render();
+                showToast(`↩️ تم التراجع: إنقاص 1 من (${targetPlant.name})`);
+            }
+        }
+
+        // --- شريط تمرير الحروف الأبجدية الجانبي ---
+        function renderAlphaScroller(zone) {
+            const container = document.getElementById('alphaScrollerContainer');
+            if (!zone || zone.plants.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const presentLetters = new Set();
+            zone.plants.forEach(p => {
+                presentLetters.add(normalizeArabicFirstLetter(p.name));
+            });
+
+            let html = `<div class="alpha-scroller" id="alphaScrollerBar">`;
+            ARABIC_ALPHABET.forEach(letter => {
+                const hasItems = presentLetters.has(letter);
+                html += `<div class="alpha-letter ${hasItems ? 'has-items' : ''}" data-letter="${letter}">${letter}</div>`;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+
+            const bar = document.getElementById('alphaScrollerBar');
+            if (bar) {
+                bar.addEventListener('touchstart', handleAlphaTouch, { passive: false });
+                bar.addEventListener('touchmove', handleAlphaTouch, { passive: false });
+                bar.addEventListener('touchend', endAlphaTouch);
+                bar.addEventListener('touchcancel', endAlphaTouch);
+                bar.addEventListener('mousedown', handleAlphaMouse);
+            }
+        }
+
+        function handleAlphaTouch(e) {
+            e.preventDefault();
+            if (!e.touches || e.touches.length === 0) return;
+            const touch = e.touches[0];
+            scrubToPoint(touch.clientX, touch.clientY);
+        }
+
+        function handleAlphaMouse(e) {
+            scrubToPoint(e.clientX, e.clientY);
+            const onMove = (ev) => scrubToPoint(ev.clientX, ev.clientY);
+            const onUp = () => {
+                endAlphaTouch();
+                window.removeEventListener('mousemove', onMove);
+                window.removeEventListener('mouseup', onUp);
+            };
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+        }
+
+        function scrubToPoint(x, y) {
+            const bar = document.getElementById('alphaScrollerBar');
+            if (!bar) return;
+            const rect = bar.getBoundingClientRect();
+            const clampedX = rect.left + rect.width / 2;
+            const clampedY = Math.max(rect.top + 2, Math.min(rect.bottom - 2, y));
+            const el = document.elementFromPoint(clampedX, clampedY);
+            if (el && el.dataset && el.dataset.letter) {
+                const letter = el.dataset.letter;
+                const bubble = document.getElementById('alphaBubble');
+                if (bubble) {
+                    bubble.textContent = letter;
+                    bubble.classList.add('visible');
+                }
+                document.querySelectorAll('.alpha-letter').forEach(node => {
+                    node.classList.toggle('active-touch', node.dataset.letter === letter);
+                });
+                if (currentScrubLetter !== letter) {
+                    currentScrubLetter = letter;
+                    jumpToPlantByLetter(letter);
+                }
+            }
+        }
+
+        function endAlphaTouch() {
+            currentScrubLetter = null;
+            const bubble = document.getElementById('alphaBubble');
+            if (bubble) bubble.classList.remove('visible');
+            document.querySelectorAll('.alpha-letter.active-touch').forEach(node => {
+                node.classList.remove('active-touch');
+            });
+        }
+
+        function jumpToPlantByLetter(targetLetter) {
+            const zone = getActiveZone();
+            if (!zone || zone.plants.length === 0) return;
+
+            let targetPlant = zone.plants.find(p => normalizeArabicFirstLetter(p.name) === targetLetter);
+            if (!targetPlant) {
+                const startIdx = ARABIC_ALPHABET.indexOf(targetLetter);
+                for (let i = startIdx + 1; i < ARABIC_ALPHABET.length; i++) {
+                    targetPlant = zone.plants.find(p => normalizeArabicFirstLetter(p.name) === ARABIC_ALPHABET[i]);
+                    if (targetPlant) break;
+                }
+            }
+            if (!targetPlant) return;
+
+            const cardEl = document.getElementById(`plant-card-${targetPlant.id}`);
+            if (cardEl) {
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                cardEl.classList.remove('jump-highlight');
+                void cardEl.offsetWidth;
+                cardEl.classList.add('jump-highlight');
+                setTimeout(() => cardEl.classList.remove('jump-highlight'), 900);
+            }
+        }
+
+        function sortPlantsAlphabetically() {
+            const zone = getActiveZone();
+            if (!zone || zone.plants.length < 2) return;
+
+            zone.plants.sort((a, b) => {
+                const nameA = (a.name || '').trim();
+                const nameB = (b.name || '').trim();
+                return nameA.localeCompare(nameB, 'ar', { sensitivity: 'base' });
+            });
+
+            activePhotoPrompt = null;
+            markUnsaved();
+            render();
+            showToast('🔤 تم ترتيب أسماء النباتات أبجدياً (أ - ي)');
+        }
+
+        // --- معالجة الصور بجودة عالية HD أو الجودة الأصلية ---
+        function processHighQualityImageFile(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const isOriginal = meta.photoQuality === 'original';
+                    const maxDim = isOriginal ? Math.max(img.width, img.height) : 1600;
+                    const jpegQuality = isOriginal ? 0.95 : 0.90;
+
+                    let w = img.width;
+                    let h = img.height;
+                    if (!isOriginal && (w > maxDim || h > maxDim)) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const highQualityDataUrl = canvas.toDataURL('image/jpeg', jpegQuality);
+                    callback(highQualityDataUrl, w, h);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function triggerCameraForEntry(plantId, entryId) {
+            pendingPhotoTarget = { zoneId: activeZoneId, plantId: plantId, entryId: String(entryId) };
+            const input = document.getElementById('cameraFileInput');
+            input.value = '';
+            input.click();
+        }
+
+        function triggerGalleryForEntry(plantId, entryId) {
+            pendingPhotoTarget = { zoneId: activeZoneId, plantId: plantId, entryId: String(entryId) };
+            const input = document.getElementById('galleryFileInput');
+            input.value = '';
+            input.click();
+        }
+
+        function handlePhotoFileSelected(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file || !pendingPhotoTarget) return;
+
+            const target = { ...pendingPhotoTarget };
+            pendingPhotoTarget = null;
+
+            processHighQualityImageFile(file, (highQualityDataUrl, w, h) => {
+                const zone = zones.find(z => z.id === target.zoneId);
+                const plant = zone ? zone.plants.find(p => p.id === target.plantId) : null;
+                const entry = plant && Array.isArray(plant.entries)
+                    ? plant.entries.find(ent => String(ent.id) === String(target.entryId))
+                    : null;
+
+                if (entry) {
+                    entry.photo = highQualityDataUrl;
+                    activePhotoPrompt = null;
+                    markUnsaved();
+                    render();
+                    if (viewingPhotoTarget && String(viewingPhotoTarget.entryId) === String(entry.id)) {
+                        document.getElementById('photoViewerImg').src = highQualityDataUrl;
+                    }
+                    showToast(`📸 تم إضافة الصورة بدقة عالية (${w}×${h}) - تذكّر حفظ الملف`);
+                }
+            });
+        }
+
+        function dismissPhotoPrompt() {
+            activePhotoPrompt = null;
+            render();
+        }
+
+        // --- نافذة سجل تسلسل الإضافات للنبات ---
+        function openSequenceModal(plantId) {
+            viewingSequencePlantId = plantId;
+            renderSequenceModalContent();
+            document.getElementById('sequenceModal').classList.add('active');
+        }
+
+        function closeSequenceModal() {
+            viewingSequencePlantId = null;
+            document.getElementById('sequenceModal').classList.remove('active');
+        }
+
+        function renderSequenceModalContent() {
+            const zone = getActiveZone();
+            const plant = zone ? zone.plants.find(p => p.id === viewingSequencePlantId) : null;
+            if (!plant) return closeSequenceModal();
+
+            const entries = Array.isArray(plant.entries) ? plant.entries : [];
+            const photosCount = entries.filter(e => !!e.photo).length;
+
+            document.getElementById('sequenceModalTitle').textContent = `📜 سجل تسلسل: ${plant.name}`;
+            const body = document.getElementById('sequenceModalBody');
+
+            let html = `
+                <div class="seq-summary-strip">
+                    <span>إجمالي المسجل بالترتيب: ${entries.length}</span>
+                    <span style="color:#15803d;">📸 مصوّرة: ${photosCount} | بدون: ${entries.length - photosCount}</span>
+                </div>
+            `;
+
+            if (entries.length === 0) {
+                html += `
+                    <div class="empty-state" style="margin-top:0; padding:20px;">
+                        <div style="font-size:14px;">لا يوجد سجل تسلسل زمني مسجل بعد لهذا الصنف. كل نبتة تضيفها بالضغط على (+) ستظهر هنا بالترتيب من #1 مع وقتها وحالة تصويرها.</div>
+                    </div>
+                `;
+            } else {
+                entries.forEach((ent, idx) => {
+                    const condObj = config.find(c => c.id === ent.condId);
+                    const condName = condObj ? condObj.name : 'حالة';
+                    const condColor = condObj ? condObj.color : '#e2e8f0';
+                    const hasPhoto = !!ent.photo;
+
+                    html += `
+                        <div class="seq-item">
+                            <div class="seq-left">
+                                <span class="seq-num">#${idx + 1}</span>
+                                <span class="seq-cond-badge" style="background-color: ${condColor};">${escapeHtml(condName)}</span>
+                                <span class="seq-time">🕒 ${escapeHtml(ent.time || '')}</span>
+                            </div>
+                            <div class="seq-right">
+                                ${hasPhoto
+                                    ? `<button class="badge-has-photo" onclick="openPhotoViewer(${plant.id}, '${ent.id}', ${idx + 1})">📸 مصوّرة (عرض)</button>`
+                                    : `<button class="badge-no-photo" onclick="triggerCameraForEntry(${plant.id}, '${ent.id}')">📷 غير مصوّرة (+صورة)</button>`
+                                }
+                                <button class="btn-del-seq" onclick="deleteSequenceEntry(${plant.id}, '${ent.id}')" title="حذف من السجل">✕</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            body.innerHTML = html;
+        }
+
+        function deleteSequenceEntry(plantId, entryId) {
+            const zone = getActiveZone();
+            const plant = zone ? zone.plants.find(p => p.id === plantId) : null;
+            if (!plant || !Array.isArray(plant.entries)) return;
+
+            const idx = plant.entries.findIndex(e => String(e.id) === String(entryId));
+            if (idx === -1) return;
+
+            const removed = plant.entries.splice(idx, 1)[0];
+            if (removed && plant.counts[removed.condId] > 0) {
+                plant.counts[removed.condId] -= 1;
+            }
+            markUnsaved();
+            render();
+        }
+
+        // --- معاينة الصورة الملتقطة ---
+        function openPhotoViewer(plantId, entryId, seqNum) {
+            const zone = getActiveZone();
+            const plant = zone ? zone.plants.find(p => p.id === plantId) : null;
+            const entry = plant && Array.isArray(plant.entries)
+                ? plant.entries.find(e => String(e.id) === String(entryId))
+                : null;
+            if (!entry || !entry.photo) return;
+
+            const condObj = config.find(c => c.id === entry.condId);
+            viewingPhotoTarget = { zoneId: zone.id, plantId: plant.id, entryId: String(entry.id) };
+            document.getElementById('photoViewerTitle').textContent = `📸 ${plant.name} (#${seqNum}) - ${condObj ? condObj.name : ''}`;
+            document.getElementById('photoViewerImg').src = entry.photo;
+            document.getElementById('photoViewerModal').classList.add('active');
+        }
+
+        function closePhotoViewer() {
+            viewingPhotoTarget = null;
+            document.getElementById('photoViewerModal').classList.remove('active');
+        }
+
+        function replaceCurrentViewedPhoto() {
+            if (!viewingPhotoTarget) return;
+            triggerCameraForEntry(viewingPhotoTarget.plantId, viewingPhotoTarget.entryId);
+        }
+
+        function deleteCurrentViewedPhoto() {
+            if (!viewingPhotoTarget) return;
+            const zone = zones.find(z => z.id === viewingPhotoTarget.zoneId);
+            const plant = zone ? zone.plants.find(p => p.id === viewingPhotoTarget.plantId) : null;
+            const entry = plant && Array.isArray(plant.entries)
+                ? plant.entries.find(e => String(e.id) === String(viewingPhotoTarget.entryId))
+                : null;
+            if (entry) {
+                entry.photo = null;
+                markUnsaved();
+                closePhotoViewer();
+                render();
+                showToast('🗑️ تم حذف الصورة من سجل النبتة');
+            }
+        }
+
+        // --- لوحة الإحصائيات والتقارير الفورية ---
+        function computeSiteStats() {
+            let grandTotal = 0;
+            let totalPhotos = 0;
+            const condTotals = {};
+            config.forEach(c => condTotals[c.id] = 0);
+
+            const speciesMap = {};
+
+            zones.forEach(z => {
+                z.plants.forEach(p => {
+                    const normKey = (p.name || 'غير مسمى').trim().replace(/\s+/g, ' ');
+                    if (!speciesMap[normKey]) {
+                        speciesMap[normKey] = {
+                            name: normKey,
+                            total: 0,
+                            photos: 0,
+                            counts: { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 }
+                        };
+                    }
+                    if (Array.isArray(p.entries)) {
+                        const pPhotos = p.entries.filter(e => !!e.photo).length;
+                        totalPhotos += pPhotos;
+                        speciesMap[normKey].photos += pPhotos;
+                    }
+                    config.forEach(c => {
+                        const val = p.counts[c.id] || 0;
+                        grandTotal += val;
+                        condTotals[c.id] += val;
+                        speciesMap[normKey].total += val;
+                        speciesMap[normKey].counts[c.id] += val;
+                    });
+                });
+            });
+
+            const healthyTotal = condTotals['c1'] || 0;
+            const deadTotal = condTotals['c3'] || 0;
+            const needsCareTotal = (condTotals['c2'] || 0) + (condTotals['c4'] || 0) + (condTotals['c5'] || 0) + (condTotals['c6'] || 0);
+
+            const healthyPct = grandTotal > 0 ? Math.round((healthyTotal / grandTotal) * 100) : 0;
+            const needsCarePct = grandTotal > 0 ? Math.round((needsCareTotal / grandTotal) * 100) : 0;
+            const deadPct = grandTotal > 0 ? Math.round((deadTotal / grandTotal) * 100) : 0;
+
+            const speciesList = Object.values(speciesMap).sort((a, b) => b.total - a.total);
+
+            return {
+                grandTotal,
+                totalPhotos,
+                condTotals,
+                healthyTotal,
+                needsCareTotal,
+                deadTotal,
+                healthyPct,
+                needsCarePct,
+                deadPct,
+                speciesList
+            };
+        }
+
+        function openDashboard() {
+            const stats = computeSiteStats();
+            const body = document.getElementById('dashboardBody');
+
+            let html = `
+                <div style="font-size:12px; color:#475569; margin-bottom:10px; background:#f1f5f9; padding:8px; border-radius:8px;">
+                    <b>الموقع:</b> ${escapeHtml(meta.siteName || 'غير محدد')} &nbsp;|&nbsp;
+                    <b>القائم بالجرد:</b> ${escapeHtml(meta.surveyorName || 'غير مسجل')} &nbsp;|&nbsp;
+                    <b>📸 الصور:</b> ${stats.totalPhotos}
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card" style="border-bottom: 4px solid #2563eb;">
+                        <div class="kpi-num">${stats.grandTotal}</div>
+                        <div class="kpi-lbl">إجمالي النباتات (${zones.length} منطقة)</div>
+                    </div>
+                    <div class="kpi-card" style="border-bottom: 4px solid #16a34a;">
+                        <div class="kpi-num" style="color:#15803d;">${stats.healthyPct}%</div>
+                        <div class="kpi-lbl">نسبة السليم (${stats.healthyTotal})</div>
+                    </div>
+                    <div class="kpi-card" style="border-bottom: 4px solid #f59e0b;">
+                        <div class="kpi-num" style="color:#b45309;">${stats.needsCarePct}%</div>
+                        <div class="kpi-lbl">تحتاج تدخل (${stats.needsCareTotal})</div>
+                    </div>
+                    <div class="kpi-card" style="border-bottom: 4px solid #64748b;">
+                        <div class="kpi-num" style="color:#475569;">${stats.deadPct}%</div>
+                        <div class="kpi-lbl">نسبة الهالك (${stats.deadTotal})</div>
+                    </div>
+                </div>
+
+                <div class="dash-section-title">توزيع الحالات الصحية بالموقع:</div>
+            `;
+
+            config.forEach(c => {
+                const cnt = stats.condTotals[c.id] || 0;
+                const pct = stats.grandTotal > 0 ? Math.round((cnt / stats.grandTotal) * 100) : 0;
+                html += `
+                    <div class="cond-summary-row" style="background-color: ${c.color};">
+                        <span>${escapeHtml(c.name)}</span>
+                        <span>${cnt} نبتة (${pct}%)</span>
+                    </div>
+                `;
+            });
+
+            html += `<div class="dash-section-title">ملخص الأصناف المجمّع (عبر كل المناطق):</div>`;
+
+            if (stats.speciesList.length === 0) {
+                html += `<p style="font-size:13px; color:#64748b;">لا توجد نباتات مسجلة بعد.</p>`;
+            } else {
+                html += `
+                    <table class="species-table">
+                        <thead>
+                            <tr>
+                                <th>الصنف</th>
+                                <th>الإجمالي</th>
+                                <th>سليم</th>
+                                <th>متابعة / هالك</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                stats.speciesList.forEach(sp => {
+                    const ok = sp.counts['c1'] || 0;
+                    const problem = sp.total - ok;
+                    const probPct = sp.total > 0 ? Math.round((problem / sp.total) * 100) : 0;
+                    html += `
+                        <tr>
+                            <td><b>${escapeHtml(sp.name)}</b> ${sp.photos > 0 ? `<small style="color:#0284c7;">(📸${sp.photos})</small>` : ''}</td>
+                            <td><b>${sp.total}</b></td>
+                            <td><span class="badge-ok">${ok}</span></td>
+                            <td>${problem > 0 ? `<span class="badge-warn">${problem} (${probPct}%)</span>` : '0'}</td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody></table>`;
+            }
+
+            body.innerHTML = html;
+            document.getElementById('dashboardModal').classList.add('active');
+        }
+
+        function closeDashboard() {
+            document.getElementById('dashboardModal').classList.remove('active');
+        }
+
+        function shareDashboardWhatsApp() {
+            const stats = computeSiteStats();
+            let msg = `📊 *تقرير ملخص الجرد الميداني*\n`;
+            msg += `*الموقع:* ${meta.siteName || 'موقع 5 دونم'}\n`;
+            if (meta.surveyorName) msg += `*القائم بالجرد:* ${meta.surveyorName}\n`;
+            msg += `*التاريخ:* ${formatCurrentDateTimeFull()}\n`;
+            msg += `------------------\n`;
+            msg += `*إجمالي النباتات:* ${stats.grandTotal} (في ${zones.length} منطقة)\n`;
+            msg += `*الصور الميدانية الملتقطة:* ${stats.totalPhotos}\n`;
+            config.forEach(c => {
+                const cnt = stats.condTotals[c.id] || 0;
+                const pct = stats.grandTotal > 0 ? Math.round((cnt / stats.grandTotal) * 100) : 0;
+                msg += `• ${c.name}: ${cnt} (${pct}%)\n`;
+            });
+            if (stats.speciesList.length > 0) {
+                msg += `------------------\n*تفصيل الأصناف:*\n`;
+                stats.speciesList.forEach(sp => {
+                    const ok = sp.counts['c1'] || 0;
+                    const prob = sp.total - ok;
+                    msg += `- ${sp.name}: المجموع ${sp.total} (سليم: ${ok} | متابعة/هالك: ${prob})\n`;
+                });
+            }
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // --- نسخ قائمة الأصناف من منطقة سابقة ---
+        function openImportSpeciesModal() {
+            const otherZones = zones.filter(z => z.id !== activeZoneId && z.plants.length > 0);
+            const listEl = document.getElementById('importSpeciesList');
+
+            if (otherZones.length === 0) {
+                showToast('⚠️ لا توجد مناطق أخرى تحتوي على نباتات لنسخها.', true);
+                return;
+            }
+
+            let html = '';
+            otherZones.forEach(z => {
+                const namesPreview = z.plants.map(p => p.name).slice(0, 4).join('، ') + (z.plants.length > 4 ? '...' : '');
+                html += `
+                    <div class="import-zone-item" onclick="importSpeciesFromZone(${z.id})">
+                        <div>
+                            <div style="font-weight:bold; font-size:16px; color:#0f172a;">📍 ${escapeHtml(z.name)} (${z.plants.length} أصناف)</div>
+                            <div style="font-size:12px; color:#64748b; margin-top:3px;">${escapeHtml(namesPreview)}</div>
+                        </div>
+                        <span style="background:#0d9488; color:white; padding:5px 10px; border-radius:7px; font-size:12px; font-weight:bold;">نسخ</span>
+                    </div>
+                `;
+            });
+            listEl.innerHTML = html;
+            document.getElementById('importSpeciesModal').classList.add('active');
+        }
+
+        function closeImportSpeciesModal() {
+            document.getElementById('importSpeciesModal').classList.remove('active');
+        }
+
+        function importSpeciesFromZone(sourceZoneId) {
+            const targetZone = getActiveZone();
+            const sourceZone = zones.find(z => z.id === sourceZoneId);
+            if (!targetZone || !sourceZone) return;
+
+            const existingNames = new Set(targetZone.plants.map(p => p.name.trim()));
+            let addedCount = 0;
+
+            sourceZone.plants.forEach((p, idx) => {
+                const cleanName = p.name.trim();
+                if (!existingNames.has(cleanName)) {
+                    targetZone.plants.push({
+                        id: Date.now() + idx + Math.random(),
+                        name: cleanName,
+                        counts: { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 },
+                        entries: [],
+                        notes: [{ text: '', lat: null, lng: null, acc: null }]
+                    });
+                    existingNames.add(cleanName);
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) markUnsaved();
+            closeImportSpeciesModal();
+            render();
+            if (addedCount > 0) {
+                showToast(`✅ تم نسخ (${addedCount}) صنف من منطقة ${sourceZone.name} بعدّادات مصفّرة`);
+            } else {
+                showToast('ℹ️ جميع أصناف تلك المنطقة موجودة هنا بالفعل.');
+            }
+        }
+
+        // --- نظام الحفظ والفتح المباشر كملف على الهاتف ---
+        function getBackupPayloadString() {
+            return JSON.stringify({
+                app: 'JardPlantsBackup',
+                version: 10,
+                savedAt: new Date().toISOString(),
+                config: config,
+                meta: meta,
+                zones: zones,
+                lastAction: lastAction
+            }, null, 2);
+        }
+
+        function getBackupFilename() {
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const safeSite = (meta.siteName || 'Jard').replace(/[\\/:*?"<>|\s]+/g, '_');
+            return `${safeSite}_${yyyy}-${mm}-${dd}_${hh}-${min}.json`;
+        }
+
+        function openBackupModal() {
+            pendingImportData = null;
+            document.getElementById('mergePromptContainer').innerHTML = '';
+            document.getElementById('backupModal').classList.add('active');
+        }
+
+        function closeBackupModal() {
+            document.getElementById('backupModal').classList.remove('active');
+            pendingImportData = null;
+        }
+
+        function downloadBackupFile() {
+            const jsonStr = getBackupPayloadString();
+            const filename = getBackupFilename();
+            const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            markSavedToFile(filename);
+            closeBackupModal();
+            showToast(`✅ تم حفظ الملف (${filename}) على ذاكرة الهاتف`);
+        }
+
+        async function shareBackupFile() {
+            const jsonStr = getBackupPayloadString();
+            const filename = getBackupFilename();
+            try {
+                const file = new File([jsonStr], filename, { type: 'application/json' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'ملف جرد النباتات والصور'
+                    });
+                    markSavedToFile(filename);
+                    closeBackupModal();
+                    showToast('✅ تم فتح قائمة الحفظ والمشاركة للملف');
+                    return;
+                }
+            } catch (err) {
+                if (err && err.name === 'AbortError') return;
+            }
+            downloadBackupFile();
+        }
+
+        function triggerRestoreFile() {
+            const input = document.getElementById('restoreFileInput');
+            input.value = '';
+            input.click();
+        }
+
+        function handleRestoreFile(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const loadedFilename = file.name;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                processImportedRawText(e.target.result, loadedFilename);
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function processImportedRawText(rawText, loadedFilename = 'ملف_جرد.json') {
+            try {
+                const parsed = JSON.parse(rawText);
+                if (!parsed || !Array.isArray(parsed.zones)) {
+                    showToast('⚠️ الملف المختار غير صالح أو تالف.', true);
+                    return;
+                }
+
+                const importedZones = normalizeZones(parsed.zones);
+                const importedConfig = Array.isArray(parsed.config) && parsed.config.length === 6 ? parsed.config : null;
+                const importedMeta = parsed.meta || null;
+                const importedLastAction = parsed.lastAction || null;
+
+                if (zones.length === 0) {
+                    applyImportedData(importedZones, importedConfig, importedMeta, importedLastAction, 'replace', loadedFilename);
+                } else {
+                    pendingImportData = {
+                        zones: importedZones,
+                        config: importedConfig,
+                        meta: importedMeta,
+                        lastAction: importedLastAction,
+                        filename: loadedFilename
+                    };
+                    document.getElementById('mergePromptContainer').innerHTML = `
+                        <div class="merge-prompt">
+                            <p>يوجد لديك (${zones.length}) منطقة مفتوحة حالياً. كيف تريد فتح الملف؟</p>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn" style="flex:1; background:#dc2626; font-size:13px;" onclick="confirmImportChoice('replace')">استبدال الكل</button>
+                                <button class="btn" style="flex:1; background:#0284c7; font-size:13px;" onclick="confirmImportChoice('merge')">دمج المناطق معاً</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                showToast('⚠️ تعذر قراءة بيانات الملف المختار.', true);
+            }
+        }
+
+        function confirmImportChoice(mode) {
+            if (!pendingImportData) return;
+            applyImportedData(
+                pendingImportData.zones,
+                pendingImportData.config,
+                pendingImportData.meta,
+                pendingImportData.lastAction,
+                mode,
+                pendingImportData.filename
+            );
+        }
+
+        function applyImportedData(importedZones, importedConfig, importedMeta, importedLastAction, mode, loadedFilename) {
+            if (mode === 'replace') {
+                zones = importedZones;
+                if (importedConfig) config = importedConfig;
+                if (importedMeta) meta = { ...meta, ...importedMeta };
+                lastAction = importedLastAction;
+                hasUnsavedChanges = false;
+                lastSavedFileLabel = loadedFilename;
+            } else {
+                const reIdZones = importedZones.map((z, idx) => ({
+                    ...z,
+                    id: Date.now() + idx + Math.random()
+                }));
+                zones = zones.concat(reIdZones);
+                hasUnsavedChanges = true;
+            }
+            activeZoneId = null;
+            activePhotoPrompt = null;
+            closeBackupModal();
+            render();
+            showToast(`✅ تم فتح الملف بنجاح (${zones.length} منطقة جاهزة للتكملة)`);
+        }
+
+        // --- إدارة المناطق ---
+        function renderZonesList() {
+            const container = document.getElementById('mainContainer');
+            let html = '';
+
+            if (zones.length === 0) {
+                html += `
+                    <div class="empty-state">
+                        <div style="font-size: 36px; margin-bottom: 10px;">🌱</div>
+                        <div style="font-size: 17px; font-weight: bold; color: #334155; margin-bottom: 6px;">لا توجد مناطق مفتوحة حالياً</div>
+                        <div style="font-size: 14px; line-height:1.5;">ابدأ بإضافة منطقة جديدة أو افتح ملف جرد محفوظ سابقاً من ذاكرة هاتفك</div>
+                    </div>
+                `;
+            } else {
+                zones.forEach(z => {
+                    let totalPlants = 0;
+                    z.plants.forEach(p => {
+                        config.forEach(c => totalPlants += (p.counts[c.id] || 0));
+                    });
+                    const isConfirming = confirmDeleteKey === 'zone_' + z.id;
+
+                    html += `
+                        <div class="zone-card" onclick="enterZone(${z.id})">
+                            <div class="zone-info">
+                                <h3>📍 ${escapeHtml(z.name)}</h3>
+                                <div class="zone-stats">عدد الأصناف: ${z.plants.length} &nbsp;|&nbsp; إجمالي النباتات: ${totalPlants}</div>
+                            </div>
+                            <div class="zone-actions" onclick="event.stopPropagation()">
+                                <button class="btn-sm btn-edit" onclick="openZoneModal(${z.id})">تعديل</button>
+                                <button class="btn-sm btn-del" onclick="deleteZone(${z.id})">${isConfirming ? 'تأكيد؟' : 'حذف'}</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `<button class="btn btn-primary-full" onclick="openZoneModal()">+ إضافة منطقة جديدة</button>`;
+            html += `<button class="btn btn-open-file-full" onclick="triggerRestoreFile()">📂 فتح ملف جرد من الهاتف (.json)</button>`;
+            container.innerHTML = html;
+        }
+
+        function openZoneModal(zoneId = null) {
+            editingZoneId = zoneId;
+            const modal = document.getElementById('zoneModal');
+            const title = document.getElementById('zoneModalTitle');
+            const input = document.getElementById('zoneNameInput');
+
+            if (zoneId === null) {
+                title.textContent = 'إضافة منطقة جديدة';
+                input.value = '';
+            } else {
+                const z = zones.find(item => item.id === zoneId);
+                title.textContent = 'تعديل اسم المنطقة';
+                input.value = z ? z.name : '';
+            }
+
+            modal.classList.add('active');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeZoneModal() {
+            document.getElementById('zoneModal').classList.remove('active');
+            editingZoneId = null;
+        }
+
+        function saveZoneModal() {
+            const input = document.getElementById('zoneNameInput');
+            const name = input.value.trim();
+            if (!name) return;
+
+            if (editingZoneId === null) {
+                const newZone = {
+                    id: Date.now(),
+                    name: name,
+                    plants: []
+                };
+                zones.push(newZone);
+                markUnsaved();
+                closeZoneModal();
+                enterZone(newZone.id);
+            } else {
+                const z = zones.find(item => item.id === editingZoneId);
+                if (z) z.name = name;
+                markUnsaved();
+                closeZoneModal();
+                render();
+            }
+        }
+
+        function deleteZone(zoneId) {
+            const key = 'zone_' + zoneId;
+            if (confirmDeleteKey !== key) {
+                confirmDeleteKey = key;
+                render();
+                setTimeout(() => { if (confirmDeleteKey === key) { confirmDeleteKey = null; render(); } }, 3000);
+                return;
+            }
+            confirmDeleteKey = null;
+            zones = zones.filter(z => z.id !== zoneId);
+            if (lastAction && lastAction.zoneId === zoneId) lastAction = null;
+            markUnsaved();
+            render();
+        }
+
+        function enterZone(zoneId) {
+            activeZoneId = zoneId;
+            confirmDeleteKey = null;
+            activePhotoPrompt = null;
+            render();
+            window.scrollTo(0, 0);
+        }
+
+        function exitZone() {
+            activeZoneId = null;
+            confirmDeleteKey = null;
+            activePhotoPrompt = null;
+            render();
+            window.scrollTo(0, 0);
+        }
+
+        // --- إدارة النباتات والعدّ وتسجيل التسلسل ---
+        function getActiveZone() {
+            return zones.find(z => z.id === activeZoneId);
+        }
+
+        function addPlant() {
+            const zone = getActiveZone();
+            if (!zone) return;
+            zone.plants.push({
+                id: Date.now(),
+                name: 'نبات ' + (zone.plants.length + 1),
+                counts: { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 },
+                entries: [],
+                notes: [{ text: '', lat: null, lng: null, acc: null }]
+            });
+            markUnsaved();
+            render();
+        }
+
+        function duplicatePlant(index) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            const p = zone.plants[index];
+            zone.plants.splice(index + 1, 0, {
+                id: Date.now(),
+                name: p.name + ' (نسخة)',
+                counts: { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 },
+                entries: [],
+                notes: [{ text: '', lat: null, lng: null, acc: null }]
+            });
+            markUnsaved();
+            render();
+        }
+
+        function deletePlant(index) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            const plantId = zone.plants[index].id;
+            const key = 'plant_' + plantId;
+            if (confirmDeleteKey !== key) {
+                confirmDeleteKey = key;
+                render();
+                setTimeout(() => { if (confirmDeleteKey === key) { confirmDeleteKey = null; render(); } }, 3000);
+                return;
+            }
+            confirmDeleteKey = null;
+            zone.plants.splice(index, 1);
+            if (lastAction && lastAction.plantId === plantId) lastAction = null;
+            if (activePhotoPrompt && activePhotoPrompt.plantId === plantId) activePhotoPrompt = null;
+            markUnsaved();
+            render();
+        }
+
+        function updatePlantName(index, val) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            zone.plants[index].name = val;
+            if (lastAction && lastAction.plantId === zone.plants[index].id) {
+                lastAction.plantName = val;
+                renderLastActionBar();
+            }
+            updatePlantNamesDatalist();
+            renderAlphaScroller(zone);
+            markUnsaved();
+        }
+
+        function updateCount(plantIndex, condId, delta) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            const plant = zone.plants[plantIndex];
+            if (!Array.isArray(plant.entries)) plant.entries = [];
+
+            const current = plant.counts[condId] || 0;
+            if (current + delta >= 0) {
+                const updatedVal = current + delta;
+                plant.counts[condId] = updatedVal;
+
+                if (delta > 0) {
+                    const condObj = config.find(c => c.id === condId);
+                    const nowTime = formatCurrentTime();
+                    const newEntry = {
+                        id: String(Date.now()) + '_' + Math.floor(Math.random() * 10000),
+                        condId: condId,
+                        time: nowTime,
+                        photo: null
+                    };
+                    plant.entries.push(newEntry);
+
+                    const seqNumber = plant.entries.length;
+                    const prevMarker = (lastAction && lastAction.fieldMarker) ? lastAction.fieldMarker : '';
+                    lastAction = {
+                        zoneId: zone.id,
+                        zoneName: zone.name,
+                        plantId: plant.id,
+                        plantName: plant.name,
+                        condId: condId,
+                        condName: condObj ? condObj.name : '',
+                        condColor: condObj ? condObj.color : '#e2e8f0',
+                        newCount: updatedVal,
+                        seqNumber: seqNumber,
+                        time: nowTime,
+                        fieldMarker: prevMarker
+                    };
+
+                    activePhotoPrompt = {
+                        plantId: plant.id,
+                        condId: condId,
+                        entryId: newEntry.id,
+                        condName: condObj ? condObj.name : '',
+                        entryNumber: seqNumber
+                    };
+                } else {
+                    for (let i = plant.entries.length - 1; i >= 0; i--) {
+                        if (plant.entries[i].condId === condId) {
+                            plant.entries.splice(i, 1);
+                            break;
+                        }
+                    }
+                    if (lastAction && lastAction.plantId === plant.id && lastAction.condId === condId) {
+                        lastAction.newCount = updatedVal;
+                    }
+                    if (activePhotoPrompt && activePhotoPrompt.plantId === plant.id && activePhotoPrompt.condId === condId) {
+                        activePhotoPrompt = null;
+                    }
+                }
+
+                markUnsaved();
+                render();
+            }
+        }
+
+        // --- إدارة الملاحظات والـ GPS والشريط الملون والواتساب ---
+        function addNote(plantIndex) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            if (!zone.plants[plantIndex].notes) zone.plants[plantIndex].notes = [];
+            zone.plants[plantIndex].notes.push({ text: '', lat: null, lng: null, acc: null });
+            markUnsaved();
+            render();
+            const notesInputs = document.querySelectorAll(`.note-input[data-pindex="${plantIndex}"]`);
+            if (notesInputs.length > 0) {
+                notesInputs[notesInputs.length - 1].focus();
+            }
+        }
+
+        function updateNoteText(plantIndex, noteIndex, val, el) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            zone.plants[plantIndex].notes[noteIndex].text = val;
+            markUnsaved();
+            if (el) autoResize(el);
+        }
+
+        function appendRibbonTag(plantIndex, noteIndex) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            const note = zone.plants[plantIndex].notes[noteIndex];
+            const tag = '[تم وضع شريط ملون للتمييز 🎀]';
+            if (!note.text.includes('شريط ملون')) {
+                note.text = note.text.trim() ? `${note.text.trim()} - ${tag}` : tag;
+                markUnsaved();
+                render();
+            }
+        }
+
+        function deleteNote(plantIndex, noteIndex) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            zone.plants[plantIndex].notes.splice(noteIndex, 1);
+            markUnsaved();
+            render();
+        }
+
+        function captureGPS(plantIndex, noteIndex) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            const key = `${plantIndex}_${noteIndex}`;
+
+            if (!navigator.geolocation) {
+                gpsErrorMap[key] = 'المتصفح لا يدعم تحديد الموقع (GPS).';
+                render();
+                return;
+            }
+
+            gpsLoadingMap[key] = true;
+            delete gpsErrorMap[key];
+            render();
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    delete gpsLoadingMap[key];
+                    const note = zone.plants[plantIndex].notes[noteIndex];
+                    note.lat = Number(pos.coords.latitude.toFixed(6));
+                    note.lng = Number(pos.coords.longitude.toFixed(6));
+                    note.acc = Math.round(pos.coords.accuracy);
+                    markUnsaved();
+                    render();
+                },
+                (err) => {
+                    delete gpsLoadingMap[key];
+                    if (err.code === 1) {
+                        gpsErrorMap[key] = 'تم رفض إذن الموقع. فعّل GPS للمتصفح من إعدادات الهاتف.';
+                    } else if (err.code === 3) {
+                        gpsErrorMap[key] = 'انتهى الوقت. قف في مكان مفتوح وحاول مجدداً.';
+                    } else {
+                        gpsErrorMap[key] = 'تعذر التقاط الإشارة. تأكد من تشغيل GPS في الهاتف.';
+                    }
+                    render();
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+        }
+
+        function sendWhatsApp(plantIndex, noteIndex) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            const plant = zone.plants[plantIndex];
+            const note = plant.notes[noteIndex];
+
+            let statusParts = [];
+            config.forEach(c => {
+                const count = plant.counts[c.id] || 0;
+                if (count > 0) statusParts.push(`${c.name} (${count})`);
+            });
+
+            let msg = `📍 *توجيه ميداني - متابعة نبات*\n`;
+            if (meta.siteName) msg += `*الموقع:* ${meta.siteName}\n`;
+            msg += `*المنطقة:* ${zone.name}\n`;
+            msg += `*النبات:* ${plant.name}\n`;
+            if (statusParts.length > 0) {
+                msg += `*الحالات المسجلة:* ${statusParts.join('، ')}\n`;
+            }
+            if (note.text && note.text.trim() !== '') {
+                msg += `*المعلم / الملاحظة:* ${note.text.trim()}\n`;
+            }
+            if (note.lat !== null && note.lng !== null) {
+                msg += `*رابط الموقع على الخريطة:*\nhttps://www.google.com/maps?q=${note.lat},${note.lng}`;
+            } else {
+                msg += `*(لم يتم تثبيت إحداثيات GPS لهذه الملاحظة)*`;
+            }
+
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
+        function resizeAllNotes() {
+            document.querySelectorAll('.note-input').forEach(el => autoResize(el));
+        }
+
+        function renderPlantsInZone() {
+            const container = document.getElementById('mainContainer');
+            const zone = getActiveZone();
+            if (!zone) return exitZone();
+
+            const hasOtherPopulatedZones = zones.some(z => z.id !== activeZoneId && z.plants.length > 0);
+            let html = '';
+
+            if (zone.plants.length > 0) {
+                html += `
+                    <div class="zone-toolbar">
+                        <span class="zone-count-hint">الأصناف: ${zone.plants.length}</span>
+                        <button class="btn-sort-alpha" onclick="sortPlantsAlphabetically()">🔤 ترتيب أبجدي (أ - ي)</button>
+                    </div>
+                `;
+            }
+
+            if (zone.plants.length === 0) {
+                html += `
+                    <div class="empty-state">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🌿</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #334155;">منطقة (${escapeHtml(zone.name)}) فارغة حالياً</div>
+                        <div style="font-size: 14px; margin-top: 4px;">أضف نباتاً جديداً أو انسخ قائمة الأصناف من منطقة سابقة</div>
+                    </div>
+                `;
+            }
+
+            zone.plants.forEach((p, index) => {
+                let total = 0;
+                config.forEach(c => total += (p.counts[c.id] || 0));
+                const isConfirming = confirmDeleteKey === 'plant_' + p.id;
+                const isLastPlant = lastAction && lastAction.plantId === p.id;
+                const notes = p.notes || [];
+                const entries = Array.isArray(p.entries) ? p.entries : [];
+                const photosCount = entries.filter(e => !!e.photo).length;
+
+                html += `
+                    <div id="plant-card-${p.id}" class="plant-card ${isLastPlant ? 'is-last-edited' : ''}">
+                        <div class="plant-header">
+                            <input type="text" list="plantNamesList" class="plant-name" value="${escapeHtml(p.name)}" oninput="updatePlantName(${index}, this.value)" placeholder="اسم النبات...">
+                            <div class="plant-actions">
+                                <button class="btn-sm btn-copy" onclick="duplicatePlant(${index})">نسخ</button>
+                                <button class="btn-sm btn-del" onclick="deletePlant(${index})">${isConfirming ? 'تأكيد؟' : 'حذف'}</button>
+                            </div>
+                        </div>
+
+                        <div class="plant-meta-bar">
+                            <div class="total-text">
+                                <span>الإجمالي: ${total}</span>
+                                ${isLastPlant ? `<span class="last-edited-pill">👈 آخر تعديل</span>` : ''}
+                            </div>
+                            <button class="btn-seq-log" onclick="openSequenceModal(${p.id})">
+                                <span>📜 سجل الترتيب (${entries.length})</span>
+                                ${photosCount > 0 ? `<span style="background:#16a34a; padding:1px 5px; border-radius:4px;">📸${photosCount}</span>` : ''}
+                            </button>
+                        </div>
+
+                        <div class="conditions-grid">
+                `;
+
+                config.forEach(c => {
+                    const count = p.counts[c.id] || 0;
+                    const isLastCond = isLastPlant && lastAction.condId === c.id;
+                    const showPromptHere = activePhotoPrompt
+                        && activePhotoPrompt.plantId === p.id
+                        && activePhotoPrompt.condId === c.id;
+
+                    html += `
+                        <div class="condition-box ${isLastCond ? 'is-last-cond' : ''}" style="background-color: ${c.color}">
+                            <div class="condition-title">${escapeHtml(c.name)}</div>
+                            <div class="counter-controls">
+                                <button class="counter-btn" onclick="updateCount(${index}, '${c.id}', -1)">-</button>
+                                <span class="count-val">${count}</span>
+                                <button class="counter-btn" onclick="updateCount(${index}, '${c.id}', 1)">+</button>
+                            </div>
+                        </div>
+                    `;
+
+                    if (showPromptHere) {
+                        html += `
+                            <div class="photo-prompt-rect">
+                                <div class="photo-prompt-label">
+                                    📷 صورة HD للنبتة <b>#${activePhotoPrompt.entryNumber}</b> (${escapeHtml(activePhotoPrompt.condName)}):
+                                </div>
+                                <div class="photo-prompt-btns">
+                                    <button class="btn-cam-now" onclick="triggerCameraForEntry(${p.id}, '${activePhotoPrompt.entryId}')">📸 كاميرا</button>
+                                    <button class="btn-gal-now" onclick="triggerGalleryForEntry(${p.id}, '${activePhotoPrompt.entryId}')">🖼️</button>
+                                    <button class="btn-close-prompt" onclick="dismissPhotoPrompt()">✕</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += `
+                        </div>
+                        <div class="notes-section">
+                            <div class="notes-header">
+                                <span class="notes-label">📝 الملاحظات وتحديد المواقع:</span>
+                                <button class="btn-add-note" onclick="addNote(${index})">+ إضافة موقع / ملاحظة</button>
+                            </div>
+                `;
+
+                notes.forEach((noteObj, nIdx) => {
+                    const key = `${index}_${nIdx}`;
+                    const isLoading = !!gpsLoadingMap[key];
+                    const errMsg = gpsErrorMap[key];
+                    const hasCoords = noteObj.lat !== null && noteObj.lng !== null;
+
+                    html += `
+                        <div class="note-card">
+                            <textarea rows="1" class="note-input" data-pindex="${index}" placeholder="اكتب معلم قريب (مثلاً: صف 4 نبتة 12 يمين الصمام)..." oninput="updateNoteText(${index}, ${nIdx}, this.value, this)">${escapeHtml(noteObj.text || '')}</textarea>
+                    `;
+
+                    if (hasCoords) {
+                        const mapLink = `https://www.google.com/maps?q=${noteObj.lat},${noteObj.lng}`;
+                        html += `
+                            <div class="gps-info-bar">
+                                <span>✅ تم تثبيت الموقع (دقة ±${noteObj.acc || '?'}م)</span>
+                                <a href="${mapLink}" target="_blank">🗺️ فتح الخريطة</a>
+                            </div>
+                        `;
+                    }
+
+                    if (errMsg) {
+                        html += `<div class="gps-status-msg">⚠️ ${escapeHtml(errMsg)}</div>`;
+                    }
+
+                    html += `
+                            <div class="note-tools">
+                                <button class="btn-gps ${hasCoords ? 'has-loc' : ''}" onclick="captureGPS(${index}, ${nIdx})" ${isLoading ? 'disabled' : ''}>
+                                    ${isLoading ? '⏳ جاري الالتقاط...' : (hasCoords ? '📍 تحديث GPS' : '📍 التقط GPS')}
+                                </button>
+                                <button class="btn-ribbon" onclick="appendRibbonTag(${index}, ${nIdx})" title="إضافة علامة شريط ملون">🎀 شريط</button>
+                                <button class="btn-wa" onclick="sendWhatsApp(${index}, ${nIdx})">
+                                    📤 واتساب
+                                </button>
+                                <button class="btn-del-note" onclick="deleteNote(${index}, ${nIdx})" title="حذف الملاحظة">✕</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            });
+
+            html += `<button class="btn btn-primary-full" onclick="addPlant()">+ إضافة نوع نبات جديد</button>`;
+            if (hasOtherPopulatedZones) {
+                html += `<button class="btn btn-secondary-full" onclick="openImportSpeciesModal()">📋 نسخ قائمة الأصناف من منطقة سابقة (مصفّرة)</button>`;
+            }
+            container.innerHTML = html;
+        }
+
+        // --- الإعدادات والتوثيق ---
+        function renderSettings() {
+            document.getElementById('photoQualitySelect').value = meta.photoQuality || 'hd';
+            document.getElementById('siteNameInput').value = meta.siteName || '';
+            document.getElementById('surveyorNameInput').value = meta.surveyorName || '';
+
+            let html = '';
+            config.forEach((c, index) => {
+                html += `
+                    <div class="setting-row">
+                        <input type="text" value="${escapeHtml(c.name)}" onchange="updateConfig(${index}, 'name', this.value)">
+                        <input type="color" value="${c.color}" onchange="updateConfig(${index}, 'color', this.value)">
+                    </div>
+                `;
+            });
+            document.getElementById('settingsContainer').innerHTML = html;
+        }
+
+        function updateAuditMeta() {
+            meta.photoQuality = document.getElementById('photoQualitySelect').value;
+            meta.siteName = document.getElementById('siteNameInput').value;
+            meta.surveyorName = document.getElementById('surveyorNameInput').value;
+            markUnsaved();
+            renderAuditBar();
+        }
+
+        function updateConfig(index, key, val) {
+            config[index][key] = val;
+            markUnsaved();
+            render();
+        }
+
+        function toggleSettings() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('active');
+            if (modal.classList.contains('active')) {
+                renderSettings();
+            }
+        }
+
+        // =========================================================================
+        // محرك بناء ملف إكسيل حقيقي (.xlsx) أوفلاين بالكامل
+        // =========================================================================
+
+        const CRC32_TABLE = (() => {
+            const tbl = new Uint32Array(256);
+            for (let i = 0; i < 256; i++) {
+                let c = i;
+                for (let k = 0; k < 8; k++) {
+                    c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                }
+                tbl[i] = c >>> 0;
+            }
+            return tbl;
+        })();
+
+        function computeCrc32(uint8Arr) {
+            let crc = 0xFFFFFFFF;
+            for (let i = 0; i < uint8Arr.length; i++) {
+                crc = CRC32_TABLE[(crc ^ uint8Arr[i]) & 0xFF] ^ (crc >>> 8);
+            }
+            return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        function base64DataUrlToUint8Array(dataUrl) {
+            try {
+                const commaIdx = dataUrl.indexOf(',');
+                const b64 = commaIdx >= 0 ? dataUrl.slice(commaIdx + 1) : dataUrl;
+                const binStr = atob(b64);
+                const len = binStr.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binStr.charCodeAt(i);
+                }
+                return bytes;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function buildZipUint8Array(files) {
+            const encoder = new TextEncoder();
+            const localChunks = [];
+            const centralChunks = [];
+            let offset = 0;
+
+            const now = new Date();
+            const dosTime = ((now.getHours() & 0x1F) << 11) | ((now.getMinutes() & 0x3F) << 5) | ((Math.floor(now.getSeconds() / 2)) & 0x1F);
+            const dosDate = (((Math.max(1980, now.getFullYear()) - 1980) & 0x7F) << 9) | (((now.getMonth() + 1) & 0x0F) << 5) | (now.getDate() & 0x1F);
+
+            files.forEach(file => {
+                const nameBytes = encoder.encode(file.name);
+                const dataBytes = file.data;
+                const crc = computeCrc32(dataBytes);
+                const size = dataBytes.length;
+
+                const localHeader = new Uint8Array(30 + nameBytes.length);
+                const lv = new DataView(localHeader.buffer);
+                lv.setUint32(0, 0x04034b50, true);
+                lv.setUint16(4, 20, true);
+                lv.setUint16(6, 0x0800, true);
+                lv.setUint16(8, 0, true);
+                lv.setUint16(10, dosTime, true);
+                lv.setUint16(12, dosDate, true);
+                lv.setUint32(14, crc, true);
+                lv.setUint32(18, size, true);
+                lv.setUint32(22, size, true);
+                lv.setUint16(26, nameBytes.length, true);
+                lv.setUint16(28, 0, true);
+                localHeader.set(nameBytes, 30);
+
+                localChunks.push(localHeader, dataBytes);
+
+                const centralHeader = new Uint8Array(46 + nameBytes.length);
+                const cv = new DataView(centralHeader.buffer);
+                cv.setUint32(0, 0x02014b50, true);
+                cv.setUint16(4, 20, true);
+                cv.setUint16(6, 20, true);
+                cv.setUint16(8, 0x0800, true);
+                cv.setUint16(10, 0, true);
+                cv.setUint16(12, dosTime, true);
+                cv.setUint16(14, dosDate, true);
+                cv.setUint32(16, crc, true);
+                cv.setUint32(20, size, true);
+                cv.setUint32(24, size, true);
+                cv.setUint16(28, nameBytes.length, true);
+                cv.setUint16(30, 0, true);
+                cv.setUint16(32, 0, true);
+                cv.setUint16(34, 0, true);
+                cv.setUint16(36, 0, true);
+                cv.setUint32(38, 0, true);
+                cv.setUint32(42, offset, true);
+                centralHeader.set(nameBytes, 46);
+
+                centralChunks.push(centralHeader);
+                offset += localHeader.length + size;
+            });
+
+            const centralDirStart = offset;
+            let centralDirSize = 0;
+            centralChunks.forEach(c => centralDirSize += c.length);
+
+            const eocd = new Uint8Array(22);
+            const ev = new DataView(eocd.buffer);
+            ev.setUint32(0, 0x06054b50, true);
+            ev.setUint16(4, 0, true);
+            ev.setUint16(6, 0, true);
+            ev.setUint16(8, files.length, true);
+            ev.setUint16(10, files.length, true);
+            ev.setUint32(12, centralDirSize, true);
+            ev.setUint32(16, centralDirStart, true);
+            ev.setUint16(20, 0, true);
+
+            const totalBytes = offset + centralDirSize + 22;
+            const out = new Uint8Array(totalBytes);
+            let pos = 0;
+            localChunks.forEach(chunk => { out.set(chunk, pos); pos += chunk.length; });
+            centralChunks.forEach(chunk => { out.set(chunk, pos); pos += chunk.length; });
+            out.set(eocd, pos);
+            return out;
+        }
+
+        function xmlEscape(val) {
+            return String(val ?? '')
+                .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
+        }
+
+        function hexToArgb(hex) {
+            const clean = String(hex || '#E2E8F0').replace('#', '').trim();
+            if (clean.length === 6) return 'FF' + clean.toUpperCase();
+            return 'FFE2E8F0';
+        }
+
+        function colIndexToLetter(idx0) {
+            let n = idx0 + 1;
+            let s = '';
+            while (n > 0) {
+                const mod = (n - 1) % 26;
+                s = String.fromCharCode(65 + mod) + s;
+                n = Math.floor((n - 1) / 26);
+            }
+            return s;
+        }
+
+        function makeInlineStrCell(colIdx0, rowNum1, text, styleIdx) {
+            const ref = `${colIndexToLetter(colIdx0)}${rowNum1}`;
+            return `<c r="${ref}" s="${styleIdx}" t="inlineStr"><is><t>${xmlEscape(text)}</t></is></c>`;
+        }
+
+        function makeNumCell(colIdx0, rowNum1, numVal, styleIdx) {
+            const ref = `${colIndexToLetter(colIdx0)}${rowNum1}`;
+            return `<c r="${ref}" s="${styleIdx}" t="n"><v>${Number(numVal) || 0}</v></c>`;
+        }
+
+        function buildDrawingXml(anchors) {
+            let xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n`;
+            xml += `<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">`;
+            anchors.forEach((a, idx) => {
+                xml += `
+                <xdr:twoCellAnchor editAs="twoCell">
+                    <xdr:from>
+                        <xdr:col>${a.col}</xdr:col>
+                        <xdr:colOff>38100</xdr:colOff>
+                        <xdr:row>${a.row}</xdr:row>
+                        <xdr:rowOff>38100</xdr:rowOff>
+                    </xdr:from>
+                    <xdr:to>
+                        <xdr:col>${a.col}</xdr:col>
+                        <xdr:colOff>1485900</xdr:colOff>
+                        <xdr:row>${a.row}</xdr:row>
+                        <xdr:rowOff>1485900</xdr:rowOff>
+                    </xdr:to>
+                    <xdr:pic>
+                        <xdr:nvPicPr>
+                            <xdr:cNvPr id="${idx + 1}" name="PlantPhoto_${idx + 1}"/>
+                            <xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr>
+                        </xdr:nvPicPr>
+                        <xdr:blipFill>
+                            <a:blip r:embed="rId${idx + 1}"/>
+                            <a:stretch><a:fillRect/></a:stretch>
+                        </xdr:blipFill>
+                        <xdr:spPr>
+                            <a:xfrm><a:off x="0" y="0"/><a:ext cx="1447800" cy="1447800"/></a:xfrm>
+                            <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+                        </xdr:spPr>
+                    </xdr:pic>
+                    <xdr:clientData/>
+                </xdr:twoCellAnchor>`;
+            });
+            xml += `</xdr:wsDr>`;
+            return xml;
+        }
+
+        function buildDrawingRelsXml(anchors) {
+            let xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n`;
+            xml += `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`;
+            anchors.forEach((a, idx) => {
+                xml += `<Relationship Id="rId${idx + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${a.mediaFilename}"/>`;
+            });
+            xml += `</Relationships>`;
+            return xml;
+        }
+
+        function generateWorkbookXlsxBytes() {
+            const encoder = new TextEncoder();
+            const exportTimestamp = formatCurrentDateTimeFull();
+            const siteText = meta.siteName || 'موقع 5 دونم';
+            const surveyorText = meta.surveyorName || 'غير مسجل';
+
+            const mediaFiles = [];
+            const sheet1Anchors = [];
+            const sheet2Anchors = [];
+
+            const condStyleMap = {};
+            config.forEach((c, idx) => { condStyleMap[c.id] = 6 + idx; });
+
+            let s1RowsXml = '';
+            let r1 = 1;
+
+            const s1Headers = [
+                'المنطقة',
+                'نوع النبات / تسلسل الإضافة (اضغط + لفتح السجل)',
+                'إجمالي العدد / الحالة',
+                ...config.map(c => c.name),
+                'نسبة السليم % / الوقت',
+                'حالة التصوير',
+                'الصورة الميدانية (HD)',
+                'الملاحظات والمواقع (روابط GPS)',
+                'الموقع / المشروع',
+                'القائم بالجرد',
+                'تاريخ التصدير'
+            ];
+            let headerCells = '';
+            s1Headers.forEach((h, cIdx) => { headerCells += makeInlineStrCell(cIdx, r1, h, 1); });
+            s1RowsXml += `<row r="${r1}" ht="28" customHeight="1">${headerCells}</row>\n`;
+            r1++;
+
+            let s2RowsXml = '';
+            let r2 = 1;
+            const s2Headers = [
+                'المنطقة',
+                'نوع النبات',
+                'رقم التسلسل',
+                'الحالة الصحية',
+                'وقت الإضافة',
+                'حالة التصوير',
+                'الصورة الميدانية (HD)'
+            ];
+            let s2HeaderCells = '';
+            s2Headers.forEach((h, cIdx) => { s2HeaderCells += makeInlineStrCell(cIdx, r2, h, 1); });
+            s2RowsXml += `<row r="${r2}" ht="28" customHeight="1">${s2HeaderCells}</row>\n`;
+            r2++;
+
+            zones.forEach(z => {
+                z.plants.forEach(p => {
+                    let total = 0;
+                    config.forEach(c => total += (p.counts[c.id] || 0));
+                    const healthyCount = p.counts['c1'] || 0;
+                    const healthyPct = total > 0 ? Math.round((healthyCount / total) * 100) + '%' : '0%';
+                    const entries = Array.isArray(p.entries) ? p.entries : [];
+                    const photosCount = entries.filter(e => !!e.photo).length;
+
+                    const formattedNotes = (p.notes || [])
+                        .map(n => {
+                            let parts = [];
+                            if (n.text && n.text.trim() !== '') parts.push(n.text.trim());
+                            if (n.lat !== null && n.lng !== null) {
+                                parts.push(`https://www.google.com/maps?q=${n.lat},${n.lng}`);
+                            }
+                            return parts.join(' - ');
+                        })
+                        .filter(str => str !== '')
+                        .join(' | ');
+
+                    const plantLabel = entries.length > 0
+                        ? `🌿 ${p.name}  [اضغط + لعرض السجل: ${entries.length}]`
+                        : `🌿 ${p.name}`;
+                    const photoSummaryLabel = photosCount > 0 ? `📸 ${photosCount} صور` : 'بدون صور';
+
+                    let mainCells = '';
+                    mainCells += makeInlineStrCell(0, r1, z.name, 2);
+                    mainCells += makeInlineStrCell(1, r1, plantLabel, 2);
+                    mainCells += makeNumCell(2, r1, total, 2);
+                    config.forEach((c, idx) => {
+                        mainCells += makeNumCell(3 + idx, r1, p.counts[c.id] || 0, 2);
+                    });
+                    mainCells += makeInlineStrCell(9, r1, healthyPct, 2);
+                    mainCells += makeInlineStrCell(10, r1, photoSummaryLabel, photosCount > 0 ? 4 : 2);
+                    mainCells += makeInlineStrCell(11, r1, '', 2);
+                    mainCells += makeInlineStrCell(12, r1, formattedNotes, 2);
+                    mainCells += makeInlineStrCell(13, r1, siteText, 2);
+                    mainCells += makeInlineStrCell(14, r1, surveyorText, 2);
+                    mainCells += makeInlineStrCell(15, r1, exportTimestamp, 2);
+
+                    s1RowsXml += `<row r="${r1}" ht="26" customHeight="1">${mainCells}</row>\n`;
+                    r1++;
+
+                    entries.forEach((ent, eIdx) => {
+                        const condObj = config.find(c => c.id === ent.condId);
+                        const condName = condObj ? condObj.name : 'حالة';
+                        const condStyle = condStyleMap[ent.condId] || 3;
+                        let mediaFilename = null;
+
+                        if (ent.photo) {
+                            const imgBytes = base64DataUrlToUint8Array(ent.photo);
+                            if (imgBytes && imgBytes.length > 0) {
+                                mediaFilename = `image${mediaFiles.length + 1}.jpeg`;
+                                mediaFiles.push({ filename: mediaFilename, bytes: imgBytes });
+                            }
+                        }
+
+                        const rowHeightS1 = mediaFilename ? 124 : 23;
+                        let subCells = '';
+                        subCells += makeInlineStrCell(0, r1, '', 3);
+                        subCells += makeInlineStrCell(1, r1, `   ↳ #${eIdx + 1} (${p.name})`, 3);
+                        subCells += makeInlineStrCell(2, r1, condName, condStyle);
+                        config.forEach((c, idx) => {
+                            if (c.id === ent.condId) {
+                                subCells += makeNumCell(3 + idx, r1, 1, condStyle);
+                            } else {
+                                subCells += makeInlineStrCell(3 + idx, r1, '', 3);
+                            }
+                        });
+                        subCells += makeInlineStrCell(9, r1, ent.time || '', 3);
+                        subCells += makeInlineStrCell(10, r1, mediaFilename ? '📸 مصوّرة' : '📷 غير مصوّرة', mediaFilename ? 4 : 5);
+                        subCells += makeInlineStrCell(11, r1, '', 3);
+                        subCells += makeInlineStrCell(12, r1, '', 3);
+                        subCells += makeInlineStrCell(13, r1, '', 3);
+                        subCells += makeInlineStrCell(14, r1, '', 3);
+                        subCells += makeInlineStrCell(15, r1, '', 3);
+
+                        s1RowsXml += `<row r="${r1}" hidden="1" outlineLevel="1" ht="${rowHeightS1}" customHeight="1">${subCells}</row>\n`;
+
+                        if (mediaFilename) {
+                            sheet1Anchors.push({ col: 11, row: r1 - 1, mediaFilename });
+                        }
+                        r1++;
+
+                        let s2Cells = '';
+                        s2Cells += makeInlineStrCell(0, r2, z.name, 3);
+                        s2Cells += makeInlineStrCell(1, r2, p.name, 3);
+                        s2Cells += makeInlineStrCell(2, r2, `#${eIdx + 1}`, 3);
+                        s2Cells += makeInlineStrCell(3, r2, condName, condStyle);
+                        s2Cells += makeInlineStrCell(4, r2, ent.time || '', 3);
+                        s2Cells += makeInlineStrCell(5, r2, mediaFilename ? '📸 مصوّرة' : '📷 غير مصوّرة', mediaFilename ? 4 : 5);
+                        s2Cells += makeInlineStrCell(6, r2, '', 3);
+
+                        s2RowsXml += `<row r="${r2}" ht="${rowHeightS1}" customHeight="1">${s2Cells}</row>\n`;
+                        if (mediaFilename) {
+                            sheet2Anchors.push({ col: 6, row: r2 - 1, mediaFilename });
+                        }
+                        r2++;
+                    });
+                });
+            });
+
+            let fillsXml = `
+                <fill><patternFill patternType="none"/></fill>
+                <fill><patternFill patternType="gray125"/></fill>
+                <fill><patternFill patternType="solid"><fgColor rgb="FF1E293B"/></patternFill></fill>
+                <fill><patternFill patternType="solid"><fgColor rgb="FFEFF6FF"/></patternFill></fill>
+                <fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/></patternFill></fill>
+                <fill><patternFill patternType="solid"><fgColor rgb="FFDCFCE7"/></patternFill></fill>
+                <fill><patternFill patternType="solid"><fgColor rgb="FFF1F5F9"/></patternFill></fill>
+            `;
+            config.forEach(c => {
+                fillsXml += `<fill><patternFill patternType="solid"><fgColor rgb="${hexToArgb(c.color)}"/></patternFill></fill>\n`;
+            });
+
+            let cellXfsXml = `
+                <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"><alignment vertical="center" wrapText="1"/></xf>
+                <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+                <xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+                <xf numFmtId="0" fontId="0" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+                <xf numFmtId="0" fontId="3" fillId="5" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+                <xf numFmtId="0" fontId="4" fillId="6" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+            `;
+            config.forEach((c, idx) => {
+                const fillId = 7 + idx;
+                cellXfsXml += `<xf numFmtId="0" fontId="2" fillId="${fillId}" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>\n`;
+            });
+
+            const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+    <fonts count="5">
+        <font><sz val="11"/><color rgb="FF1E293B"/><name val="Calibri"/></font>
+        <font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>
+        <font><b/><sz val="11"/><color rgb="FF0F172A"/><name val="Calibri"/></font>
+        <font><b/><sz val="11"/><color rgb="FF166534"/><name val="Calibri"/></font>
+        <font><sz val="10"/><color rgb="FF64748B"/><name val="Calibri"/></font>
+    </fonts>
+    <fills count="${7 + config.length}">
+        ${fillsXml}
+    </fills>
+    <borders count="2">
+        <border><left/><right/><top/><bottom/><diagonal/></border>
+        <border>
+            <left style="thin"><color rgb="FFCBD5E1"/></left>
+            <right style="thin"><color rgb="FFCBD5E1"/></right>
+            <top style="thin"><color rgb="FFCBD5E1"/></top>
+            <bottom style="thin"><color rgb="FFCBD5E1"/></bottom>
+            <diagonal/>
+        </border>
+    </borders>
+    <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+    <cellXfs count="${6 + config.length}">
+        ${cellXfsXml}
+    </cellXfs>
+</styleSheet>`;
+
+            const hasDrawings1 = sheet1Anchors.length > 0;
+            const sheet1Xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheetPr>
+        <outlinePr summaryBelow="0" summaryRight="1"/>
+    </sheetPr>
+    <sheetViews>
+        <sheetView rightToLeft="1" tabSelected="1" workbookViewId="0"/>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="22" outlineLevelRow="1"/>
+    <cols>
+        <col min="1" max="1" width="14" customWidth="1"/>
+        <col min="2" max="2" width="34" customWidth="1"/>
+        <col min="3" max="3" width="18" customWidth="1"/>
+        <col min="4" max="9" width="14" customWidth="1"/>
+        <col min="10" max="10" width="16" customWidth="1"/>
+        <col min="11" max="11" width="16" customWidth="1"/>
+        <col min="12" max="12" width="25" customWidth="1"/>
+        <col min="13" max="13" width="38" customWidth="1"/>
+        <col min="14" max="16" width="20" customWidth="1"/>
+    </cols>
+    <sheetData>
+        ${s1RowsXml}
+    </sheetData>
+    ${hasDrawings1 ? '<drawing r:id="rId1"/>' : ''}
+</worksheet>`;
+
+            const hasDrawings2 = sheet2Anchors.length > 0;
+            const sheet2Xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheetViews>
+        <sheetView rightToLeft="1" workbookViewId="0"/>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="22"/>
+    <cols>
+        <col min="1" max="1" width="14" customWidth="1"/>
+        <col min="2" max="2" width="24" customWidth="1"/>
+        <col min="3" max="3" width="13" customWidth="1"/>
+        <col min="4" max="4" width="18" customWidth="1"/>
+        <col min="5" max="5" width="14" customWidth="1"/>
+        <col min="6" max="6" width="16" customWidth="1"/>
+        <col min="7" max="7" width="25" customWidth="1"/>
+    </cols>
+    <sheetData>
+        ${s2RowsXml}
+    </sheetData>
+    ${hasDrawings2 ? '<drawing r:id="rId1"/>' : ''}
+</worksheet>`;
+
+            const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    ${mediaFiles.length > 0 ? '<Default Extension="jpeg" ContentType="image/jpeg"/>' : ''}
+    <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+    <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+    <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+    <Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+    ${hasDrawings1 ? '<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>' : ''}
+    ${hasDrawings2 ? '<Override PartName="/xl/drawings/drawing2.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>' : ''}
+</Types>`;
+
+            const rootRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`;
+
+            const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheets>
+        <sheet name="ملخص الجرد - قابل للطي" sheetId="1" r:id="rId1"/>
+        <sheet name="سجل الترتيب والصور" sheetId="2" r:id="rId2"/>
+    </sheets>
+</workbook>`;
+
+            const workbookRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+    <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/>
+    <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+            const zipEntries = [
+                { name: '[Content_Types].xml', data: encoder.encode(contentTypesXml) },
+                { name: '_rels/.rels', data: encoder.encode(rootRelsXml) },
+                { name: 'xl/workbook.xml', data: encoder.encode(workbookXml) },
+                { name: 'xl/_rels/workbook.xml.rels', data: encoder.encode(workbookRelsXml) },
+                { name: 'xl/styles.xml', data: encoder.encode(stylesXml) },
+                { name: 'xl/worksheets/sheet1.xml', data: encoder.encode(sheet1Xml) },
+                { name: 'xl/worksheets/sheet2.xml', data: encoder.encode(sheet2Xml) }
+            ];
+
+            if (hasDrawings1) {
+                const s1Rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing1.xml"/></Relationships>`;
+                zipEntries.push({ name: 'xl/worksheets/_rels/sheet1.xml.rels', data: encoder.encode(s1Rels) });
+                zipEntries.push({ name: 'xl/drawings/drawing1.xml', data: encoder.encode(buildDrawingXml(sheet1Anchors)) });
+                zipEntries.push({ name: 'xl/drawings/_rels/drawing1.xml.rels', data: encoder.encode(buildDrawingRelsXml(sheet1Anchors)) });
+            }
+
+            if (hasDrawings2) {
+                const s2Rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing2.xml"/></Relationships>`;
+                zipEntries.push({ name: 'xl/worksheets/_rels/sheet2.xml.rels', data: encoder.encode(s2Rels) });
+                zipEntries.push({ name: 'xl/drawings/drawing2.xml', data: encoder.encode(buildDrawingXml(sheet2Anchors)) });
+                zipEntries.push({ name: 'xl/drawings/_rels/drawing2.xml.rels', data: encoder.encode(buildDrawingRelsXml(sheet2Anchors)) });
+            }
+
+            mediaFiles.forEach(mf => {
+                zipEntries.push({ name: `xl/media/${mf.filename}`, data: mf.bytes });
+            });
+
+            return buildZipUint8Array(zipEntries);
+        }
+
+        async function exportXLSX() {
+            const btn = document.getElementById('exportBtn');
+            const origText = btn.textContent;
+            btn.textContent = '⏳ جاري تجهيز الإكسيل بالصور عالية الجودة...';
+            btn.disabled = true;
+
+            try {
+                await new Promise(r => setTimeout(r, 30));
+                const xlsxBytes = generateWorkbookXlsxBytes();
+                const filename = 'تقرير_جرد_النباتات_HD.xlsx';
+                const mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+                try {
+                    const file = new File([xlsxBytes], filename, { type: mimeType });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'تقرير جرد النباتات بالصور عالية الجودة (Excel)'
+                        });
+                        showToast('✅ تم تصدير ومشاركة ملف الإكسيل (.xlsx) بنجاح');
+                        return;
+                    }
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                }
+
+                const blob = new Blob([xlsxBytes], { type: mimeType });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast('✅ تم تحميل ملف الإكسيل (.xlsx) بالصور عالية الجودة');
+            } finally {
+                btn.textContent = origText;
+                btn.disabled = false;
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        render();
+    </script>
+</body>
+</html>
