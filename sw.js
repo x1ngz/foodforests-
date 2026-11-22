@@ -1,10 +1,9 @@
-const CACHE_NAME = 'tff-fos-cache-v3.0';
+const CACHE_NAME = 'tff-fos-cache-v4.0';
 const ASSETS = [
   './',
   './index.html',
   './app.js',
-  './manifest.json',
-  'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js'
+  './manifest.json'
 ];
 
 self.addEventListener('install', event => {
