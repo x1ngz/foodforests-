@@ -19,52 +19,15 @@
         body.in-zone-mode { padding-left: 34px; }
         
         /* الشريط العلوي */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 5px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 5px; }
         .top-title { font-size: 17px; font-weight: bold; color: #0f172a; margin: 0; text-align: center; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .top-actions { display: flex; gap: 5px; flex-shrink: 0; }
 
-        /* شريط حالة حفظ الملف على الهاتف */
-        .file-status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            gap: 8px;
-        }
-        .file-status-bar.unsaved {
-            background: #fffbeb;
-            border: 1px solid #f59e0b;
-            color: #92400e;
-        }
-        .file-status-bar.saved {
-            background: #ecfdf5;
-            border: 1px solid #10b981;
-            color: #065f46;
-        }
-        .btn-quick-save-file {
-            background: #d97706;
-            color: white;
-            border: none;
-            border-radius: 7px;
-            padding: 6px 11px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .file-status-bar.saved .btn-quick-save-file {
-            background: #059669;
-        }
-
-        /* شريط التوثيق السريع */
+        /* شريط التوثيق وحالة الحفظ التلقائي الصامت */
         .audit-strip {
             background: #e2e8f0;
             color: #334155;
-            padding: 7px 12px;
+            padding: 7px 11px;
             border-radius: 9px;
             font-size: 12px;
             font-weight: 600;
@@ -75,8 +38,22 @@
             gap: 8px;
             cursor: pointer;
         }
-        .audit-strip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .audit-edit-link { color: #0284c7; text-decoration: underline; flex-shrink: 0; }
+        .audit-strip span.meta-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .auto-save-pill {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .auto-save-pill.saving {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fcd34d;
+        }
 
         /* شريط آخر نبتة مضافة - مثبت دائماً في أعلى الشاشة (Sticky) */
         .sticky-tracker-wrap {
@@ -99,6 +76,7 @@
         .last-action-header { font-size: 11px; font-weight: bold; color: #0369a1; margin-bottom: 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
         .last-action-details { font-size: 14px; font-weight: bold; color: #0f172a; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
         .last-cond-pill { padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; color: #000; border: 1px solid rgba(0,0,0,0.15); }
+        .last-height-pill { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: bold; }
         .last-zone-tag { background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 5px; font-size: 11px; }
         .last-action-btns { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
         .btn-undo-last { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 7px; padding: 5px 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
@@ -125,11 +103,9 @@
         .btn:active { opacity: 0.85; transform: scale(0.98); }
         .btn-settings { background-color: #475569; }
         .btn-backup { background-color: #7c3aed; }
-        .btn-backup.needs-save { background-color: #d97706; }
         .btn-dash { background-color: #0d9488; }
         .btn-back { background-color: #0284c7; }
         .btn-primary-full { background-color: #2563eb; width: 100%; margin-top: 12px; padding: 15px; font-size: 17px; box-shadow: 0 4px 6px rgba(37,99,235,0.2); }
-        .btn-open-file-full { background-color: #7c3aed; width: 100%; margin-top: 10px; padding: 14px; font-size: 16px; box-shadow: 0 4px 6px rgba(124,58,237,0.2); }
         .btn-secondary-full { background-color: #0f766e; width: 100%; margin-top: 10px; padding: 13px; font-size: 15px; }
         .btn-export { background-color: #15803d; width: 100%; padding: 15px; font-size: 16px; position: fixed; bottom: 0; right: 0; border-radius: 0; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.15); }
 
@@ -167,15 +143,8 @@
             cursor: pointer;
             line-height: 1;
         }
-        .alpha-letter.has-items {
-            color: #1d4ed8;
-            font-weight: 800;
-        }
-        .alpha-letter.active-touch {
-            background: #2563eb;
-            color: #ffffff;
-            transform: scale(1.25);
-        }
+        .alpha-letter.has-items { color: #1d4ed8; font-weight: 800; }
+        .alpha-letter.active-touch { background: #2563eb; color: #ffffff; transform: scale(1.25); }
         .alpha-bubble {
             position: fixed;
             left: 46px;
@@ -255,25 +224,28 @@
         .plant-name:focus { outline: none; border-color: #2563eb; background: #fff; }
         .plant-actions { display: flex; gap: 5px; flex-shrink: 0; }
         
-        /* شريط الإجمالي + زر سجل التسلسل */
+        /* شريط الإجمالي + متوسط الطول + زر سجل التسلسل */
         .plant-meta-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 12px;
             background: #eff6ff;
-            padding: 7px 10px;
+            padding: 8px 10px;
             border-radius: 9px;
         }
-        .total-text { font-size: 16px; font-weight: bold; color: #1d4ed8; display: flex; align-items: center; gap: 6px; }
+        .meta-stats-group { display: flex; flex-direction: column; gap: 3px; }
+        .total-text { font-size: 15px; font-weight: bold; color: #1d4ed8; display: flex; align-items: center; gap: 6px; }
+        .avg-height-text { font-size: 12px; font-weight: bold; color: #0f766e; }
         .last-edited-pill { background: #0284c7; color: white; font-size: 10px; padding: 2px 7px; border-radius: 99px; }
         .btn-seq-log {
             background: #1e293b;
             color: white;
             border: none;
             border-radius: 7px;
-            padding: 6px 10px;
+            padding: 7px 10px;
             font-size: 12px;
             font-weight: bold;
             cursor: pointer;
@@ -290,51 +262,90 @@
         .condition-box.is-last-cond { border-color: #0f172a; }
         .condition-title { text-align: center; font-weight: bold; margin-bottom: 8px; font-size: 14px; background: rgba(255,255,255,0.55); border-radius: 6px; padding: 4px; }
         
-        /* أزرار العداد (الناقص يمين والزائد يسار) */
+        /* أزرار العداد */
         .counter-controls { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.6); border-radius: 8px; padding: 4px; }
         .counter-btn { width: 42px; height: 42px; border: none; border-radius: 8px; font-size: 24px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; background-color: rgba(255,255,255,0.9); color: #1e293b; touch-action: manipulation; }
         .counter-btn:active { transform: scale(0.9); background-color: #fff; }
         .count-val { font-size: 22px; font-weight: bold; }
 
-        /* المستطيل الصغير لإضافة صورة بعد الضغط على (+) */
-        .photo-prompt-rect {
+        /* المستطيل الصغير لإدخال الطول وإضافة صورة بعد الضغط على (+) */
+        .entry-action-rect {
             grid-column: 1 / -1;
             background: #f8fafc;
             border: 2px dashed #0284c7;
             border-radius: 10px;
-            padding: 9px 11px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            animation: fadeIn 0.2s ease;
+        }
+        .entry-action-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 8px;
-            animation: fadeIn 0.2s ease;
         }
         .photo-prompt-label { font-size: 13px; font-weight: bold; color: #0f172a; line-height: 1.35; }
         .photo-prompt-btns { display: flex; gap: 6px; flex-shrink: 0; }
-        .btn-cam-now { background: #0284c7; color: white; border: none; border-radius: 7px; padding: 8px 11px; font-size: 13px; font-weight: bold; cursor: pointer; }
-        .btn-gal-now { background: #475569; color: white; border: none; border-radius: 7px; padding: 8px 10px; font-size: 13px; font-weight: bold; cursor: pointer; }
-        .btn-close-prompt { background: #e2e8f0; color: #334155; border: none; border-radius: 7px; padding: 8px 9px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn-cam-now { background: #0284c7; color: white; border: none; border-radius: 7px; padding: 7px 10px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn-gal-now { background: #475569; color: white; border: none; border-radius: 7px; padding: 7px 9px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn-close-prompt { background: #e2e8f0; color: #334155; border: none; border-radius: 7px; padding: 7px 9px; font-size: 13px; font-weight: bold; cursor: pointer; }
 
-        /* قسم الملاحظات والمواقع */
-        .notes-section { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
-        .notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .notes-label { font-size: 14px; font-weight: bold; color: #334155; }
-        .btn-add-note { background-color: #e2e8f0; color: #0f172a; border: none; padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
-        
-        .note-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
-        .note-input { width: 100%; padding: 8px 10px; border: 1px solid #fcd34d; border-radius: 8px; font-size: 14px; resize: none; overflow: hidden; min-height: 40px; line-height: 1.45; background: #ffffff; color: #1e293b; }
-        .note-input:focus { outline: none; border-color: #f59e0b; }
-        
-        .gps-info-bar { display: flex; justify-content: space-between; align-items: center; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 6px 10px; border-radius: 7px; font-size: 13px; margin-top: 7px; font-weight: 600; }
-        .gps-info-bar a { color: #047857; text-decoration: underline; font-weight: bold; }
-        .gps-status-msg { font-size: 12px; color: #b45309; margin-top: 6px; font-weight: 600; }
+        /* صف إدخال الطول السريع داخل المستطيل */
+        .height-quick-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 5px 7px;
+            flex-wrap: wrap;
+        }
+        .height-input-box {
+            width: 82px;
+            padding: 6px 8px;
+            border: 1px solid #94a3b8;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            color: #0f172a;
+        }
+        .height-input-box:focus { outline: none; border-color: #0d9488; background: #f0fdfa; }
+        .btn-height-chip {
+            background: #f0fdfa;
+            color: #0f766e;
+            border: 1px solid #99f6e4;
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-height-chip.active-chip {
+            background: #0d9488;
+            color: white;
+            border-color: #0f766e;
+        }
 
-        .note-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-        .btn-gps { flex: 1; min-width: 95px; background-color: #0284c7; color: white; border: none; border-radius: 7px; padding: 8px 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 3px; }
-        .btn-gps.has-loc { background-color: #0d9488; }
-        .btn-ribbon { background-color: #d97706; color: white; border: none; border-radius: 7px; padding: 8px 9px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .btn-wa { flex: 1; min-width: 95px; background-color: #16a34a; color: white; border: none; border-radius: 7px; padding: 8px 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 3px; }
-        .btn-del-note { background: #fee2e2; color: #dc2626; border: none; border-radius: 7px; padding: 8px 10px; font-weight: bold; font-size: 14px; cursor: pointer; }
+        /* قسم الملاحظات البسيط (بدون GPS) */
+        .notes-section { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #cbd5e1; }
+        .notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .notes-label { font-size: 13px; font-weight: bold; color: #475569; }
+        .btn-add-note { background-color: #e2e8f0; color: #0f172a; border: none; padding: 5px 10px; border-radius: 7px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        
+        .note-row-clean {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            margin-bottom: 7px;
+        }
+        .note-input { flex: 1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: none; overflow: hidden; min-height: 38px; line-height: 1.4; background: #f8fafc; color: #1e293b; }
+        .note-input:focus { outline: none; border-color: #0284c7; background: #ffffff; }
+        .btn-ribbon { background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 8px; padding: 8px 9px; font-size: 13px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+        .btn-del-note { background: #fee2e2; color: #dc2626; border: none; border-radius: 8px; padding: 8px 10px; font-weight: bold; font-size: 13px; cursor: pointer; flex-shrink: 0; }
 
         /* النوافذ المنبثقة */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.68); z-index: 2000; padding: 14px; align-items: center; justify-content: center; }
@@ -346,7 +357,10 @@
         .modal-btns button { flex: 1; padding: 12px; font-size: 16px; }
 
         /* قائمة سجل تسلسل الإضافات */
-        .seq-summary-strip { display: flex; justify-content: space-between; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; color: #334155; margin-bottom: 12px; }
+        .seq-summary-strip { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 10px; }
+        .seq-filter-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+        .seq-filter-btn { flex: 1; padding: 7px 6px; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; border-radius: 7px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .seq-filter-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
         .seq-item {
             display: flex;
             justify-content: space-between;
@@ -354,18 +368,20 @@
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 10px;
-            padding: 9px 10px;
-            margin-bottom: 8px;
-            gap: 8px;
+            padding: 8px 9px;
+            margin-bottom: 7px;
+            gap: 6px;
         }
-        .seq-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-        .seq-num { background: #1e293b; color: white; font-size: 12px; font-weight: bold; padding: 3px 7px; border-radius: 6px; flex-shrink: 0; }
-        .seq-cond-badge { padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; color: #000; border: 1px solid rgba(0,0,0,0.12); white-space: nowrap; }
-        .seq-time { font-size: 12px; color: #64748b; font-weight: 600; white-space: nowrap; }
-        .seq-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-        .badge-has-photo { background: #dcfce7; color: #166534; border: 1px solid #86efac; padding: 5px 8px; border-radius: 7px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .badge-no-photo { background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; padding: 5px 8px; border-radius: 7px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .btn-del-seq { background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; padding: 5px 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .seq-left { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; flex: 1; min-width: 0; }
+        .seq-num { background: #1e293b; color: white; font-size: 11px; font-weight: bold; padding: 3px 6px; border-radius: 6px; flex-shrink: 0; }
+        .seq-cond-badge { padding: 3px 7px; border-radius: 6px; font-size: 12px; font-weight: bold; color: #000; border: 1px solid rgba(0,0,0,0.12); white-space: nowrap; }
+        .seq-height-tag { background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; padding: 2px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .seq-time { font-size: 11px; color: #64748b; font-weight: 600; white-space: nowrap; }
+        .seq-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+        .badge-has-photo { background: #dcfce7; color: #166534; border: 1px solid #86efac; padding: 5px 7px; border-radius: 7px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .badge-no-photo { background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; padding: 5px 7px; border-radius: 7px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn-del-seq { background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; padding: 5px 7px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn-load-more-seq { width: 100%; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: bold; cursor: pointer; margin-top: 4px; }
 
         /* نافذة معاينة الصورة */
         .photo-preview-img { width: 100%; max-height: 62vh; object-fit: contain; border-radius: 10px; background: #0f172a; margin-bottom: 12px; }
@@ -385,12 +401,12 @@
         .kpi-lbl { font-size: 12px; color: #64748b; font-weight: bold; margin-top: 2px; }
         .dash-section-title { font-size: 15px; font-weight: bold; color: #0f172a; margin: 14px 0 8px 0; }
         .cond-summary-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 14px; font-weight: bold; color: #000; }
-        .species-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
-        .species-table th { background: #1e293b; color: white; padding: 8px 6px; text-align: right; }
-        .species-table td { border-bottom: 1px solid #e2e8f0; padding: 8px 6px; }
+        .species-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px; }
+        .species-table th { background: #1e293b; color: white; padding: 8px 5px; text-align: right; }
+        .species-table td { border-bottom: 1px solid #e2e8f0; padding: 8px 5px; }
         .species-table tr:nth-child(even) { background: #f8fafc; }
-        .badge-warn { background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 5px; font-weight: bold; font-size: 12px; }
-        .badge-ok { background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 5px; font-weight: bold; font-size: 12px; }
+        .badge-warn { background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 5px; font-weight: bold; font-size: 11px; }
+        .badge-ok { background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 5px; font-weight: bold; font-size: 11px; }
 
         /* تنسيق نافذة الحفظ والاسترجاع */
         .backup-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
@@ -409,7 +425,6 @@
 <body>
 
     <div class="top-bar" id="topBar"></div>
-    <div id="fileStatusBarContainer"></div>
     <div id="auditBarContainer"></div>
     
     <!-- شريط آخر نبتة ضفتها - مثبت في أعلى الشاشة دائماً -->
@@ -425,12 +440,26 @@
     <!-- قائمة الإكمال التلقائي لأسماء النباتات -->
     <datalist id="plantNamesList"></datalist>
 
-    <button class="btn btn-export" id="exportBtn" onclick="exportXLSX()">📊 تصدير إكسيل بالصور عالية الجودة (.xlsx)</button>
+    <button class="btn btn-export" id="exportBtn" onclick="openExportModal()">📊 تصدير تقرير الإكسيل بالصور والأطوال (.xlsx)</button>
 
     <!-- مدخلات مخفية للكاميرا والمعرض وملف الاسترجاع -->
     <input type="file" id="cameraFileInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoFileSelected(event)">
     <input type="file" id="galleryFileInput" accept="image/*" style="display:none" onchange="handlePhotoFileSelected(event)">
     <input type="file" id="restoreFileInput" accept=".json,application/json,text/plain" style="display:none" onchange="handleRestoreFile(event)">
+
+    <!-- نافذة خيارات تصدير الإكسيل (الموقع بالكامل أو منطقة محددة) -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">📊 تصدير تقرير الإكسيل (.xlsx)</h3>
+            <p style="font-size:13px; color:#475569; margin-top:0; line-height:1.5;">اختر نطاق التصدير (عند وجود آلاف الأشجار ومئات الصور، يُفضّل تصدير كل منطقة بملف مستقل لسرعة الفتح):</p>
+            <label class="field-label">نطاق التصدير:</label>
+            <select id="exportScopeSelect" class="modal-select"></select>
+            <div class="modal-btns">
+                <button class="btn" style="background-color: #15803d;" onclick="confirmAndExportXLSX()">📥 إنشاء وتصدير الملف</button>
+                <button class="btn" style="background-color: #64748b;" onclick="closeExportModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
 
     <!-- نافذة سجل تسلسل الإضافات للنبات -->
     <div id="sequenceModal" class="modal">
@@ -489,24 +518,24 @@
         </div>
     </div>
 
-    <!-- نافذة الحفظ والفتح المباشر على الهاتف -->
+    <!-- نافذة النسخ الاحتياطي ونقل البيانات -->
     <div id="backupModal" class="modal">
         <div class="modal-content">
-            <h3 class="modal-title">💾 حفظ وفتح ملف الجرد على الهاتف</h3>
+            <h3 class="modal-title">💾 النسخ الاحتياطي ونقل البيانات</h3>
             
             <div class="backup-box">
-                <h4>1. حفظ الجرد والصور عالية الجودة كملف على الهاتف</h4>
-                <p>يتم حفظ البيانات مباشرة كملف <b>(.json)</b> في ذاكرة هاتفك دون استخدام ذاكرة المتصفح، ليحتفظ بجميع الصور بدقتها العالية.</p>
+                <h4>1. حفظ نسخة احتياطية خارجية (.json)</h4>
+                <p>بياناتك تُحفظ تلقائياً وصامتاً على ذاكرة هذا الهاتف. استخدم هذا الخيار فقط إذا أردت نقل بياناتك لهاتف آخر أو الاحتفاظ بنسخة إضافية.</p>
                 <div class="backup-btn-stack">
-                    <button class="btn-full-action" style="background-color: #7c3aed;" onclick="shareBackupFile()">📤 حفظ في الملفات / مشاركة (للآيفون والأندرويد)</button>
-                    <button class="btn-full-action" style="background-color: #0284c7;" onclick="downloadBackupFile()">📥 تنزيل الملف مباشرة إلى ذاكرة الهاتف (.json)</button>
+                    <button class="btn-full-action" style="background-color: #7c3aed;" onclick="shareBackupFile()">📤 مشاركة / حفظ نسخة احتياطية</button>
+                    <button class="btn-full-action" style="background-color: #0284c7;" onclick="downloadBackupFile()">📥 تنزيل ملف النسخة (.json)</button>
                 </div>
             </div>
 
             <div class="backup-box">
-                <h4>2. فتح ملف جرد محفوظ من الهاتف</h4>
-                <p>اختر ملف الجرد <b>(.json)</b> من مجلد التنزيلات أو تطبيق الملفات لإظهار جميع المناطق والصور وتكملة العمل.</p>
-                <button class="btn-full-action" style="background-color: #16a34a;" onclick="triggerRestoreFile()">📂 اختيار ملف الجرد من الهاتف</button>
+                <h4>2. استيراد نسخة احتياطية سابقة</h4>
+                <p>اختر ملف <b>(.json)</b> لاسترجاع بيانات جولة سابقة أو دمجها مع بياناتك الحالية.</p>
+                <button class="btn-full-action" style="background-color: #16a34a;" onclick="triggerRestoreFile()">📂 اختيار ملف النسخة (.json)</button>
                 <div id="mergePromptContainer"></div>
             </div>
 
@@ -526,15 +555,27 @@
         </div>
     </div>
 
-    <!-- نافذة الإعدادات والتوثيق وجودة الصور -->
+    <!-- نافذة الإعدادات والتوثيق والأطوال والصور -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
-            <h3 class="modal-title">⚙️ الإعدادات والتوثيق وجودة الصور</h3>
+            <h3 class="modal-title">⚙️ الإعدادات والتوثيق والأطوال</h3>
             
             <div class="settings-group">
-                <h4>📸 جودة الصور الملتقطة (تُحفظ في الملف)</h4>
-                <label class="field-label">اختر دقة الصور عند الالتقاط:</label>
-                <select id="photoQualitySelect" class="modal-select" style="margin-bottom:4px;" onchange="updateAuditMeta()">
+                <h4>📏 إعدادات الأطوال والتصوير</h4>
+                <label class="field-label">وحدة قياس طول النبات:</label>
+                <select id="heightUnitSelect" class="modal-select" onchange="updateAuditMeta()">
+                    <option value="سم">السنتيمتر (سم)</option>
+                    <option value="م">المتر (م)</option>
+                </select>
+
+                <label class="field-label">ختم البيانات على الصور الملتقطة (Watermark):</label>
+                <select id="watermarkSelect" class="modal-select" onchange="updateAuditMeta()">
+                    <option value="on">مفعّل (طباعة المنطقة والنبات والوقت أسفل الصورة)</option>
+                    <option value="off">معطّل (حفظ الصورة بدون كتابة)</option>
+                </select>
+
+                <label class="field-label">جودة الصور الملتقطة:</label>
+                <select id="photoQualitySelect" class="modal-select" style="margin-bottom:0;" onchange="updateAuditMeta()">
                     <option value="hd">جودة عالية HD (1600px - واضحة وسريعة في الإكسيل)</option>
                     <option value="original">الجودة الأصلية الكاملة (Original - أكبر حجم)</option>
                 </select>
@@ -583,6 +624,105 @@
             } catch (e) {}
         })();
 
+        // =========================================================================
+        // قاعدة بيانات IndexedDB للحفظ التلقائي الصامت على ذاكرة الجهاز الداخلية
+        // =========================================================================
+        const IDB_NAME = 'JardPlantsFieldDB';
+        const IDB_VERSION = 1;
+        const IDB_STORE = 'appState';
+        const IDB_KEY = 'mainData';
+
+        let dbInstance = null;
+        let saveDebounceTimer = null;
+        let saveStatusState = 'saved'; // 'saved' | 'saving' | 'error'
+
+        function openFieldDB() {
+            return new Promise((resolve, reject) => {
+                if (dbInstance) return resolve(dbInstance);
+                if (!window.indexedDB) return reject(new Error('IndexedDB not supported'));
+                const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+                req.onupgradeneeded = function(e) {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(IDB_STORE)) {
+                        db.createObjectStore(IDB_STORE);
+                    }
+                };
+                req.onsuccess = function(e) {
+                    dbInstance = e.target.result;
+                    resolve(dbInstance);
+                };
+                req.onerror = function(e) {
+                    reject(e.target.error);
+                };
+            });
+        }
+
+        async function requestPersistentStorage() {
+            try {
+                if (navigator.storage && navigator.storage.persist) {
+                    await navigator.storage.persist();
+                }
+            } catch (e) {}
+        }
+
+        async function loadFromFieldDB() {
+            try {
+                const db = await openFieldDB();
+                return await new Promise((resolve) => {
+                    const tx = db.transaction(IDB_STORE, 'readonly');
+                    const store = tx.objectStore(IDB_STORE);
+                    const req = store.get(IDB_KEY);
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => resolve(null);
+                });
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function updateSavePillUI() {
+            const pill = document.getElementById('autoSavePill');
+            if (!pill) return;
+            if (saveStatusState === 'saving') {
+                pill.className = 'auto-save-pill saving';
+                pill.textContent = '⏳ جاري الحفظ...';
+            } else if (saveStatusState === 'error') {
+                pill.className = 'auto-save-pill saving';
+                pill.textContent = '⚠️ تعذر الحفظ التلقائي';
+            } else {
+                pill.className = 'auto-save-pill';
+                pill.textContent = '✓ محفوظ تلقائياً';
+            }
+        }
+
+        function saveDataSilent() {
+            saveStatusState = 'saving';
+            updateSavePillUI();
+
+            if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+            saveDebounceTimer = setTimeout(async () => {
+                try {
+                    const db = await openFieldDB();
+                    const payload = { config, meta, zones, lastAction };
+                    await new Promise((resolve, reject) => {
+                        const tx = db.transaction(IDB_STORE, 'readwrite');
+                        const store = tx.objectStore(IDB_STORE);
+                        const req = store.put(payload, IDB_KEY);
+                        req.onsuccess = () => resolve();
+                        req.onerror = () => reject(req.error);
+                    });
+                    saveStatusState = 'saved';
+                    updateSavePillUI();
+                } catch (e) {
+                    saveStatusState = 'error';
+                    updateSavePillUI();
+                }
+            }, 120);
+        }
+
+        // =========================================================================
+        // المتغيرات العامة وإعدادات البرنامج
+        // =========================================================================
         const ARABIC_ALPHABET = [
             'أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش',
             'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي', '#'
@@ -600,7 +740,9 @@
         let meta = {
             siteName: 'موقع 5 دونم',
             surveyorName: '',
-            photoQuality: 'hd'
+            photoQuality: 'hd',
+            heightUnit: 'سم',
+            watermark: 'on'
         };
 
         let zones = [];
@@ -608,39 +750,18 @@
         let activeZoneId = null;
         let editingZoneId = null;
         let confirmDeleteKey = null;
-        let gpsLoadingMap = {};
-        let gpsErrorMap = {};
         let pendingImportData = null;
         let toastTimer = null;
 
-        let activePhotoPrompt = null;
+        let activeEntryPrompt = null; // { plantId, condId, entryId, condName, entryNumber, rawImage }
         let pendingPhotoTarget = null;
         let viewingSequencePlantId = null;
         let viewingPhotoTarget = null;
         let currentScrubLetter = null;
 
-        let hasUnsavedChanges = false;
-        let lastSavedFileLabel = '';
-
-        window.addEventListener('beforeunload', function(e) {
-            if (hasUnsavedChanges && zones.length > 0) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        });
-
-        function markUnsaved() {
-            hasUnsavedChanges = true;
-            renderTopBar();
-            renderFileStatusBar();
-        }
-
-        function markSavedToFile(filename) {
-            hasUnsavedChanges = false;
-            lastSavedFileLabel = `${filename} (${formatCurrentTime()})`;
-            renderTopBar();
-            renderFileStatusBar();
-        }
+        // متغيرات الأداء لسجل التسلسل الكبير
+        let seqDisplayLimit = 100;
+        let seqFilterMode = 'all'; // 'all' | 'photos' | 'heights'
 
         function normalizeArabicFirstLetter(name) {
             const trimmed = (name || '').trim();
@@ -676,7 +797,7 @@
             const container = document.getElementById('toastContainer');
             container.innerHTML = `<div class="toast-banner ${isError ? 'error' : ''}">${escapeHtml(msg)}</div>`;
             if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => { container.innerHTML = ''; }, 3800);
+            toastTimer = setTimeout(() => { container.innerHTML = ''; }, 3600);
         }
 
         function normalizeZones(rawZones) {
@@ -691,21 +812,42 @@
                         id: ent.id || String(Date.now() + Math.random()),
                         condId: ent.condId || 'c1',
                         time: ent.time || '',
+                        height: (ent.height !== undefined && ent.height !== null && ent.height !== '') ? Number(ent.height) : null,
                         photo: ent.photo || null
                     })) : [],
                     notes: (p.notes || []).map(n =>
                         typeof n === 'string'
-                            ? { text: n, lat: null, lng: null, acc: null }
-                            : { text: n.text || '', lat: n.lat ?? null, lng: n.lng ?? null, acc: n.acc ?? null }
+                            ? { text: n }
+                            : { text: n.text || '' }
                     )
                 }))
             }));
         }
 
+        function computePlantHeightStats(plant) {
+            const entries = Array.isArray(plant.entries) ? plant.entries : [];
+            let sum = 0;
+            let count = 0;
+            let min = Infinity;
+            let max = -Infinity;
+
+            for (let i = 0; i < entries.length; i++) {
+                const h = entries[i].height;
+                if (typeof h === 'number' && !isNaN(h) && h > 0) {
+                    sum += h;
+                    count++;
+                    if (h < min) min = h;
+                    if (h > max) max = h;
+                }
+            }
+            if (count === 0) return null;
+            const avg = Math.round((sum / count) * 10) / 10;
+            return { avg, min, max, count };
+        }
+
         function render() {
             document.body.classList.toggle('in-zone-mode', activeZoneId !== null);
             renderTopBar();
-            renderFileStatusBar();
             renderAuditBar();
             renderLastActionBar();
             updatePlantNamesDatalist();
@@ -725,15 +867,12 @@
 
         function renderTopBar() {
             const topBar = document.getElementById('topBar');
-            const saveBtnClass = hasUnsavedChanges ? 'btn btn-backup needs-save' : 'btn btn-backup';
-            const saveBtnLabel = hasUnsavedChanges ? '💾 احفظ الملف*' : '💾 ملف الجرد';
-
             if (activeZoneId === null) {
                 topBar.innerHTML = `
                     <h2 class="top-title" style="text-align:right;">📍 المناطق</h2>
                     <div class="top-actions">
                         <button class="btn btn-dash" onclick="openDashboard()">📊 الملخص</button>
-                        <button class="${saveBtnClass}" onclick="openBackupModal()">${saveBtnLabel}</button>
+                        <button class="btn btn-backup" onclick="openBackupModal()">💾 نسخ</button>
                         <button class="btn btn-settings" onclick="toggleSettings()">⚙️</button>
                     </div>
                 `;
@@ -744,51 +883,24 @@
                     <h2 class="top-title">${escapeHtml(zone ? zone.name : '')}</h2>
                     <div class="top-actions">
                         <button class="btn btn-dash" onclick="openDashboard()">📊</button>
-                        <button class="${saveBtnClass}" onclick="openBackupModal()">${hasUnsavedChanges ? '💾*' : '💾'}</button>
+                        <button class="btn btn-backup" onclick="openBackupModal()">💾</button>
                         <button class="btn btn-settings" onclick="toggleSettings()">⚙️</button>
                     </div>
                 `;
             }
         }
 
-        function renderFileStatusBar() {
-            const container = document.getElementById('fileStatusBarContainer');
-            if (zones.length === 0 && !lastSavedFileLabel) {
-                container.innerHTML = '';
-                return;
-            }
-            if (hasUnsavedChanges) {
-                container.innerHTML = `
-                    <div class="file-status-bar unsaved">
-                        <span>⚠️ توجد بيانات/صور جديدة لم تُحفظ كملف على الهاتف بعد</span>
-                        <button class="btn-quick-save-file" onclick="openBackupModal()">💾 حفظ الملف الآن</button>
-                    </div>
-                `;
-            } else if (lastSavedFileLabel) {
-                container.innerHTML = `
-                    <div class="file-status-bar saved">
-                        <span>✅ محفوظ في ملف: ${escapeHtml(lastSavedFileLabel)}</span>
-                        <button class="btn-quick-save-file" onclick="openBackupModal()">💾 تحديث الملف</button>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = '';
-            }
-        }
-
         function renderAuditBar() {
             const container = document.getElementById('auditBarContainer');
-            if (activeZoneId !== null) {
-                container.innerHTML = '';
-                return;
-            }
             const siteText = meta.siteName ? meta.siteName : 'موقع غير محدد';
-            const survText = meta.surveyorName ? meta.surveyorName : 'غير مسجل';
-            const qualText = meta.photoQuality === 'original' ? 'أصلية' : 'عالية HD';
+            const unitText = meta.heightUnit || 'سم';
+            const pillClass = saveStatusState === 'saving' ? 'auto-save-pill saving' : 'auto-save-pill';
+            const pillText = saveStatusState === 'saving' ? '⏳ جاري الحفظ...' : '✓ محفوظ تلقائياً';
+
             container.innerHTML = `
                 <div class="audit-strip" onclick="toggleSettings()">
-                    <span>🏞️ ${escapeHtml(siteText)} | 👤 ${escapeHtml(survText)} | 📸 ${qualText}</span>
-                    <span class="audit-edit-link">تعديل</span>
+                    <span class="meta-text">🏞️ ${escapeHtml(siteText)} | 📏 الوحدة: ${escapeHtml(unitText)}</span>
+                    <span id="autoSavePill" class="${pillClass}">${pillText}</span>
                 </div>
             `;
         }
@@ -811,7 +923,7 @@
             datalist.innerHTML = optionsHtml;
         }
 
-        // --- شريط آخر نبتة مضافة ---
+        // --- شريط آخر نبتة مضافة (ثابت دائماً أمام المستخدم) ---
         function renderLastActionBar() {
             const container = document.getElementById('lastActionContainer');
             if (!lastAction) {
@@ -835,6 +947,7 @@
             const currentCount = targetPlant.counts[lastAction.condId] || 0;
             const seqNum = lastAction.seqNumber ? `#${lastAction.seqNumber}` : '';
             const fieldMarker = lastAction.fieldMarker || '';
+            const hVal = lastAction.height ? `📏 ${lastAction.height} ${meta.heightUnit || 'سم'}` : '';
 
             container.innerHTML = `
                 <div class="last-action-bar">
@@ -848,6 +961,7 @@
                                 <span>🌿 ${escapeHtml(displayPlant)} ${seqNum ? `<small style="color:#0284c7;">(${seqNum})</small>` : ''}</span>
                                 <span>←</span>
                                 <span class="last-cond-pill" style="background-color: ${displayColor};">${escapeHtml(displayCond)} (${currentCount})</span>
+                                ${hVal ? `<span class="last-height-pill">${escapeHtml(hVal)}</span>` : ''}
                             </div>
                         </div>
                         <div class="last-action-btns">
@@ -875,7 +989,7 @@
         function saveFieldMarker() {
             if (!lastAction) return;
             lastAction.fieldMarker = document.getElementById('markerInput').value.trim();
-            markUnsaved();
+            saveDataSilent();
             closeMarkerModal();
             renderLastActionBar();
             showToast('🎀 تم حفظ علامة التوقف الميداني');
@@ -899,8 +1013,9 @@
                     }
                 }
                 lastAction.newCount = current - 1;
-                activePhotoPrompt = null;
-                markUnsaved();
+                lastAction.height = null;
+                activeEntryPrompt = null;
+                saveDataSilent();
                 render();
                 showToast(`↩️ تم التراجع: إنقاص 1 من (${targetPlant.name})`);
             }
@@ -1023,46 +1138,162 @@
                 return nameA.localeCompare(nameB, 'ar', { sensitivity: 'base' });
             });
 
-            activePhotoPrompt = null;
-            markUnsaved();
+            activeEntryPrompt = null;
+            saveDataSilent();
             render();
             showToast('🔤 تم ترتيب أسماء النباتات أبجدياً (أ - ي)');
         }
 
-        // --- معالجة الصور بجودة عالية HD أو الجودة الأصلية ---
-        function processHighQualityImageFile(file, callback) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const isOriginal = meta.photoQuality === 'original';
-                    const maxDim = isOriginal ? Math.max(img.width, img.height) : 1600;
-                    const jpegQuality = isOriginal ? 0.95 : 0.90;
+        // --- معالجة الأطوال الفورية للنبتة المضافة ---
+        function setEntryHeightQuick(plantId, entryId, rawVal) {
+            const zone = getActiveZone();
+            if (!zone) return;
+            const plant = zone.plants.find(p => p.id === plantId);
+            if (!plant || !Array.isArray(plant.entries)) return;
 
-                    let w = img.width;
-                    let h = img.height;
-                    if (!isOriginal && (w > maxDim || h > maxDim)) {
-                        if (w > h) {
-                            h = Math.round((h * maxDim) / w);
-                            w = maxDim;
-                        } else {
-                            w = Math.round((w * maxDim) / h);
-                            h = maxDim;
-                        }
+            const entryIdx = plant.entries.findIndex(e => String(e.id) === String(entryId));
+            if (entryIdx === -1) return;
+            const entry = plant.entries[entryIdx];
+
+            const num = parseFloat(rawVal);
+            entry.height = (!isNaN(num) && num > 0) ? num : null;
+
+            if (lastAction && lastAction.plantId === plantId && lastAction.seqNumber === entryIdx + 1) {
+                lastAction.height = entry.height;
+                renderLastActionBar();
+            }
+
+            // تحديث متوسط الطول في بطاقة النبات مباشرة بدون إعادة رسم كامل تفقد التركيز
+            const avgEl = document.getElementById(`plant-avg-${plantId}`);
+            if (avgEl) {
+                const hStats = computePlantHeightStats(plant);
+                const unit = meta.heightUnit || 'سم';
+                avgEl.innerHTML = hStats
+                    ? `📏 متوسط الطول: ${hStats.avg} ${escapeHtml(unit)} <span style="color:#64748b;">(${hStats.min}–${hStats.max})</span>`
+                    : '';
+            }
+
+            // تحديث أزرار الاختصار النشطة
+            document.querySelectorAll('.btn-height-chip').forEach(btn => {
+                btn.classList.toggle('active-chip', Number(btn.dataset.hval) === entry.height);
+            });
+
+            // إذا التُقطت صورة للتو لنفس النبتة في نفس المستطيل، نعيد ختم الطول الجديد عليها تلقائياً
+            if (activeEntryPrompt && String(activeEntryPrompt.entryId) === String(entryId) && activeEntryPrompt.rawImage) {
+                renderWatermarkedDataUrl(activeEntryPrompt.rawImage, zone, plant, entry, entryIdx + 1, (stampedUrl) => {
+                    entry.photo = stampedUrl;
+                    saveDataSilent();
+                });
+            } else {
+                saveDataSilent();
+            }
+        }
+
+        function editSequenceEntryHeight(plantId, entryId, seqNum) {
+            const zone = getActiveZone();
+            const plant = zone ? zone.plants.find(p => p.id === plantId) : null;
+            const entry = plant && Array.isArray(plant.entries)
+                ? plant.entries.find(e => String(e.id) === String(entryId))
+                : null;
+            if (!entry) return;
+
+            const unit = meta.heightUnit || 'سم';
+            const currentVal = entry.height ? String(entry.height) : '';
+            const userInput = prompt(`أدخل طول النبتة #${seqNum} (${plant.name}) بوحدة (${unit}):`, currentVal);
+            if (userInput === null) return;
+
+            const trimmed = userInput.trim();
+            if (trimmed === '') {
+                entry.height = null;
+            } else {
+                const num = parseFloat(trimmed);
+                if (!isNaN(num) && num > 0) {
+                    entry.height = num;
+                }
+            }
+            saveDataSilent();
+            render();
+        }
+
+        // --- معالجة الصور بجودة عالية HD + ختم البيانات تلقائياً (Watermark) ---
+        function renderWatermarkedDataUrl(sourceDataUrl, zone, plant, entry, seqNum, callback) {
+            const img = new Image();
+            img.onload = function() {
+                const isOriginal = meta.photoQuality === 'original';
+                const maxDim = isOriginal ? Math.max(img.width, img.height) : 1600;
+                const jpegQuality = isOriginal ? 0.94 : 0.88;
+
+                let w = img.width;
+                let h = img.height;
+                if (!isOriginal && (w > maxDim || h > maxDim)) {
+                    if (w > h) {
+                        h = Math.round((h * maxDim) / w);
+                        w = maxDim;
+                    } else {
+                        w = Math.round((w * maxDim) / h);
+                        h = maxDim;
                     }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = w;
-                    canvas.height = h;
-                    const ctx = canvas.getContext('2d');
-                    ctx.imageSmoothingEnabled = true;
-                    ctx.imageSmoothingQuality = 'high';
-                    ctx.drawImage(img, 0, 0, w, h);
-                    const highQualityDataUrl = canvas.toDataURL('image/jpeg', jpegQuality);
-                    callback(highQualityDataUrl, w, h);
-                };
-                img.src = e.target.result;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, w, h);
+
+                if ((meta.watermark || 'on') === 'on') {
+                    const condObj = config.find(c => c.id === entry.condId);
+                    const condName = condObj ? condObj.name : '';
+                    const unit = meta.heightUnit || 'سم';
+                    const heightPart = entry.height ? ` | الطول: ${entry.height} ${unit}` : '';
+                    const line1Right = `المنطقة: ${zone.name} | ${plant.name} (#${seqNum})`;
+                    const line2Right = `الحالة: ${condName}${heightPart}`;
+                    const line1Left = formatCurrentDateTimeFull();
+                    const line2Left = meta.siteName ? meta.siteName : '';
+
+                    const fontSize = Math.max(20, Math.round(w * 0.023));
+                    const padX = Math.round(fontSize * 0.85);
+                    const padY = Math.round(fontSize * 0.65);
+                    const barHeight = Math.round(fontSize * 2.7 + padY * 2);
+
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
+                    ctx.fillRect(0, h - barHeight, w, barHeight);
+
+                    ctx.fillStyle = '#22c55e';
+                    ctx.fillRect(0, h - barHeight, w, Math.max(4, Math.round(fontSize * 0.18)));
+
+                    ctx.textBaseline = 'middle';
+                    const row1Y = h - barHeight + padY + fontSize * 0.65;
+                    const row2Y = h - padY - fontSize * 0.65;
+
+                    // الجانب الأيمن (عربي)
+                    ctx.direction = 'rtl';
+                    ctx.textAlign = 'right';
+                    ctx.font = `bold ${fontSize}px sans-serif`;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(line1Right, w - padX, row1Y);
+
+                    ctx.font = `bold ${Math.round(fontSize * 0.92)}px sans-serif`;
+                    ctx.fillStyle = '#fde047';
+                    ctx.fillText(line2Right, w - padX, row2Y);
+
+                    // الجانب الأيسر (التاريخ والموقع)
+                    ctx.direction = 'ltr';
+                    ctx.textAlign = 'left';
+                    ctx.font = `${Math.round(fontSize * 0.85)}px sans-serif`;
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.fillText(line1Left, padX, row1Y);
+                    if (line2Left) {
+                        ctx.fillText(line2Left, padX, row2Y);
+                    }
+                }
+
+                const finalUrl = canvas.toDataURL('image/jpeg', jpegQuality);
+                callback(finalUrl, w, h);
             };
-            reader.readAsDataURL(file);
+            img.src = sourceDataUrl;
         }
 
         function triggerCameraForEntry(plantId, entryId) {
@@ -1086,34 +1317,44 @@
             const target = { ...pendingPhotoTarget };
             pendingPhotoTarget = null;
 
-            processHighQualityImageFile(file, (highQualityDataUrl, w, h) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const rawDataUrl = e.target.result;
                 const zone = zones.find(z => z.id === target.zoneId);
                 const plant = zone ? zone.plants.find(p => p.id === target.plantId) : null;
-                const entry = plant && Array.isArray(plant.entries)
-                    ? plant.entries.find(ent => String(ent.id) === String(target.entryId))
-                    : null;
+                const entryIdx = plant && Array.isArray(plant.entries)
+                    ? plant.entries.findIndex(ent => String(ent.id) === String(target.entryId))
+                    : -1;
 
-                if (entry) {
-                    entry.photo = highQualityDataUrl;
-                    activePhotoPrompt = null;
-                    markUnsaved();
-                    render();
-                    if (viewingPhotoTarget && String(viewingPhotoTarget.entryId) === String(entry.id)) {
-                        document.getElementById('photoViewerImg').src = highQualityDataUrl;
-                    }
-                    showToast(`📸 تم إضافة الصورة بدقة عالية (${w}×${h}) - تذكّر حفظ الملف`);
+                if (entryIdx !== -1) {
+                    const entry = plant.entries[entryIdx];
+                    renderWatermarkedDataUrl(rawDataUrl, zone, plant, entry, entryIdx + 1, (stampedUrl, w, h) => {
+                        entry.photo = stampedUrl;
+                        if (activeEntryPrompt && String(activeEntryPrompt.entryId) === String(entry.id)) {
+                            activeEntryPrompt.rawImage = rawDataUrl;
+                        }
+                        saveDataSilent();
+                        render();
+                        if (viewingPhotoTarget && String(viewingPhotoTarget.entryId) === String(entry.id)) {
+                            document.getElementById('photoViewerImg').src = stampedUrl;
+                        }
+                        showToast(`📸 تم التقاط الصورة وختم البيانات (${w}×${h})`);
+                    });
                 }
-            });
+            };
+            reader.readAsDataURL(file);
         }
 
-        function dismissPhotoPrompt() {
-            activePhotoPrompt = null;
+        function dismissEntryPrompt() {
+            activeEntryPrompt = null;
             render();
         }
 
-        // --- نافذة سجل تسلسل الإضافات للنبات ---
+        // --- نافذة سجل تسلسل الإضافات للنبات (محسّنة لعشرات الآلاف من الأشجار) ---
         function openSequenceModal(plantId) {
             viewingSequencePlantId = plantId;
+            seqDisplayLimit = 100;
+            seqFilterMode = 'all';
             renderSequenceModalContent();
             document.getElementById('sequenceModal').classList.add('active');
         }
@@ -1123,6 +1364,17 @@
             document.getElementById('sequenceModal').classList.remove('active');
         }
 
+        function setSeqFilter(mode) {
+            seqFilterMode = mode;
+            seqDisplayLimit = 100;
+            renderSequenceModalContent();
+        }
+
+        function loadMoreSequenceItems() {
+            seqDisplayLimit += 100;
+            renderSequenceModalContent();
+        }
+
         function renderSequenceModalContent() {
             const zone = getActiveZone();
             const plant = zone ? zone.plants.find(p => p.id === viewingSequencePlantId) : null;
@@ -1130,47 +1382,77 @@
 
             const entries = Array.isArray(plant.entries) ? plant.entries : [];
             const photosCount = entries.filter(e => !!e.photo).length;
+            const hStats = computePlantHeightStats(plant);
+            const unit = meta.heightUnit || 'سم';
 
             document.getElementById('sequenceModalTitle').textContent = `📜 سجل تسلسل: ${plant.name}`;
             const body = document.getElementById('sequenceModalBody');
 
             let html = `
                 <div class="seq-summary-strip">
-                    <span>إجمالي المسجل بالترتيب: ${entries.length}</span>
-                    <span style="color:#15803d;">📸 مصوّرة: ${photosCount} | بدون: ${entries.length - photosCount}</span>
+                    <span>العدد: ${entries.length}</span>
+                    <span>📸 مصوّرة: ${photosCount}</span>
+                    <span>${hStats ? `📏 المتوسط: ${hStats.avg} ${escapeHtml(unit)}` : '📏 بلا أطوال'}</span>
+                </div>
+                <div class="seq-filter-tabs">
+                    <button class="seq-filter-btn ${seqFilterMode === 'all' ? 'active' : ''}" onclick="setSeqFilter('all')">الكل (${entries.length})</button>
+                    <button class="seq-filter-btn ${seqFilterMode === 'photos' ? 'active' : ''}" onclick="setSeqFilter('photos')">📸 المصوّرة (${photosCount})</button>
+                    <button class="seq-filter-btn ${seqFilterMode === 'heights' ? 'active' : ''}" onclick="setSeqFilter('heights')">📏 لها طول (${hStats ? hStats.count : 0})</button>
                 </div>
             `;
 
-            if (entries.length === 0) {
+            // بناء القائمة مع الحفاظ على رقم التسلسل الحقيقي (#1..#N)
+            const indexedEntries = [];
+            for (let i = 0; i < entries.length; i++) {
+                const ent = entries[i];
+                if (seqFilterMode === 'photos' && !ent.photo) continue;
+                if (seqFilterMode === 'heights' && !(typeof ent.height === 'number' && ent.height > 0)) continue;
+                indexedEntries.push({ ent, seqNum: i + 1 });
+            }
+
+            if (indexedEntries.length === 0) {
                 html += `
-                    <div class="empty-state" style="margin-top:0; padding:20px;">
-                        <div style="font-size:14px;">لا يوجد سجل تسلسل زمني مسجل بعد لهذا الصنف. كل نبتة تضيفها بالضغط على (+) ستظهر هنا بالترتيب من #1 مع وقتها وحالة تصويرها.</div>
+                    <div class="empty-state" style="margin-top:0; padding:18px;">
+                        <div style="font-size:13px;">لا توجد سجلات مطابقة لهذا الفلتر حالياً.</div>
                     </div>
                 `;
             } else {
-                entries.forEach((ent, idx) => {
+                // عرض الأحدث أولاً بحد أقصى seqDisplayLimit لضمان سرعة فائقة حتى مع 50,000 شجرة
+                const totalMatched = indexedEntries.length;
+                const startIdx = Math.max(0, totalMatched - seqDisplayLimit);
+                const visibleSlice = indexedEntries.slice(startIdx).reverse();
+
+                visibleSlice.forEach(({ ent, seqNum }) => {
                     const condObj = config.find(c => c.id === ent.condId);
                     const condName = condObj ? condObj.name : 'حالة';
                     const condColor = condObj ? condObj.color : '#e2e8f0';
                     const hasPhoto = !!ent.photo;
+                    const hasHeight = typeof ent.height === 'number' && ent.height > 0;
 
                     html += `
                         <div class="seq-item">
                             <div class="seq-left">
-                                <span class="seq-num">#${idx + 1}</span>
+                                <span class="seq-num">#${seqNum}</span>
                                 <span class="seq-cond-badge" style="background-color: ${condColor};">${escapeHtml(condName)}</span>
+                                <span class="seq-height-tag" onclick="editSequenceEntryHeight(${plant.id}, '${ent.id}', ${seqNum})" title="اضغط لتعديل الطول">
+                                    ${hasHeight ? `📏 ${ent.height} ${escapeHtml(unit)}` : '📏 +طول'}
+                                </span>
                                 <span class="seq-time">🕒 ${escapeHtml(ent.time || '')}</span>
                             </div>
                             <div class="seq-right">
                                 ${hasPhoto
-                                    ? `<button class="badge-has-photo" onclick="openPhotoViewer(${plant.id}, '${ent.id}', ${idx + 1})">📸 مصوّرة (عرض)</button>`
-                                    : `<button class="badge-no-photo" onclick="triggerCameraForEntry(${plant.id}, '${ent.id}')">📷 غير مصوّرة (+صورة)</button>`
+                                    ? `<button class="badge-has-photo" onclick="openPhotoViewer(${plant.id}, '${ent.id}', ${seqNum})">📸 عرض</button>`
+                                    : `<button class="badge-no-photo" onclick="triggerCameraForEntry(${plant.id}, '${ent.id}')">📷 +صورة</button>`
                                 }
                                 <button class="btn-del-seq" onclick="deleteSequenceEntry(${plant.id}, '${ent.id}')" title="حذف من السجل">✕</button>
                             </div>
                         </div>
                     `;
                 });
+
+                if (startIdx > 0) {
+                    html += `<button class="btn-load-more-seq" onclick="loadMoreSequenceItems()">⬇️ عرض 100 أقدم (المتبقي: ${startIdx})</button>`;
+                }
             }
 
             body.innerHTML = html;
@@ -1188,7 +1470,7 @@
             if (removed && plant.counts[removed.condId] > 0) {
                 plant.counts[removed.condId] -= 1;
             }
-            markUnsaved();
+            saveDataSilent();
             render();
         }
 
@@ -1227,7 +1509,7 @@
                 : null;
             if (entry) {
                 entry.photo = null;
-                markUnsaved();
+                saveDataSilent();
                 closePhotoViewer();
                 render();
                 showToast('🗑️ تم حذف الصورة من سجل النبتة');
@@ -1251,13 +1533,23 @@
                             name: normKey,
                             total: 0,
                             photos: 0,
+                            heightSum: 0,
+                            heightCount: 0,
                             counts: { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 }
                         };
                     }
                     if (Array.isArray(p.entries)) {
-                        const pPhotos = p.entries.filter(e => !!e.photo).length;
-                        totalPhotos += pPhotos;
-                        speciesMap[normKey].photos += pPhotos;
+                        for (let i = 0; i < p.entries.length; i++) {
+                            const ent = p.entries[i];
+                            if (ent.photo) {
+                                totalPhotos++;
+                                speciesMap[normKey].photos++;
+                            }
+                            if (typeof ent.height === 'number' && ent.height > 0) {
+                                speciesMap[normKey].heightSum += ent.height;
+                                speciesMap[normKey].heightCount++;
+                            }
+                        }
                     }
                     config.forEach(c => {
                         const val = p.counts[c.id] || 0;
@@ -1296,6 +1588,7 @@
         function openDashboard() {
             const stats = computeSiteStats();
             const body = document.getElementById('dashboardBody');
+            const unit = meta.heightUnit || 'سم';
 
             let html = `
                 <div style="font-size:12px; color:#475569; margin-bottom:10px; background:#f1f5f9; padding:8px; border-radius:8px;">
@@ -1348,6 +1641,7 @@
                             <tr>
                                 <th>الصنف</th>
                                 <th>الإجمالي</th>
+                                <th>متوسط الطول</th>
                                 <th>سليم</th>
                                 <th>متابعة / هالك</th>
                             </tr>
@@ -1358,10 +1652,12 @@
                     const ok = sp.counts['c1'] || 0;
                     const problem = sp.total - ok;
                     const probPct = sp.total > 0 ? Math.round((problem / sp.total) * 100) : 0;
+                    const avgH = sp.heightCount > 0 ? `${Math.round((sp.heightSum / sp.heightCount) * 10) / 10} ${escapeHtml(unit)}` : '-';
                     html += `
                         <tr>
                             <td><b>${escapeHtml(sp.name)}</b> ${sp.photos > 0 ? `<small style="color:#0284c7;">(📸${sp.photos})</small>` : ''}</td>
                             <td><b>${sp.total}</b></td>
+                            <td>${avgH}</td>
                             <td><span class="badge-ok">${ok}</span></td>
                             <td>${problem > 0 ? `<span class="badge-warn">${problem} (${probPct}%)</span>` : '0'}</td>
                         </tr>
@@ -1380,6 +1676,7 @@
 
         function shareDashboardWhatsApp() {
             const stats = computeSiteStats();
+            const unit = meta.heightUnit || 'سم';
             let msg = `📊 *تقرير ملخص الجرد الميداني*\n`;
             msg += `*الموقع:* ${meta.siteName || 'موقع 5 دونم'}\n`;
             if (meta.surveyorName) msg += `*القائم بالجرد:* ${meta.surveyorName}\n`;
@@ -1397,7 +1694,8 @@
                 stats.speciesList.forEach(sp => {
                     const ok = sp.counts['c1'] || 0;
                     const prob = sp.total - ok;
-                    msg += `- ${sp.name}: المجموع ${sp.total} (سليم: ${ok} | متابعة/هالك: ${prob})\n`;
+                    const avgH = sp.heightCount > 0 ? ` | متوسط الطول: ${Math.round((sp.heightSum / sp.heightCount) * 10) / 10} ${unit}` : '';
+                    msg += `- ${sp.name}: المجموع ${sp.total} (سليم: ${ok} | متابعة/هالك: ${prob}${avgH})\n`;
                 });
             }
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
@@ -1450,14 +1748,14 @@
                         name: cleanName,
                         counts: { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 },
                         entries: [],
-                        notes: [{ text: '', lat: null, lng: null, acc: null }]
+                        notes: [{ text: '' }]
                     });
                     existingNames.add(cleanName);
                     addedCount++;
                 }
             });
 
-            if (addedCount > 0) markUnsaved();
+            if (addedCount > 0) saveDataSilent();
             closeImportSpeciesModal();
             render();
             if (addedCount > 0) {
@@ -1467,11 +1765,11 @@
             }
         }
 
-        // --- نظام الحفظ والفتح المباشر كملف على الهاتف ---
+        // --- النسخ الاحتياطي الخارجي (.json) ---
         function getBackupPayloadString() {
             return JSON.stringify({
                 app: 'JardPlantsBackup',
-                version: 10,
+                version: 11,
                 savedAt: new Date().toISOString(),
                 config: config,
                 meta: meta,
@@ -1485,10 +1783,8 @@
             const yyyy = d.getFullYear();
             const mm = String(d.getMonth() + 1).padStart(2, '0');
             const dd = String(d.getDate()).padStart(2, '0');
-            const hh = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
             const safeSite = (meta.siteName || 'Jard').replace(/[\\/:*?"<>|\s]+/g, '_');
-            return `${safeSite}_${yyyy}-${mm}-${dd}_${hh}-${min}.json`;
+            return `${safeSite}_Backup_${yyyy}-${mm}-${dd}.json`;
         }
 
         function openBackupModal() {
@@ -1512,9 +1808,8 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            markSavedToFile(filename);
             closeBackupModal();
-            showToast(`✅ تم حفظ الملف (${filename}) على ذاكرة الهاتف`);
+            showToast(`✅ تم تنزيل النسخة الاحتياطية (${filename})`);
         }
 
         async function shareBackupFile() {
@@ -1525,11 +1820,10 @@
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         files: [file],
-                        title: 'ملف جرد النباتات والصور'
+                        title: 'نسخة احتياطية - جرد النباتات'
                     });
-                    markSavedToFile(filename);
                     closeBackupModal();
-                    showToast('✅ تم فتح قائمة الحفظ والمشاركة للملف');
+                    showToast('✅ تم فتح خيارات المشاركة والحفظ');
                     return;
                 }
             } catch (err) {
@@ -1548,15 +1842,14 @@
             const file = event.target.files && event.target.files[0];
             if (!file) return;
 
-            const loadedFilename = file.name;
             const reader = new FileReader();
             reader.onload = function(e) {
-                processImportedRawText(e.target.result, loadedFilename);
+                processImportedRawText(e.target.result);
             };
             reader.readAsText(file, 'UTF-8');
         }
 
-        function processImportedRawText(rawText, loadedFilename = 'ملف_جرد.json') {
+        function processImportedRawText(rawText) {
             try {
                 const parsed = JSON.parse(rawText);
                 if (!parsed || !Array.isArray(parsed.zones)) {
@@ -1570,18 +1863,17 @@
                 const importedLastAction = parsed.lastAction || null;
 
                 if (zones.length === 0) {
-                    applyImportedData(importedZones, importedConfig, importedMeta, importedLastAction, 'replace', loadedFilename);
+                    applyImportedData(importedZones, importedConfig, importedMeta, importedLastAction, 'replace');
                 } else {
                     pendingImportData = {
                         zones: importedZones,
                         config: importedConfig,
                         meta: importedMeta,
-                        lastAction: importedLastAction,
-                        filename: loadedFilename
+                        lastAction: importedLastAction
                     };
                     document.getElementById('mergePromptContainer').innerHTML = `
                         <div class="merge-prompt">
-                            <p>يوجد لديك (${zones.length}) منطقة مفتوحة حالياً. كيف تريد فتح الملف؟</p>
+                            <p>يوجد لديك (${zones.length}) منطقة محفوظة حالياً. كيف تريد استيراد الملف؟</p>
                             <div style="display:flex; gap:8px;">
                                 <button class="btn" style="flex:1; background:#dc2626; font-size:13px;" onclick="confirmImportChoice('replace')">استبدال الكل</button>
                                 <button class="btn" style="flex:1; background:#0284c7; font-size:13px;" onclick="confirmImportChoice('merge')">دمج المناطق معاً</button>
@@ -1601,32 +1893,29 @@
                 pendingImportData.config,
                 pendingImportData.meta,
                 pendingImportData.lastAction,
-                mode,
-                pendingImportData.filename
+                mode
             );
         }
 
-        function applyImportedData(importedZones, importedConfig, importedMeta, importedLastAction, mode, loadedFilename) {
+        function applyImportedData(importedZones, importedConfig, importedMeta, importedLastAction, mode) {
             if (mode === 'replace') {
                 zones = importedZones;
                 if (importedConfig) config = importedConfig;
                 if (importedMeta) meta = { ...meta, ...importedMeta };
                 lastAction = importedLastAction;
-                hasUnsavedChanges = false;
-                lastSavedFileLabel = loadedFilename;
             } else {
                 const reIdZones = importedZones.map((z, idx) => ({
                     ...z,
                     id: Date.now() + idx + Math.random()
                 }));
                 zones = zones.concat(reIdZones);
-                hasUnsavedChanges = true;
             }
             activeZoneId = null;
-            activePhotoPrompt = null;
+            activeEntryPrompt = null;
+            saveDataSilent();
             closeBackupModal();
             render();
-            showToast(`✅ تم فتح الملف بنجاح (${zones.length} منطقة جاهزة للتكملة)`);
+            showToast(`✅ تم استيراد البيانات وحفظها تلقائياً (${zones.length} منطقة)`);
         }
 
         // --- إدارة المناطق ---
@@ -1638,8 +1927,8 @@
                 html += `
                     <div class="empty-state">
                         <div style="font-size: 36px; margin-bottom: 10px;">🌱</div>
-                        <div style="font-size: 17px; font-weight: bold; color: #334155; margin-bottom: 6px;">لا توجد مناطق مفتوحة حالياً</div>
-                        <div style="font-size: 14px; line-height:1.5;">ابدأ بإضافة منطقة جديدة أو افتح ملف جرد محفوظ سابقاً من ذاكرة هاتفك</div>
+                        <div style="font-size: 17px; font-weight: bold; color: #334155; margin-bottom: 6px;">لا توجد مناطق مضافة بعد</div>
+                        <div style="font-size: 14px; line-height:1.5;">اضغط على الزر الأزرق لإضافة منطقة جديدة؛ كل أرقامك وأطوالك وصورك ستُحفظ تلقائياً على الهاتف</div>
                     </div>
                 `;
             } else {
@@ -1666,7 +1955,6 @@
             }
 
             html += `<button class="btn btn-primary-full" onclick="openZoneModal()">+ إضافة منطقة جديدة</button>`;
-            html += `<button class="btn btn-open-file-full" onclick="triggerRestoreFile()">📂 فتح ملف جرد من الهاتف (.json)</button>`;
             container.innerHTML = html;
         }
 
@@ -1706,13 +1994,13 @@
                     plants: []
                 };
                 zones.push(newZone);
-                markUnsaved();
+                saveDataSilent();
                 closeZoneModal();
                 enterZone(newZone.id);
             } else {
                 const z = zones.find(item => item.id === editingZoneId);
                 if (z) z.name = name;
-                markUnsaved();
+                saveDataSilent();
                 closeZoneModal();
                 render();
             }
@@ -1729,14 +2017,14 @@
             confirmDeleteKey = null;
             zones = zones.filter(z => z.id !== zoneId);
             if (lastAction && lastAction.zoneId === zoneId) lastAction = null;
-            markUnsaved();
+            saveDataSilent();
             render();
         }
 
         function enterZone(zoneId) {
             activeZoneId = zoneId;
             confirmDeleteKey = null;
-            activePhotoPrompt = null;
+            activeEntryPrompt = null;
             render();
             window.scrollTo(0, 0);
         }
@@ -1744,12 +2032,12 @@
         function exitZone() {
             activeZoneId = null;
             confirmDeleteKey = null;
-            activePhotoPrompt = null;
+            activeEntryPrompt = null;
             render();
             window.scrollTo(0, 0);
         }
 
-        // --- إدارة النباتات والعدّ وتسجيل التسلسل ---
+        // --- إدارة النباتات والعدّ والأطوال ---
         function getActiveZone() {
             return zones.find(z => z.id === activeZoneId);
         }
@@ -1762,9 +2050,9 @@
                 name: 'نبات ' + (zone.plants.length + 1),
                 counts: { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 },
                 entries: [],
-                notes: [{ text: '', lat: null, lng: null, acc: null }]
+                notes: [{ text: '' }]
             });
-            markUnsaved();
+            saveDataSilent();
             render();
         }
 
@@ -1777,9 +2065,9 @@
                 name: p.name + ' (نسخة)',
                 counts: { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 },
                 entries: [],
-                notes: [{ text: '', lat: null, lng: null, acc: null }]
+                notes: [{ text: '' }]
             });
-            markUnsaved();
+            saveDataSilent();
             render();
         }
 
@@ -1797,8 +2085,8 @@
             confirmDeleteKey = null;
             zone.plants.splice(index, 1);
             if (lastAction && lastAction.plantId === plantId) lastAction = null;
-            if (activePhotoPrompt && activePhotoPrompt.plantId === plantId) activePhotoPrompt = null;
-            markUnsaved();
+            if (activeEntryPrompt && activeEntryPrompt.plantId === plantId) activeEntryPrompt = null;
+            saveDataSilent();
             render();
         }
 
@@ -1812,7 +2100,7 @@
             }
             updatePlantNamesDatalist();
             renderAlphaScroller(zone);
-            markUnsaved();
+            saveDataSilent();
         }
 
         function updateCount(plantIndex, condId, delta) {
@@ -1833,6 +2121,7 @@
                         id: String(Date.now()) + '_' + Math.floor(Math.random() * 10000),
                         condId: condId,
                         time: nowTime,
+                        height: null,
                         photo: null
                     };
                     plant.entries.push(newEntry);
@@ -1849,16 +2138,18 @@
                         condColor: condObj ? condObj.color : '#e2e8f0',
                         newCount: updatedVal,
                         seqNumber: seqNumber,
+                        height: null,
                         time: nowTime,
                         fieldMarker: prevMarker
                     };
 
-                    activePhotoPrompt = {
+                    activeEntryPrompt = {
                         plantId: plant.id,
                         condId: condId,
                         entryId: newEntry.id,
                         condName: condObj ? condObj.name : '',
-                        entryNumber: seqNumber
+                        entryNumber: seqNumber,
+                        rawImage: null
                     };
                 } else {
                     for (let i = plant.entries.length - 1; i >= 0; i--) {
@@ -1869,24 +2160,25 @@
                     }
                     if (lastAction && lastAction.plantId === plant.id && lastAction.condId === condId) {
                         lastAction.newCount = updatedVal;
+                        lastAction.height = null;
                     }
-                    if (activePhotoPrompt && activePhotoPrompt.plantId === plant.id && activePhotoPrompt.condId === condId) {
-                        activePhotoPrompt = null;
+                    if (activeEntryPrompt && activeEntryPrompt.plantId === plant.id && activeEntryPrompt.condId === condId) {
+                        activeEntryPrompt = null;
                     }
                 }
 
-                markUnsaved();
+                saveDataSilent();
                 render();
             }
         }
 
-        // --- إدارة الملاحظات والـ GPS والشريط الملون والواتساب ---
+        // --- إدارة الملاحظات البسيطة (بدون GPS) ---
         function addNote(plantIndex) {
             const zone = getActiveZone();
             if (!zone) return;
             if (!zone.plants[plantIndex].notes) zone.plants[plantIndex].notes = [];
-            zone.plants[plantIndex].notes.push({ text: '', lat: null, lng: null, acc: null });
-            markUnsaved();
+            zone.plants[plantIndex].notes.push({ text: '' });
+            saveDataSilent();
             render();
             const notesInputs = document.querySelectorAll(`.note-input[data-pindex="${plantIndex}"]`);
             if (notesInputs.length > 0) {
@@ -1898,7 +2190,7 @@
             const zone = getActiveZone();
             if (!zone) return;
             zone.plants[plantIndex].notes[noteIndex].text = val;
-            markUnsaved();
+            saveDataSilent();
             if (el) autoResize(el);
         }
 
@@ -1906,10 +2198,10 @@
             const zone = getActiveZone();
             if (!zone) return;
             const note = zone.plants[plantIndex].notes[noteIndex];
-            const tag = '[تم وضع شريط ملون للتمييز 🎀]';
+            const tag = '[شريط ملون 🎀]';
             if (!note.text.includes('شريط ملون')) {
                 note.text = note.text.trim() ? `${note.text.trim()} - ${tag}` : tag;
-                markUnsaved();
+                saveDataSilent();
                 render();
             }
         }
@@ -1918,80 +2210,8 @@
             const zone = getActiveZone();
             if (!zone) return;
             zone.plants[plantIndex].notes.splice(noteIndex, 1);
-            markUnsaved();
+            saveDataSilent();
             render();
-        }
-
-        function captureGPS(plantIndex, noteIndex) {
-            const zone = getActiveZone();
-            if (!zone) return;
-            const key = `${plantIndex}_${noteIndex}`;
-
-            if (!navigator.geolocation) {
-                gpsErrorMap[key] = 'المتصفح لا يدعم تحديد الموقع (GPS).';
-                render();
-                return;
-            }
-
-            gpsLoadingMap[key] = true;
-            delete gpsErrorMap[key];
-            render();
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    delete gpsLoadingMap[key];
-                    const note = zone.plants[plantIndex].notes[noteIndex];
-                    note.lat = Number(pos.coords.latitude.toFixed(6));
-                    note.lng = Number(pos.coords.longitude.toFixed(6));
-                    note.acc = Math.round(pos.coords.accuracy);
-                    markUnsaved();
-                    render();
-                },
-                (err) => {
-                    delete gpsLoadingMap[key];
-                    if (err.code === 1) {
-                        gpsErrorMap[key] = 'تم رفض إذن الموقع. فعّل GPS للمتصفح من إعدادات الهاتف.';
-                    } else if (err.code === 3) {
-                        gpsErrorMap[key] = 'انتهى الوقت. قف في مكان مفتوح وحاول مجدداً.';
-                    } else {
-                        gpsErrorMap[key] = 'تعذر التقاط الإشارة. تأكد من تشغيل GPS في الهاتف.';
-                    }
-                    render();
-                },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-            );
-        }
-
-        function sendWhatsApp(plantIndex, noteIndex) {
-            const zone = getActiveZone();
-            if (!zone) return;
-            const plant = zone.plants[plantIndex];
-            const note = plant.notes[noteIndex];
-
-            let statusParts = [];
-            config.forEach(c => {
-                const count = plant.counts[c.id] || 0;
-                if (count > 0) statusParts.push(`${c.name} (${count})`);
-            });
-
-            let msg = `📍 *توجيه ميداني - متابعة نبات*\n`;
-            if (meta.siteName) msg += `*الموقع:* ${meta.siteName}\n`;
-            msg += `*المنطقة:* ${zone.name}\n`;
-            msg += `*النبات:* ${plant.name}\n`;
-            if (statusParts.length > 0) {
-                msg += `*الحالات المسجلة:* ${statusParts.join('، ')}\n`;
-            }
-            if (note.text && note.text.trim() !== '') {
-                msg += `*المعلم / الملاحظة:* ${note.text.trim()}\n`;
-            }
-            if (note.lat !== null && note.lng !== null) {
-                msg += `*رابط الموقع على الخريطة:*\nhttps://www.google.com/maps?q=${note.lat},${note.lng}`;
-            } else {
-                msg += `*(لم يتم تثبيت إحداثيات GPS لهذه الملاحظة)*`;
-            }
-
-            const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-            window.open(waUrl, '_blank');
         }
 
         function autoResize(el) {
@@ -2009,6 +2229,8 @@
             if (!zone) return exitZone();
 
             const hasOtherPopulatedZones = zones.some(z => z.id !== activeZoneId && z.plants.length > 0);
+            const unit = meta.heightUnit || 'سم';
+            const heightPresets = unit === 'م' ? [0.5, 1, 1.5, 2] : [50, 100, 150, 200];
             let html = '';
 
             if (zone.plants.length > 0) {
@@ -2038,6 +2260,7 @@
                 const notes = p.notes || [];
                 const entries = Array.isArray(p.entries) ? p.entries : [];
                 const photosCount = entries.filter(e => !!e.photo).length;
+                const hStats = computePlantHeightStats(p);
 
                 html += `
                     <div id="plant-card-${p.id}" class="plant-card ${isLastPlant ? 'is-last-edited' : ''}">
@@ -2050,9 +2273,14 @@
                         </div>
 
                         <div class="plant-meta-bar">
-                            <div class="total-text">
-                                <span>الإجمالي: ${total}</span>
-                                ${isLastPlant ? `<span class="last-edited-pill">👈 آخر تعديل</span>` : ''}
+                            <div class="meta-stats-group">
+                                <div class="total-text">
+                                    <span>الإجمالي: ${total}</span>
+                                    ${isLastPlant ? `<span class="last-edited-pill">👈 آخر تعديل</span>` : ''}
+                                </div>
+                                <div id="plant-avg-${p.id}" class="avg-height-text">
+                                    ${hStats ? `📏 متوسط الطول: ${hStats.avg} ${escapeHtml(unit)} <span style="color:#64748b;">(${hStats.min}–${hStats.max})</span>` : ''}
+                                </div>
                             </div>
                             <button class="btn-seq-log" onclick="openSequenceModal(${p.id})">
                                 <span>📜 سجل الترتيب (${entries.length})</span>
@@ -2066,9 +2294,9 @@
                 config.forEach(c => {
                     const count = p.counts[c.id] || 0;
                     const isLastCond = isLastPlant && lastAction.condId === c.id;
-                    const showPromptHere = activePhotoPrompt
-                        && activePhotoPrompt.plantId === p.id
-                        && activePhotoPrompt.condId === c.id;
+                    const showPromptHere = activeEntryPrompt
+                        && activeEntryPrompt.plantId === p.id
+                        && activeEntryPrompt.condId === c.id;
 
                     html += `
                         <div class="condition-box ${isLastCond ? 'is-last-cond' : ''}" style="background-color: ${c.color}">
@@ -2082,15 +2310,27 @@
                     `;
 
                     if (showPromptHere) {
+                        const activeEntryObj = entries.find(e => String(e.id) === String(activeEntryPrompt.entryId));
+                        const currentH = activeEntryObj && activeEntryObj.height ? activeEntryObj.height : '';
+
                         html += `
-                            <div class="photo-prompt-rect">
-                                <div class="photo-prompt-label">
-                                    📷 صورة HD للنبتة <b>#${activePhotoPrompt.entryNumber}</b> (${escapeHtml(activePhotoPrompt.condName)}):
+                            <div class="entry-action-rect">
+                                <div class="entry-action-top">
+                                    <div class="photo-prompt-label">
+                                        🌿 نبتة <b>#${activeEntryPrompt.entryNumber}</b> (${escapeHtml(activeEntryPrompt.condName)}):
+                                    </div>
+                                    <div class="photo-prompt-btns">
+                                        <button class="btn-cam-now" onclick="triggerCameraForEntry(${p.id}, '${activeEntryPrompt.entryId}')">📸 كاميرا</button>
+                                        <button class="btn-gal-now" onclick="triggerGalleryForEntry(${p.id}, '${activeEntryPrompt.entryId}')">🖼️</button>
+                                        <button class="btn-close-prompt" onclick="dismissEntryPrompt()">✕</button>
+                                    </div>
                                 </div>
-                                <div class="photo-prompt-btns">
-                                    <button class="btn-cam-now" onclick="triggerCameraForEntry(${p.id}, '${activePhotoPrompt.entryId}')">📸 كاميرا</button>
-                                    <button class="btn-gal-now" onclick="triggerGalleryForEntry(${p.id}, '${activePhotoPrompt.entryId}')">🖼️</button>
-                                    <button class="btn-close-prompt" onclick="dismissPhotoPrompt()">✕</button>
+                                <div class="height-quick-row">
+                                    <span style="font-size:12px; font-weight:bold; color:#0f766e;">📏 الطول:</span>
+                                    <input type="number" step="any" inputmode="decimal" class="height-input-box" value="${currentH}" placeholder="${escapeHtml(unit)}" oninput="setEntryHeightQuick(${p.id}, '${activeEntryPrompt.entryId}', this.value)">
+                                    ${heightPresets.map(val => `
+                                        <button type="button" class="btn-height-chip ${Number(currentH) === val ? 'active-chip' : ''}" data-hval="${val}" onclick="document.querySelector('.height-input-box').value='${val}'; setEntryHeightQuick(${p.id}, '${activeEntryPrompt.entryId}', '${val}')">${val}</button>
+                                    `).join('')}
                                 </div>
                             </div>
                         `;
@@ -2101,47 +2341,17 @@
                         </div>
                         <div class="notes-section">
                             <div class="notes-header">
-                                <span class="notes-label">📝 الملاحظات وتحديد المواقع:</span>
-                                <button class="btn-add-note" onclick="addNote(${index})">+ إضافة موقع / ملاحظة</button>
+                                <span class="notes-label">📝 ملاحظات ميدانية:</span>
+                                <button class="btn-add-note" onclick="addNote(${index})">+ ملاحظة</button>
                             </div>
                 `;
 
                 notes.forEach((noteObj, nIdx) => {
-                    const key = `${index}_${nIdx}`;
-                    const isLoading = !!gpsLoadingMap[key];
-                    const errMsg = gpsErrorMap[key];
-                    const hasCoords = noteObj.lat !== null && noteObj.lng !== null;
-
                     html += `
-                        <div class="note-card">
-                            <textarea rows="1" class="note-input" data-pindex="${index}" placeholder="اكتب معلم قريب (مثلاً: صف 4 نبتة 12 يمين الصمام)..." oninput="updateNoteText(${index}, ${nIdx}, this.value, this)">${escapeHtml(noteObj.text || '')}</textarea>
-                    `;
-
-                    if (hasCoords) {
-                        const mapLink = `https://www.google.com/maps?q=${noteObj.lat},${noteObj.lng}`;
-                        html += `
-                            <div class="gps-info-bar">
-                                <span>✅ تم تثبيت الموقع (دقة ±${noteObj.acc || '?'}م)</span>
-                                <a href="${mapLink}" target="_blank">🗺️ فتح الخريطة</a>
-                            </div>
-                        `;
-                    }
-
-                    if (errMsg) {
-                        html += `<div class="gps-status-msg">⚠️ ${escapeHtml(errMsg)}</div>`;
-                    }
-
-                    html += `
-                            <div class="note-tools">
-                                <button class="btn-gps ${hasCoords ? 'has-loc' : ''}" onclick="captureGPS(${index}, ${nIdx})" ${isLoading ? 'disabled' : ''}>
-                                    ${isLoading ? '⏳ جاري الالتقاط...' : (hasCoords ? '📍 تحديث GPS' : '📍 التقط GPS')}
-                                </button>
-                                <button class="btn-ribbon" onclick="appendRibbonTag(${index}, ${nIdx})" title="إضافة علامة شريط ملون">🎀 شريط</button>
-                                <button class="btn-wa" onclick="sendWhatsApp(${index}, ${nIdx})">
-                                    📤 واتساب
-                                </button>
-                                <button class="btn-del-note" onclick="deleteNote(${index}, ${nIdx})" title="حذف الملاحظة">✕</button>
-                            </div>
+                        <div class="note-row-clean">
+                            <textarea rows="1" class="note-input" data-pindex="${index}" placeholder="اكتب ملاحظة (مثلاً: صف 4 شجرة 12)..." oninput="updateNoteText(${index}, ${nIdx}, this.value, this)">${escapeHtml(noteObj.text || '')}</textarea>
+                            <button class="btn-ribbon" onclick="appendRibbonTag(${index}, ${nIdx})" title="علامة شريط ملون">🎀</button>
+                            <button class="btn-del-note" onclick="deleteNote(${index}, ${nIdx})" title="حذف الملاحظة">✕</button>
                         </div>
                     `;
                 });
@@ -2156,8 +2366,10 @@
             container.innerHTML = html;
         }
 
-        // --- الإعدادات والتوثيق ---
+        // --- الإعدادات والتوثيق والأطوال والصور ---
         function renderSettings() {
+            document.getElementById('heightUnitSelect').value = meta.heightUnit || 'سم';
+            document.getElementById('watermarkSelect').value = meta.watermark || 'on';
             document.getElementById('photoQualitySelect').value = meta.photoQuality || 'hd';
             document.getElementById('siteNameInput').value = meta.siteName || '';
             document.getElementById('surveyorNameInput').value = meta.surveyorName || '';
@@ -2175,16 +2387,19 @@
         }
 
         function updateAuditMeta() {
+            meta.heightUnit = document.getElementById('heightUnitSelect').value;
+            meta.watermark = document.getElementById('watermarkSelect').value;
             meta.photoQuality = document.getElementById('photoQualitySelect').value;
             meta.siteName = document.getElementById('siteNameInput').value;
             meta.surveyorName = document.getElementById('surveyorNameInput').value;
-            markUnsaved();
+            saveDataSilent();
             renderAuditBar();
+            if (activeZoneId !== null) renderPlantsInZone();
         }
 
         function updateConfig(index, key, val) {
             config[index][key] = val;
-            markUnsaved();
+            saveDataSilent();
             render();
         }
 
@@ -2198,6 +2413,7 @@
 
         // =========================================================================
         // محرك بناء ملف إكسيل حقيقي (.xlsx) أوفلاين بالكامل
+        // يدعم: الصور المختومة + الأطوال ومتوسطها + طيّ الصفوف [+] (Dropdown)
         // =========================================================================
 
         const CRC32_TABLE = (() => {
@@ -2404,11 +2620,12 @@
             return xml;
         }
 
-        function generateWorkbookXlsxBytes() {
+        function generateWorkbookXlsxBytes(targetZonesList) {
             const encoder = new TextEncoder();
             const exportTimestamp = formatCurrentDateTimeFull();
             const siteText = meta.siteName || 'موقع 5 دونم';
             const surveyorText = meta.surveyorName || 'غير مسجل';
+            const unit = meta.heightUnit || 'سم';
 
             const mediaFiles = [];
             const sheet1Anchors = [];
@@ -2426,9 +2643,11 @@
                 'إجمالي العدد / الحالة',
                 ...config.map(c => c.name),
                 'نسبة السليم % / الوقت',
+                `متوسط الطول / طول النبتة (${unit})`,
+                `نطاق الأطوال (${unit})`,
                 'حالة التصوير',
-                'الصورة الميدانية (HD)',
-                'الملاحظات والمواقع (روابط GPS)',
+                'الصورة الميدانية (مختومة)',
+                'الملاحظات الميدانية',
                 'الموقع / المشروع',
                 'القائم بالجرد',
                 'تاريخ التصدير'
@@ -2445,16 +2664,17 @@
                 'نوع النبات',
                 'رقم التسلسل',
                 'الحالة الصحية',
+                `الطول (${unit})`,
                 'وقت الإضافة',
                 'حالة التصوير',
-                'الصورة الميدانية (HD)'
+                'الصورة الميدانية (مختومة)'
             ];
             let s2HeaderCells = '';
             s2Headers.forEach((h, cIdx) => { s2HeaderCells += makeInlineStrCell(cIdx, r2, h, 1); });
             s2RowsXml += `<row r="${r2}" ht="28" customHeight="1">${s2HeaderCells}</row>\n`;
             r2++;
 
-            zones.forEach(z => {
+            targetZonesList.forEach(z => {
                 z.plants.forEach(p => {
                     let total = 0;
                     config.forEach(c => total += (p.counts[c.id] || 0));
@@ -2462,16 +2682,10 @@
                     const healthyPct = total > 0 ? Math.round((healthyCount / total) * 100) + '%' : '0%';
                     const entries = Array.isArray(p.entries) ? p.entries : [];
                     const photosCount = entries.filter(e => !!e.photo).length;
+                    const hStats = computePlantHeightStats(p);
 
                     const formattedNotes = (p.notes || [])
-                        .map(n => {
-                            let parts = [];
-                            if (n.text && n.text.trim() !== '') parts.push(n.text.trim());
-                            if (n.lat !== null && n.lng !== null) {
-                                parts.push(`https://www.google.com/maps?q=${n.lat},${n.lng}`);
-                            }
-                            return parts.join(' - ');
-                        })
+                        .map(n => (n.text || '').trim())
                         .filter(str => str !== '')
                         .join(' | ');
 
@@ -2479,6 +2693,7 @@
                         ? `🌿 ${p.name}  [اضغط + لعرض السجل: ${entries.length}]`
                         : `🌿 ${p.name}`;
                     const photoSummaryLabel = photosCount > 0 ? `📸 ${photosCount} صور` : 'بدون صور';
+                    const heightRangeStr = hStats ? `${hStats.min} - ${hStats.max} ${unit}` : '-';
 
                     let mainCells = '';
                     mainCells += makeInlineStrCell(0, r1, z.name, 2);
@@ -2488,12 +2703,14 @@
                         mainCells += makeNumCell(3 + idx, r1, p.counts[c.id] || 0, 2);
                     });
                     mainCells += makeInlineStrCell(9, r1, healthyPct, 2);
-                    mainCells += makeInlineStrCell(10, r1, photoSummaryLabel, photosCount > 0 ? 4 : 2);
-                    mainCells += makeInlineStrCell(11, r1, '', 2);
-                    mainCells += makeInlineStrCell(12, r1, formattedNotes, 2);
-                    mainCells += makeInlineStrCell(13, r1, siteText, 2);
-                    mainCells += makeInlineStrCell(14, r1, surveyorText, 2);
-                    mainCells += makeInlineStrCell(15, r1, exportTimestamp, 2);
+                    mainCells += hStats ? makeNumCell(10, r1, hStats.avg, 2) : makeInlineStrCell(10, r1, '-', 2);
+                    mainCells += makeInlineStrCell(11, r1, heightRangeStr, 2);
+                    mainCells += makeInlineStrCell(12, r1, photoSummaryLabel, photosCount > 0 ? 4 : 2);
+                    mainCells += makeInlineStrCell(13, r1, '', 2);
+                    mainCells += makeInlineStrCell(14, r1, formattedNotes, 2);
+                    mainCells += makeInlineStrCell(15, r1, siteText, 2);
+                    mainCells += makeInlineStrCell(16, r1, surveyorText, 2);
+                    mainCells += makeInlineStrCell(17, r1, exportTimestamp, 2);
 
                     s1RowsXml += `<row r="${r1}" ht="26" customHeight="1">${mainCells}</row>\n`;
                     r1++;
@@ -2502,6 +2719,7 @@
                         const condObj = config.find(c => c.id === ent.condId);
                         const condName = condObj ? condObj.name : 'حالة';
                         const condStyle = condStyleMap[ent.condId] || 3;
+                        const hasHeight = typeof ent.height === 'number' && ent.height > 0;
                         let mediaFilename = null;
 
                         if (ent.photo) {
@@ -2525,17 +2743,20 @@
                             }
                         });
                         subCells += makeInlineStrCell(9, r1, ent.time || '', 3);
-                        subCells += makeInlineStrCell(10, r1, mediaFilename ? '📸 مصوّرة' : '📷 غير مصوّرة', mediaFilename ? 4 : 5);
+                        subCells += hasHeight ? makeNumCell(10, r1, ent.height, 3) : makeInlineStrCell(10, r1, '-', 3);
                         subCells += makeInlineStrCell(11, r1, '', 3);
-                        subCells += makeInlineStrCell(12, r1, '', 3);
+                        subCells += makeInlineStrCell(12, r1, mediaFilename ? '📸 مصوّرة' : '📷 غير مصوّرة', mediaFilename ? 4 : 5);
                         subCells += makeInlineStrCell(13, r1, '', 3);
                         subCells += makeInlineStrCell(14, r1, '', 3);
                         subCells += makeInlineStrCell(15, r1, '', 3);
+                        subCells += makeInlineStrCell(16, r1, '', 3);
+                        subCells += makeInlineStrCell(17, r1, '', 3);
 
                         s1RowsXml += `<row r="${r1}" hidden="1" outlineLevel="1" ht="${rowHeightS1}" customHeight="1">${subCells}</row>\n`;
 
                         if (mediaFilename) {
-                            sheet1Anchors.push({ col: 11, row: r1 - 1, mediaFilename });
+                            // العمود N هو رقم 13 (0-based)
+                            sheet1Anchors.push({ col: 13, row: r1 - 1, mediaFilename });
                         }
                         r1++;
 
@@ -2544,13 +2765,15 @@
                         s2Cells += makeInlineStrCell(1, r2, p.name, 3);
                         s2Cells += makeInlineStrCell(2, r2, `#${eIdx + 1}`, 3);
                         s2Cells += makeInlineStrCell(3, r2, condName, condStyle);
-                        s2Cells += makeInlineStrCell(4, r2, ent.time || '', 3);
-                        s2Cells += makeInlineStrCell(5, r2, mediaFilename ? '📸 مصوّرة' : '📷 غير مصوّرة', mediaFilename ? 4 : 5);
-                        s2Cells += makeInlineStrCell(6, r2, '', 3);
+                        s2Cells += hasHeight ? makeNumCell(4, r2, ent.height, 3) : makeInlineStrCell(4, r2, '-', 3);
+                        s2Cells += makeInlineStrCell(5, r2, ent.time || '', 3);
+                        s2Cells += makeInlineStrCell(6, r2, mediaFilename ? '📸 مصوّرة' : '📷 غير مصوّرة', mediaFilename ? 4 : 5);
+                        s2Cells += makeInlineStrCell(7, r2, '', 3);
 
                         s2RowsXml += `<row r="${r2}" ht="${rowHeightS1}" customHeight="1">${s2Cells}</row>\n`;
                         if (mediaFilename) {
-                            sheet2Anchors.push({ col: 6, row: r2 - 1, mediaFilename });
+                            // العمود H هو رقم 7 (0-based)
+                            sheet2Anchors.push({ col: 7, row: r2 - 1, mediaFilename });
                         }
                         r2++;
                     });
@@ -2627,10 +2850,11 @@
         <col min="3" max="3" width="18" customWidth="1"/>
         <col min="4" max="9" width="14" customWidth="1"/>
         <col min="10" max="10" width="16" customWidth="1"/>
-        <col min="11" max="11" width="16" customWidth="1"/>
-        <col min="12" max="12" width="25" customWidth="1"/>
-        <col min="13" max="13" width="38" customWidth="1"/>
-        <col min="14" max="16" width="20" customWidth="1"/>
+        <col min="11" max="12" width="18" customWidth="1"/>
+        <col min="13" max="13" width="16" customWidth="1"/>
+        <col min="14" max="14" width="25" customWidth="1"/>
+        <col min="15" max="15" width="34" customWidth="1"/>
+        <col min="16" max="18" width="20" customWidth="1"/>
     </cols>
     <sheetData>
         ${s1RowsXml}
@@ -2651,8 +2875,9 @@
         <col min="3" max="3" width="13" customWidth="1"/>
         <col min="4" max="4" width="18" customWidth="1"/>
         <col min="5" max="5" width="14" customWidth="1"/>
-        <col min="6" max="6" width="16" customWidth="1"/>
-        <col min="7" max="7" width="25" customWidth="1"/>
+        <col min="6" max="6" width="14" customWidth="1"/>
+        <col min="7" max="7" width="16" customWidth="1"/>
+        <col min="8" max="8" width="25" customWidth="1"/>
     </cols>
     <sheetData>
         ${s2RowsXml}
@@ -2724,16 +2949,49 @@
             return buildZipUint8Array(zipEntries);
         }
 
-        async function exportXLSX() {
+        function openExportModal() {
+            if (zones.length === 0) {
+                showToast('⚠️ لا توجد مناطق مسجلة لتصديرها بعد.', true);
+                return;
+            }
+            const select = document.getElementById('exportScopeSelect');
+            let opts = `<option value="all">🌐 الموقع بالكامل (جميع المناطق: ${zones.length})</option>`;
+            zones.forEach(z => {
+                const isCurrent = activeZoneId === z.id;
+                opts += `<option value="${z.id}" ${isCurrent ? 'selected' : ''}>📍 منطقة: ${escapeHtml(z.name)} فقط</option>`;
+            });
+            select.innerHTML = opts;
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+
+        async function confirmAndExportXLSX() {
+            const scopeVal = document.getElementById('exportScopeSelect').value;
+            closeExportModal();
+
+            let targetZonesList = zones;
+            let fileLabel = (meta.siteName || 'تقرير_جرد_النباتات').replace(/[\\/:*?"<>|\s]+/g, '_');
+
+            if (scopeVal !== 'all') {
+                const found = zones.find(z => String(z.id) === String(scopeVal));
+                if (found) {
+                    targetZonesList = [found];
+                    fileLabel = `جرد_${found.name.replace(/[\\/:*?"<>|\s]+/g, '_')}`;
+                }
+            }
+
             const btn = document.getElementById('exportBtn');
             const origText = btn.textContent;
-            btn.textContent = '⏳ جاري تجهيز الإكسيل بالصور عالية الجودة...';
+            btn.textContent = '⏳ جاري تجهيز ملف الإكسيل بالصور والأطوال...';
             btn.disabled = true;
 
             try {
                 await new Promise(r => setTimeout(r, 30));
-                const xlsxBytes = generateWorkbookXlsxBytes();
-                const filename = 'تقرير_جرد_النباتات_HD.xlsx';
+                const xlsxBytes = generateWorkbookXlsxBytes(targetZonesList);
+                const filename = `${fileLabel}.xlsx`;
                 const mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
                 try {
@@ -2741,7 +2999,7 @@
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         await navigator.share({
                             files: [file],
-                            title: 'تقرير جرد النباتات بالصور عالية الجودة (Excel)'
+                            title: 'تقرير جرد النباتات (Excel)'
                         });
                         showToast('✅ تم تصدير ومشاركة ملف الإكسيل (.xlsx) بنجاح');
                         return;
@@ -2757,7 +3015,7 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                showToast('✅ تم تحميل ملف الإكسيل (.xlsx) بالصور عالية الجودة');
+                showToast(`✅ تم تحميل ملف الإكسيل (${filename})`);
             } finally {
                 btn.textContent = origText;
                 btn.disabled = false;
@@ -2772,7 +3030,18 @@
                 .replace(/"/g, '&quot;');
         }
 
-        render();
+        // --- التشغيل الابتدائي وتحميل البيانات من ذاكرة الجهاز (IndexedDB) ---
+        (async function initApp() {
+            await requestPersistentStorage();
+            const saved = await loadFromFieldDB();
+            if (saved) {
+                if (saved.config) config = saved.config;
+                if (saved.meta) meta = { ...meta, ...saved.meta };
+                if (saved.zones) zones = normalizeZones(saved.zones);
+                if (saved.lastAction) lastAction = saved.lastAction;
+            }
+            render();
+        })();
     </script>
 </body>
 </html>
