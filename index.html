@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V9.1</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V9.2</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -216,7 +216,7 @@
             <div class="header-tools">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V9.1 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V9.2 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -501,7 +501,7 @@
             </div>
             <div class="grid-2" style="margin-bottom:8px;">
                 <button class="btn btn-blue" onclick="downloadTodayPhotosZip()">📦 تنزيل الصور (ZIP)</button>
-                <button class="btn btn-outline" onclick="openTodayPhotosGallery()">🖼️ معرض الصور (<span id="todayPhotoCount">0</span>)</button>
+                <button class="btn btn-orange" onclick="openTodayPhotosGallery()">🔗 روابط Drive والصور (<span id="todayPhotoCount">0</span>)</button>
             </div>
             <div class="grid-2" style="margin-bottom:8px;">
                 <button class="btn btn-purple" onclick="generateWhatsAppBrief()">💬 ملخص واتساب سريع</button>
@@ -934,13 +934,13 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V9: Direct Offline ExcelJS DFL Generator ================= */
+/* ================= V9.2: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
         return;
     }
-    showToast('⏳ جاري توليد ملف DFL الإكسيل بالصور والألوان...');
+    showToast('⏳ جاري توليد ملف DFL الإكسيل بروابط Google Drive...');
     try {
         const site = getSite();
         const log = getDayLog();
@@ -959,6 +959,8 @@ async function generateDirectExcelDFL() {
             log.perf.duration = (totalIrrMins / 60).toFixed(1);
         }
 
+        const { photos, taskPhotoRefs, taskPhotoLinks, meterPhotoRefs, meterPhotoLinks, sickPlants, activeIssues, issuePhotoRefs, issuePhotoLinks, driveFolderLink } = collectTodayPhotos();
+
         const bin = atob(EMBEDDED_DFL_V04_B64);
         const buf = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
@@ -970,7 +972,6 @@ async function generateDirectExcelDFL() {
         const extraWorkers = Math.max(0, log.attendance.length - 5);
         const presentCount = log.attendance.filter(w => !w.status.includes('Absent')).length;
 
-        // Helper to copy cell style safely
         const cloneStyle = (srcCell, dstCell) => {
             if (srcCell.fill) dstCell.fill = JSON.parse(JSON.stringify(srcCell.fill));
             if (srcCell.font) dstCell.font = JSON.parse(JSON.stringify(srcCell.font));
@@ -978,7 +979,7 @@ async function generateDirectExcelDFL() {
             if (srcCell.alignment) dstCell.alignment = JSON.parse(JSON.stringify(srcCell.alignment));
         };
 
-        // 1. If extraWorkers > 0, unmerge rows >= 23, splice rows at 23, and re-apply shifted merges!
+        // 1. Insert extra worker rows at row 23 if needed
         if (extraWorkers > 0) {
             const existingMerges = [];
             ws.model.merges.forEach(mStr => {
@@ -1013,7 +1014,6 @@ async function generateDirectExcelDFL() {
                 }
             });
 
-            // Update Section 5B Usage formula row numbers after shift
             for (const baseR of [79, 80]) {
                 const nr = baseR + extraWorkers;
                 ws.getCell(`H${nr}`).value = { formula: `IF(OR(F${nr}="",G${nr}=""),"",G${nr}-F${nr})` };
@@ -1031,8 +1031,12 @@ async function generateDirectExcelDFL() {
         ws.getCell('B9').value = state.company.shift;
         ws.getCell('F9').value = state.company.supervisor || 'Maitham Ibrahim';
         ws.getCell('B10').value = state.company.outsideRate;
+        if (driveFolderLink) {
+            ws.getCell('F10').value = { text: 'Google Drive Photos Folder', hyperlink: driveFolderLink };
+            ws.getCell('F10').font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+        }
 
-        // 3. Weather (ALL 10 fields in Row 13!)
+        // 3. Weather (ALL 10 fields in Row 13)
         const wx = ensureWeatherObj(log);
         ws.getCell('B13').value = wx.cond || 'Clear / صافي';
         ws.getCell('C13').value = wx.tMin !== '' ? Number(wx.tMin) : null;
@@ -1065,29 +1069,22 @@ async function generateDirectExcelDFL() {
             }
         }
 
-        // Photo registry & helper to embed image cleanly into ExcelJS
-        const photoReg = [];
-        const registerAndEmbedPhotos = (photoIds, sectionLabel, descLabel, targetColZeroBased, targetRowZeroBased, rowObj) => {
-            const urls = (photoIds || []).map(pid => getPhotoUrl(pid)).filter(Boolean);
-            if (!urls.length) return '';
-            const names = [];
-            urls.forEach((dataUrl, uIdx) => {
-                const fname = `PHOTO_${String(photoReg.length + 1).padStart(2, '0')}.jpg`;
-                photoReg.push({ seq: photoReg.length + 1, fileName: fname, section: sectionLabel, description: descLabel });
-                names.push(fname);
-                if (uIdx === 0) {
-                    try {
-                        const ext = dataUrl.includes('image/png') ? 'png' : 'jpeg';
-                        const imgId = wb.addImage({ base64: dataUrl, extension: ext });
-                        if (rowObj && (!rowObj.height || rowObj.height < 52)) rowObj.height = 54;
-                        ws.addImage(imgId, {
-                            tl: { col: targetColZeroBased + 0.12, row: targetRowZeroBased + 0.08 },
-                            ext: { width: 72, height: 46 }
-                        });
-                    } catch {}
-                }
-            });
-            return names.join(' / ');
+        // Helper to set clean photo ref + clickable Google Drive hyperlink if available
+        const applyPhotoRefCell = (cell, refText, linksArr) => {
+            if (!refText) {
+                cell.value = '';
+                return;
+            }
+            const validLinks = (linksArr || []).filter(Boolean);
+            if (validLinks.length === 1) {
+                cell.value = { text: refText, hyperlink: validLinks[0] };
+                cell.font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+            } else if (validLinks.length > 1) {
+                cell.value = { text: `${refText} (${validLinks.length} links)`, hyperlink: validLinks[0] };
+                cell.font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+            } else {
+                cell.value = refText;
+            }
         };
 
         // 5. Section 3: Tasks (Rows 27+off .. 59+off)
@@ -1110,13 +1107,13 @@ async function generateDirectExcelDFL() {
                     status: t.status,
                     note: t.note || '',
                     wStr,
-                    photoIds: zIdx === 0 ? ensurePhotosArr(t) : [],
+                    pRef: zIdx === 0 ? (taskPhotoRefs[tIdx] || '') : '',
+                    pLinks: zIdx === 0 ? (taskPhotoLinks[tIdx] || []) : [],
                     groupWithPrev: zIdx > 0 || (zIdx === 0 && !!t.syncWithPrev && tIdx > 0)
                 });
             });
         });
 
-        // Determine vertical merge groups for A, B, C, E, F, K
         const groups = [];
         expandedRows.forEach((item, idx) => {
             if (idx === 0) {
@@ -1132,7 +1129,6 @@ async function generateDirectExcelDFL() {
             }
         });
 
-        // Write task rows
         const maxTaskSlots = taskEndRow - taskStartRow + 1;
         for (let i = 0; i < maxTaskSlots; i++) {
             const r = taskStartRow + i;
@@ -1148,14 +1144,12 @@ async function generateDirectExcelDFL() {
                 ws.getCell(`G${r}`).value = item.status;
                 ws.getCell(`H${r}`).value = item.note;
                 ws.getCell(`K${r}`).value = item.wStr;
-                const pRef = registerAndEmbedPhotos(item.photoIds, 'Section 3 - Tasks', `${item.task} - ${item.zone}`, 11, r - 1, rowObj);
-                ws.getCell(`L${r}`).value = pRef || '';
+                applyPhotoRefCell(ws.getCell(`L${r}`), item.pRef, item.pLinks);
             } else {
                 rowObj.hidden = true;
             }
         }
 
-        // Apply group sequence numbers & vertical merges (A, B, C, E, F, K) while preserving exact styles
         groups.forEach((g, gIdx) => {
             const r1 = taskStartRow + g.start;
             const r2 = taskStartRow + g.end;
@@ -1213,22 +1207,28 @@ async function generateDirectExcelDFL() {
         for (let i = 0; i < 2; i++) {
             const r = 79 + off + i;
             const m = log.meters[i];
-            const rowObj = ws.getRow(r);
             if (m) {
-                rowObj.hidden = false;
+                ws.getRow(r).hidden = false;
                 ws.getCell(`A${r}`).value = i + 1;
                 ws.getCell(`B${r}`).value = m.name;
                 ws.getCell(`E${r}`).value = m.visual || 'Clear / صافية';
                 ws.getCell(`F${r}`).value = m.status === 'working' ? (parseFloat(m.prev) || 0) : null;
                 ws.getCell(`G${r}`).value = (m.status === 'working' && m.curr !== '') ? parseFloat(m.curr) : null;
-                const mRef = registerAndEmbedPhotos(ensurePhotosArr(m), 'Section 5B - Water Meters', m.name, 8, r - 1, rowObj);
+                const mRef = meterPhotoRefs[i] || '';
+                const mLinks = (meterPhotoLinks[i] || []).filter(Boolean);
                 const noteParts = [];
                 if (m.status === 'faulty') noteParts.push(`Faulty: ${m.note || 'عاطل'}`);
                 else if (m.note) noteParts.push(m.note);
                 if (mRef) noteParts.push(mRef);
-                ws.getCell(`I${r}`).value = noteParts.join(' | ');
+                const txt = noteParts.join(' | ');
+                if (mLinks.length > 0) {
+                    ws.getCell(`I${r}`).value = { text: txt, hyperlink: mLinks[0] };
+                    ws.getCell(`I${r}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                } else {
+                    ws.getCell(`I${r}`).value = txt;
+                }
             } else {
-                rowObj.hidden = true;
+                ws.getRow(r).hidden = true;
             }
         }
 
@@ -1268,45 +1268,24 @@ async function generateDirectExcelDFL() {
         }
 
         // 11. Section 6: Plants Health (Rows 98+off .. 102+off)
-        const sickList = [];
-        site.inventory.forEach(z => z.plants.forEach(p => {
-            const todayEntries = (p.entries || []).filter(e => e.date === state.activeDate);
-            const aff = todayEntries.filter(e => e.condId !== 'c1');
-            if (aff.length > 0) {
-                const cObj = HEALTH_CONDITIONS.find(c => c.id === aff[0].condId);
-                const pIds = [];
-                todayEntries.forEach(e => ensurePhotosArr(e).forEach(u => pIds.push(u)));
-                sickList.push({
-                    name: p.name,
-                    sci: state.company.speciesDict[p.name] || '',
-                    st: cObj ? cObj.dfl : 'متوسط',
-                    signs: `${cObj ? cObj.name : ''} (${aff.length})${p.note ? ' - ' + p.note : ''}`,
-                    zone: z.name,
-                    photoIds: pIds
-                });
-            }
-        }));
         for (let i = 0; i < 5; i++) {
             const r = 98 + off + i;
-            const sp = sickList[i];
-            const rowObj = ws.getRow(r);
+            const sp = sickPlants[i];
             if (sp) {
-                rowObj.hidden = false;
+                ws.getRow(r).hidden = false;
                 ws.getCell(`A${r}`).value = i + 1;
-                ws.getCell(`B${r}`).value = sp.name;
-                ws.getCell(`D${r}`).value = sp.sci;
-                ws.getCell(`E${r}`).value = sp.st;
-                ws.getCell(`F${r}`).value = sp.signs;
+                ws.getCell(`B${r}`).value = sp.plantName;
+                ws.getCell(`D${r}`).value = sp.scientificName;
+                ws.getCell(`E${r}`).value = sp.healthStatusDFL;
+                ws.getCell(`F${r}`).value = sp.visibleSigns;
                 ws.getCell(`H${r}`).value = sp.zone;
-                const sRef = registerAndEmbedPhotos(sp.photoIds, 'Section 6 - Plants Health', `${sp.name} (${sp.zone})`, 8, r - 1, rowObj);
-                ws.getCell(`I${r}`).value = sRef;
+                applyPhotoRefCell(ws.getCell(`I${r}`), sp.imageRef, sp.driveLinks);
             } else {
-                rowObj.hidden = true;
+                ws.getRow(r).hidden = true;
             }
         }
 
         // 12. Section 7: Incidents & Issues (Rows 106+off .. 109+off)
-        const activeIssues = site.issues.filter(i => i.status === 'Open' || i.date === state.activeDate);
         for (let i = 0; i < 4; i++) {
             const r = 106 + off + i;
             const iss = activeIssues[i];
@@ -1315,39 +1294,84 @@ async function generateDirectExcelDFL() {
                 ws.getCell(`A${r}`).value = i + 1;
                 ws.getCell(`B${r}`).value = `[${iss.zone}] (${iss.status}): ${iss.desc}`;
                 ws.getCell(`F${r}`).value = iss.severity;
-                const iRef = registerAndEmbedPhotos(ensurePhotosArr(iss), 'Section 7 - Issues', `${iss.code} - ${iss.zone}`, 6, r - 1, ws.getRow(r));
-                ws.getCell(`G${r}`).value = iRef ? `${iss.code} (${iRef})` : iss.code;
+                const iRef = issuePhotoRefs[i] || '';
+                const iLinks = (issuePhotoLinks[i] || []).filter(Boolean);
+                const labelTxt = iRef ? `${iss.code} (${iRef})` : iss.code;
+                if (iLinks.length > 0) {
+                    ws.getCell(`G${r}`).value = { text: labelTxt, hyperlink: iLinks[0] };
+                    ws.getCell(`G${r}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                } else {
+                    ws.getCell(`G${r}`).value = labelTxt;
+                }
             } else {
                 ws.getRow(r).hidden = true;
             }
         }
 
-        // 13. Section 8: Photo References (Rows 113+off .. 118+off)
-        for (let i = 0; i < 6; i++) {
+        // 13. Section 8: Photo References & Google Drive Links (Rows 113+off .. 118+off, expanding if > 6 photos!)
+        const extraPhotoRows = Math.max(0, photos.length - 6);
+        if (extraPhotoRows > 0) {
+            const sec8Merges = [];
+            ws.model.merges.forEach(mStr => {
+                const [tl, br] = mStr.split(':');
+                const m1 = tl.match(/^([A-Z]+)(\d+)$/);
+                const m2 = br.match(/^([A-Z]+)(\d+)$/);
+                if (m1 && m2 && parseInt(m1[2]) >= 119 + off) {
+                    sec8Merges.push({ c1: m1[1], r1: parseInt(m1[2]), c2: m2[1], r2: parseInt(m2[2]), orig: mStr });
+                }
+            });
+            sec8Merges.forEach(m => { try { ws.unMergeCells(m.orig); } catch {} });
+
+            const emptyPRows = Array.from({ length: extraPhotoRows }, () => []);
+            ws.spliceRows(119 + off, 0, ...emptyPRows);
+            for (let k = 0; k < extraPhotoRows; k++) {
+                const r = 119 + off + k;
+                ws.getRow(r).height = 24.0;
+                for (let c = 1; c <= 11; c++) {
+                    cloneStyle(ws.getCell(118 + off, c), ws.getCell(r, c));
+                }
+                ws.mergeCells(`B${r}:D${r}`);
+                ws.mergeCells(`E${r}:G${r}`);
+                ws.mergeCells(`H${r}:K${r}`);
+            }
+            sec8Merges.forEach(m => {
+                try { ws.mergeCells(`${m.c1}${m.r1 + extraPhotoRows}:${m.c2}${m.r2 + extraPhotoRows}`); } catch {}
+            });
+        }
+
+        const totalPhotoSlots = 6 + extraPhotoRows;
+        for (let i = 0; i < totalPhotoSlots; i++) {
             const r = 113 + off + i;
-            const pr = photoReg[i];
+            const pr = photos[i];
             if (pr) {
                 ws.getRow(r).hidden = false;
-                ws.getCell(`A${r}`).value = pr.seq;
-                ws.getCell(`B${r}`).value = pr.fileName;
+                ws.getCell(`A${r}`).value = i + 1;
+                if (pr.driveLink) {
+                    ws.getCell(`B${r}`).value = { text: pr.fileName, hyperlink: pr.driveLink };
+                    ws.getCell(`B${r}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                    ws.getCell(`H${r}`).value = `${pr.description} — ${pr.driveLink}`;
+                } else {
+                    ws.getCell(`B${r}`).value = pr.fileName;
+                    ws.getCell(`H${r}`).value = pr.description;
+                }
                 ws.getCell(`E${r}`).value = pr.section;
-                ws.getCell(`H${r}`).value = pr.description;
             } else {
                 ws.getRow(r).hidden = true;
             }
         }
 
-        // 14. Section 9: OAR (Rows 123+off, 125+off, 127+off)
-        ws.getCell(`A${123 + off}`).value = log.oar.obs || '';
-        ws.getCell(`A${125 + off}`).value = log.oar.ana || '';
-        ws.getCell(`A${127 + off}`).value = log.oar.rec || '';
+        const pOff = off + extraPhotoRows;
 
-        // 15. Section 10: Sign-Off (Row 131+off)
-        ws.getCell(`A${131 + off}`).value = `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`;
-        ws.getCell(`H${131 + off}`).value = `Date & Time  /  التاريخ والوقت: ${state.activeDate}`;
+        // 14. Section 9: OAR (Rows 123+pOff, 125+pOff, 127+pOff)
+        ws.getCell(`A${123 + pOff}`).value = log.oar.obs || '';
+        ws.getCell(`A${125 + pOff}`).value = log.oar.ana || '';
+        ws.getCell(`A${127 + pOff}`).value = log.oar.rec || '';
 
-        // Update print area for shifted sheet
-        ws.pageSetup.printArea = `A1:L${140 + off}`;
+        // 15. Section 10: Sign-Off (Row 131+pOff)
+        ws.getCell(`A${131 + pOff}`).value = `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`;
+        ws.getCell(`H${131 + pOff}`).value = `Date & Time  /  التاريخ والوقت: ${state.activeDate}`;
+
+        ws.pageSetup.printArea = `A1:L${140 + pOff}`;
 
         // 16. Fill Incident Report & Site Deviation Log sheets if present
         if (log.incidents && log.incidents.length > 0) {
@@ -1403,7 +1427,7 @@ async function generateDirectExcelDFL() {
         link.href = URL.createObjectURL(outBlob);
         link.download = `Al-Mutahida_DFL${log.dflNum}_${state.activeDate}_Filled.xlsx`;
         link.click();
-        showToast(`✅ تم توليد ملف DFL-${log.dflNum} بالصور والألوان!`);
+        showToast(`✅ تم توليد ملف DFL-${log.dflNum} بروابط Google Drive والألوان!`);
     } catch (err) {
         console.error(err);
         showToast('⚠️ تعذر التوليد المباشر: ' + err.message);
@@ -3946,7 +3970,10 @@ function renderExportAndIssues(site, log) {
     renderStickySectionHistory('issues', 'stickyHist-issues', 'المشاكل والحوادث');
     const { photos } = collectTodayPhotos();
     const cntEl = document.getElementById('todayPhotoCount');
-    if (cntEl) cntEl.textContent = photos.length;
+    if (cntEl) {
+        const linked = photos.filter(p => p.driveLink).length;
+        cntEl.textContent = photos.length > 0 ? `${linked}/${photos.length}` : '0';
+    }
 
     document.getElementById('issuesContainer').innerHTML = site.issues.length === 0
         ? `<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px;">لا توجد مشاكل مفتوحة</div>`
@@ -4174,25 +4201,78 @@ function openTablePreviewModal() {
     `);
 }
 
-/* ================= Multi-Photo Collector, Gallery & ZIP Download ================= */
+/* ================= Multi-Photo Collector, Google Drive Links Manager & ZIP Download ================= */
+function ensurePhotoLinksObj(log) {
+    if (!log.photoLinks || typeof log.photoLinks !== 'object') log.photoLinks = {};
+    return log.photoLinks;
+}
+
+function setPhotoDriveLink(pid, urlVal) {
+    const log = getDayLog();
+    const links = ensurePhotoLinksObj(log);
+    const cleanUrl = String(urlVal || '').trim();
+    if (cleanUrl) links[pid] = cleanUrl;
+    else delete links[pid];
+    saveState();
+}
+
+function setDriveFolderLink(urlVal) {
+    const log = getDayLog();
+    log.driveFolderLink = String(urlVal || '').trim();
+    saveState();
+}
+
+async function pasteDriveLinkIntoInput(inputId, pid) {
+    try {
+        const txt = await navigator.clipboard.readText();
+        if (!txt || !txt.trim()) { showToast('⚠️ الحافظة فارغة'); return; }
+        const inp = document.getElementById(inputId);
+        if (inp) inp.value = txt.trim();
+        if (pid === '__FOLDER__') setDriveFolderLink(txt.trim());
+        else setPhotoDriveLink(pid, txt.trim());
+        showToast('📋 تم لصق رابط Google Drive وحفظه!');
+    } catch {
+        showToast('⚠️ اضغط داخل الخانة واختر لصق (Paste) من لوحة المفاتيح');
+    }
+}
+
 function collectTodayPhotos() {
     const site = getSite();
     const log = getDayLog();
+    const linksMap = ensurePhotoLinksObj(log);
     const photos = [];
+
     const regArr = (arr, section, desc) => {
         const names = [];
+        const links = [];
         (arr || []).forEach(pidOrB64 => {
             const b64 = getPhotoUrl(pidOrB64);
             if (!b64) return;
             const fname = `PHOTO_${String(photos.length + 1).padStart(2, '0')}.jpg`;
-            photos.push({ fileName: fname, section, description: desc, dataUrl: b64 });
+            const dLink = linksMap[pidOrB64] || '';
+            photos.push({ pid: pidOrB64, fileName: fname, section, description: desc, dataUrl: b64, driveLink: dLink });
             names.push(fname);
+            links.push(dLink);
         });
-        return names.join(' / ');
+        return { refStr: names.join(' / '), linksArr: links };
     };
 
-    const taskPhotoRefs = log.tasks.map(t => regArr(ensurePhotosArr(t), 'Section 3 - Tasks', `${t.task} - ${t.zones}`));
-    const meterPhotoRefs = log.meters.map(m => regArr(ensurePhotosArr(m), 'Section 5B - Water Meters', m.name));
+    const taskPhotoRefs = [];
+    const taskPhotoLinks = [];
+    log.tasks.forEach(t => {
+        const r = regArr(ensurePhotosArr(t), 'Section 3 - Tasks', `${t.task} - ${t.zones}`);
+        taskPhotoRefs.push(r.refStr);
+        taskPhotoLinks.push(r.linksArr);
+    });
+
+    const meterPhotoRefs = [];
+    const meterPhotoLinks = [];
+    log.meters.forEach(m => {
+        const r = regArr(ensurePhotosArr(m), 'Section 5B - Water Meters', m.name);
+        meterPhotoRefs.push(r.refStr);
+        meterPhotoLinks.push(r.linksArr);
+    });
+
     const sickPlants = [];
     site.inventory.forEach(z => z.plants.forEach(p => {
         const todayEntries = (p.entries || []).filter(e => e.date === state.activeDate);
@@ -4201,23 +4281,39 @@ function collectTodayPhotos() {
             const cObj = HEALTH_CONDITIONS.find(c => c.id === aff[0].condId);
             const allEntPhotos = [];
             todayEntries.forEach(e => ensurePhotosArr(e).forEach(u => allEntPhotos.push(u)));
-            const ref = regArr(allEntPhotos, 'Section 6 - Plants Health', `${p.name} (${z.name})`);
+            const r = regArr(allEntPhotos, 'Section 6 - Plants Health', `${p.name} (${z.name})`);
             sickPlants.push({
                 plantName: p.name,
                 scientificName: state.company.speciesDict[p.name] || '',
                 healthStatusDFL: cObj ? cObj.dfl : 'متوسط',
                 visibleSigns: `${cObj ? cObj.name : ''} (${aff.length})${p.note ? ' - ' + p.note : ''}`,
                 zone: z.name,
-                imageRef: ref
+                imageRef: r.refStr,
+                driveLinks: r.linksArr
             });
         }
     }));
+
     const activeIssues = site.issues.filter(i => i.status === 'Open' || i.date === state.activeDate);
-    const issuePhotoRefs = activeIssues.map(i => regArr(ensurePhotosArr(i), 'Section 7 - Issues', `${i.code} - ${i.zone}`));
+    const issuePhotoRefs = [];
+    const issuePhotoLinks = [];
+    activeIssues.forEach(i => {
+        const r = regArr(ensurePhotosArr(i), 'Section 7 - Issues', `${i.code} - ${i.zone}`);
+        issuePhotoRefs.push(r.refStr);
+        issuePhotoLinks.push(r.linksArr);
+    });
+
     log.incidents.forEach(ir => regArr(ensurePhotosArr(ir), 'Incident Report', `${ir.code} - ${ir.zone}`));
     log.sdls.forEach(sd => regArr(ensurePhotosArr(sd), 'Site Deviation Log', `${sd.code} - ${sd.zone}`));
 
-    return { photos, taskPhotoRefs, meterPhotoRefs, sickPlants, activeIssues, issuePhotoRefs };
+    return {
+        photos,
+        taskPhotoRefs, taskPhotoLinks,
+        meterPhotoRefs, meterPhotoLinks,
+        sickPlants,
+        activeIssues, issuePhotoRefs, issuePhotoLinks,
+        driveFolderLink: log.driveFolderLink || ''
+    };
 }
 
 async function downloadTodayPhotosZip() {
@@ -4242,24 +4338,40 @@ async function downloadTodayPhotosZip() {
 }
 
 function openTodayPhotosGallery() {
+    const log = getDayLog();
     const { photos } = collectTodayPhotos();
+    const linkedCnt = photos.filter(p => p.driveLink).length;
     openModal(`
-        <h3 class="card-title">🖼️ معرض صور اليوم (${photos.length})</h3>
-        <div style="max-height:360px;overflow-y:auto;">
+        <h3 class="card-title">🔗 صور اليوم وروابط Google Drive (${linkedCnt}/${photos.length})</h3>
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:8px;margin-bottom:8px;">
+            <label class="lbl" style="color:#0369a1;">📁 رابط مجلد صور اليوم على Google Drive (اختياري):</label>
+            <div style="display:flex;gap:4px;">
+                <input id="drvFolderInp" class="inp" style="margin:0;background:white;font-size:12px;" value="${esc(log.driveFolderLink || '')}" placeholder="https://drive.google.com/drive/folders/..." onchange="setDriveFolderLink(this.value)">
+                <button class="btn btn-blue btn-sm" onclick="pasteDriveLinkIntoInput('drvFolderInp', '__FOLDER__')">📋 لصق</button>
+            </div>
+        </div>
+        ${photos.length > 0 ? `<button class="btn btn-blue btn-full" style="margin-bottom:8px;padding:8px;" onclick="downloadTodayPhotosZip()">📦 تنزيل جميع الصور (ZIP) لرفعها إلى Drive</button>` : ''}
+        <div style="max-height:330px;overflow-y:auto;">
             ${photos.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:20px;">لا توجد صور مسجلة اليوم</div>' :
-            photos.map(p => `
-                <div class="meter-card" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px;">
-                    <img src="${p.dataUrl}" class="photo-thumb" onclick="previewSinglePhoto('${p.dataUrl}')">
-                    <div style="flex:1;">
-                        <b style="font-size:12px;color:var(--blue);">${esc(p.fileName)}</b>
-                        <div style="font-size:11px;font-weight:bold;">${esc(p.section)}</div>
-                        <div style="font-size:10.5px;color:var(--muted);">${esc(p.description)}</div>
+            photos.map((p, idx) => `
+                <div class="meter-card" style="padding:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
+                        <img src="${p.dataUrl}" class="photo-thumb" onclick="previewSinglePhoto('${p.dataUrl}')">
+                        <div style="flex:1;">
+                            <b style="font-size:12px;color:var(--blue);">${esc(p.fileName)}</b>
+                            <div style="font-size:11px;font-weight:bold;">${esc(p.section)}</div>
+                            <div style="font-size:10.5px;color:var(--muted);">${esc(p.description)}</div>
+                        </div>
+                        <a href="${p.dataUrl}" download="${esc(p.fileName)}" class="btn btn-outline btn-sm" title="تنزيل الصورة">📥</a>
                     </div>
-                    <a href="${p.dataUrl}" download="${esc(p.fileName)}" class="btn btn-outline btn-sm">📥</a>
+                    <div style="display:flex;gap:4px;align-items:center;">
+                        <input id="drvLink_${idx}" class="inp" style="margin:0;padding:6px;background:white;font-size:11.5px;direction:ltr;" value="${esc(p.driveLink)}" placeholder="رابط ${esc(p.fileName)} من Drive..." onchange="setPhotoDriveLink('${p.pid}', this.value)">
+                        <button class="btn btn-green btn-sm" onclick="pasteDriveLinkIntoInput('drvLink_${idx}', '${p.pid}')">📋 لصق</button>
+                    </div>
                 </div>
             `).join('')}
         </div>
-        <button class="btn btn-outline btn-full" style="margin-top:8px;" onclick="closeModal()">إغلاق</button>
+        <button class="btn btn-outline btn-full" style="margin-top:8px;" onclick="closeModal();renderExportAndIssues(getSite(), getDayLog())">حفظ وإغلاق</button>
     `);
 }
 
@@ -4303,17 +4415,6 @@ function buildCleanTemplateFileObj() {
     });
 }
 
-async function buildTodayPhotosZipBlob() {
-    const { photos } = collectTodayPhotos();
-    if (!photos.length || typeof JSZip === 'undefined') return null;
-    const zip = new JSZip();
-    photos.forEach(p => {
-        const base64Data = p.dataUrl.split(',')[1];
-        zip.file(p.fileName, base64Data, { base64: true });
-    });
-    return await zip.generateAsync({ type: 'blob' });
-}
-
 async function shareBundleToGeminiApp() {
     const bundle = window._latestGeminiBundle;
     if (!bundle) return;
@@ -4324,7 +4425,6 @@ async function shareBundleToGeminiApp() {
     if (navigator.canShare && navigator.share) {
         try {
             const filesToShare = [bundle.templateFile, bundle.jsonFile];
-            if (bundle.zipFile) filesToShare.push(bundle.zipFile);
             if (navigator.canShare({ files: filesToShare })) {
                 await navigator.share({
                     files: filesToShare,
@@ -4359,15 +4459,14 @@ function downloadBundleAndOpenGeminiWeb() {
     };
 
     dlFile(bundle.jsonFile, 0);
-    if (bundle.zipFile) dlFile(bundle.zipFile, 300);
     if (document.getElementById('chkIncludeCleanTpl')?.checked) {
-        dlFile(bundle.templateFile, 600);
+        dlFile(bundle.templateFile, 350);
     }
 
     showToast('📋 تم نسخ الأمر وتنزيل الملفات — جاري فتح Gemini...');
     setTimeout(() => {
         window.open('https://gemini.google.com/app', '_blank');
-    }, 750);
+    }, 700);
 }
 
 async function exportLightweightDFL() {
@@ -4376,7 +4475,6 @@ async function exportLightweightDFL() {
     const dayEn = getDayNameEn(state.activeDate);
     syncIrrigatedZonesFromTasks(false);
 
-    // Auto-calculate irrigation hours if empty
     let autoIrrMins = 0;
     log.tasks.forEach(t => {
         if (t.task.includes('Irrigation') && t.status.includes('Completed')) {
@@ -4388,7 +4486,7 @@ async function exportLightweightDFL() {
         log.perf.duration = (autoIrrMins / 60).toFixed(1);
     }
 
-    const { photos, taskPhotoRefs, meterPhotoRefs, sickPlants, activeIssues, issuePhotoRefs } = collectTodayPhotos();
+    const { photos, taskPhotoRefs, taskPhotoLinks, meterPhotoRefs, meterPhotoLinks, sickPlants, activeIssues, issuePhotoRefs, issuePhotoLinks, driveFolderLink } = collectTodayPhotos();
     const rowOffset = Math.max(0, log.attendance.length - 5);
     const presentCount = log.attendance.filter(w => !w.status.includes('Absent')).length;
 
@@ -4407,6 +4505,7 @@ async function exportLightweightDFL() {
         templateFileName: 'Al-Mutahida_DFL_V04_Clean.xlsx',
         rowOffsetForExtraWorkers: rowOffset,
         presentWorkersCountToday: presentCount,
+        googleDriveFolderLink: driveFolderLink || '',
         metadata: {
             F5_formId: log.dflNum,
             F6_siteName: site.name,
@@ -4454,6 +4553,7 @@ async function exportLightweightDFL() {
                 notes: t.note || '',
                 workersAssigned: wStr,
                 imageRef: taskPhotoRefs[idx] || '',
+                driveLinks: (taskPhotoLinks[idx] || []).filter(Boolean),
                 syncWithPrev: !!t.syncWithPrev
             };
         }),
@@ -4467,7 +4567,8 @@ async function exportLightweightDFL() {
                 prevReading: m.status === 'working' ? (parseFloat(m.prev) || 0) : '',
                 currReading: (m.status === 'working' && m.curr !== '') ? parseFloat(m.curr) : '',
                 notes: m.status === 'faulty' ? `Faulty Meter: ${m.note || 'عاطل'}` : (m.note || ''),
-                imageRef: meterPhotoRefs[idx] || ''
+                imageRef: meterPhotoRefs[idx] || '',
+                driveLinks: (meterPhotoLinks[idx] || []).filter(Boolean)
             })),
             irrigationPerformance5C: {
                 B83_systemStatus: log.perf.status,
@@ -4483,13 +4584,15 @@ async function exportLightweightDFL() {
             code: iss.code,
             description: `${iss.code} [${iss.zone}] (${iss.status}): ${iss.desc}`,
             severity: iss.severity,
-            imageRef: issuePhotoRefs[idx] || ''
+            imageRef: issuePhotoRefs[idx] || '',
+            driveLinks: (issuePhotoLinks[idx] || []).filter(Boolean)
         })),
         section8_photoReferences: photos.map((p, i) => ({
             seq: i + 1,
             fileName: p.fileName,
             section: p.section,
-            description: p.description
+            description: p.description,
+            driveLink: p.driveLink || ''
         })),
         section9_teamLeadOAR: {
             OBS: log.oar.obs || '',
@@ -4506,20 +4609,21 @@ async function exportLightweightDFL() {
     };
 
     const jsonFname = `TFF_Light_DFL${log.dflNum}_${state.activeDate}.json`;
-    const zipFname = `TFF_Photos_DFL${log.dflNum}_${state.activeDate}.zip`;
+    const extraPhotoRows = Math.max(0, photos.length - 6);
+    const pOff = rowOffset + extraPhotoRows;
 
     const hardenedPrompt = `أنت خبير أتمتة التقارير الميدانية لشركة غابات الغذاء (The Food Forests).
 مرفق لك:
 1. قالب Excel النظيف المحدّث (Al-Mutahida_DFL_V04_Clean.xlsx).
 2. ملف بيانات اليوم الخفيف (${jsonFname}).
-${photos.length > 0 ? `3. ملف الصور المضغوط (${zipFname}) الذي يحتوي على ${photos.length} صورة.` : '(لا توجد صور مرفقة اليوم).'}
 
 اكتب ونفّذ كود Python (باستخدام openpyxl مع copy من مكتبة copy) لتعبئة ورقة 'Daily Field Log' مباشرة (In-Place) وحفظ النتيجة باسم Al-Mutahida_DFL${log.dflNum}_${state.activeDate}_Filled.xlsx مع الالتزام الصارم بجميع القواعد التالية:
 
-### القاعدة 0: الحفاظ المطلق على ألوان وخطوط وحدود القالب النظيف V04 (ممنوع ترك أي خلية بيضاء!)
-- لا تغيّر لون أي خلفية خلية (Fill) أو لون خط (Font Color) أو ترويسة قسم في القالب نهائياً!
+### القاعدة 0: الحفاظ المطلق على ألوان وخطوط وحدود القالب النظيف V04 + عدم زرع صور مصغرة داخل الخلايا!
+- **ممنوع زرع أي صور مصغرة داخل خلايا الإكسيل!** الصور تُرفع على Google Drive، ونحن نضع أسماء الصور (PHOTO_01.jpg) وروابط Google Drive القابلة للنقر (Hyperlinks) في خاناتها المخصصة.
+- لا تغيّر لون أي خلفية خلية (Fill) أو ترويسة قسم في القالب نهائياً!
 - ألوان القالب النظيف V04: عمود التسلسل A رمادي فاتح (#ECEFF1)، خلايا الإدخال كريمي (#FFFDF0) أو أصفر فاتح (#FFFDE7)، وخلايا أداء الري أخضر فاتح (#E8F5E9).
-- **قاعدة حرجة في openpyxl:** عند إدراج صفوف جديدة أو فك الدمج ثم إعادة الدمج العمودي، يقوم openpyxl بمسح ألوان وحدود الخلايا. لذلك يجب نسخ التنسيق الأصلي (copy(src.fill), copy(src.font), copy(src.border), copy(src.alignment)) لكل خلية مضافة أو مدمجة حتى لا تتحول إلى اللون الأبيض أبداً.
+- عند إدراج صفوف جديدة أو دمج خلايا عمودياً: انسخ التنسيق الأصلي (copy(src.fill), copy(src.font), copy(src.border), copy(src.alignment)) لكل خلية مضافة أو مدمجة حتى لا تتحول إلى اللون الأبيض أبداً.
 
 ### القاعدة 1: إزاحة الصفوف للعمالة الإضافية (offset = ${rowOffset})
 - القالب النظيف V04 يحتوي على 5 صفوف للحضور (صفوف 18 إلى 22).
@@ -4532,90 +4636,61 @@ ${photos.length > 0 ? `3. ملف الصور المضغوط (${zipFname}) الذ�
 
 ### القاعدة 2: البيانات التعريفية (Metadata — صفوف ثابتة بدون إزاحة)
 - F5 = ${log.dflNum} | F6 = "${site.name}" | B7 = "${state.activeDate}" | F7 = "${dayEn}" | B8 = "${state.company.teamLead}" | B9 = "${state.company.shift}" | F9 = "${state.company.supervisor || 'Maitham Ibrahim'}" | B10 = ${state.company.outsideRate}
+- إذا كان googleDriveFolderLink غير فارغ، ضعه كرابط تشعبي (Hyperlink) في الخلية F10 بالنص 'Google Drive Photos Folder' ولون خط أزرق (#0284C7) وتحته خط.
 
 ### القاعدة 3: القسم 1 (Weather — صف 13 بالكامل من B13 إلى K13!)
 - املأ **جميع** خلايا صف الطقس 13 من section1_weather (وإذا كانت أي خانة فارغة في JSON فابحث عن طقس مدينة الحلة لتاريخ ${state.activeDate} وأكملها بالكامل — ممنوع ترك أي خلية فارغة أو وضع رمز '-'):
-  * **B13**: Conditions / الأحوال (مثل 'Clear / صافي')
-  * **C13**: Temp Min °C (رقم)
-  * **D13**: Temp Max °C (رقم)
-  * **E13**: Wind / الرياح (مثل '10 km/h')
-  * **F13**: Humidity % / الرطوبة (رقم)
-  * **G13**: UV Index (رقم)
-  * **H13**: Pressure hPa / الضغط (رقم مثل 1015)
-  * **I13**: Precip mm/h / الأمطار (رقم مثل 0)
-  * **J13**: Time of Recording / وقت القراءة (مثل '08:00')
-  * **K13**: Notes / ملاحظات
+  * **B13**: Conditions / الأحوال | **C13**: Temp Min °C (رقم) | **D13**: Temp Max °C (رقم) | **E13**: Wind / الرياح | **F13**: Humidity % / الرطوبة (رقم) | **G13**: UV Index (رقم) | **H13**: Pressure hPa / الضغط (رقم) | **I13**: Precip mm/h / الأمطار (رقم) | **J13**: Time of Recording / وقت القراءة | **K13**: Notes / ملاحظات.
 
 ### القاعدة 4: القسم 2 (Attendance — صفوف 18 إلى ${17 + log.attendance.length})
 - املأ section2_attendance في الأعمدة A (التسلسل)، B (الاسم)، C (النوع)، D (الحالة)، E (الدخول)، F (الخروج)، G (الأوفرتايم)، H:K (ملاحظات). وأخفِ أي صف فارغ متبقٍ حتى صف 22.
 
 ### القاعدة 5: القسم 3 (Tasks — يبدأ من صف ${27 + rowOffset} حتى ${59 + rowOffset})
-- **تحذير مهم:** صف العنوان هو صف ${26 + rowOffset}، وأول صف بيانات للمهام هو **صف ${27 + rowOffset}** مباشرة (لا تترك صف ${27 + rowOffset} فارغاً!).
+- أول صف بيانات للمهام هو **صف ${27 + rowOffset}** مباشرة (لا تترك صف ${27 + rowOffset} فارغاً!).
 1. **تفريق المناطق (منطقة واحدة لكل صف):** لكل عنصر في section3_tasks، أفرد مناطق zonesList في صفوف متتالية بحيث يأخذ كل صف منطقة واحدة فقط في العمود D (Zone).
 2. **دمج المهام المتزامنة والمتشابهة عمودياً:**
    - اجمع الصفوف المتتالية التي تكون ناتجة عن تفريق نفس المهمة، أو التي تحمل syncWithPrev == True، أو التي تشترك في نفس (task + briefDescription + time + workersAssigned + workersCount).
-   - ادمج عمودياً عبر هذه الصفوف المتشابهة الأعمدة التالية فقط:
-     * **A ('#')**، **B ('Task')**، **C ('Brief Description')**، **E ('Time')**، **F ('Workers #')**، و**K ('Worker(s) Assigned')**.
-   - **ممنوع منعاً باتاً** دمج العمود **D ('Zone')** أو العمود **G ('Status')** أو عمود الملاحظات **H:J ('Notes')** أو **L ('Image Reference')** عمودياً! أبقِ H{r}:J{r} مدمجاً أفقياً لكل صف على حدة فقط.
-   - **حافظ على الألوان والحدود:** انسخ التنسيق الأصلي من صف ${27 + rowOffset} لكل خلية (A: #ECEFF1، B,C,G,H:J,K,L: #FFFDF0، D,E,F: #FFFDE7) قبل وبعد أي دمج عمودي!
-3. **دقة العمال وعدد العمال (Columns F & K):**
-   - العمود **F**: رقم صحيح يطابق عدد المنفذين (إذا كان المنفذ "Team" فاكتب ${presentCount}).
-   - العمود **K**: اكتب "Team" أو الأسماء مفصولة بـ ' / '.
-4. **زرع الصور فعلياً (Column L):**
-   - اكتب اسم ملف الصورة المرجعي مثل 'PHOTO_01.jpg' في L{r} إذا وُجد (واتركه فارغاً تماماً إذا لم توجد صورة).
-   - إذا أُرفق ملف الصور ZIP (${zipFname})، فك ضغطه، صغّر أبعاد الصورة لتناسب الخلية (مثلاً 85×50 بكسل)، ارفع ارتفاع الصف إلى 48، وازرع الصورة فعلياً داخل الخلية L{r} باستخدام openpyxl.drawing.image.Image.
-5. **إخفاء الصفوف الفارغة فقط:** أخفِ الصفوف الفارغة المتبقية من بعد آخر مهمة وحتى صف ${59 + rowOffset} فقط (ws.row_dimensions[r].hidden = True). **إياك أن تخفي صفوف الفواصل أو ترويسات الأقسام التالية!**
+   - ادمج عمودياً عبر هذه الصفوف المتشابهة الأعمدة التالية فقط: **A ('#')**، **B ('Task')**، **C ('Brief Description')**، **E ('Time')**، **F ('Workers #')**، و**K ('Worker(s) Assigned')**.
+   - **ممنوع** دمج العمود **D ('Zone')** أو **G ('Status')** أو **H:J ('Notes')** أو **L ('Image Reference')** عمودياً! أبقِ H{r}:J{r} مدمجاً أفقياً لكل صف على حدة فقط.
+   - انسخ التنسيق الأصلي من صف ${27 + rowOffset} لكل خلية (A: #ECEFF1، B,C,G,H:J,K,L: #FFFDF0، D,E,F: #FFFDE7) قبل وبعد أي دمج عمودي!
+3. **دقة العمال وعدد العمال (Columns F & K):** العمود F رقم صحيح (إذا كان المنفذ "Team" فاكتب ${presentCount})، والعمود K "Team" أو الأسماء مفصولة بـ ' / '.
+4. **مرجع الصور ورابط Google Drive (Column L):** اكتب اسم ملف الصورة المرجعي مثل 'PHOTO_01.jpg' في L{r} فقط إذا وُجد (واتركه فارغاً تماماً إذا لم توجد صورة). وإذا احتوى العنصر على driveLinks غير فارغة، أضف أول رابط كـ Hyperlink قابل للنقر على الخلية L{r} بلون أزرق (#0284C7) وتحته خط.
+5. **إخفاء الصفوف الفارغة فقط:** أخفِ الصفوف الفارغة المتبقية من بعد آخر مهمة وحتى صف ${59 + rowOffset} فقط.
 
 ### القاعدة 6: الأقسام 4 و 5 و 6 و 7 و 8 (أرقام الصفوف الدقيقة في قالب V04 بعد الإزاحة)
-- **القسم 4 (المعدات — صفوف البيانات ${64 + rowOffset}..${66 + rowOffset}):**
-  * صف العنوان هو ${63 + rowOffset}. املأ section4_equipment في ${64 + rowOffset}..${66 + rowOffset} وأخفِ الصفوف الفارغة من ${64 + rowOffset}..${66 + rowOffset} فقط (أبقِ صف الفاصل ${67 + rowOffset} وترويسة القسم الخامس ${68 + rowOffset} ظاهرين!).
-- **القسم 5A (الرطوبة — صفوف البيانات ${71 + rowOffset}..${75 + rowOffset}):**
-  * صف العنوان هو ${70 + rowOffset}. املأ moisture5A في ${71 + rowOffset}..${75 + rowOffset} وأخفِ الفارغ منها فقط.
+- **القسم 4 (المعدات — صفوف البيانات ${64 + rowOffset}..${66 + rowOffset}):** املأ section4_equipment وأخفِ الفارغ منها فقط (أبقِ صف الفاصل ${67 + rowOffset} وترويسة القسم الخامس ${68 + rowOffset} ظاهرين!).
+- **القسم 5A (الرطوبة — صفوف البيانات ${71 + rowOffset}..${75 + rowOffset}):** املأ moisture5A وأخفِ الفارغ منها فقط.
 - **القسم 5B (عدادات المياه — صفوف البيانات ${79 + rowOffset}..${80 + rowOffset}):**
-  * صف العنوان هو ${78 + rowOffset}. الأعمدة الصحيحة حصراً:
-    - **A**: التسلسل (1, 2)
-    - **B:D (مدمجة أفقياً)**: اسم العداد (name) — لا تكتب status في عمود C!
-    - **E**: الجودة البصرية (visualQuality)
-    - **F**: القراءة السابقة رقم (prevReading)
-    - **G**: القراءة الحالية رقم (currReading)
-    - **H**: الاستهلاك — احتفظ بالمعادلة =IF(OR(F{r}="",G{r}=""),"",G{r}-F{r})
-    - **I:K (مدمجة أفقياً)**: الملاحظات ومرجع الصورة (notes + imageRef)، وازرع صورة العداد داخل I{r} إذا وُجدت في ZIP.
-  * أخفِ صف العداد الثاني (${80 + rowOffset}) إذا كان هناك عداد واحد فقط.
+  * **A**: التسلسل | **B:D**: اسم العداد | **E**: الجودة البصرية | **F**: القراءة السابقة رقم | **G**: القراءة الحالية رقم | **H**: المعادلة =IF(OR(F{r}="",G{r}=""),"",G{r}-F{r}) | **I:K**: الملاحظات ومرجع الصورة (مع Hyperlink إذا وُجد driveLinks). أخفِ صف العداد الفارغ فقط.
 - **القسم 5C (أداء نظام الري — صفوف ${83 + rowOffset}..${85 + rowOffset}):**
-  * ترويسة 5C هي صف ${82 + rowOffset}.
-  * **صف ${83 + rowOffset}:** اكتب حالة النظام في **B${83 + rowOffset}** (مدمجة B:C)، ومدة التشغيل في **E${83 + rowOffset}** (مدمجة E:K).
-  * **صف ${84 + rowOffset}:** اكتب المناطق المروية في **B${84 + rowOffset}** (مدمجة B:C)، وملاحظات الضغط في **E${84 + rowOffset}** (مدمجة E:K).
-  * **صف ${85 + rowOffset}:** اكتب ملاحظات الأداء في **B${85 + rowOffset}** (مدمجة B:K).
-- **القسم 5D (مقاييس الضغط — صفوف البيانات ${89 + rowOffset}..${94 + rowOffset}):**
-  * صف العنوان هو ${88 + rowOffset}. املأ barGauges5D في ${89 + rowOffset}..${94 + rowOffset} (A: التسلسل، B: الاسم، C: القراءة، D: 'bar'، E: المدى الطبيعي، F: الحالة 'Normal / طبيعي' أو 'Low / منخفض'، G:K: ملاحظات). أخفِ الصفوف الفارغة منها فقط.
-- **القسم 6 (صحة النبات — صفوف البيانات ${98 + rowOffset}..${102 + rowOffset}) والقسم 7 (الحوادث — صفوف البيانات ${106 + rowOffset}..${109 + rowOffset}):**
-  * املأ section6_plantsHealth في ${98 + rowOffset}..${102 + rowOffset} (وازرع الصورة في I{r} إن وُجدت) وأخفِ الصفوف الفارغة منها فقط.
-  * املأ section7_incidentsAndIssues في ${106 + rowOffset}..${109 + rowOffset} (A: التسلسل، B:E: الوصف، F: الخطورة، G:K: الرمز + مرجع الصورة، وازرع الصورة في G{r} إن وُجدت) وأخفِ الصفوف الفارغة منها فقط.
-- **القسم 8 (مراجع الصور — صفوف البيانات ${113 + rowOffset}..${118 + rowOffset}):**
-  * صف العنوان هو ${112 + rowOffset}. اكتب في كل صف: **A** = التسلسل (1, 2, 3...)، **B:D** = اسم الملف (fileName)، **E:G** = القسم (section)، **H:K** = الوصف (description). أخفِ الصفوف الفارغة منها فقط.
+  * **B${83 + rowOffset}**: حالة النظام | **E${83 + rowOffset}**: مدة التشغيل | **B${84 + rowOffset}**: المناطق المروية | **E${84 + rowOffset}**: ملاحظات الضغط | **B${85 + rowOffset}**: ملاحظات الأداء.
+- **القسم 5D (مقاييس الضغط — صفوف البيانات ${89 + rowOffset}..${94 + rowOffset}):** املأ barGauges5D (A: التسلسل، B: الاسم، C: القراءة، D: 'bar'، E: المدى الطبيعي، F: الحالة، G:K: ملاحظات) وأخفِ الفارغ منها فقط.
+- **القسم 6 (صحة النبات — صفوف ${98 + rowOffset}..${102 + rowOffset}) والقسم 7 (الحوادث — صفوف ${106 + rowOffset}..${109 + rowOffset}):** املأها (مع وضع Hyperlink لروابط Drive في عمود الصورة/المرجع إن وُجدت) وأخفِ الفارغ منها فقط.
+- **القسم 8 (مراجع الصور وروابط Google Drive — يبدأ من صف ${113 + rowOffset}):**
+  * إذا كان عدد الصور في section8_photoReferences أكثر من 6 (extraPhotoRows = ${extraPhotoRows})، أدرج ${extraPhotoRows} صفوف عند الصف ${119 + rowOffset} مع نسخ التنسيق والدمج (B:D, E:G, H:K) من صف ${118 + rowOffset} وإزاحة القسمين 9 و 10 بمقدار ${extraPhotoRows}.
+  * املأ كل صورة في صفها: **A** = التسلسل، **B:D** = اسم الملف (fileName، واجعله Hyperlink قابل للنقر إذا وُجد driveLink)، **E:G** = القسم (section)، **H:K** = الوصف (description) متبوعاً برابط Google Drive الكامل ('description — driveLink') إذا وُجد حتى يظهر الرابط بوضوح تام. أخفِ الصفوف الفارغة منها فقط.
 
 ### القاعدة 7: القسم 9 (OAR) والقسم 10 (Sign-off) + أوراق IR/SDL + منطقة الطباعة
-- **القسم 9 (OAR):** اكتب OBS في **A${123 + rowOffset}**، ANA في **A${125 + rowOffset}**، REC في **A${127 + rowOffset}**.
-- **القسم 10 (Sign-off — صف ${131 + rowOffset}):**
-  * اكتب اسم قائد الفريق في **A${131 + rowOffset}** (مدمجة A:D).
-  * أبقِ خانة التوقيع في **E${131 + rowOffset}** (مدمجة E:G).
-  * اكتب التاريخ والوقت في **H${131 + rowOffset}** (مدمجة H:K).
-- اضبط منطقة الطباعة: ws.print_area = 'A1:L${140 + rowOffset}'.
+- **القسم 9 (OAR):** اكتب OBS في **A${123 + pOff}**، ANA في **A${125 + pOff}**، REC في **A${127 + pOff}**.
+- **القسم 10 (Sign-off — صف ${131 + pOff}):**
+  * اكتب اسم قائد الفريق في **A${131 + pOff}** (مدمجة A:D).
+  * أبقِ خانة التوقيع في **E${131 + pOff}** (مدمجة E:G).
+  * اكتب التاريخ والوقت في **H${131 + pOff}** (مدمجة H:K).
+- اضبط منطقة الطباعة: ws.print_area = 'A1:L${140 + pOff}'.
 - إذا وجدت بيانات في incidentReportsSheet أو siteDeviationLogSheet فاملأ أوراقها المخصصة في نفس الملف بنفس ألوانها الأصلية.
 
 احفظ الملف بصيغة .xlsx وقدّم رابط التحميل مباشرة.`;
 
     const templateFile = buildCleanTemplateFileObj();
     const jsonFile = new File([JSON.stringify(lightPayload, null, 2)], jsonFname, { type: 'application/json;charset=utf-8' });
-    const zipBlob = await buildTodayPhotosZipBlob();
-    const zipFile = zipBlob ? new File([zipBlob], zipFname, { type: 'application/zip' }) : null;
+    const linkedCount = photos.filter(p => p.driveLink).length;
 
     window._latestGeminiBundle = {
         title: `DFL-${log.dflNum} (${state.activeDate})`,
         prompt: hardenedPrompt,
         templateFile,
         jsonFile,
-        zipFile
+        zipFile: null
     };
 
     let autoCopied = false;
@@ -4628,8 +4703,11 @@ ${photos.length > 0 ? `3. ملف الصور المضغوط (${zipFname}) الذ�
         <h3 class="card-title">🚀 حزمة التصدير إلى Gemini جاهزة!</h3>
         <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px;font-size:12px;color:#166534;font-weight:bold;margin-bottom:8px;">
             ${autoCopied ? '✅ تم نسخ البرومت المصحح تلقائياً إلى الحافظة!' : '📋 اضغط زر النسخ أدناه لنسخ البرومت.'}<br>
-            📎 الملفات الجاهزة: <code>${esc(jsonFname)}</code>${zipFile ? ` + <code>${esc(zipFname)}</code> (${photos.length} صور)` : ''} + <code>Al-Mutahida_DFL_V04_Clean.xlsx</code>
+            📎 الملفات الجاهزة: <code>${esc(jsonFname)}</code> + <code>Al-Mutahida_DFL_V04_Clean.xlsx</code><br>
+            🔗 روابط Google Drive المربوطة: <b>${linkedCount} من أصل ${photos.length} صور</b>
         </div>
+        ${photos.length > 0 && linkedCount < photos.length ? `
+        <button class="btn btn-orange btn-full" style="margin-bottom:8px;padding:9px;font-size:12.5px;" onclick="closeModal();openTodayPhotosGallery()">🔗 لصق روابط Google Drive للصور قبل التصدير (${linkedCount}/${photos.length})</button>` : ''}
         <button class="btn btn-green btn-full" style="padding:13px;font-size:14px;" onclick="shareBundleToGeminiApp()">📤 إرسال الملفات مباشرة إلى تطبيق Gemini</button>
         <label style="display:block;font-size:11.5px;font-weight:bold;color:var(--muted);margin-bottom:6px;">
             <input type="checkbox" id="chkIncludeCleanTpl" checked> إرفاق تنزيل القالب النظيف (Al-Mutahida_DFL_V04_Clean.xlsx) عند التنزيل للمتصفح
@@ -4918,7 +4996,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V9.1 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V9.2 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
