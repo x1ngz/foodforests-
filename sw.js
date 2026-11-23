@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tff-fos-offline-v9.1';
+const CACHE_NAME = 'tff-fos-offline-v9.2';
 const CORE_ASSETS = [
   './',
   './index.html',
