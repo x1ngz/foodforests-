@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة غابات الغذاء - إدارة العمليات الميدانية V03</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V7</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="غابات الغذاء">
     <link id="appleTouchIcon" rel="apple-touch-icon" href="">
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <style>
         :root {
             --primary: #15803d; --primary-dark: #166534; --blue: #0284c7;
@@ -54,6 +55,11 @@
         .sticky-sec-info { flex: 1; min-width: 170px; font-size: 11.5px; line-height: 1.4; }
         .sticky-sec-title { font-weight: bold; color: var(--blue); font-size: 11px; }
         .sticky-sec-actions { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+
+        /* Timer Alert Bar */
+        .timer-alert-bar { background: #fef2f2; border-bottom: 2px solid #ef4444; color: #991b1b; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 78px; z-index: 950; }
+        .timer-alert-bar.show { display: flex; animation: slideDown 0.3s; }
+        @keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* Reminder & Toast */
         .meter-reminder { background: #fef3c7; border-bottom: 2px solid #f59e0b; color: #92400e; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; }
@@ -121,20 +127,29 @@
         .worker-sub { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
         .time-mini { width: 62px; padding: 3px 4px; border: 1px solid var(--border); border-radius: 5px; font-size: 11px; text-align: center; }
 
-        /* Tasks & Tanker */
-        .task-box { border-right: 5px solid var(--blue); }
+        /* Tasks Queue & Cards */
+        .queue-banner { background: #fffbeb; border: 1px solid #fde68a; border-radius: 9px; padding: 10px; margin-bottom: 12px; }
+        .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #fef3c7; }
+        .queue-item:last-child { border-bottom: none; }
+        .q-timer { font-family: monospace; font-size: 13px; font-weight: bold; color: #d97706; }
+        
+        .task-box { border-right: 5px solid var(--blue); position: relative; transition: all 0.2s; }
         .task-box.is-blocked { border-right-color: var(--red); background: #fffafa; }
-        .task-box.is-notstarted { border-right-color: #64748b; }
+        .task-box.is-notstarted { border-right-color: #64748b; opacity: 0.85; }
         .task-box.is-done { border-right-color: var(--primary); }
         .zone-pill { background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid #bae6fd; }
+        
+        /* 4 Status Buttons */
         .st-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
-        .st-btn { padding: 7px 2px; border: 1px solid var(--border); background: #f8fafc; border-radius: 7px; font-size: 10.5px; font-weight: bold; cursor: pointer; color: var(--muted); text-align: center; }
-        .st-btn.on-done { background: #16a34a; color: white; border-color: #16a34a; }
-        .st-btn.on-prog { background: #0284c7; color: white; border-color: #0284c7; }
-        .st-btn.on-notst { background: #475569; color: white; border-color: #475569; }
-        .st-btn.on-block { background: #dc2626; color: white; border-color: #dc2626; }
-        .block-drawer { background: #fee2e2; border: 1.5px solid #f87171; border-radius: 9px; padding: 9px; margin-top: 8px; }
-        .tanker-banner { background: #e0f2fe; border: 1.5px solid #38bdf8; border-radius: 9px; padding: 8px; margin-top: 8px; font-size: 11.5px; font-weight: bold; color: #0369a1; }
+        .st-btn { padding: 8px 2px; border: 1px solid var(--border); background: #f8fafc; border-radius: 7px; font-size: 11px; font-weight: bold; cursor: pointer; color: var(--muted); text-align: center; transition: all 0.15s; }
+        .st-btn:active { transform: scale(0.95); }
+        .st-btn.on-done { background: #16a34a; color: white; border-color: #16a34a; box-shadow: 0 2px 4px rgba(22,163,74,0.3); }
+        .st-btn.on-prog { background: #0284c7; color: white; border-color: #0284c7; box-shadow: 0 2px 4px rgba(2,132,199,0.3); }
+        .st-btn.on-notst { background: #475569; color: white; border-color: #475569; box-shadow: 0 2px 4px rgba(71,85,105,0.3); }
+        .st-btn.on-block { background: #dc2626; color: white; border-color: #dc2626; box-shadow: 0 2px 4px rgba(220,38,38,0.3); }
+        
+        .block-drawer { background: #fee2e2; border: 1.5px dashed #f87171; border-radius: 9px; padding: 9px; margin-top: 8px; }
+        .tanker-banner { background: #e0f2fe; border: 1.5px solid #38bdf8; border-radius: 9px; padding: 9px; margin-top: 8px; font-size: 11.5px; font-weight: bold; color: #0369a1; }
         .agro-banner { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #166534; gap: 6px; }
 
         /* Multi-Photo Strip */
@@ -147,6 +162,11 @@
             font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
 
+        /* Sort Controls */
+        .sort-controls { display: flex; flex-direction: column; gap: 2px; }
+        .sort-btn { background: #f1f5f9; border: 1px solid var(--border); color: var(--muted); width: 22px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
+        .sort-btn:active { background: #e2e8f0; }
+
         /* Readings & Tools */
         .meter-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 9px; padding: 10px; margin-bottom: 9px; }
         .meter-card.faulty { background: #fef2f2; border-color: #fca5a5; }
@@ -155,6 +175,7 @@
         .irrigated-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 9px; padding: 9px; margin-bottom: 8px; }
 
         /* Inventory */
+        .inv-filter-bar { display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; }
         .alpha-bar { position: fixed; left: 2px; top: 55%; transform: translateY(-50%); z-index: 950; background: rgba(255,255,255,0.94); border: 1px solid var(--border); border-radius: 12px; padding: 3px 1px; display: flex; flex-direction: column; align-items: center; touch-action: none; user-select: none; max-height: 68vh; overflow: hidden; }
         .alpha-ch { width: 20px; height: 15px; font-size: 10px; font-weight: bold; color: #94a3b8; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .alpha-ch.has { color: #1d4ed8; }
@@ -200,6 +221,9 @@
         </div>
     </header>
 
+    <!-- Timer Alert Bar -->
+    <div id="timerAlertBar" class="timer-alert-bar"></div>
+
     <div id="meterReminderBar" class="meter-reminder">
         <span>📸 تذكير: التقط صورة عداد المياه الآن لتوثيق الاستهلاك!</span>
         <button class="btn btn-orange btn-sm" onclick="jumpToMeters()">تصوير</button>
@@ -232,6 +256,10 @@
         <!-- TAB 2: Tasks & Irrigation -->
         <div id="tab-tasks" class="tab-pane">
             <div id="stickyHist-tasks"></div>
+            
+            <!-- In-Progress & Upcoming Queue -->
+            <div id="tasksQueueContainer"></div>
+
             <div class="grid-2" style="margin-bottom:8px;">
                 <button class="btn btn-blue" style="margin:0;" onclick="loadSiteIrrigationPlan()">⚡ خطة ري <span id="planDayLabel"></span></button>
                 <button class="btn btn-outline" style="margin:0;" onclick="openPlanEditorModal()">🗓️ تعديل الخطة</button>
@@ -241,7 +269,9 @@
                 <span class="chip" onclick="quickAddNonIrrTask('Other  /  أخرى', 'Cleaning all Equipment and tool', '1:00 hr')">🧹 تنظيف المعدات</span>
                 <span class="chip" onclick="quickAddNonIrrTask('Water System Check  /  فحص نظام الري', 'Routine line inspection, valve checks, filter cleaning', '1:00 hr')">🔧 فحص شبكة الري</span>
             </div>
+            
             <div id="tasksContainer"></div>
+            
             <button class="btn btn-green btn-full" onclick="openTaskModal()">+ إضافة مهمة جديدة (أو مهمة حرة)</button>
         </div>
 
@@ -358,13 +388,22 @@
         <!-- TAB 4: Plant Inventory & Health -->
         <div id="tab-inv" class="tab-pane">
             <div id="stickyHist-inv"></div>
+            
+            <div class="inv-filter-bar">
+                <span class="chip active" id="f_all" onclick="setInvFilter('all')">الكل</span>
+                <span class="chip" id="f_warn" onclick="setInvFilter('warn')">⚠️ متضرر فقط</span>
+                <span class="chip" id="f_today" onclick="setInvFilter('today')">📅 مُجرد اليوم</span>
+                <span class="chip" style="margin-right:auto;background:var(--primary);color:white;border:none;" onclick="exportInventoryStandaloneExcel()">📥 تصدير إكسيل مستقل</span>
+            </div>
+
             <div id="invContainer"></div>
             <div id="alphaScroller"></div>
         </div>
 
-        <!-- TAB 5: Issues, IR/SDL, OAR & Lightweight Gemini Export -->
+        <!-- TAB 5: Issues, IR/SDL, OAR & Export -->
         <div id="tab-export" class="tab-pane">
             <div id="stickyHist-issues"></div>
+            
             <div class="card">
                 <div class="card-head">
                     <h3 class="card-title">⚠️ متتبع المشاكل المستمر (Issue Tracker)</h3>
@@ -410,6 +449,10 @@
             <div class="grid-2" style="margin-bottom:8px;">
                 <button class="btn btn-blue" onclick="downloadTodayPhotosZip()">📦 تنزيل الصور (ZIP)</button>
                 <button class="btn btn-outline" onclick="openTodayPhotosGallery()">🖼️ معرض الصور (<span id="todayPhotoCount">0</span>)</button>
+            </div>
+            <div class="grid-2" style="margin-bottom:8px;">
+                <button class="btn btn-purple" onclick="generateWhatsAppBrief()">💬 ملخص واتساب سريع</button>
+                <button class="btn btn-outline" onclick="openTablePreviewModal()">👁️ معاينة الجدول</button>
             </div>
             <div class="grid-2">
                 <button class="btn btn-purple" onclick="downloadFullBackup()">💾 نسخة احتياطية</button>
