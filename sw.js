@@ -1,9 +1,10 @@
-const CACHE_NAME = 'tff-fos-cache-v4.0';
+const CACHE_NAME = 'tff-fos-cache-v6.0';
 const ASSETS = [
   './',
   './index.html',
   './app.js',
-  './manifest.json'
+  './manifest.json',
+  'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'
 ];
 
 self.addEventListener('install', event => {
