@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="غابات الغذاء">
     <link id="appleTouchIcon" rel="apple-touch-icon" href="">
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <style>
         :root {
             --primary: #15803d; --primary-dark: #166534; --blue: #0284c7;
@@ -66,7 +67,7 @@
         .tab-pane.active { display: block; animation: fadeIn 0.2s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Cards & Controls */
+        /* Cards, Inputs & Quick Clear Button */
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 13px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(15,23,42,0.04); }
         .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; gap: 6px; flex-wrap: wrap; }
         .card-title { margin: 0; font-size: 15px; font-weight: bold; color: var(--text); }
@@ -80,8 +81,23 @@
         .btn-outline { background: #f8fafc; color: var(--text); border: 1px solid var(--border); }
         .btn-sm { padding: 4px 8px; font-size: 11px; border-radius: 6px; }
         .btn-full { width: 100%; margin-bottom: 10px; padding: 12px; font-size: 14px; }
+
+        .inp-wrap { position: relative; display: flex; align-items: center; width: 100%; margin-bottom: 8px; }
+        .inp-wrap .inp { margin-bottom: 0; padding-left: 30px; }
+        .clr-btn {
+            position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
+            width: 20px; height: 20px; border-radius: 50%; border: none;
+            background: #e2e8f0; color: #475569; font-size: 11px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+        }
+        .clr-btn.top-align { top: 14px; transform: none; }
+        .clr-btn:active { background: #cbd5e1; }
+
         .inp { width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: #f8fafc; color: var(--text); margin-bottom: 8px; }
         .inp:focus { outline: none; border-color: var(--blue); background: white; }
+        textarea.auto-grow { min-height: 58px; resize: vertical; line-height: 1.5; font-size: 13.5px; }
+        textarea.blocked-note-box { background: #fef2f2 !important; border: 2px solid #dc2626 !important; color: #7f1d1d !important; font-weight: 600; }
+
         .lbl { display: block; font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 4px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -107,17 +123,29 @@
 
         /* Tasks & Tanker */
         .task-box { border-right: 5px solid var(--blue); }
-        .task-box.is-blocked { border-right-color: var(--red); }
+        .task-box.is-blocked { border-right-color: var(--red); background: #fffafa; }
+        .task-box.is-notstarted { border-right-color: #64748b; }
         .task-box.is-done { border-right-color: var(--primary); }
         .zone-pill { background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid #bae6fd; }
-        .st-bar { display: flex; gap: 5px; margin-top: 8px; }
-        .st-btn { flex: 1; padding: 7px 4px; border: 1px solid var(--border); background: #f8fafc; border-radius: 7px; font-size: 11px; font-weight: bold; cursor: pointer; color: var(--muted); }
+        .st-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
+        .st-btn { padding: 7px 2px; border: 1px solid var(--border); background: #f8fafc; border-radius: 7px; font-size: 10.5px; font-weight: bold; cursor: pointer; color: var(--muted); text-align: center; }
         .st-btn.on-done { background: #16a34a; color: white; border-color: #16a34a; }
         .st-btn.on-prog { background: #0284c7; color: white; border-color: #0284c7; }
+        .st-btn.on-notst { background: #475569; color: white; border-color: #475569; }
         .st-btn.on-block { background: #dc2626; color: white; border-color: #dc2626; }
-        .block-drawer { background: #fef2f2; border: 1px dashed #fca5a5; border-radius: 8px; padding: 9px; margin-top: 8px; }
-        .tanker-banner { background: #e0f2fe; border: 1px solid #7dd3fc; border-radius: 8px; padding: 8px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #0369a1; gap: 6px; }
+        .block-drawer { background: #fee2e2; border: 1.5px solid #f87171; border-radius: 9px; padding: 9px; margin-top: 8px; }
+        .tanker-banner { background: #e0f2fe; border: 1.5px solid #38bdf8; border-radius: 9px; padding: 8px; margin-top: 8px; font-size: 11.5px; font-weight: bold; color: #0369a1; }
         .agro-banner { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #166534; gap: 6px; }
+
+        /* Multi-Photo Strip */
+        .photo-strip { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; align-items: center; }
+        .photo-item-wrap { position: relative; width: 54px; height: 54px; }
+        .photo-thumb { width: 54px; height: 54px; object-fit: cover; border-radius: 7px; border: 1.5px solid var(--border); cursor: pointer; display: block; }
+        .photo-del-badge {
+            position: absolute; top: -5px; right: -5px; width: 18px; height: 18px;
+            border-radius: 50%; background: var(--red); color: white; border: none;
+            font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
 
         /* Readings & Tools */
         .meter-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 9px; padding: 10px; margin-bottom: 9px; }
@@ -146,7 +174,6 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.72); z-index: 2000; padding: 14px; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
         .modal-box { background: white; border-radius: 14px; padding: 16px; width: 100%; max-width: 500px; max-height: 88vh; overflow-y: auto; }
-        .photo-thumb { width: 52px; height: 52px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; }
     </style>
 </head>
 <body>
@@ -250,7 +277,10 @@
                 </div>
                 <div class="irrigated-box">
                     <label class="lbl" style="color:var(--primary-dark);">📍 المناطق التي تم ريها اليوم (تُجلب تلقائياً من المهام المكتملة):</label>
-                    <input type="text" id="irrigatedZonesInput" class="inp" style="margin:0;background:white;font-weight:bold;" placeholder="تظهر هنا المناطق المكتملة تلقائياً..." onchange="updatePerfField('zonesIrrigated', this.value)">
+                    <div class="inp-wrap" style="margin:0;">
+                        <input type="text" id="irrigatedZonesInput" class="inp" style="background:white;font-weight:bold;" placeholder="تظهر هنا المناطق المكتملة تلقائياً..." onchange="updatePerfField('zonesIrrigated', this.value)">
+                        <button class="clr-btn" onclick="quickClearField('irrigatedZonesInput', () => updatePerfField('zonesIrrigated', ''))">✕</button>
+                    </div>
                 </div>
                 <div class="grid-2">
                     <div>
@@ -264,15 +294,24 @@
                         </select>
                     </div>
                     <div>
-                        <label class="lbl">مدة التشغيل (ساعة):</label>
-                        <input type="text" id="sysDurationInput" class="inp" placeholder="مثلاً: 4.5" onchange="updatePerfField('duration', this.value)">
+                        <label class="lbl">مدة التشغيل:</label>
+                        <div style="display:flex;gap:4px;">
+                            <select id="sysDurationSelect" class="inp" style="flex:1;" onchange="onSysDurationSelect(this.value)"></select>
+                            <button class="btn btn-outline btn-sm" style="height:37px;" onclick="openCustomTimeModal('perf', 0)" title="وقت مخصص">⏱️</button>
+                        </div>
                     </div>
                 </div>
                 <label class="lbl">ملاحظات الضغط (Pressure Notes):</label>
-                <input type="text" id="pressureNotesInput" class="inp" placeholder="ملاحظات الضغط..." onchange="updatePerfField('pressureNotes', this.value)">
+                <div class="inp-wrap">
+                    <input type="text" id="pressureNotesInput" class="inp" placeholder="ملاحظات الضغط..." onchange="updatePerfField('pressureNotes', this.value)">
+                    <button class="clr-btn" onclick="quickClearField('pressureNotesInput', () => updatePerfField('pressureNotes', ''))">✕</button>
+                </div>
                 <label class="lbl">ملاحظات الأداء (Performance Notes):</label>
                 <div style="display:flex;gap:5px;margin-bottom:5px;">
-                    <input type="text" id="sysNotesInput" class="inp" style="margin:0;" placeholder="مثلاً: وجود تسريب يحتاج صيانة..." onchange="updatePerfField('notes', this.value)">
+                    <div class="inp-wrap" style="margin:0;flex:1;">
+                        <textarea id="sysNotesInput" class="inp auto-grow" rows="2" placeholder="مثلاً: وجود تسريب يحتاج صيانة..." oninput="autoGrow(this)" onchange="updatePerfField('notes', this.value)"></textarea>
+                        <button class="clr-btn top-align" onclick="quickClearField('sysNotesInput', () => updatePerfField('notes', ''))">✕</button>
+                    </div>
                     <button class="btn btn-outline btn-sm" onclick="startDictation('sysNotesInput', v => updatePerfField('notes', v))">🎤</button>
                 </div>
                 <div>
@@ -351,19 +390,31 @@
                     <button class="btn btn-blue btn-sm" onclick="autoGenerateOAR()">🔄 توليد ذكي</button>
                 </div>
                 <label class="lbl">OBS — الملاحظة: <button class="btn btn-outline btn-sm" style="padding:1px 6px;" onclick="startDictation('oarObs', saveOarFields)">🎤</button></label>
-                <textarea id="oarObs" class="inp" rows="3" onchange="saveOarFields()"></textarea>
+                <div class="inp-wrap">
+                    <textarea id="oarObs" class="inp auto-grow" rows="3" oninput="autoGrow(this)" onchange="saveOarFields()"></textarea>
+                    <button class="clr-btn top-align" onclick="quickClearField('oarObs', saveOarFields)">✕</button>
+                </div>
                 <label class="lbl">ANA — التحليل: <button class="btn btn-outline btn-sm" style="padding:1px 6px;" onclick="startDictation('oarAna', saveOarFields)">🎤</button></label>
-                <textarea id="oarAna" class="inp" rows="2" onchange="saveOarFields()"></textarea>
+                <div class="inp-wrap">
+                    <textarea id="oarAna" class="inp auto-grow" rows="2" oninput="autoGrow(this)" onchange="saveOarFields()"></textarea>
+                    <button class="clr-btn top-align" onclick="quickClearField('oarAna', saveOarFields)">✕</button>
+                </div>
                 <label class="lbl">REC — التوصية: <button class="btn btn-outline btn-sm" style="padding:1px 6px;" onclick="startDictation('oarRec', saveOarFields)">🎤</button></label>
-                <textarea id="oarRec" class="inp" rows="2" onchange="saveOarFields()"></textarea>
+                <div class="inp-wrap">
+                    <textarea id="oarRec" class="inp auto-grow" rows="2" oninput="autoGrow(this)" onchange="saveOarFields()"></textarea>
+                    <button class="clr-btn top-align" onclick="quickClearField('oarRec', saveOarFields)">✕</button>
+                </div>
             </div>
 
             <button class="btn btn-green btn-full" style="padding:15px;font-size:15px;" onclick="runPreExportCheck()">🤖 تصدير ملف DFL خفيف + أمر Gemini المضبوط</button>
             <div class="grid-2" style="margin-bottom:8px;">
-                <button class="btn btn-blue" onclick="downloadTodayStampedPhotos()">📸 تنزيل صور اليوم المختومة</button>
-                <button class="btn btn-purple" onclick="downloadFullBackup()">💾 نسخة احتياطية</button>
+                <button class="btn btn-blue" onclick="downloadTodayPhotosZip()">📦 تنزيل الصور (ZIP)</button>
+                <button class="btn btn-outline" onclick="openTodayPhotosGallery()">🖼️ معرض الصور (<span id="todayPhotoCount">0</span>)</button>
             </div>
-            <button class="btn btn-outline btn-full" onclick="triggerBackupRestore()">📂 استيراد / دمج نسخة احتياطية</button>
+            <div class="grid-2">
+                <button class="btn btn-purple" onclick="downloadFullBackup()">💾 نسخة احتياطية</button>
+                <button class="btn btn-outline" onclick="triggerBackupRestore()">📂 استيراد / دمج</button>
+            </div>
         </div>
     </main>
 
@@ -376,9 +427,9 @@
         <div class="nav-tab" data-tab="export" onclick="switchTab('export')"><span class="nav-ico">📤</span>الخلاصة</div>
     </nav>
 
-    <!-- Hidden File Inputs -->
+    <!-- Hidden File Inputs (Multi-Photo Enabled!) -->
     <input type="file" id="camFileInput" accept="image/*" capture="environment" style="display:none" onchange="onPhotoSelected(event)">
-    <input type="file" id="galFileInput" accept="image/*" style="display:none" onchange="onPhotoSelected(event)">
+    <input type="file" id="galFileInput" accept="image/*" multiple style="display:none" onchange="onPhotoSelected(event)">
     <input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="onBackupFileLoaded(event)">
 
     <!-- Modals -->
