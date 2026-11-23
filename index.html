@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V8.5</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V8.7</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -215,7 +215,7 @@
             <div class="header-tools">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V8.5 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V8.7 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -3597,7 +3597,7 @@ function exportLightweightDFL() {
                 E83_durationHrs: log.perf.duration,
                 B84_zonesIrrigated: log.perf.zonesIrrigated,
                 E84_pressureNotes: log.perf.pressureNotes || '',
-                B85_performanceNotes: (log.perf.notes || '') + tankerNote + machNote
+                B85_performanceNotes: [log.perf.notes, tankerNote.replace(/^\s*\|\s*/, ''), machNote.replace(/^\s*\|\s*/, '')].filter(Boolean).join(' | ')
             },
             barGauges5D: log.gauges
         },
@@ -3640,21 +3640,21 @@ function exportLightweightDFL() {
 2. ملف بيانات اليوم الخفيف (${fname}).
 (وإذا أرفقت لك ملف الصور ZIP ففك ضغطه وازرع كل صورة داخل خليتها حسب اسمها المرجعي).
 
-اكتب ونفّذ كود Python (باستخدام openpyxl مع copy من مكتبة copy) لتعبئة ورقة 'Daily Field Log' مباشرة (In-Place) مع الالتزام الصارم بجميع قواعد التصميم والألوان والدمج التالية:
+اكتب ونفّذ كود Python (باستخدام openpyxl مع copy من مكتبة copy) لتعبئة ورقة 'Daily Field Log' مباشرة (In-Place) مع الالتزام الصارم بجميع القواعد التالية دون أي انحراف:
 
-### القاعدة 0: الحفاظ المطلق على ألوان وخطوط وحدود قالب الـ DFL الأصلية (ممنوع تغيير أي لون!)
+### القاعدة 0: الحفاظ المطلق على ألوان وخطوط وحدود القالب (ممنوع تغيير أي لون أو ترك خلية بيضاء!)
 - لا تغيّر لون أي خلفية خلية (Fill) أو لون خط (Font Color) أو ترويسة قسم في القالب نهائياً!
-- ألوان القالب الأصلية هي: عمود التسلسل A باللون الرمادي الفاتح (#ECEFF1)، خلايا الإدخال باللون الكريمي (#FFFDF0) أو الأصفر الفاتح (#FFFDE7)، وخلايا أداء الري باللون الأخضر الفاتح (#E8F5E9).
-- عند إدراج أي صفوف جديدة أو دمج خلايا: انسخ التنسيق الأصلي للخلية (copy(src.fill), copy(src.font), copy(src.border), copy(src.alignment)) حتى لا يتحول أي صف إلى اللون الأبيض أو يفقد حدوده.
+- ألوان القالب الأصلية: عمود التسلسل A رمادي فاتح (#ECEFF1)، خلايا الإدخال كريمي (#FFFDF0) أو أصفر فاتح (#FFFDE7)، وخلايا أداء الري أخضر فاتح (#E8F5E9).
+- **مهم جداً عند إدراج الصفوف أو دمج الخلايا:** في openpyxl، إدراج صفوف جديدة أو فك الدمج يمسح ألوان وحدود الخلايا. لذلك يجب نسخ التنسيق الأصلي للخلية (copy(src.fill), copy(src.font), copy(src.border), copy(src.alignment)) لكل خلية مضافة أو مدمجة حتى لا تتحول إلى اللون الأبيض (None).
 
 ### القاعدة 1: إزاحة الصفوف للعمالة الإضافية (offset = ${rowOffset})
-- القالب يحتوي على 5 صفوف للحضور (صفوف 18 إلى 22).
+- القالب الأصلي يحتوي على 5 صفوف للحضور (صفوف 18 إلى 22).
 - إذا كان rowOffsetForExtraWorkers > 0:
   * أدرج ${rowOffset} صفوف عند الصف 23 (ws.insert_rows(23, ${rowOffset})) قبل كتابة أي بيانات أسفل صف 22.
-  * لكل صف مضاف (23 إلى ${22 + rowOffset}): اضبط ارتفاع الصف على 42.75، وانسخ التنسيق الأصلي (fill, font, border, alignment) من صف 22 لكل عمود من A إلى K، وادمج H{r}:K{r}.
-- أضف offset = ${rowOffset} إلى أرقام صفوف جميع الأقسام من القسم 3 حتى القسم 10.
+  * لكل صف مضاف (23 إلى ${22 + rowOffset}): اضبط ارتفاع الصف على 42.75، وانسخ التنسيق الأصلي (fill, font, border, alignment) من صف 22 لكل عمود من A إلى K (بما في ذلك اللون الرمادي #ECEFF1 للعمود A والحدود الخارجية)، وادمج H{r}:K{r}.
+- أضف offset = ${rowOffset} إلى أرقام صفوف جميع الأقسام أسفل صف 22 كما هو محدد بالضبط أدناه:
 
-### القاعدة 2: البيانات التعريفية (Metadata) — تعبئة كاملة
+### القاعدة 2: البيانات التعريفية (Metadata — صفوف ثابتة بدون إزاحة)
 - F5 = ${log.dflNum} | F6 = "${site.name}" | B7 = "${state.activeDate}" | F7 = "${dayEn}" | B8 = "${state.company.teamLead}" | B9 = "${state.company.shift}" | F9 = "${state.company.supervisor || 'Maitham Ibrahim'}" | B10 = ${state.company.outsideRate}
 
 ### القاعدة 3: القسم 1 (Weather — صف 13)
@@ -3663,32 +3663,58 @@ function exportLightweightDFL() {
 ### القاعدة 4: القسم 2 (Attendance — صفوف 18 إلى ${17 + log.attendance.length})
 - املأ section2_attendance، وأخفِ أي صف فارغ متبقٍ حتى صف 22.
 
-### القاعدة 5: القسم 3 (Tasks — يبدأ من صف ${27 + rowOffset} حتى ${59 + rowOffset}) — دمج الساعات والمناطق المتزامنة والعمال بدقة!
+### القاعدة 5: القسم 3 (Tasks — يبدأ من صف ${27 + rowOffset} حتى ${59 + rowOffset}) — انتبه لترتيب الأعمدة والدمج والألوان!
+- **تحذير مهم:** صف العنوان هو صف ${26 + rowOffset}، وأول صف بيانات للمهام هو **صف ${27 + rowOffset}** مباشرة (لا تترك صف ${27 + rowOffset} فارغاً!).
 1. **تفريق المناطق (منطقة واحدة لكل صف):** إذا كانت المهمة تحتوي عدة مناطق (مثل ["B1", "B2", "B4"])، أفردها في صفوف متتالية بحيث يأخذ كل صف منطقة واحدة فقط في العمود D (Zone).
-2. **دمج الساعات والمناطق التي اشتغلت بنفس الوقت (Simultaneous / Consecutive Grouping):**
+2. **دمج الساعات والمناطق المتزامنة/المتشابهة عمودياً:**
    - اجمع الصفوف المتتالية التي تشترك في نفس (المهمة Task + الوصف Brief Description + الوقت Time + العمال Workers Assigned + عدد العمال Workers #).
    - ادمج عمودياً عبر هذه الصفوف المتشابهة الأعمدة التالية فقط:
-     * **A ('#')**، **B ('Task')**، **C ('Brief Description')**، **E ('Time / الوقت' — لأنها اشتغلت بنفس الوقت والمدة)**، **F ('Workers #')**، و**K ('Worker(s) Assigned')**.
-   - **ممنوع منعاً باتاً** دمج العمود **D ('Zone')** أو العمود **G ('Status')** أو عمود الملاحظات **H:J ('Notes')** عمودياً! أبقِ H{r}:J{r} مدمجاً أفقياً لكل صف على حدة فقط حتى تظهر حالة وملاحظة كل منطقة بوضوح.
-   - عند دمج أي نطاق عمودي (مثل E28:E32)، تأكد من الاحتفاظ بنفس لون الخلية الأصلي (#FFFDF0، و#ECEFF1 للعمود A) وتوسيط النص عمودياً وأفقياً (horizontal='center', vertical='center', wrap_text=True) مع الحفاظ على الحدود الخارجية والداخلية.
+     * **A ('#')**، **B ('Task')**، **C ('Brief Description')**، **E ('Time / الوقت')**، **F ('Workers #')**، و**K ('Worker(s) Assigned')**.
+   - **ممنوع منعاً باتاً** دمج العمود **D ('Zone')** أو العمود **G ('Status')** أو عمود الملاحظات **H:J ('Notes')** عمودياً! أبقِ H{r}:J{r} مدمجاً أفقياً لكل صف على حدة فقط.
+   - **حافظ على الألوان والحدود لكل صف (من ${27 + rowOffset} إلى آخر مهمة):** انسخ التنسيق الأصلي من صف ${27 + rowOffset} لكل خلية (A: #ECEFF1، B,C,G,H:J,K,L: #FFFDF0، D,E,F: #FFFDE7) قبل وبعد أي عملية دمج عمودي!
 3. **دقة العمال وعدد العمال (Columns F & K):**
-   - العمود **F ('Workers #')** يجب أن يكون رقماً صحيحاً يطابق عدد المنفذين الفعليين (إذا كان المنفذ "Team" فاكتب عدد الحضور اليوم = ${presentCount}، وإذا كان اسمين فـ 2، ولا تكتب 0 لمهمة منجزة).
-   - العمود **K ('Worker(s) Assigned')**: اكتب "Team" إذا نفذها الفريق بالكامل، أو افصل الأسماء بـ ' / ' (مثال: حسين مرتضى عبد / نوار عنيد جبر).
-4. **مرجع الصور (Column L):** اكتب اسم ملف الصورة المرجعي مثل 'PHOTO_01.jpg' فقط إذا وُجد، واتركه فارغاً تماماً إذا لم توجد صورة (ممنوع كتابة Yes أو No).
-5. أخفِ جميع الصفوف الفارغة المتبقية في هذا القسم (ws.row_dimensions[r].hidden = True) دون حذفها.
+   - العمود **F ('Workers #')**: اكتب عدداً صحيحاً يطابق عدد المنفذين الفعليين (إذا كان المنفذ "Team" فاكتب عدد الحضور اليوم = ${presentCount}، وإذا كان اسمين فـ 2، ولا تكتب 0 لمهمة منجزة).
+   - العمود **K ('Worker(s) Assigned')**: اكتب "Team" إذا نفذها الفريق بالكامل، أو افصل الأسماء بـ ' / '.
+4. **مرجع الصور (Column L):** اكتب اسم ملف الصورة المرجعي مثل 'PHOTO_01.jpg' فقط إذا وُجد، واتركه فارغاً تماماً إذا لم توجد صورة.
+5. **إخفاء الصفوف الفارغة فقط:** أخفِ الصفوف الفارغة المتبقية من بعد آخر مهمة وحتى صف ${59 + rowOffset} فقط (ws.row_dimensions[r].hidden = True). **إياك أن تخفي صفوف الفواصل أو ترويسات الأقسام التالية!**
 
-### القاعدة 6: الأقسام 4 و 5 و 6 و 7 و 8 (مُزاحة بمقدار offset = ${rowOffset} مع الحفاظ على ألوانها)
-- القسم 4 (المعدات، يبدأ من ${64 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
-- القسم 5A (الرطوبة، ${71 + rowOffset}..${75 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
-- القسم 5B (العدادات، ${79 + rowOffset}..${80 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
-- القسم 5C (أداء الري): B${83 + rowOffset} (الحالة)، E${83 + rowOffset} (المدة)، B${84 + rowOffset} (المناطق المروية)، E${84 + rowOffset} (ملاحظات الضغط)، B${85 + rowOffset} (ملاحظات الأداء).
-- القسم 5D (مقاييس الضغط، ${89 + rowOffset}..${94 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
-- القسم 6 (صحة النبات، ${98 + rowOffset}..${102 + rowOffset}) والقسم 7 (الحوادث، ${106 + rowOffset}..${109 + rowOffset}): املأ وأخفِ الصفوف الفارغة.
-- القسم 8 (مراجع الصور، ${113 + rowOffset}..${118 + rowOffset}): املأ section8_photoReferences وأخفِ الصفوف الفارغة.
+### القاعدة 6: الأقسام 4 و 5 و 6 و 7 و 8 (أرقام الصفوف الدقيقة بعد الإزاحة — لا تخطئ في العمود أو الصف!)
+- **القسم 4 (المعدات — يبدأ من صف ${64 + rowOffset} إلى ${66 + rowOffset}):**
+  * صف العنوان هو ${63 + rowOffset}، وصفوف البيانات هي **${64 + rowOffset}..${66 + rowOffset}** (إذا كانت section4_equipment فارغة، أخفِ صفوف البيانات ${64 + rowOffset}..${66 + rowOffset} فقط، وأبقِ صف الفاصل ${67 + rowOffset} وترويسة القسم الخامس ${68 + rowOffset} ظاهرين!).
+- **القسم 5A (الرطوبة — صفوف ${71 + rowOffset}..${75 + rowOffset}):**
+  * صف العنوان هو ${70 + rowOffset}، وصفوف البيانات هي **${71 + rowOffset}..${75 + rowOffset}** (املأها أو أخفِ الفارغ منها فقط).
+- **القسم 5B (عدادات المياه — صفوف ${79 + rowOffset}..${80 + rowOffset}) — انتبه للأعمدة بدقة:**
+  * صف العنوان هو ${78 + rowOffset}، وصفوف البيانات هي **${79 + rowOffset}..${80 + rowOffset}**.
+  * الأعمدة الصحيحة للعدادات هي حصراً:
+    - **A**: التسلسل (1, 2)
+    - **B:D (مدمجة أفقياً)**: اسم العداد (meter.name) — ملاحظة: لا تكتب status داخل عمود C أبداً!
+    - **E**: الجودة البصرية (visualQuality مثل 'Clear / صافية')
+    - **F**: القراءة السابقة رقم (prevReading)
+    - **G**: القراءة الحالية رقم (currReading)
+    - **H**: الاستهلاك (اترك المعادلة الأصلية كما هي ولا تمسحها، فقط حدّث أرقام الصفوف بداخلها لتطابق صفها الجديد =IF(OR(F{r}="",G{r}=""),"",G{r}-F{r}))
+    - **I:K (مدمجة أفقياً)**: الملاحظات ومرجع الصورة (notes + imageRef)
+  * أخفِ صف العداد الثاني (${80 + rowOffset}) إذا كان هناك عداد واحد فقط.
+- **القسم 5C (أداء نظام الري — صفوف ${83 + rowOffset}..${85 + rowOffset}) — انتبه لأرقام الصفوف الدقيقة:**
+  * ترويسة 5C هي صف ${82 + rowOffset}.
+  * **صف ${83 + rowOffset}:** اكتب حالة النظام في **B${83 + rowOffset}** (مدمجة B:C)، واكتب مدة التشغيل في **E${83 + rowOffset}** (مدمجة E:K) — إذا كانت فارغة احسب مجموع ساعات مهام الري المكتملة.
+  * **صف ${84 + rowOffset}:** اكتب المناطق المروية في **B${84 + rowOffset}** (مدمجة B:C)، واكتب ملاحظات الضغط في **E${84 + rowOffset}** (مدمجة E:K).
+  * **صف ${85 + rowOffset}:** اكتب ملاحظات الأداء في **B${85 + rowOffset}** (مدمجة B:K) — نظّف أي شرطة '|' زائدة في بداية النص.
+- **القسم 5D (مقاييس الضغط — صفوف ${89 + rowOffset}..${94 + rowOffset}):**
+  * صف العنوان هو ${88 + rowOffset}، وصفوف البيانات هي **${89 + rowOffset}..${94 + rowOffset}** (A: التسلسل، B: اسم المقياس، C: القراءة، D: 'bar'، E: المدى الطبيعي مثل '2.0 bar'، F: الحالة 'Normal / طبيعي' أو 'Low / منخفض'، G:K: ملاحظات). أخفِ الصفوف الفارغة منها فقط.
+- **القسم 6 (صحة النبات — صفوف ${98 + rowOffset}..${102 + rowOffset}) والقسم 7 (الحوادث — صفوف ${106 + rowOffset}..${109 + rowOffset}):**
+  * صفوف بيانات القسم 6 هي **${98 + rowOffset}..${102 + rowOffset}**، وصفوف بيانات القسم 7 هي **${106 + rowOffset}..${109 + rowOffset}**. املأها أو أخفِ الصفوف الفارغة منها فقط.
+- **القسم 8 (مراجع الصور — صفوف ${113 + rowOffset}..${118 + rowOffset}):**
+  * صف العنوان هو ${112 + rowOffset}، وصفوف البيانات هي **${113 + rowOffset}..${118 + rowOffset}**.
+  * اكتب في كل صف: **A** = التسلسل (1, 2, 3...)، **B:D** = اسم الملف (fileName)، **E:G** = القسم (section)، **H:K** = الوصف (description). أخفِ الصفوف الفارغة منها فقط.
 
 ### القاعدة 7: القسم 9 (OAR) والقسم 10 (Sign-off) + أوراق IR/SDL
-- اكتب OBS في A${123 + rowOffset}، ANA في A${125 + rowOffset}، REC في A${127 + rowOffset}.
-- اكتب اسم قائد الفريق في A${131 + rowOffset} والتاريخ في H${131 + rowOffset}.
+- **القسم 9 (OAR):**
+  * اكتب نص OBS في **A${123 + rowOffset}** (أسفل شريط OBS في صف ${122 + rowOffset}).
+  * اكتب نص ANA في **A${125 + rowOffset}** (أسفل شريط ANA في صف ${124 + rowOffset}).
+  * اكتب نص REC في **A${127 + rowOffset}** (أسفل شريط REC في صف ${126 + rowOffset}).
+- **القسم 10 (Sign-off — صف ${131 + rowOffset}):**
+  * اكتب اسم قائد الفريق في **A${131 + rowOffset}** (مدمجة A:D).
+  * اكتب التاريخ والوقت في **H${131 + rowOffset}** (مدمجة H:K) — لا تتركها فارغة!
 - إذا وجدت بيانات في incidentReportsSheet أو siteDeviationLogSheet فاملأ أوراقها المخصصة في نفس الملف بنفس ألوانها الأصلية.
 
 احفظ الملف بصيغة .xlsx وقدّم رابط التحميل مباشرة.`;
@@ -3957,12 +3983,11 @@ function bootApp() {
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-            const regs = await navigator.serviceWorker.getRegistrations();
-            for (const r of regs) { await r.unregister(); }
-        }
-        if ('caches' in window && location.protocol.startsWith('http')) {
-            const keys = await caches.keys();
-            for (const k of keys) { await caches.delete(k); }
+            navigator.serviceWorker.register('./sw.js').then(reg => {
+                reg.update().catch(() => {});
+                const pill = document.getElementById('savePill');
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V8.7 أوفلاين';
+            }).catch(() => {});
         }
     } catch (e) {}
     await initDB();
