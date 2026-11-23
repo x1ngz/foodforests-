@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V7</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V8</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -127,15 +127,24 @@
         .worker-sub { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
         .time-mini { width: 62px; padding: 3px 4px; border: 1px solid var(--border); border-radius: 5px; font-size: 11px; text-align: center; }
 
-        /* Tasks Queue & Cards */
-        .queue-banner { background: #fffbeb; border: 1px solid #fde68a; border-radius: 9px; padding: 10px; margin-bottom: 12px; }
-        .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #fef3c7; }
+        /* Tasks Queue, Live Timer & Thirst Radar */
+        .queue-banner { background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+        .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #fef3c7; gap: 6px; flex-wrap: wrap; }
         .queue-item:last-child { border-bottom: none; }
-        .q-timer { font-family: monospace; font-size: 13px; font-weight: bold; color: #d97706; }
-        
+        .live-timer-pill { display: inline-flex; align-items: center; gap: 4px; background: #e0f2fe; border: 1px solid #7dd3fc; color: #0369a1; padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: bold; margin-top: 4px; cursor: pointer; }
+        .live-timer-pill.is-paused { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+
+        .radar-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 9px; margin-bottom: 10px; }
+        .radar-grid { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+        .radar-pill { padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid transparent; }
+        .radar-fresh { background: #dcfce7; color: #166534; border-color: #86efac; }
+        .radar-warn { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+        .radar-crit { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+        .radar-none { background: #e2e8f0; color: #475569; border-color: #cbd5e1; }
+
         .task-box { border-right: 5px solid var(--blue); position: relative; transition: all 0.2s; }
         .task-box.is-blocked { border-right-color: var(--red); background: #fffafa; }
-        .task-box.is-notstarted { border-right-color: #64748b; opacity: 0.85; }
+        .task-box.is-notstarted { border-right-color: #64748b; }
         .task-box.is-done { border-right-color: var(--primary); }
         .zone-pill { background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid #bae6fd; }
         
@@ -242,7 +251,8 @@
             <div class="card">
                 <div class="card-head">
                     <h3 class="card-title">👷 الحضور والكادر (القسم 2)</h3>
-                    <div style="display:flex;gap:4px;">
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                        <button class="btn btn-purple btn-sm" onclick="openPayrollModal()">💰 كشف المستحقات</button>
                         <button class="btn btn-outline btn-sm" onclick="copyYesterdayCrew()">📋 كادر الأمس</button>
                         <button class="btn btn-outline btn-sm" onclick="markAllPresent()">✓ الكل حاضر</button>
                     </div>
@@ -259,6 +269,9 @@
             
             <!-- In-Progress & Upcoming Queue -->
             <div id="tasksQueueContainer"></div>
+
+            <!-- Zone Thirst Radar -->
+            <div id="zoneRadarContainer"></div>
 
             <div class="grid-2" style="margin-bottom:8px;">
                 <button class="btn btn-blue" style="margin:0;" onclick="loadSiteIrrigationPlan()">⚡ خطة ري <span id="planDayLabel"></span></button>
@@ -445,7 +458,7 @@
                 </div>
             </div>
 
-            <button class="btn btn-green btn-full" style="padding:15px;font-size:15px;" onclick="runPreExportCheck()">🤖 تصدير ملف DFL خفيف + أمر Gemini المضبوط</button>
+            <button class="btn btn-green btn-full" style="padding:15px;font-size:15px;" onclick="runPreExportCheck()">🤖 تصدير ملف DFL خفيف + أمر Gemini الدقيق</button>
             <div class="grid-2" style="margin-bottom:8px;">
                 <button class="btn btn-blue" onclick="downloadTodayPhotosZip()">📦 تنزيل الصور (ZIP)</button>
                 <button class="btn btn-outline" onclick="openTodayPhotosGallery()">🖼️ معرض الصور (<span id="todayPhotoCount">0</span>)</button>
