@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V8.4</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V8.5</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -215,7 +215,7 @@
             <div class="header-tools">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V8.4 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V8.5 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -469,8 +469,11 @@
                 <button class="btn btn-outline" onclick="openTablePreviewModal()">👁️ معاينة الجدول</button>
             </div>
             <div class="grid-2">
+                <button class="btn btn-orange btn-full" style="margin-bottom:8px;" onclick="openDatabaseRecoveryModal()">🔄 استرجاع بيانات V7 / النسخ القديمة من المتصفح</button>
+            <div class="grid-2">
                 <button class="btn btn-purple" onclick="downloadFullBackup()">💾 نسخة احتياطية</button>
                 <button class="btn btn-outline" onclick="triggerBackupRestore()">📂 استيراد / دمج</button>
+            </div>
             </div>
         </div>
     </main>
@@ -716,11 +719,156 @@ function normalizeState() {
     });
 }
 
+function isStateEffectivelyEmpty(st) {
+    if (!st || !st.sites) return true;
+    const sitesArr = Object.values(st.sites);
+    if (!sitesArr.length) return true;
+    for (const s of sitesArr) {
+        if ((s.inventory && s.inventory.length > 0) || (s.issues && s.issues.length > 0)) return false;
+        const logKeys = Object.keys(s.logs || {});
+        if (logKeys.length > 1) return false;
+        for (const dl of Object.values(s.logs || {})) {
+            if ((dl.tasks && dl.tasks.length > 0) || (dl.tools && dl.tools.length > 0)) return false;
+            if ((dl.meters || []).some(m => m.curr !== '' && m.curr != null)) return false;
+        }
+    }
+    return true;
+}
+
+function scoreStateData(st) {
+    if (!st || !st.sites) return 0;
+    let score = 0;
+    Object.values(st.sites).forEach(s => {
+        score += (s.inventory || []).length * 20;
+        score += (s.issues || []).length * 10;
+        const logs = Object.values(s.logs || {});
+        score += logs.length * 15;
+        logs.forEach(dl => {
+            score += (dl.tasks || []).length * 3;
+            score += (dl.tools || []).length;
+        });
+    });
+    return score;
+}
+
+async function scanAllBrowserDatabases() {
+    const candidates = [];
+    const dbNames = new Set(['TFF_FOS_DB_V7', 'TFF_FOS_DB_V6', 'TFF_FOS_DB_V5', 'TFF_FOS_DB_V4', 'TFF_FOS_DB_V3', 'TFF_FOS_DB_V2', 'TFF_FOS_DB_V1', 'TFF_FOS_DB']);
+    try {
+        if (window.indexedDB && indexedDB.databases) {
+            const list = await indexedDB.databases();
+            list.forEach(d => { if (d && d.name && d.name !== DB_NAME) dbNames.add(d.name); });
+        }
+    } catch {}
+
+    for (const name of dbNames) {
+        try {
+            const res = await new Promise(r => {
+                let done = false;
+                const finish = v => { if (!done) { done = true; r(v); } };
+                setTimeout(() => finish(null), 900);
+                const req = indexedDB.open(name);
+                req.onupgradeneeded = () => {
+                    // DB didn't exist before; abort so we don't leave empty DBs
+                    try { req.transaction.abort(); } catch {}
+                    finish(null);
+                };
+                req.onsuccess = ev => {
+                    const odb = ev.target.result;
+                    const stores = Array.from(odb.objectStoreNames || []);
+                    if (!stores.length) { odb.close(); finish(null); return; }
+                    const stName = stores.includes(DB_STORE) ? DB_STORE : stores[0];
+                    try {
+                        const tx = odb.transaction(stName, 'readonly').objectStore(stName).get('root');
+                        tx.onsuccess = () => {
+                            const val = tx.result;
+                            odb.close();
+                            finish(val && val.sites ? val : null);
+                        };
+                        tx.onerror = () => { odb.close(); finish(null); };
+                    } catch { odb.close(); finish(null); }
+                };
+                req.onerror = () => finish(null);
+            });
+            if (res && res.sites) {
+                candidates.push({ source: 'IndexedDB: ' + name, data: res, score: scoreStateData(res) });
+            }
+        } catch {}
+    }
+
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (!k || k === DB_NAME) continue;
+            if (k.includes('TFF') || k.includes('FOS')) {
+                const parsed = JSON.parse(localStorage.getItem(k));
+                if (parsed && parsed.sites) {
+                    candidates.push({ source: 'LocalStorage: ' + k, data: parsed, score: scoreStateData(parsed) });
+                }
+            }
+        }
+    } catch {}
+
+    candidates.sort((a, b) => b.score - a.score);
+    return candidates;
+}
+
+async function openDatabaseRecoveryModal() {
+    showToast('🔍 جاري فحص ذاكرة المتصفح عن بيانات V7...');
+    const found = await scanAllBrowserDatabases();
+    if (!found.length) {
+        openModal(`
+            <h3 class="card-title">🔍 نتيجة فحص ذاكرة المتصفح</h3>
+            <p style="font-size:12.5px;color:var(--muted);line-height:1.6;">
+                لم يتم العثور على قواعد بيانات قديمة في هذا المتصفح/الرابط.<br><br>
+                <b>ملاحظة مهمة:</b> إذا كنت تفتح ملف <code>index.html</code> محلياً من الحاسوب (<code>file://</code>)، فلن تظهر بيانات موقع GitHub إلا بعد رفع الملف إلى GitHub وفتحه من رابط موقعك المعتاد.<br><br>
+                كما يمكنك استرجاع بياناتك من أي ملف نسخة احتياطية محفوظ لديك:
+            </p>
+            <button class="btn btn-green btn-full" onclick="closeModal();triggerBackupRestore()">📂 استيراد ملف نسخة احتياطية (.json)</button>
+            <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
+        `);
+        return;
+    }
+
+    window._recoveredCandidates = found;
+    openModal(`
+        <h3 class="card-title">✅ تم العثور على بياناتك القديمة (${found.length})</h3>
+        <p style="font-size:12px;color:var(--muted);">اختر النسخة التي تريد استرجاعها وتثبيتها في التطبيق:</p>
+        <div style="max-height:280px;overflow-y:auto;margin-bottom:10px;">
+            ${found.map((c, idx) => {
+                const sList = Object.values(c.data.sites || {});
+                const totalLogs = sList.reduce((sum, s) => sum + Object.keys(s.logs || {}).length, 0);
+                const totalInv = sList.reduce((sum, s) => sum + (s.inventory || []).length, 0);
+                return `
+                <div class="meter-card" style="padding:9px;display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                    <div>
+                        <b style="font-size:12px;color:var(--blue);">${esc(c.source)}</b>
+                        <div style="font-size:11px;color:var(--text);">الأيام المسجلة: <b>${totalLogs}</b> | مناطق الجرد: <b>${totalInv}</b></div>
+                    </div>
+                    <button class="btn btn-green btn-sm" onclick="applyRecoveredCandidate(${idx})">استرجاع</button>
+                </div>`;
+            }).join('')}
+        </div>
+        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
+    `);
+}
+
+function applyRecoveredCandidate(idx) {
+    const c = window._recoveredCandidates && window._recoveredCandidates[idx];
+    if (!c || !c.data) return;
+    state = c.data;
+    normalizeState();
+    saveState();
+    closeModal();
+    renderAll();
+    showToast('✅ تم استرجاع جميع بياناتك بنجاح!');
+}
+
 function initDB() {
     return new Promise(resolve => {
         let settled = false;
         const done = () => { if (!settled) { settled = true; resolve(); } };
-        setTimeout(done, 1200);
+        setTimeout(done, 1500);
         try {
             if (!window.indexedDB) {
                 const ls = localStorage.getItem(DB_NAME);
@@ -738,53 +886,41 @@ function initDB() {
                 await new Promise(r => {
                     try {
                         const tx = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get('root');
-                        tx.onsuccess = () => { if (tx.result && tx.result.sites) { state = tx.result; loaded = true; } r(); };
+                        tx.onsuccess = () => {
+                            if (tx.result && tx.result.sites && !isStateEffectivelyEmpty(tx.result)) {
+                                state = tx.result;
+                                loaded = true;
+                            }
+                            r();
+                        };
                         tx.onerror = () => r();
                     } catch { r(); }
                 });
                 if (!loaded) {
                     try {
                         const ls = localStorage.getItem(DB_NAME);
-                        if (ls) { const p = JSON.parse(ls); if (p && p.sites) { state = p; loaded = true; } }
+                        if (ls) {
+                            const p = JSON.parse(ls);
+                            if (p && p.sites && !isStateEffectivelyEmpty(p)) {
+                                state = p;
+                                loaded = true;
+                            }
+                        }
                     } catch {}
                 }
                 if (!loaded) {
-                    for (let i = 7; i >= 1; i--) {
-                        const oldDbName = 'TFF_FOS_DB_V' + i;
-                        try {
-                            const oldReq = indexedDB.open(oldDbName);
-                            const oldRes = await new Promise(r => {
-                                oldReq.onsuccess = ev => {
-                                    const odb = ev.target.result;
-                                    if (!odb.objectStoreNames.contains(DB_STORE)) { r(null); return; }
-                                    const otx = odb.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get('root');
-                                    otx.onsuccess = () => r(otx.result);
-                                    otx.onerror = () => r(null);
-                                };
-                                oldReq.onerror = () => r(null);
-                            });
-                            if (oldRes && oldRes.sites) {
-                                state = oldRes;
-                                saveState();
-                                break;
-                            }
-                        } catch {}
+                    const candidates = await scanAllBrowserDatabases();
+                    if (candidates.length > 0 && candidates[0].score > 0) {
+                        state = candidates[0].data;
+                        normalizeState();
+                        saveState();
+                        setTimeout(() => showToast('✅ تم استرجاع بياناتك السابقة تلقائياً!'), 500);
                     }
                 }
                 done();
             };
-            req.onerror = () => {
-                try {
-                    const ls = localStorage.getItem(DB_NAME);
-                    if (ls) { const p = JSON.parse(ls); if (p && p.sites) state = p; }
-                } catch {}
-                done();
-            };
+            req.onerror = () => done();
         } catch {
-            try {
-                const ls = localStorage.getItem(DB_NAME);
-                if (ls) { const p = JSON.parse(ls); if (p && p.sites) state = p; }
-            } catch {}
             done();
         }
     });
@@ -3743,6 +3879,7 @@ function openSettingsModal() {
             <textarea id="stSiteZones" class="inp auto-grow" rows="2">${esc(site.zones.join(', '))}</textarea>
             <button class="clr-btn top-align" onclick="quickClearField('stSiteZones')">✕</button>
         </div>
+        <button class="btn btn-orange btn-full" onclick="closeModal();openDatabaseRecoveryModal()">🔄 استرجاع بيانات V7 من ذاكرة الجهاز</button>
         <button class="btn btn-blue btn-full" onclick="openStaffPoolManager()">👷 إدارة القائمة الدائمة للكادر (${state.company.staffPool.length})</button>
         <button class="btn btn-outline btn-full" style="color:var(--red);" onclick="purgeOldPhotos()">🧹 تنظيف الصور الأقدم من 30 يوم</button>
         <div class="grid-2"><button class="btn btn-green" onclick="saveSettings()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إغلاق</button></div>
@@ -3818,7 +3955,6 @@ function bootApp() {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    bootApp();
     try {
         if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             const regs = await navigator.serviceWorker.getRegistrations();
