@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V9.2</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V9.3</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -216,7 +216,7 @@
             <div class="header-tools">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V9.2 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V9.3 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -934,7 +934,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V9.2: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V9.3: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -959,7 +959,7 @@ async function generateDirectExcelDFL() {
             log.perf.duration = (totalIrrMins / 60).toFixed(1);
         }
 
-        const { photos, taskPhotoRefs, taskPhotoLinks, meterPhotoRefs, meterPhotoLinks, sickPlants, activeIssues, issuePhotoRefs, issuePhotoLinks, driveFolderLink } = collectTodayPhotos();
+        const { photos, taskPhotoRefs, taskPhotoLinks, meterPhotoRefs, meterPhotoLinks, sickPlants, activeIssues, issuePhotoRefs, issuePhotoLinks, irPhotoRefs, irPhotoLinks, sdlPhotoRefs, sdlPhotoLinks, driveFolderLink } = collectTodayPhotos();
 
         const bin = atob(EMBEDDED_DFL_V04_B64);
         const buf = new Uint8Array(bin.length);
@@ -1285,20 +1285,42 @@ async function generateDirectExcelDFL() {
             }
         }
 
-        // 12. Section 7: Incidents & Issues (Rows 106+off .. 109+off)
+        // 12. Section 7: Incidents, SDLs & Issues (Rows 106+off .. 109+off)
+        const sec7Combined = [
+            ...(log.incidents || []).map((ir, idx) => ({
+                desc: `[${ir.zone}] ${ir.type}: ${ir.timeline || ir.action}`,
+                sev: ir.severity,
+                refCode: ir.code,
+                pRef: irPhotoRefs[idx] || '',
+                pLinks: irPhotoLinks[idx] || []
+            })),
+            ...(log.sdls || []).map((sd, idx) => ({
+                desc: `[${sd.zone}] ${sd.subject}`,
+                sev: sd.severity,
+                refCode: sd.code,
+                pRef: sdlPhotoRefs[idx] || '',
+                pLinks: sdlPhotoLinks[idx] || []
+            })),
+            ...activeIssues.map((iss, idx) => ({
+                desc: `[${iss.zone}] (${iss.status}): ${iss.desc}`,
+                sev: iss.severity,
+                refCode: iss.code,
+                pRef: issuePhotoRefs[idx] || '',
+                pLinks: issuePhotoLinks[idx] || []
+            }))
+        ];
         for (let i = 0; i < 4; i++) {
             const r = 106 + off + i;
-            const iss = activeIssues[i];
-            if (iss) {
+            const item = sec7Combined[i];
+            if (item) {
                 ws.getRow(r).hidden = false;
                 ws.getCell(`A${r}`).value = i + 1;
-                ws.getCell(`B${r}`).value = `[${iss.zone}] (${iss.status}): ${iss.desc}`;
-                ws.getCell(`F${r}`).value = iss.severity;
-                const iRef = issuePhotoRefs[i] || '';
-                const iLinks = (issuePhotoLinks[i] || []).filter(Boolean);
-                const labelTxt = iRef ? `${iss.code} (${iRef})` : iss.code;
-                if (iLinks.length > 0) {
-                    ws.getCell(`G${r}`).value = { text: labelTxt, hyperlink: iLinks[0] };
+                ws.getCell(`B${r}`).value = item.desc;
+                ws.getCell(`F${r}`).value = item.sev;
+                const validL = (item.pLinks || []).filter(Boolean);
+                const labelTxt = item.pRef ? `${item.refCode} (${item.pRef})` : item.refCode;
+                if (validL.length > 0) {
+                    ws.getCell(`G${r}`).value = { text: labelTxt, hyperlink: validL[0] };
                     ws.getCell(`G${r}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
                 } else {
                     ws.getCell(`G${r}`).value = labelTxt;
@@ -1373,27 +1395,58 @@ async function generateDirectExcelDFL() {
 
         ws.pageSetup.printArea = `A1:L${140 + pOff}`;
 
-        // 16. Fill Incident Report & Site Deviation Log sheets if present
+        // 16. Fill Incident Report & Site Deviation Log sheets completely
         if (log.incidents && log.incidents.length > 0) {
             const irWs = wb.getWorksheet('Incident Report');
             const ir = log.incidents[0];
             if (irWs && ir) {
-                irWs.getCell('F5').value = ir.code;
+                irWs.getCell('G5').value = ir.code;
                 irWs.getCell('D6').value = 'The Food Forests (TFF)';
                 irWs.getCell('G6').value = site.name;
                 irWs.getCell('D7').value = state.activeDate;
                 irWs.getCell('G7').value = ir.time;
                 irWs.getCell('D8').value = state.company.teamLead;
+                irWs.getCell('G8').value = 'Team Lead  /  قائد الفريق';
                 irWs.getCell('D9').value = `DFL-${log.dflNum}`;
                 irWs.getCell('G9').value = state.activeDate;
                 irWs.getCell('D12').value = ir.severity;
+                irWs.getCell('H12').value = ir.severity.includes('Major') || ir.severity.includes('Critical') ? 'Consultant + GM' : (ir.severity.includes('Moderate') ? 'Supervisor' : 'Team Lead');
+                irWs.getCell('D16').value = site.name;
                 irWs.getCell('G16').value = ir.zone;
                 irWs.getCell('D19').value = ir.type;
-                irWs.getCell('C23').value = ir.persons;
+                irWs.getCell('C23').value = ir.persons || '-';
+                irWs.getCell('G23').value = ir.impact || '-';
                 irWs.getCell('C31').value = ir.time;
                 irWs.getCell('D31').value = ir.timeline;
                 irWs.getCell('B39').value = ir.action;
                 irWs.getCell('D45').value = ir.medical;
+                if (ir.hospital) irWs.getCell('G46').value = ir.hospital;
+                if (ir.witnesses) irWs.getCell('C51').value = ir.witnesses;
+                const irNames = (irPhotoRefs[0] || '').split(' / ').filter(Boolean);
+                const irLinks = (irPhotoLinks[0] || []).filter(Boolean);
+                irNames.slice(0, 5).forEach((fn, pIdx) => {
+                    const prRow = 72 + pIdx;
+                    if (irLinks[pIdx]) {
+                        irWs.getCell(`C${prRow}`).value = { text: fn, hyperlink: irLinks[pIdx] };
+                        irWs.getCell(`C${prRow}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                        irWs.getCell(`G${prRow}`).value = `${ir.type} (${ir.zone}) — ${irLinks[pIdx]}`;
+                    } else {
+                        irWs.getCell(`C${prRow}`).value = fn;
+                        irWs.getCell(`G${prRow}`).value = `${ir.type} (${ir.zone})`;
+                    }
+                    irWs.getCell(`F${prRow}`).value = 'Photo / صورة';
+                });
+                irWs.getCell('C80').value = ir.correctiveAction || ir.action;
+                irWs.getCell('E80').value = state.company.teamLead;
+                irWs.getCell('F80').value = state.activeDate;
+                irWs.getCell('G80').value = 'Pending / معلق';
+                irWs.getCell('B88').value = state.company.supervisor || 'Maitham Ibrahim';
+                irWs.getCell('D88').value = 'Supervisor / المشرف';
+                irWs.getCell('F88').value = `${state.activeDate} ${ir.time}`;
+                irWs.getCell('H88').value = 'Yes / نعم';
+                irWs.getCell('B95').value = ir.obs || ir.timeline;
+                irWs.getCell('B97').value = ir.ana || '';
+                irWs.getCell('B99').value = ir.rec || ir.correctiveAction || '';
                 irWs.getCell('B104').value = `Name  /  الاسم: ${state.company.teamLead}`;
                 irWs.getCell('B106').value = `Date  /  التاريخ: ${state.activeDate}`;
             }
@@ -1403,11 +1456,13 @@ async function generateDirectExcelDFL() {
             const sdlWs = wb.getWorksheet('Site Deviation Log');
             const sd = log.sdls[0];
             if (sdlWs && sd) {
-                sdlWs.getCell('F5').value = sd.code;
+                sdlWs.getCell('G5').value = sd.code;
                 sdlWs.getCell('D6').value = 'The Food Forests (TFF)';
                 sdlWs.getCell('G6').value = site.name;
                 sdlWs.getCell('D7').value = state.activeDate;
+                sdlWs.getCell('G7').value = sd.time || '08:00';
                 sdlWs.getCell('D8').value = state.company.teamLead;
+                sdlWs.getCell('G8').value = 'Team Lead  /  قائد الفريق';
                 sdlWs.getCell('G9').value = state.company.supervisor || 'Maitham Ibrahim';
                 sdlWs.getCell('D11').value = 'Open / مفتوح';
                 sdlWs.getCell('G11').value = sd.severity;
@@ -1415,9 +1470,24 @@ async function generateDirectExcelDFL() {
                 sdlWs.getCell('D16').value = sd.zone;
                 sdlWs.getCell('D17').value = sd.type;
                 sdlWs.getCell('D18').value = sd.party;
+                if (sd.authority) sdlWs.getCell('D19').value = sd.authority;
                 sdlWs.getCell('B31').value = sd.obs;
                 sdlWs.getCell('B33').value = sd.ana;
                 sdlWs.getCell('B35').value = sd.rec;
+                const sdNames = (sdlPhotoRefs[0] || '').split(' / ').filter(Boolean);
+                const sdLinks = (sdlPhotoLinks[0] || []).filter(Boolean);
+                sdNames.slice(0, 6).forEach((fn, pIdx) => {
+                    const prRow = 38 + pIdx;
+                    if (sdLinks[pIdx]) {
+                        sdlWs.getCell(`C${prRow}`).value = { text: fn, hyperlink: sdLinks[pIdx] };
+                        sdlWs.getCell(`C${prRow}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                        sdlWs.getCell(`G${prRow}`).value = `${sd.subject} (${sd.zone}) — ${sdLinks[pIdx]}`;
+                    } else {
+                        sdlWs.getCell(`C${prRow}`).value = fn;
+                        sdlWs.getCell(`G${prRow}`).value = `${sd.subject} (${sd.zone})`;
+                    }
+                    sdlWs.getCell(`F${prRow}`).value = 'Photo / صورة';
+                });
             }
         }
 
@@ -3997,8 +4067,28 @@ function renderExportAndIssues(site, log) {
         }).join('');
 
     const irSdlItems = [
-        ...log.incidents.map((ir, i) => `<div class="meter-card faulty"><b>🚨 ${esc(ir.code)} (${esc(ir.severity)}) — 📍 ${esc(ir.zone)}</b><div style="font-size:12px;">${esc(ir.type)}: ${esc(ir.action)}</div><button class="btn btn-outline btn-sm" style="color:var(--red);margin-top:4px;" onclick="deleteIncident(${i})">حذف</button></div>`),
-        ...log.sdls.map((sd, i) => `<div class="meter-card"><b>📑 ${esc(sd.code)} (${esc(sd.severity)}) — 📍 ${esc(sd.zone)}</b><div style="font-size:12px;">${esc(sd.subject)}</div><button class="btn btn-outline btn-sm" style="color:var(--red);margin-top:4px;" onclick="deleteSdl(${i})">حذف</button></div>`)
+        ...log.incidents.map((ir, i) => {
+            const pArr = ensurePhotosArr(ir);
+            return `<div class="meter-card faulty">
+                <b>🚨 ${esc(ir.code)} (${esc(ir.severity)}) — 📍 ${esc(ir.zone)} (${esc(ir.time || '')})</b>
+                <div style="font-size:12px;margin:4px 0;">${esc(ir.type)}: ${esc(ir.timeline || ir.action)}</div>
+                <div style="display:flex;gap:5px;margin-top:4px;">
+                    <button class="btn btn-outline btn-sm" onclick="openPhotoSourceChoice('ir', ${i})">📸 +صورة (${pArr.length})</button>
+                    <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteIncident(${i})">حذف</button>
+                </div>
+            </div>`;
+        }),
+        ...log.sdls.map((sd, i) => {
+            const pArr = ensurePhotosArr(sd);
+            return `<div class="meter-card">
+                <b>📑 ${esc(sd.code)} (${esc(sd.severity)}) — 📍 ${esc(sd.zone)}</b>
+                <div style="font-size:12px;margin:4px 0;">${esc(sd.subject)}</div>
+                <div style="display:flex;gap:5px;margin-top:4px;">
+                    <button class="btn btn-outline btn-sm" onclick="openPhotoSourceChoice('sdl', ${i})">📸 +صورة (${pArr.length})</button>
+                    <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteSdl(${i})">حذف</button>
+                </div>
+            </div>`;
+        })
     ];
     document.getElementById('irSdlContainer').innerHTML = irSdlItems.length
         ? irSdlItems.join('')
@@ -4043,28 +4133,47 @@ function deleteIssue(idx) { pushUndo('حذف مشكلة'); getSite().issues.spli
 
 function openIncidentModal() {
     tempModalPhotos = [];
+    const now = new Date();
+    const nowHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     openModal(`
         <h3 class="card-title">🚨 نموذج تقرير حادث (Incident Report)</h3>
         <div class="grid-2">
-            <div><label class="lbl">وقت الحادث:</label><input type="time" id="irTime" class="inp" value="10:30"></div>
-            <div><label class="lbl">الموقع / المنطقة:</label><input id="irZone" list="globalZonesList" class="inp" placeholder="B1"></div>
+            <div><label class="lbl">وقت الحادث:</label><input type="time" id="irTime" class="inp" value="${nowHHMM}"></div>
+            <div><label class="lbl">الموقع المحدد / المنطقة:</label><input id="irZone" list="globalZonesList" class="inp" placeholder="مثلاً: B1"></div>
         </div>
         <div class="grid-2">
             <div><label class="lbl">نوع الحادث:</label><input id="irType" class="inp" placeholder="كسر أنبوب / إصابة"></div>
-            <div><label class="lbl">الخطورة:</label><select id="irSev" class="inp"><option value="Minor / طفيف">Minor / طفيف</option><option value="Moderate / متوسط">Moderate / متوسط</option><option value="Major / كبير">Major / كبير</option><option value="Critical / حرج">Critical / حرج</option></select></div>
+            <div><label class="lbl">الخطورة:</label><select id="irSev" class="inp"><option value="Minor / طفيف">Minor / طفيف</option><option value="Moderate / متوسط" selected>Moderate / متوسط</option><option value="Major / كبير">Major / كبير</option><option value="Critical / حرج">Critical / حرج</option></select></div>
         </div>
-        <label class="lbl">الأشخاص المتورطون:</label><input id="irPersons" class="inp">
-        <label class="lbl">ماذا حدث (التسلسل):</label><textarea id="irTimeline" class="inp auto-grow" rows="2"></textarea>
-        <label class="lbl">الإجراء الفوري المتخذ:</label><textarea id="irAction" class="inp auto-grow" rows="2"></textarea>
+        <div style="margin-bottom:6px;">
+            <span class="chip" onclick="document.getElementById('irType').value='كسر أنبوب رئيسي / Main Pipe Break'">🔧 كسر أنبوب</span>
+            <span class="chip" onclick="document.getElementById('irType').value='إصابة عمل / Work Injury'">🩹 إصابة عمل</span>
+            <span class="chip" onclick="document.getElementById('irType').value='عطل معدة / Equipment Failure'">⚙️ عطل معدة</span>
+            <span class="chip" onclick="document.getElementById('irType').value='تسرب وقود أو مواد / Spill'">🛢️ تسرب مواد</span>
+        </div>
+        <div class="grid-2">
+            <div><label class="lbl">الأشخاص المتورطون:</label><input id="irPersons" class="inp" placeholder="الاسم الكامل..."></div>
+            <div><label class="lbl">الإصابة / التأثير:</label><input id="irImpact" class="inp" placeholder="لا توجد إصابة / طفيفة..."></div>
+        </div>
+        <label class="lbl">ماذا حدث (التسلسل الزمني):</label><textarea id="irTimeline" class="inp auto-grow" rows="2" placeholder="اشرح تسلسل ما حدث بالضبط..."></textarea>
+        <label class="lbl">الإجراء الفوري المتخذ:</label><textarea id="irAction" class="inp auto-grow" rows="2" placeholder="الإجراء المباشر للسيطرة على الحادث..."></textarea>
         <div class="grid-2">
             <div><label class="lbl">رعاية طبية؟</label><select id="irMed" class="inp"><option value="No / لا">No / لا</option><option value="Yes / نعم">Yes / نعم</option></select></div>
-            <div style="padding-top:16px;display:flex;gap:4px;">
-                <button class="btn btn-blue btn-sm" style="flex:1;" onclick="triggerInlineModalPhoto('camFileInput')">📸 كاميرا</button>
-                <button class="btn btn-green btn-sm" style="flex:1;" onclick="triggerInlineModalPhoto('galFileInput')">🖼️ استوديو</button>
-            </div>
+            <div><label class="lbl">جهة العلاج / المستشفى:</label><input id="irHospital" class="inp" placeholder="إن وُجدت..."></div>
+        </div>
+        <div class="grid-2">
+            <div><label class="lbl">الشهود (إن وجدوا):</label><input id="irWitnesses" class="inp" placeholder="أسماء الشهود..."></div>
+            <div><label class="lbl">الإجراء التصحيحي لمنع التكرار:</label><input id="irCorrective" class="inp" placeholder="مثلاً: استبدال القفل..."></div>
+        </div>
+        <label class="lbl">الملاحظة (OBS — يولّد تلقائياً إن تُرك فارغاً):</label><textarea id="irObs" class="inp auto-grow" rows="2" placeholder="حقائق الحادث..."></textarea>
+        <label class="lbl">التحليل (ANA):</label><textarea id="irAna" class="inp auto-grow" rows="2" placeholder="السبب الجذري للحادث..."></textarea>
+        <label class="lbl">التوصية (REC):</label><textarea id="irRec" class="inp auto-grow" rows="2" placeholder="التوصية لمنع التكرار..."></textarea>
+        <div class="grid-2" style="margin-bottom:6px;">
+            <button class="btn btn-blue btn-sm" onclick="triggerInlineModalPhoto('camFileInput')">📸 كاميرا</button>
+            <button class="btn btn-green btn-sm" onclick="triggerInlineModalPhoto('galFileInput')">🖼️ استوديو</button>
         </div>
         <div id="inlineModalPhotoStrip" class="photo-strip" style="margin-bottom:8px;"></div>
-        <div class="grid-2"><button class="btn btn-orange" onclick="saveIncident()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
+        <div class="grid-2"><button class="btn btn-orange" onclick="saveIncident()">حفظ تقرير الحادث</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
     `);
 }
 function saveIncident() {
@@ -4072,29 +4181,56 @@ function saveIncident() {
     const log = getDayLog();
     const code = 'IR-' + String(log.incidents.length + 1).padStart(3, '0');
     const zone = document.getElementById('irZone').value.trim() || 'General';
+    const irType = document.getElementById('irType').value.trim() || 'Site Incident';
+    const timeline = document.getElementById('irTimeline').value.trim();
+    const action = document.getElementById('irAction').value.trim();
+    const corrective = document.getElementById('irCorrective').value.trim();
+    const obs = document.getElementById('irObs').value.trim() || `${irType} في منطقة ${zone} الساعة ${document.getElementById('irTime').value}: ${timeline}`;
+    const ana = document.getElementById('irAna').value.trim() || `تعود أسباب الحادث (${irType}) إلى الظروف التشغيلية الميدانية في موقع ${zone}.`;
+    const rec = document.getElementById('irRec').value.trim() || corrective || action || 'المتابعة الفنية والفحص الدوري لمنع التكرار.';
+
     log.incidents.push({
-        code, time: document.getElementById('irTime').value, zone,
-        type: document.getElementById('irType').value.trim(), severity: document.getElementById('irSev').value,
-        persons: document.getElementById('irPersons').value.trim(), timeline: document.getElementById('irTimeline').value.trim(),
-        action: document.getElementById('irAction').value.trim(), medical: document.getElementById('irMed').value, photos: [...tempModalPhotos]
+        code,
+        time: document.getElementById('irTime').value,
+        zone,
+        type: irType,
+        severity: document.getElementById('irSev').value,
+        persons: document.getElementById('irPersons').value.trim(),
+        impact: document.getElementById('irImpact').value.trim(),
+        timeline,
+        action,
+        medical: document.getElementById('irMed').value,
+        hospital: document.getElementById('irHospital').value.trim(),
+        witnesses: document.getElementById('irWitnesses').value.trim(),
+        correctiveAction: corrective || action,
+        obs,
+        ana,
+        rec,
+        photos: [...tempModalPhotos]
     });
-    logSectionHistory('issues', 'ir', `تقرير حادث ${code} [${zone}]`, {});
-    tempModalPhotos = []; closeModal(); saveState(); renderExportAndIssues(getSite(), log); showToast('🚨 تم حفظ تقرير الحادث ' + code);
+    logSectionHistory('issues', 'ir', `تقرير حادث ${code} [${zone}]: ${irType}`, {});
+    tempModalPhotos = []; closeModal(); saveState(); renderExportAndIssues(getSite(), log); showToast('🚨 تم حفظ تقرير الحادث ' + code + ' وسيُعبأ في ورقته المخصصة');
 }
 function deleteIncident(i) { pushUndo('حذف تقرير حادث'); getDayLog().incidents.splice(i, 1); saveState(); renderExportAndIssues(getSite(), getDayLog()); }
 
 function openSdlModal() {
     tempModalPhotos = [];
+    const now = new Date();
+    const nowHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     openModal(`
         <h3 class="card-title">📑 سجل انحراف موقع (Site Deviation Log)</h3>
         <label class="lbl">موضوع الانحراف:</label><input id="sdlSub" class="inp" placeholder="مثلاً: أعمال حفر المقاول">
         <div class="grid-2">
             <div><label class="lbl">المنطقة:</label><input id="sdlZone" list="globalZonesList" class="inp"></div>
-            <div><label class="lbl">الخطورة:</label><select id="sdlSev" class="inp"><option value="Moderate / متوسط">Moderate / متوسط</option><option value="Major / كبير">Major / كبير</option><option value="Critical / حرج">Critical / حرج</option><option value="Minor / طفيف">Minor / طفيف</option></select></div>
+            <div><label class="lbl">الوقت:</label><input type="time" id="sdlTime" class="inp" value="${nowHHMM}"></div>
         </div>
         <div class="grid-2">
-            <div><label class="lbl">نوع الانحراف:</label><input id="sdlType" class="inp"></div>
-            <div><label class="lbl">الطرف المسؤول:</label><input id="sdlParty" class="inp"></div>
+            <div><label class="lbl">الخطورة:</label><select id="sdlSev" class="inp"><option value="Moderate / متوسط">Moderate / متوسط</option><option value="Major / كبير">Major / كبير</option><option value="Critical / حرج">Critical / حرج</option><option value="Minor / طفيف">Minor / طفيف</option></select></div>
+            <div><label class="lbl">نوع الانحراف:</label><input id="sdlType" class="inp" placeholder="تجاوز / تأخير / تنفيذ"></div>
+        </div>
+        <div class="grid-2">
+            <div><label class="lbl">الطرف المسؤول:</label><input id="sdlParty" class="inp" placeholder="المقاول / الجهة"></div>
+            <div><label class="lbl">الصلاحية المنتهكة:</label><input id="sdlAuth" class="inp" placeholder="اختياري..."></div>
         </div>
         <label class="lbl">الملاحظة (OBS):</label><textarea id="sdlObs" class="inp auto-grow" rows="2"></textarea>
         <label class="lbl">التحليل (ANA):</label><textarea id="sdlAna" class="inp auto-grow" rows="2"></textarea>
@@ -4113,10 +4249,18 @@ function saveSdl() {
     const code = 'SDL-' + String(log.sdls.length + 1).padStart(3, '0');
     const zone = document.getElementById('sdlZone').value.trim() || 'General';
     log.sdls.push({
-        code, subject: document.getElementById('sdlSub').value.trim(), zone,
-        severity: document.getElementById('sdlSev').value, type: document.getElementById('sdlType').value.trim(),
-        party: document.getElementById('sdlParty').value.trim(), obs: document.getElementById('sdlObs').value.trim(),
-        ana: document.getElementById('sdlAna').value.trim(), rec: document.getElementById('sdlRec').value.trim(), photos: [...tempModalPhotos]
+        code,
+        subject: document.getElementById('sdlSub').value.trim(),
+        zone,
+        time: document.getElementById('sdlTime').value,
+        severity: document.getElementById('sdlSev').value,
+        type: document.getElementById('sdlType').value.trim(),
+        party: document.getElementById('sdlParty').value.trim(),
+        authority: document.getElementById('sdlAuth').value.trim(),
+        obs: document.getElementById('sdlObs').value.trim(),
+        ana: document.getElementById('sdlAna').value.trim(),
+        rec: document.getElementById('sdlRec').value.trim(),
+        photos: [...tempModalPhotos]
     });
     logSectionHistory('issues', 'sdl', `سجل انحراف ${code} [${zone}]`, {});
     tempModalPhotos = []; closeModal(); saveState(); renderExportAndIssues(getSite(), log); showToast('📑 تم حفظ سجل الانحراف ' + code);
@@ -4303,8 +4447,21 @@ function collectTodayPhotos() {
         issuePhotoLinks.push(r.linksArr);
     });
 
-    log.incidents.forEach(ir => regArr(ensurePhotosArr(ir), 'Incident Report', `${ir.code} - ${ir.zone}`));
-    log.sdls.forEach(sd => regArr(ensurePhotosArr(sd), 'Site Deviation Log', `${sd.code} - ${sd.zone}`));
+    const irPhotoRefs = [];
+    const irPhotoLinks = [];
+    log.incidents.forEach(ir => {
+        const r = regArr(ensurePhotosArr(ir), 'Incident Report', `${ir.code} - ${ir.zone}`);
+        irPhotoRefs.push(r.refStr);
+        irPhotoLinks.push(r.linksArr);
+    });
+
+    const sdlPhotoRefs = [];
+    const sdlPhotoLinks = [];
+    log.sdls.forEach(sd => {
+        const r = regArr(ensurePhotosArr(sd), 'Site Deviation Log', `${sd.code} - ${sd.zone}`);
+        sdlPhotoRefs.push(r.refStr);
+        sdlPhotoLinks.push(r.linksArr);
+    });
 
     return {
         photos,
@@ -4312,6 +4469,8 @@ function collectTodayPhotos() {
         meterPhotoRefs, meterPhotoLinks,
         sickPlants,
         activeIssues, issuePhotoRefs, issuePhotoLinks,
+        irPhotoRefs, irPhotoLinks,
+        sdlPhotoRefs, sdlPhotoLinks,
         driveFolderLink: log.driveFolderLink || ''
     };
 }
@@ -4486,7 +4645,7 @@ async function exportLightweightDFL() {
         log.perf.duration = (autoIrrMins / 60).toFixed(1);
     }
 
-    const { photos, taskPhotoRefs, taskPhotoLinks, meterPhotoRefs, meterPhotoLinks, sickPlants, activeIssues, issuePhotoRefs, issuePhotoLinks, driveFolderLink } = collectTodayPhotos();
+    const { photos, taskPhotoRefs, taskPhotoLinks, meterPhotoRefs, meterPhotoLinks, sickPlants, activeIssues, issuePhotoRefs, issuePhotoLinks, irPhotoRefs, irPhotoLinks, sdlPhotoRefs, sdlPhotoLinks, driveFolderLink } = collectTodayPhotos();
     const rowOffset = Math.max(0, log.attendance.length - 5);
     const presentCount = log.attendance.filter(w => !w.status.includes('Absent')).length;
 
@@ -4580,13 +4739,29 @@ async function exportLightweightDFL() {
             barGauges5D: log.gauges
         },
         section6_plantsHealth: sickPlants,
-        section7_incidentsAndIssues: activeIssues.map((iss, idx) => ({
-            code: iss.code,
-            description: `${iss.code} [${iss.zone}] (${iss.status}): ${iss.desc}`,
-            severity: iss.severity,
-            imageRef: issuePhotoRefs[idx] || '',
-            driveLinks: (issuePhotoLinks[idx] || []).filter(Boolean)
-        })),
+        section7_incidentsAndIssues: [
+            ...(log.incidents || []).map((ir, idx) => ({
+                code: ir.code,
+                description: `[${ir.zone}] ${ir.type}: ${ir.timeline || ir.action}`,
+                severity: ir.severity,
+                imageRef: irPhotoRefs[idx] || '',
+                driveLinks: (irPhotoLinks[idx] || []).filter(Boolean)
+            })),
+            ...(log.sdls || []).map((sd, idx) => ({
+                code: sd.code,
+                description: `[${sd.zone}] ${sd.subject}`,
+                severity: sd.severity,
+                imageRef: sdlPhotoRefs[idx] || '',
+                driveLinks: (sdlPhotoLinks[idx] || []).filter(Boolean)
+            })),
+            ...activeIssues.map((iss, idx) => ({
+                code: iss.code,
+                description: `[${iss.zone}] (${iss.status}): ${iss.desc}`,
+                severity: iss.severity,
+                imageRef: issuePhotoRefs[idx] || '',
+                driveLinks: (issuePhotoLinks[idx] || []).filter(Boolean)
+            }))
+        ],
         section8_photoReferences: photos.map((p, i) => ({
             seq: i + 1,
             fileName: p.fileName,
@@ -4604,8 +4779,16 @@ async function exportLightweightDFL() {
             E_signature: 'Signature  /  التوقيع: ',
             H_dateTime: `Date & Time  /  التاريخ والوقت: ${state.activeDate}`
         },
-        incidentReportsSheet: log.incidents.map(({ photos: _p, ...r }) => r),
-        siteDeviationLogSheet: log.sdls.map(({ photos: _p, ...r }) => r)
+        incidentReportsSheet: log.incidents.map(({ photos: _p, ...r }, idx) => ({
+            ...r,
+            imageRef: irPhotoRefs[idx] || '',
+            driveLinks: (irPhotoLinks[idx] || []).filter(Boolean)
+        })),
+        siteDeviationLogSheet: log.sdls.map(({ photos: _p, ...r }, idx) => ({
+            ...r,
+            imageRef: sdlPhotoRefs[idx] || '',
+            driveLinks: (sdlPhotoLinks[idx] || []).filter(Boolean)
+        }))
     };
 
     const jsonFname = `TFF_Light_DFL${log.dflNum}_${state.activeDate}.json`;
@@ -4670,14 +4853,42 @@ async function exportLightweightDFL() {
   * إذا كان عدد الصور في section8_photoReferences أكثر من 6 (extraPhotoRows = ${extraPhotoRows})، أدرج ${extraPhotoRows} صفوف عند الصف ${119 + rowOffset} مع نسخ التنسيق والدمج (B:D, E:G, H:K) من صف ${118 + rowOffset} وإزاحة القسمين 9 و 10 بمقدار ${extraPhotoRows}.
   * املأ كل صورة في صفها: **A** = التسلسل، **B:D** = اسم الملف (fileName، واجعله Hyperlink قابل للنقر إذا وُجد driveLink)، **E:G** = القسم (section)، **H:K** = الوصف (description) متبوعاً برابط Google Drive الكامل ('description — driveLink') إذا وُجد حتى يظهر الرابط بوضوح تام. أخفِ الصفوف الفارغة منها فقط.
 
-### القاعدة 7: القسم 9 (OAR) والقسم 10 (Sign-off) + أوراق IR/SDL + منطقة الطباعة
+### القاعدة 7: القسم 9 (OAR) والقسم 10 (Sign-off) + منطقة الطباعة لورقة 'Daily Field Log'
 - **القسم 9 (OAR):** اكتب OBS في **A${123 + pOff}**، ANA في **A${125 + pOff}**، REC في **A${127 + pOff}**.
 - **القسم 10 (Sign-off — صف ${131 + pOff}):**
   * اكتب اسم قائد الفريق في **A${131 + pOff}** (مدمجة A:D).
   * أبقِ خانة التوقيع في **E${131 + pOff}** (مدمجة E:G).
   * اكتب التاريخ والوقت في **H${131 + pOff}** (مدمجة H:K).
 - اضبط منطقة الطباعة: ws.print_area = 'A1:L${140 + pOff}'.
-- إذا وجدت بيانات في incidentReportsSheet أو siteDeviationLogSheet فاملأ أوراقها المخصصة في نفس الملف بنفس ألوانها الأصلية.
+
+### القاعدة 8: تعبئة ورقة 'Incident Report' بالكامل (إذا كانت incidentReportsSheet غير فارغة — عدد التقارير: ${log.incidents.length})
+- **مهم جداً:** يجب تعبئة ورقة **'Incident Report'** في نفس ملف الإكسيل (وإذا كان هناك أكثر من تقرير حادث، انسخ ورقة 'Incident Report' عبر wb.copy_worksheet لكل تقرير إضافي):
+  * **G5** (مدمجة G5:H5): رقم الحادث (code مثل 'IR-001')
+  * **D6**: 'The Food Forests (TFF)' | **G6** (مدمجة G6:H6): "${site.name}"
+  * **D7**: "${state.activeDate}" | **G7** (مدمجة G7:H7): وقت الحادث (time)
+  * **D8**: "${state.company.teamLead}" | **G8** (مدمجة G8:H8): 'Team Lead  /  قائد الفريق'
+  * **D9**: 'DFL-${log.dflNum}' | **G9** (مدمجة G9:H9): "${state.activeDate}"
+  * **D12**: مستوى الخطورة (severity) | **H12**: جهة التصعيد ('Team Lead' أو 'Supervisor' أو 'Consultant + GM')
+  * **D16** (مدمجة D16:E16): "${site.name}" | **G16** (مدمجة G16:H16): الموقع المحدد (zone)
+  * **D19** (مدمجة D19:H19): نوع الحادث (type)
+  * **C23** (مدمجة C23:D23): الأشخاص المتورطون (persons) | **G23** (مدمجة G23:H23): الإصابة / التأثير (impact)
+  * **C31**: وقت الحادث (time) | **D31** (مدمجة D31:H31): ماذا حدث / التسلسل (timeline)
+  * **B39** (مدمجة B39:H39): الإجراء الفوري المتخذ (action)
+  * **D45**: رعاية طبية؟ (medical) | **G46** (مدمجة G46:H46): المستشفى / العلاج (hospital)
+  * **C51** (مدمجة C51:D51): الشهود (witnesses)
+  * **صفوف 72..76 (9. PHOTOS & EVIDENCE):** اكتب أسماء صور الحادث في **C72:E72** (مع Hyperlink إذا وُجد driveLinks)، والنوع 'Photo / صورة' في **F72**، والوصف + رابط Drive في **G72:H72**.
+  * **C80** (مدمجة C80:D80): الإجراء التصحيحي (correctiveAction) | **E80**: "${state.company.teamLead}" | **F80**: "${state.activeDate}" | **G80**: 'Pending / معلق'
+  * **B88** (مدمجة B88:C88): "${state.company.supervisor || 'Maitham Ibrahim'}" | **D88** (مدمجة D88:E88): 'Supervisor / المشرف' | **F88** (مدمجة F88:G88): تاريخ ووقت الإبلاغ | **H88**: 'Yes / نعم'
+  * **B95** (مدمجة B95:H95): الملاحظة (obs) | **B97** (مدمجة B97:H97): التحليل (ana) | **B99** (مدمجة B99:H99): التوصية (rec)
+  * **B104** (مدمجة B104:C104): 'Name  /  الاسم: ${state.company.teamLead}' | **B106** (مدمجة B106:C106): 'Date  /  التاريخ: ${state.activeDate}'
+
+### القاعدة 9: تعبئة ورقة 'Site Deviation Log' بالكامل (إذا كانت siteDeviationLogSheet غير فارغة — عدد السجلات: ${log.sdls.length})
+- املأ ورقة **'Site Deviation Log'** في نفس الملف:
+  * **G5**: رقم السجل (code) | **D6**: 'The Food Forests (TFF)' | **G6**: "${site.name}" | **D7**: "${state.activeDate}" | **G7**: وقت الرفع (time) | **D8**: "${state.company.teamLead}" | **G8**: 'Team Lead  /  قائد الفريق' | **G9**: "${state.company.supervisor || 'Maitham Ibrahim'}"
+  * **D11**: 'Open / مفتوح' | **G11**: الخطورة (severity)
+  * **D15**: الموضوع (subject) | **D16**: المنطقة (zone) | **D17**: نوع الانحراف (type) | **D18**: الطرف المسؤول (party) | **D19**: الصلاحية المنتهكة (authority)
+  * **B31**: الملاحظة (obs) | **B33**: التحليل (ana) | **B35**: التوصية (rec)
+  * **صفوف 38..43**: صور وأدلة الانحراف في **C38:E38** (مع Hyperlink لـ driveLinks) و**F38** ('Photo / صورة') و**G38:H38** (الوصف + رابط Drive).
 
 احفظ الملف بصيغة .xlsx وقدّم رابط التحميل مباشرة.`;
 
@@ -4806,6 +5017,10 @@ async function onPhotoSelected(e) {
     } else if (type === 'issue') {
         ensurePhotosArr(getSite().issues[ctx]).push(...stampedUrls);
         logSectionHistory('issues', 'photo', `صورة مشكلة: ${getSite().issues[ctx].code}`, { issueId: getSite().issues[ctx].id });
+    } else if (type === 'ir') {
+        ensurePhotosArr(log.incidents[ctx]).push(...stampedUrls);
+    } else if (type === 'sdl') {
+        ensurePhotosArr(log.sdls[ctx]).push(...stampedUrls);
     } else if (type === 'plant') {
         const z = getSite().inventory.find(x => x.id === activeInvZoneId);
         const p = z ? z.plants[ctx.pIdx] : null;
@@ -4996,7 +5211,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V9.2 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V9.3 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
