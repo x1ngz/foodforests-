@@ -512,8 +512,7 @@ function refreshPayrollTable() {
     const waText = `💰 كشف حضور ومستحقات (${site.name.split('/')[0].trim()})
 الفترة: ${fromD} إلى ${toD}
 ` +
-        lines.map(r => `• ${r.name.split('/')[1] || r.name}: ${r.days} يوم | OT: ${r.ot}h` + (r.isOut ? ` | المستحق: ${r.pay.toLocaleString()} IQD` : ' (موظف)')).join('
-') +
+        lines.map(r => `• ${r.name.split('/')[1] || r.name}: ${r.days} يوم | OT: ${r.ot}h` + (r.isOut ? ` | المستحق: ${r.pay.toLocaleString()} IQD` : ' (موظف)')).join('\n') +
         `
 
 الإجمالي للعمالة الخارجية: ${totalOutsideIQD.toLocaleString()} IQD`;
@@ -555,12 +554,10 @@ function exportPayrollCSV(fromD, toD) {
             else summary[w.name].absent++;
         });
     });
-    let csv = '﻿Worker Name,Type,Days Present,Days Absent,Overtime Hrs,Daily Rate IQD,Total Due IQD
-';
+    let csv = '\uFEFFWorker Name,Type,Days Present,Days Absent,Overtime Hrs,Daily Rate IQD,Total Due IQD\n';
     Object.values(summary).forEach(r => {
         const isOut = r.type.includes('Outside');
-        csv += `"${r.name}","${r.type}",${r.days},${r.absent},${r.ot},${isOut ? rate : 0},${isOut ? r.days * rate : 0}
-`;
+        csv += `"${r.name}","${r.type}",${r.days},${r.absent},${r.ot},${isOut ? rate : 0},${isOut ? r.days * rate : 0}\n`;
     });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -1840,7 +1837,7 @@ function saveTankerDispensed(tIdx) {
     t.tankerPpm = document.getElementById('tkPpm').value.trim();
     t.tankerVisual = document.getElementById('tkVis').value;
     if (t.tankerLiters > 0) {
-        t.note = `${t.tankerPpm ? t.tankerPpm + ' ppm \ ' : ''}${Number(t.tankerLiters).toLocaleString()} L`;
+        t.note = `${t.tankerPpm ? t.tankerPpm + ' ppm \\ ' : ''}${Number(t.tankerLiters).toLocaleString()} L`;
         logSectionHistory('tasks', 'tanker', `صرف تنكر ${t.zones}: ${t.note}`, { taskId: t.id });
     }
     closeModal(); saveState(); renderTasks(getDayLog()); renderReadingsAndTools(getDayLog());
@@ -2255,15 +2252,13 @@ function openInventoryMasterSummary() {
 ` +
         `الإجمالي الكلي: ${grandTotal} شجرة/نبتة
 ` +
-        HEALTH_CONDITIONS.map(c => `• ${c.name}: ${condTotals[c.id]}`).join('
-') +
+        HEALTH_CONDITIONS.map(c => `• ${c.name}: ${condTotals[c.id]}`).join('\n') +
         (site.stopMarker ? `
 🎀 علامة التوقف: ${site.stopMarker}` : '') +
         `
 
 تفصيل المناطق:
-` + zoneLines.join('
-');
+` + zoneLines.join('\n');
 
     openModal(`
         <h3 class="card-title">📊 ملخص الجرد الشامل (${grandTotal})</h3>
@@ -2633,8 +2628,7 @@ function autoGenerateOAR() {
     if (lowGauges.length) obsParts.push(`انخفاض ضغط في المقاييس: ${lowGauges.join('، ')}.`);
     if (openIssues.length) obsParts.push(`مشاكل ميدانية مفتوحة: ${openIssues.join('؛ ')}.`);
 
-    log.oar.obs = obsParts.join('
-') || 'سارت الأعمال الميدانية والري وفق الخطة المقررة بدون معوقات.';
+    log.oar.obs = obsParts.join('\n') || 'سارت الأعمال الميدانية والري وفق الخطة المقررة بدون معوقات.';
     log.oar.ana = (blocked.length || openIssues.length || faultyMeters.length)
         ? 'الأسباب الرئيسية تعود إلى الأعطال الفنية في خطوط الشبكة/العدادات أو أعمال الموقع الجارية.'
         : 'استقرار ضغط الشبكة والتزام الكادر بتوزيع المهام اليومية.';
