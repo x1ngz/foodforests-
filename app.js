@@ -11,6 +11,7 @@ let tempModalPhotos = [];
 let invFilterState = 'all';
 let lastUsedHeight = null;
 let radarExpanded = false;
+let latestPayrollWaText = '';
 
 const TANKER_FULL_CAPACITY = 24000;
 const DURATION_OPTIONS = [
@@ -509,7 +510,7 @@ function refreshPayrollTable() {
         return { ...r, isOut, pay };
     });
 
-    const waText = `💰 كشف حضور ومستحقات (${site.name.split('/')[0].trim()})
+    latestPayrollWaText = `💰 كشف حضور ومستحقات (${site.name.split('/')[0].trim()})
 الفترة: ${fromD} إلى ${toD}
 ` +
         lines.map(r => `• ${r.name.split('/')[1] || r.name}: ${r.days} يوم | OT: ${r.ot}h` + (r.isOut ? ` | المستحق: ${r.pay.toLocaleString()} IQD` : ' (موظف)')).join('\n') +
@@ -536,12 +537,13 @@ function refreshPayrollTable() {
             إجمالي مستحقات العمالة الخارجية: ${totalOutsideIQD.toLocaleString()} IQD
         </div>
         <div class="grid-2">
-            <button class="btn btn-green btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(waText)});showToast('📋 تم نسخ كشف المستحقات!')">📋 نسخ الكشف</button>
+            <button class="btn btn-green btn-sm" onclick="copyPayrollWaText()">📋 نسخ الكشف</button>
             <button class="btn btn-blue btn-sm" onclick="exportPayrollCSV('${fromD}', '${toD}')">📥 تصدير CSV</button>
         </div>
     `;
 }
 
+function copyPayrollWaText() { if (latestPayrollWaText) { navigator.clipboard.writeText(latestPayrollWaText); showToast('📋 تم نسخ كشف المستحقات!'); } }
 function exportPayrollCSV(fromD, toD) {
     const site = getSite();
     const rate = parseFloat(state.company.outsideRate) || 25000;
