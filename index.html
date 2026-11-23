@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V9.0</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V9.1</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -216,7 +216,7 @@
             <div class="header-tools">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V9.0 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V9.1 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -494,9 +494,9 @@
                 </div>
             </div>
 
-            <button class="btn btn-green btn-full" style="padding:15px;font-size:15px;" onclick="runPreExportCheck('direct_excel')">📥 تصدير ملف DFL جاهز الآن (Excel + الصور)</button>
+            <button class="btn btn-green btn-full" style="padding:15px;font-size:15px;" onclick="runPreExportCheck('gemini_json')">🚀 تصدير وإرسال الملفات والأمر إلى Gemini</button>
             <div class="grid-2" style="margin-bottom:8px;">
-                <button class="btn btn-outline" onclick="runPreExportCheck('gemini_json')">🤖 تصدير JSON لـ Gemini</button>
+                <button class="btn btn-blue" onclick="runPreExportCheck('direct_excel')">📥 توليد Excel مباشر</button>
                 <button class="btn btn-outline" onclick="downloadCleanTemplateV04()">📄 القالب النظيف V04</button>
             </div>
             <div class="grid-2" style="margin-bottom:8px;">
@@ -507,12 +507,10 @@
                 <button class="btn btn-purple" onclick="generateWhatsAppBrief()">💬 ملخص واتساب سريع</button>
                 <button class="btn btn-outline" onclick="openTablePreviewModal()">👁️ معاينة الجدول</button>
             </div>
-            <div class="grid-2">
-                <button class="btn btn-orange btn-full" style="margin-bottom:8px;" onclick="openDatabaseRecoveryModal()">🔄 استرجاع بيانات V7 / النسخ القديمة من المتصفح</button>
+            <button class="btn btn-orange btn-full" style="margin-bottom:8px;" onclick="openDatabaseRecoveryModal()">🔄 استرجاع بيانات V7 / النسخ القديمة من المتصفح</button>
             <div class="grid-2">
                 <button class="btn btn-purple" onclick="downloadFullBackup()">💾 نسخة احتياطية</button>
                 <button class="btn btn-outline" onclick="triggerBackupRestore()">📂 استيراد / دمج</button>
-            </div>
             </div>
         </div>
     </main>
@@ -4274,7 +4272,7 @@ function previewSinglePhoto(urlOrId) {
 }
 
 /* ================= Lightweight JSON Export + Ultra-Strict Gemini Prompt ================= */
-function runPreExportCheck(mode = 'direct_excel') {
+function runPreExportCheck(mode = 'gemini_json') {
     const log = getDayLog();
     const warnings = [];
     if (log.meters.some(m => m.status === 'working' && m.curr === '')) warnings.push('• توجد قراءة عداد شغال غير مدخلة.');
@@ -4296,11 +4294,99 @@ function runPreExportCheck(mode = 'direct_excel') {
     }
 }
 
-function exportLightweightDFL() {
+function buildCleanTemplateFileObj() {
+    const bin = atob(EMBEDDED_DFL_V04_B64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new File([bytes], 'Al-Mutahida_DFL_V04_Clean.xlsx', {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+}
+
+async function buildTodayPhotosZipBlob() {
+    const { photos } = collectTodayPhotos();
+    if (!photos.length || typeof JSZip === 'undefined') return null;
+    const zip = new JSZip();
+    photos.forEach(p => {
+        const base64Data = p.dataUrl.split(',')[1];
+        zip.file(p.fileName, base64Data, { base64: true });
+    });
+    return await zip.generateAsync({ type: 'blob' });
+}
+
+async function shareBundleToGeminiApp() {
+    const bundle = window._latestGeminiBundle;
+    if (!bundle) return;
+    try {
+        await navigator.clipboard.writeText(bundle.prompt);
+    } catch {}
+
+    if (navigator.canShare && navigator.share) {
+        try {
+            const filesToShare = [bundle.templateFile, bundle.jsonFile];
+            if (bundle.zipFile) filesToShare.push(bundle.zipFile);
+            if (navigator.canShare({ files: filesToShare })) {
+                await navigator.share({
+                    files: filesToShare,
+                    title: bundle.title,
+                    text: bundle.prompt
+                });
+                showToast('✅ تم إرسال الملفات! الصق الأمر في Gemini واضغط إرسال');
+                return;
+            }
+        } catch (err) {
+            if (err && err.name === 'AbortError') return;
+        }
+    }
+    downloadBundleAndOpenGeminiWeb();
+}
+
+function downloadBundleAndOpenGeminiWeb() {
+    const bundle = window._latestGeminiBundle;
+    if (!bundle) return;
+    try {
+        navigator.clipboard.writeText(bundle.prompt);
+    } catch {}
+
+    const dlFile = (fileObj, delayMs) => {
+        if (!fileObj) return;
+        setTimeout(() => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(fileObj);
+            a.download = fileObj.name;
+            a.click();
+        }, delayMs);
+    };
+
+    dlFile(bundle.jsonFile, 0);
+    if (bundle.zipFile) dlFile(bundle.zipFile, 300);
+    if (document.getElementById('chkIncludeCleanTpl')?.checked) {
+        dlFile(bundle.templateFile, 600);
+    }
+
+    showToast('📋 تم نسخ الأمر وتنزيل الملفات — جاري فتح Gemini...');
+    setTimeout(() => {
+        window.open('https://gemini.google.com/app', '_blank');
+    }, 750);
+}
+
+async function exportLightweightDFL() {
     const site = getSite();
     const log = getDayLog();
     const dayEn = getDayNameEn(state.activeDate);
     syncIrrigatedZonesFromTasks(false);
+
+    // Auto-calculate irrigation hours if empty
+    let autoIrrMins = 0;
+    log.tasks.forEach(t => {
+        if (t.task.includes('Irrigation') && t.status.includes('Completed')) {
+            const m = String(t.dur || '').match(/(\d+):(\d+)/);
+            if (m) autoIrrMins += parseInt(m[1]) * 60 + parseInt(m[2]);
+        }
+    });
+    if (!log.perf.duration && autoIrrMins > 0) {
+        log.perf.duration = (autoIrrMins / 60).toFixed(1);
+    }
 
     const { photos, taskPhotoRefs, meterPhotoRefs, sickPlants, activeIssues, issuePhotoRefs } = collectTodayPhotos();
     const rowOffset = Math.max(0, log.attendance.length - 5);
@@ -4308,16 +4394,19 @@ function exportLightweightDFL() {
 
     let totalTankerL = 0; let totalTrips = 0;
     log.tasks.forEach(t => { if (parseFloat(t.tankerLiters) > 0) { totalTankerL += parseFloat(t.tankerLiters); totalTrips += (t.tankerTrips || 1); } });
-    
+
     const machNote = (log.machinery.pumpHrs || log.machinery.genHrs || log.machinery.fuelL)
-        ? ` | Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h, Fuel: ${log.machinery.fuelL || 0}L` : '';
-    const tankerNote = totalTankerL > 0 ? ` | Tanker Total: ${totalTankerL.toLocaleString()} L (${totalTrips} Trips)` : '';
+        ? `Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h, Fuel: ${log.machinery.fuelL || 0}L` : '';
+    const tankerNote = totalTankerL > 0 ? `Tanker Total: ${totalTankerL.toLocaleString()} L (${totalTrips} Trips)` : '';
+    const cleanPerfNotes = [log.perf.notes, tankerNote, machNote].filter(Boolean).join(' | ');
+
+    const wx = ensureWeatherObj(log);
 
     const lightPayload = {
-        templateVersion: 'V03_Clean',
+        templateVersion: 'V04_Clean',
+        templateFileName: 'Al-Mutahida_DFL_V04_Clean.xlsx',
         rowOffsetForExtraWorkers: rowOffset,
         presentWorkersCountToday: presentCount,
-        section1_weather: ensureWeatherObj(log),
         metadata: {
             F5_formId: log.dflNum,
             F6_siteName: site.name,
@@ -4327,6 +4416,18 @@ function exportLightweightDFL() {
             B9_shift: state.company.shift,
             F9_supervisor: state.company.supervisor || 'Maitham Ibrahim',
             B10_outsideWorkerRateIQD: state.company.outsideRate
+        },
+        section1_weather: {
+            B13_conditions: wx.cond || '',
+            C13_tempMinC: wx.tMin !== '' ? Number(wx.tMin) : '',
+            D13_tempMaxC: wx.tMax !== '' ? Number(wx.tMax) : '',
+            E13_windSpeed: wx.wind !== '' ? `${wx.wind} km/h` : '',
+            F13_humidityPct: wx.hum !== '' ? Number(wx.hum) : '',
+            G13_uvIndex: wx.uv !== '' ? Number(wx.uv) : '',
+            H13_pressureHpa: wx.press !== '' ? Number(wx.press) : '',
+            I13_precipMm: wx.precip !== '' ? Number(wx.precip) : 0,
+            J13_timeOfRecording: wx.time || '08:00',
+            K13_notes: wx.notes || ''
         },
         section2_attendance: log.attendance.map((w, idx) => ({
             seq: idx + 1,
@@ -4352,7 +4453,8 @@ function exportLightweightDFL() {
                 status: t.status,
                 notes: t.note || '',
                 workersAssigned: wStr,
-                imageRef: taskPhotoRefs[idx] || ''
+                imageRef: taskPhotoRefs[idx] || '',
+                syncWithPrev: !!t.syncWithPrev
             };
         }),
         section4_equipment: log.tools,
@@ -4361,18 +4463,18 @@ function exportLightweightDFL() {
             waterMeters5B: log.meters.map((m, idx) => ({
                 name: m.name,
                 status: m.status,
-                visualQuality: m.visual,
-                prevReading: m.status === 'working' ? (parseFloat(m.prev) || 0) : 'Faulty',
-                currReading: m.status === 'working' ? (m.curr !== '' ? parseFloat(m.curr) : '') : 'Faulty',
+                visualQuality: m.visual || 'Clear / صافية',
+                prevReading: m.status === 'working' ? (parseFloat(m.prev) || 0) : '',
+                currReading: (m.status === 'working' && m.curr !== '') ? parseFloat(m.curr) : '',
                 notes: m.status === 'faulty' ? `Faulty Meter: ${m.note || 'عاطل'}` : (m.note || ''),
                 imageRef: meterPhotoRefs[idx] || ''
             })),
             irrigationPerformance5C: {
                 B83_systemStatus: log.perf.status,
-                E83_durationHrs: log.perf.duration,
+                E83_durationHrs: log.perf.duration ? `${log.perf.duration} hrs` : '',
                 B84_zonesIrrigated: log.perf.zonesIrrigated,
                 E84_pressureNotes: log.perf.pressureNotes || '',
-                B85_performanceNotes: [log.perf.notes, tankerNote.replace(/^\s*\|\s*/, ''), machNote.replace(/^\s*\|\s*/, '')].filter(Boolean).join(' | ')
+                B85_performanceNotes: cleanPerfNotes
             },
             barGauges5D: log.gauges
         },
@@ -4396,113 +4498,146 @@ function exportLightweightDFL() {
         },
         section10_signOff: {
             A_teamLead: `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`,
+            E_signature: 'Signature  /  التوقيع: ',
             H_dateTime: `Date & Time  /  التاريخ والوقت: ${state.activeDate}`
         },
         incidentReportsSheet: log.incidents.map(({ photos: _p, ...r }) => r),
         siteDeviationLogSheet: log.sdls.map(({ photos: _p, ...r }) => r)
     };
 
-    const fname = `TFF_Light_DFL${log.dflNum}_${state.activeDate}.json`;
-    const blob = new Blob([JSON.stringify(lightPayload, null, 2)], { type: 'application/json;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = fname;
-    a.click();
+    const jsonFname = `TFF_Light_DFL${log.dflNum}_${state.activeDate}.json`;
+    const zipFname = `TFF_Photos_DFL${log.dflNum}_${state.activeDate}.zip`;
 
     const hardenedPrompt = `أنت خبير أتمتة التقارير الميدانية لشركة غابات الغذاء (The Food Forests).
 مرفق لك:
-1. قالب Excel النظيف (Al-Mutahida_DFL_V03_Clean.xlsx).
-2. ملف بيانات اليوم الخفيف (${fname}).
-(وإذا أرفقت لك ملف الصور ZIP ففك ضغطه وازرع كل صورة داخل خليتها حسب اسمها المرجعي).
+1. قالب Excel النظيف المحدّث (Al-Mutahida_DFL_V04_Clean.xlsx).
+2. ملف بيانات اليوم الخفيف (${jsonFname}).
+${photos.length > 0 ? `3. ملف الصور المضغوط (${zipFname}) الذي يحتوي على ${photos.length} صورة.` : '(لا توجد صور مرفقة اليوم).'}
 
-اكتب ونفّذ كود Python (باستخدام openpyxl مع copy من مكتبة copy) لتعبئة ورقة 'Daily Field Log' مباشرة (In-Place) مع الالتزام الصارم بجميع القواعد التالية دون أي انحراف:
+اكتب ونفّذ كود Python (باستخدام openpyxl مع copy من مكتبة copy) لتعبئة ورقة 'Daily Field Log' مباشرة (In-Place) وحفظ النتيجة باسم Al-Mutahida_DFL${log.dflNum}_${state.activeDate}_Filled.xlsx مع الالتزام الصارم بجميع القواعد التالية:
 
-### القاعدة 0: الحفاظ المطلق على ألوان وخطوط وحدود القالب (ممنوع تغيير أي لون أو ترك خلية بيضاء!)
+### القاعدة 0: الحفاظ المطلق على ألوان وخطوط وحدود القالب النظيف V04 (ممنوع ترك أي خلية بيضاء!)
 - لا تغيّر لون أي خلفية خلية (Fill) أو لون خط (Font Color) أو ترويسة قسم في القالب نهائياً!
-- ألوان القالب الأصلية: عمود التسلسل A رمادي فاتح (#ECEFF1)، خلايا الإدخال كريمي (#FFFDF0) أو أصفر فاتح (#FFFDE7)، وخلايا أداء الري أخضر فاتح (#E8F5E9).
-- **مهم جداً عند إدراج الصفوف أو دمج الخلايا:** في openpyxl، إدراج صفوف جديدة أو فك الدمج يمسح ألوان وحدود الخلايا. لذلك يجب نسخ التنسيق الأصلي للخلية (copy(src.fill), copy(src.font), copy(src.border), copy(src.alignment)) لكل خلية مضافة أو مدمجة حتى لا تتحول إلى اللون الأبيض (None).
+- ألوان القالب النظيف V04: عمود التسلسل A رمادي فاتح (#ECEFF1)، خلايا الإدخال كريمي (#FFFDF0) أو أصفر فاتح (#FFFDE7)، وخلايا أداء الري أخضر فاتح (#E8F5E9).
+- **قاعدة حرجة في openpyxl:** عند إدراج صفوف جديدة أو فك الدمج ثم إعادة الدمج العمودي، يقوم openpyxl بمسح ألوان وحدود الخلايا. لذلك يجب نسخ التنسيق الأصلي (copy(src.fill), copy(src.font), copy(src.border), copy(src.alignment)) لكل خلية مضافة أو مدمجة حتى لا تتحول إلى اللون الأبيض أبداً.
 
 ### القاعدة 1: إزاحة الصفوف للعمالة الإضافية (offset = ${rowOffset})
-- القالب الأصلي يحتوي على 5 صفوف للحضور (صفوف 18 إلى 22).
+- القالب النظيف V04 يحتوي على 5 صفوف للحضور (صفوف 18 إلى 22).
 - إذا كان rowOffsetForExtraWorkers > 0:
-  * أدرج ${rowOffset} صفوف عند الصف 23 (ws.insert_rows(23, ${rowOffset})) قبل كتابة أي بيانات أسفل صف 22.
-  * لكل صف مضاف (23 إلى ${22 + rowOffset}): اضبط ارتفاع الصف على 42.75، وانسخ التنسيق الأصلي (fill, font, border, alignment) من صف 22 لكل عمود من A إلى K (بما في ذلك اللون الرمادي #ECEFF1 للعمود A والحدود الخارجية)، وادمج H{r}:K{r}.
-- أضف offset = ${rowOffset} إلى أرقام صفوف جميع الأقسام أسفل صف 22 كما هو محدد بالضبط أدناه:
+  1. احفظ جميع نطاقات الدمج الموجودة في الورقة التي تبدأ من صف >= 23، ثم فك دمجها مؤقتاً (ws.unmerge_cells).
+  2. أدرج ${rowOffset} صفوف عند الصف 23 (ws.insert_rows(23, ${rowOffset})).
+  3. لكل صف مضاف (23 إلى ${22 + rowOffset}): اضبط ارتفاع الصف على 42.75، وانسخ التنسيق الأصلي (fill, font, border, alignment) من صف 22 لكل عمود من A إلى K (A باللون الرمادي #ECEFF1 وبحدود كاملة)، ثم ادمج H{r}:K{r}.
+  4. أعد تطبيق جميع نطاقات الدمج المحفوظة بإضافة offset = ${rowOffset} إلى أرقام صفوفها.
+  5. حدّث معادلتي الاستهلاك في القسم 5B (صفوف ${79 + rowOffset} و ${80 + rowOffset}) لتصبح: =IF(OR(F{r}="",G{r}=""),"",G{r}-F{r}).
 
 ### القاعدة 2: البيانات التعريفية (Metadata — صفوف ثابتة بدون إزاحة)
 - F5 = ${log.dflNum} | F6 = "${site.name}" | B7 = "${state.activeDate}" | F7 = "${dayEn}" | B8 = "${state.company.teamLead}" | B9 = "${state.company.shift}" | F9 = "${state.company.supervisor || 'Maitham Ibrahim'}" | B10 = ${state.company.outsideRate}
 
-### القاعدة 3: القسم 1 (Weather — صف 13)
-- ابحث عن طقس مدينة الحلة لتاريخ ${state.activeDate} واملأ B13 (الأحوال)، C13 (الصغرى رقم)، D13 (العظمى رقم)، E13 (الرياح)، F13 (الرطوبة % رقم أو اتركها فارغة — ممنوع وضع رمز '-').
+### القاعدة 3: القسم 1 (Weather — صف 13 بالكامل من B13 إلى K13!)
+- املأ **جميع** خلايا صف الطقس 13 من section1_weather (وإذا كانت أي خانة فارغة في JSON فابحث عن طقس مدينة الحلة لتاريخ ${state.activeDate} وأكملها بالكامل — ممنوع ترك أي خلية فارغة أو وضع رمز '-'):
+  * **B13**: Conditions / الأحوال (مثل 'Clear / صافي')
+  * **C13**: Temp Min °C (رقم)
+  * **D13**: Temp Max °C (رقم)
+  * **E13**: Wind / الرياح (مثل '10 km/h')
+  * **F13**: Humidity % / الرطوبة (رقم)
+  * **G13**: UV Index (رقم)
+  * **H13**: Pressure hPa / الضغط (رقم مثل 1015)
+  * **I13**: Precip mm/h / الأمطار (رقم مثل 0)
+  * **J13**: Time of Recording / وقت القراءة (مثل '08:00')
+  * **K13**: Notes / ملاحظات
 
 ### القاعدة 4: القسم 2 (Attendance — صفوف 18 إلى ${17 + log.attendance.length})
-- املأ section2_attendance، وأخفِ أي صف فارغ متبقٍ حتى صف 22.
+- املأ section2_attendance في الأعمدة A (التسلسل)، B (الاسم)، C (النوع)، D (الحالة)، E (الدخول)، F (الخروج)، G (الأوفرتايم)، H:K (ملاحظات). وأخفِ أي صف فارغ متبقٍ حتى صف 22.
 
-### القاعدة 5: القسم 3 (Tasks — يبدأ من صف ${27 + rowOffset} حتى ${59 + rowOffset}) — انتبه لترتيب الأعمدة والدمج والألوان!
+### القاعدة 5: القسم 3 (Tasks — يبدأ من صف ${27 + rowOffset} حتى ${59 + rowOffset})
 - **تحذير مهم:** صف العنوان هو صف ${26 + rowOffset}، وأول صف بيانات للمهام هو **صف ${27 + rowOffset}** مباشرة (لا تترك صف ${27 + rowOffset} فارغاً!).
-1. **تفريق المناطق (منطقة واحدة لكل صف):** إذا كانت المهمة تحتوي عدة مناطق (مثل ["B1", "B2", "B4"])، أفردها في صفوف متتالية بحيث يأخذ كل صف منطقة واحدة فقط في العمود D (Zone).
-2. **دمج الساعات والمناطق المتزامنة/المتشابهة عمودياً:**
-   - اجمع الصفوف المتتالية التي تشترك في نفس (المهمة Task + الوصف Brief Description + الوقت Time + العمال Workers Assigned + عدد العمال Workers #).
+1. **تفريق المناطق (منطقة واحدة لكل صف):** لكل عنصر في section3_tasks، أفرد مناطق zonesList في صفوف متتالية بحيث يأخذ كل صف منطقة واحدة فقط في العمود D (Zone).
+2. **دمج المهام المتزامنة والمتشابهة عمودياً:**
+   - اجمع الصفوف المتتالية التي تكون ناتجة عن تفريق نفس المهمة، أو التي تحمل syncWithPrev == True، أو التي تشترك في نفس (task + briefDescription + time + workersAssigned + workersCount).
    - ادمج عمودياً عبر هذه الصفوف المتشابهة الأعمدة التالية فقط:
-     * **A ('#')**، **B ('Task')**، **C ('Brief Description')**، **E ('Time / الوقت')**، **F ('Workers #')**، و**K ('Worker(s) Assigned')**.
-   - **ممنوع منعاً باتاً** دمج العمود **D ('Zone')** أو العمود **G ('Status')** أو عمود الملاحظات **H:J ('Notes')** عمودياً! أبقِ H{r}:J{r} مدمجاً أفقياً لكل صف على حدة فقط.
-   - **حافظ على الألوان والحدود لكل صف (من ${27 + rowOffset} إلى آخر مهمة):** انسخ التنسيق الأصلي من صف ${27 + rowOffset} لكل خلية (A: #ECEFF1، B,C,G,H:J,K,L: #FFFDF0، D,E,F: #FFFDE7) قبل وبعد أي عملية دمج عمودي!
+     * **A ('#')**، **B ('Task')**، **C ('Brief Description')**، **E ('Time')**، **F ('Workers #')**، و**K ('Worker(s) Assigned')**.
+   - **ممنوع منعاً باتاً** دمج العمود **D ('Zone')** أو العمود **G ('Status')** أو عمود الملاحظات **H:J ('Notes')** أو **L ('Image Reference')** عمودياً! أبقِ H{r}:J{r} مدمجاً أفقياً لكل صف على حدة فقط.
+   - **حافظ على الألوان والحدود:** انسخ التنسيق الأصلي من صف ${27 + rowOffset} لكل خلية (A: #ECEFF1، B,C,G,H:J,K,L: #FFFDF0، D,E,F: #FFFDE7) قبل وبعد أي دمج عمودي!
 3. **دقة العمال وعدد العمال (Columns F & K):**
-   - العمود **F ('Workers #')**: اكتب عدداً صحيحاً يطابق عدد المنفذين الفعليين (إذا كان المنفذ "Team" فاكتب عدد الحضور اليوم = ${presentCount}، وإذا كان اسمين فـ 2، ولا تكتب 0 لمهمة منجزة).
-   - العمود **K ('Worker(s) Assigned')**: اكتب "Team" إذا نفذها الفريق بالكامل، أو افصل الأسماء بـ ' / '.
-4. **مرجع الصور (Column L):** اكتب اسم ملف الصورة المرجعي مثل 'PHOTO_01.jpg' فقط إذا وُجد، واتركه فارغاً تماماً إذا لم توجد صورة.
+   - العمود **F**: رقم صحيح يطابق عدد المنفذين (إذا كان المنفذ "Team" فاكتب ${presentCount}).
+   - العمود **K**: اكتب "Team" أو الأسماء مفصولة بـ ' / '.
+4. **زرع الصور فعلياً (Column L):**
+   - اكتب اسم ملف الصورة المرجعي مثل 'PHOTO_01.jpg' في L{r} إذا وُجد (واتركه فارغاً تماماً إذا لم توجد صورة).
+   - إذا أُرفق ملف الصور ZIP (${zipFname})، فك ضغطه، صغّر أبعاد الصورة لتناسب الخلية (مثلاً 85×50 بكسل)، ارفع ارتفاع الصف إلى 48، وازرع الصورة فعلياً داخل الخلية L{r} باستخدام openpyxl.drawing.image.Image.
 5. **إخفاء الصفوف الفارغة فقط:** أخفِ الصفوف الفارغة المتبقية من بعد آخر مهمة وحتى صف ${59 + rowOffset} فقط (ws.row_dimensions[r].hidden = True). **إياك أن تخفي صفوف الفواصل أو ترويسات الأقسام التالية!**
 
-### القاعدة 6: الأقسام 4 و 5 و 6 و 7 و 8 (أرقام الصفوف الدقيقة بعد الإزاحة — لا تخطئ في العمود أو الصف!)
-- **القسم 4 (المعدات — يبدأ من صف ${64 + rowOffset} إلى ${66 + rowOffset}):**
-  * صف العنوان هو ${63 + rowOffset}، وصفوف البيانات هي **${64 + rowOffset}..${66 + rowOffset}** (إذا كانت section4_equipment فارغة، أخفِ صفوف البيانات ${64 + rowOffset}..${66 + rowOffset} فقط، وأبقِ صف الفاصل ${67 + rowOffset} وترويسة القسم الخامس ${68 + rowOffset} ظاهرين!).
-- **القسم 5A (الرطوبة — صفوف ${71 + rowOffset}..${75 + rowOffset}):**
-  * صف العنوان هو ${70 + rowOffset}، وصفوف البيانات هي **${71 + rowOffset}..${75 + rowOffset}** (املأها أو أخفِ الفارغ منها فقط).
-- **القسم 5B (عدادات المياه — صفوف ${79 + rowOffset}..${80 + rowOffset}) — انتبه للأعمدة بدقة:**
-  * صف العنوان هو ${78 + rowOffset}، وصفوف البيانات هي **${79 + rowOffset}..${80 + rowOffset}**.
-  * الأعمدة الصحيحة للعدادات هي حصراً:
+### القاعدة 6: الأقسام 4 و 5 و 6 و 7 و 8 (أرقام الصفوف الدقيقة في قالب V04 بعد الإزاحة)
+- **القسم 4 (المعدات — صفوف البيانات ${64 + rowOffset}..${66 + rowOffset}):**
+  * صف العنوان هو ${63 + rowOffset}. املأ section4_equipment في ${64 + rowOffset}..${66 + rowOffset} وأخفِ الصفوف الفارغة من ${64 + rowOffset}..${66 + rowOffset} فقط (أبقِ صف الفاصل ${67 + rowOffset} وترويسة القسم الخامس ${68 + rowOffset} ظاهرين!).
+- **القسم 5A (الرطوبة — صفوف البيانات ${71 + rowOffset}..${75 + rowOffset}):**
+  * صف العنوان هو ${70 + rowOffset}. املأ moisture5A في ${71 + rowOffset}..${75 + rowOffset} وأخفِ الفارغ منها فقط.
+- **القسم 5B (عدادات المياه — صفوف البيانات ${79 + rowOffset}..${80 + rowOffset}):**
+  * صف العنوان هو ${78 + rowOffset}. الأعمدة الصحيحة حصراً:
     - **A**: التسلسل (1, 2)
-    - **B:D (مدمجة أفقياً)**: اسم العداد (meter.name) — ملاحظة: لا تكتب status داخل عمود C أبداً!
-    - **E**: الجودة البصرية (visualQuality مثل 'Clear / صافية')
+    - **B:D (مدمجة أفقياً)**: اسم العداد (name) — لا تكتب status في عمود C!
+    - **E**: الجودة البصرية (visualQuality)
     - **F**: القراءة السابقة رقم (prevReading)
     - **G**: القراءة الحالية رقم (currReading)
-    - **H**: الاستهلاك (اترك المعادلة الأصلية كما هي ولا تمسحها، فقط حدّث أرقام الصفوف بداخلها لتطابق صفها الجديد =IF(OR(F{r}="",G{r}=""),"",G{r}-F{r}))
-    - **I:K (مدمجة أفقياً)**: الملاحظات ومرجع الصورة (notes + imageRef)
+    - **H**: الاستهلاك — احتفظ بالمعادلة =IF(OR(F{r}="",G{r}=""),"",G{r}-F{r})
+    - **I:K (مدمجة أفقياً)**: الملاحظات ومرجع الصورة (notes + imageRef)، وازرع صورة العداد داخل I{r} إذا وُجدت في ZIP.
   * أخفِ صف العداد الثاني (${80 + rowOffset}) إذا كان هناك عداد واحد فقط.
-- **القسم 5C (أداء نظام الري — صفوف ${83 + rowOffset}..${85 + rowOffset}) — انتبه لأرقام الصفوف الدقيقة:**
+- **القسم 5C (أداء نظام الري — صفوف ${83 + rowOffset}..${85 + rowOffset}):**
   * ترويسة 5C هي صف ${82 + rowOffset}.
-  * **صف ${83 + rowOffset}:** اكتب حالة النظام في **B${83 + rowOffset}** (مدمجة B:C)، واكتب مدة التشغيل في **E${83 + rowOffset}** (مدمجة E:K) — إذا كانت فارغة احسب مجموع ساعات مهام الري المكتملة.
-  * **صف ${84 + rowOffset}:** اكتب المناطق المروية في **B${84 + rowOffset}** (مدمجة B:C)، واكتب ملاحظات الضغط في **E${84 + rowOffset}** (مدمجة E:K).
-  * **صف ${85 + rowOffset}:** اكتب ملاحظات الأداء في **B${85 + rowOffset}** (مدمجة B:K) — نظّف أي شرطة '|' زائدة في بداية النص.
-- **القسم 5D (مقاييس الضغط — صفوف ${89 + rowOffset}..${94 + rowOffset}):**
-  * صف العنوان هو ${88 + rowOffset}، وصفوف البيانات هي **${89 + rowOffset}..${94 + rowOffset}** (A: التسلسل، B: اسم المقياس، C: القراءة، D: 'bar'، E: المدى الطبيعي مثل '2.0 bar'، F: الحالة 'Normal / طبيعي' أو 'Low / منخفض'، G:K: ملاحظات). أخفِ الصفوف الفارغة منها فقط.
-- **القسم 6 (صحة النبات — صفوف ${98 + rowOffset}..${102 + rowOffset}) والقسم 7 (الحوادث — صفوف ${106 + rowOffset}..${109 + rowOffset}):**
-  * صفوف بيانات القسم 6 هي **${98 + rowOffset}..${102 + rowOffset}**، وصفوف بيانات القسم 7 هي **${106 + rowOffset}..${109 + rowOffset}**. املأها أو أخفِ الصفوف الفارغة منها فقط.
-- **القسم 8 (مراجع الصور — صفوف ${113 + rowOffset}..${118 + rowOffset}):**
-  * صف العنوان هو ${112 + rowOffset}، وصفوف البيانات هي **${113 + rowOffset}..${118 + rowOffset}**.
-  * اكتب في كل صف: **A** = التسلسل (1, 2, 3...)، **B:D** = اسم الملف (fileName)، **E:G** = القسم (section)، **H:K** = الوصف (description). أخفِ الصفوف الفارغة منها فقط.
+  * **صف ${83 + rowOffset}:** اكتب حالة النظام في **B${83 + rowOffset}** (مدمجة B:C)، ومدة التشغيل في **E${83 + rowOffset}** (مدمجة E:K).
+  * **صف ${84 + rowOffset}:** اكتب المناطق المروية في **B${84 + rowOffset}** (مدمجة B:C)، وملاحظات الضغط في **E${84 + rowOffset}** (مدمجة E:K).
+  * **صف ${85 + rowOffset}:** اكتب ملاحظات الأداء في **B${85 + rowOffset}** (مدمجة B:K).
+- **القسم 5D (مقاييس الضغط — صفوف البيانات ${89 + rowOffset}..${94 + rowOffset}):**
+  * صف العنوان هو ${88 + rowOffset}. املأ barGauges5D في ${89 + rowOffset}..${94 + rowOffset} (A: التسلسل، B: الاسم، C: القراءة، D: 'bar'، E: المدى الطبيعي، F: الحالة 'Normal / طبيعي' أو 'Low / منخفض'، G:K: ملاحظات). أخفِ الصفوف الفارغة منها فقط.
+- **القسم 6 (صحة النبات — صفوف البيانات ${98 + rowOffset}..${102 + rowOffset}) والقسم 7 (الحوادث — صفوف البيانات ${106 + rowOffset}..${109 + rowOffset}):**
+  * املأ section6_plantsHealth في ${98 + rowOffset}..${102 + rowOffset} (وازرع الصورة في I{r} إن وُجدت) وأخفِ الصفوف الفارغة منها فقط.
+  * املأ section7_incidentsAndIssues في ${106 + rowOffset}..${109 + rowOffset} (A: التسلسل، B:E: الوصف، F: الخطورة، G:K: الرمز + مرجع الصورة، وازرع الصورة في G{r} إن وُجدت) وأخفِ الصفوف الفارغة منها فقط.
+- **القسم 8 (مراجع الصور — صفوف البيانات ${113 + rowOffset}..${118 + rowOffset}):**
+  * صف العنوان هو ${112 + rowOffset}. اكتب في كل صف: **A** = التسلسل (1, 2, 3...)، **B:D** = اسم الملف (fileName)، **E:G** = القسم (section)، **H:K** = الوصف (description). أخفِ الصفوف الفارغة منها فقط.
 
-### القاعدة 7: القسم 9 (OAR) والقسم 10 (Sign-off) + أوراق IR/SDL
-- **القسم 9 (OAR):**
-  * اكتب نص OBS في **A${123 + rowOffset}** (أسفل شريط OBS في صف ${122 + rowOffset}).
-  * اكتب نص ANA في **A${125 + rowOffset}** (أسفل شريط ANA في صف ${124 + rowOffset}).
-  * اكتب نص REC في **A${127 + rowOffset}** (أسفل شريط REC في صف ${126 + rowOffset}).
+### القاعدة 7: القسم 9 (OAR) والقسم 10 (Sign-off) + أوراق IR/SDL + منطقة الطباعة
+- **القسم 9 (OAR):** اكتب OBS في **A${123 + rowOffset}**، ANA في **A${125 + rowOffset}**، REC في **A${127 + rowOffset}**.
 - **القسم 10 (Sign-off — صف ${131 + rowOffset}):**
   * اكتب اسم قائد الفريق في **A${131 + rowOffset}** (مدمجة A:D).
-  * اكتب التاريخ والوقت في **H${131 + rowOffset}** (مدمجة H:K) — لا تتركها فارغة!
+  * أبقِ خانة التوقيع في **E${131 + rowOffset}** (مدمجة E:G).
+  * اكتب التاريخ والوقت في **H${131 + rowOffset}** (مدمجة H:K).
+- اضبط منطقة الطباعة: ws.print_area = 'A1:L${140 + rowOffset}'.
 - إذا وجدت بيانات في incidentReportsSheet أو siteDeviationLogSheet فاملأ أوراقها المخصصة في نفس الملف بنفس ألوانها الأصلية.
 
 احفظ الملف بصيغة .xlsx وقدّم رابط التحميل مباشرة.`;
 
+    const templateFile = buildCleanTemplateFileObj();
+    const jsonFile = new File([JSON.stringify(lightPayload, null, 2)], jsonFname, { type: 'application/json;charset=utf-8' });
+    const zipBlob = await buildTodayPhotosZipBlob();
+    const zipFile = zipBlob ? new File([zipBlob], zipFname, { type: 'application/zip' }) : null;
+
+    window._latestGeminiBundle = {
+        title: `DFL-${log.dflNum} (${state.activeDate})`,
+        prompt: hardenedPrompt,
+        templateFile,
+        jsonFile,
+        zipFile
+    };
+
+    let autoCopied = false;
+    try {
+        await navigator.clipboard.writeText(hardenedPrompt);
+        autoCopied = true;
+    } catch {}
+
     openModal(`
-        <h3 class="card-title">🤖 تم تنزيل ملف اليوم الخفيف بنجاح!</h3>
-        <p style="font-size:12px;color:var(--muted);line-height:1.5;">
-            تم تنزيل <b>${esc(fname)}</b> (حجم خفيف بدون صور ثقيلة).<br>
-            افتح <b>محادثة جديدة</b> في Gemini، ارفع <code>Al-Mutahida_DFL_V03_Clean.xlsx</code> مع هذا الملف، والصق الأمر الدقيق التالي:
-        </p>
-        <textarea id="gmHardPrompt" class="inp" rows="9" readonly style="font-size:11.5px;">${esc(hardenedPrompt)}</textarea>
+        <h3 class="card-title">🚀 حزمة التصدير إلى Gemini جاهزة!</h3>
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px;font-size:12px;color:#166534;font-weight:bold;margin-bottom:8px;">
+            ${autoCopied ? '✅ تم نسخ البرومت المصحح تلقائياً إلى الحافظة!' : '📋 اضغط زر النسخ أدناه لنسخ البرومت.'}<br>
+            📎 الملفات الجاهزة: <code>${esc(jsonFname)}</code>${zipFile ? ` + <code>${esc(zipFname)}</code> (${photos.length} صور)` : ''} + <code>Al-Mutahida_DFL_V04_Clean.xlsx</code>
+        </div>
+        <button class="btn btn-green btn-full" style="padding:13px;font-size:14px;" onclick="shareBundleToGeminiApp()">📤 إرسال الملفات مباشرة إلى تطبيق Gemini</button>
+        <label style="display:block;font-size:11.5px;font-weight:bold;color:var(--muted);margin-bottom:6px;">
+            <input type="checkbox" id="chkIncludeCleanTpl" checked> إرفاق تنزيل القالب النظيف (Al-Mutahida_DFL_V04_Clean.xlsx) عند التنزيل للمتصفح
+        </label>
+        <button class="btn btn-blue btn-full" onclick="downloadBundleAndOpenGeminiWeb()">🌐 تنزيل الملفات + فتح Gemini في المتصفح</button>
+        <textarea id="gmHardPrompt" class="inp" rows="6" readonly style="font-size:11px;margin-top:4px;">${esc(hardenedPrompt)}</textarea>
         <div class="grid-2">
-            <button class="btn btn-blue" onclick="navigator.clipboard.writeText(document.getElementById('gmHardPrompt').value);showToast('📋 تم نسخ الأمر الدقيق!')">📋 نسخ الأمر</button>
+            <button class="btn btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('gmHardPrompt').value);showToast('📋 تم نسخ الأمر الدقيق!')">📋 نسخ الأمر</button>
             <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
         </div>
     `);
@@ -4783,7 +4918,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V9.0 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V9.1 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
