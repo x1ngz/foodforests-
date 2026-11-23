@@ -1,12 +1,16 @@
 /* ==========================================================================
-   منصة غابات الغذاء (The Food Forests) - النظام الميداني المتكامل V03
+   منصة غابات الغذاء (The Food Forests) - النظام الميداني المتكامل V7
+   - الترحيل الصامت + المهام الجارية والوقت التلقائي + التنزيل المستقل للجرد
    ========================================================================== */
 
-const DB_NAME = 'TFF_FOS_DB_V6';
+const DB_NAME = 'TFF_FOS_DB_V7';
 const DB_STORE = 'state';
 let db = null, saveTimer = null, pendingPhotoCtx = null, activeInvZoneId = null, activeEntryPrompt = null;
 let undoStack = [];
 let tempModalPhotos = [];
+let invFilterState = 'all';
+let lastUsedHeight = null;
+let activeTimers = {};
 
 const TANKER_FULL_CAPACITY = 24000;
 const DURATION_OPTIONS = [
@@ -35,8 +39,7 @@ const QUICK_NOTE_PHRASES = [
     { label: 'تسريب أنبوب تنقيط', text: 'Drip line leak / تسريب في أنبوب التنقيط' },
     { label: 'عطل صمام / قفل', text: 'Valve malfunction / عطل في صمام الري' },
     { label: 'أعمال حفريات', text: 'Blocked due to excavation works / متوقف بسبب أعمال الحفريات' },
-    { label: 'عدم توفر حوضية', text: 'Water tanker was not provided / عدم توفر حوضية مياه' },
-    { label: 'غير مشمول بخطة اليوم', text: 'Not included in the current irrigation plan for today' }
+    { label: 'عدم توفر حوضية', text: 'Water tanker was not provided / عدم توفر حوضية مياه' }
 ];
 const DICTATION_CORRECTIONS = [
     [/عيري بيك|يري بيك|اير بيك|عيري بايب/gi, 'irrigation pipe'],
@@ -55,13 +58,6 @@ const DEFAULT_STAFF = [
     { name: 'امير علي فريز', type: 'Outside Worker  /  عامل خارجي', tIn: '08:00', tOut: '16:00' },
     { name: 'نوار عنيد جبر', type: 'Outside Worker  /  عامل خارجي', tIn: '08:00', tOut: '16:00' },
     { name: 'عادل حميد جبر', type: 'Outside Worker  /  عامل خارجي', tIn: '08:00', tOut: '16:00' }
-];
-const DEFAULT_TOOLS = [
-    { name: 'Transport E3W', cat: 'Equipment / معدة', qty: 1, cond: 'Good / جيد', note: '' },
-    { name: 'Garden broom (مكنسة حدائق)', cat: 'Tool / أداة', qty: 1, cond: 'Good / جيد', note: '' },
-    { name: 'Grass Trimmer / Lawn Mower (آلة / أداة جز عشب)', cat: 'Equipment / معدة', qty: 2, cond: 'Good / جيد', note: '' },
-    { name: 'Gardening gloves (كفوف حدائق)', cat: 'Tool / أداة', qty: 3, cond: 'Good / جيد', note: '' },
-    { name: 'اكياس نفايات', cat: 'Materials / مادة', qty: 5, cond: 'Good / جيد', note: '' }
 ];
 const HEALTH_CONDITIONS = [
     { id: 'c1', name: 'بصحة جيدة', color: '#81c784', dfl: 'ممتاز' },
@@ -139,7 +135,7 @@ let state = {
         photoQuality: 'uhd',
         staffPool: [...DEFAULT_STAFF],
         customTasks: [...MASTER_TASKS],
-        customTools: DEFAULT_TOOLS.map(t => t.name),
+        customTools: ['Transport E3W', 'Garden broom (مكنسة حدائق)', 'Grass Trimmer / Lawn Mower (آلة / أداة جز عشب)', 'Gardening gloves (كفوف حدائق)', 'اكياس نفايات'],
         speciesDict: {}
     },
     sites: {
@@ -163,16 +159,49 @@ let state = {
     }
 };
 
-/* ================= IndexedDB & Multi-Photo Normalization ================= */
+/* ================= IndexedDB, Silent Auto-Migration & Normalization ================= */
 function initDB() {
     return new Promise(resolve => {
         const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = e => e.target.result.createObjectStore(DB_STORE);
-        req.onsuccess = e => {
+        req.onupgradeneeded = e => {
+            const d = e.target.result;
+            if (!d.objectStoreNames.contains(DB_STORE)) d.createObjectStore(DB_STORE);
+        };
+        req.onsuccess = async e => {
             db = e.target.result;
-            const tx = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get('root');
-            tx.onsuccess = () => { if (tx.result && tx.result.sites) state = tx.result; resolve(); };
-            tx.onerror = () => resolve();
+            let loaded = false;
+            // First try current DB
+            await new Promise(r => {
+                const tx = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get('root');
+                tx.onsuccess = () => { if (tx.result && tx.result.sites) { state = tx.result; loaded = true; } r(); };
+                tx.onerror = () => r();
+            });
+            // Silent Auto-Migration from older DBs (V1 to V6) if current is empty
+            if (!loaded) {
+                for (let i = 6; i >= 1; i--) {
+                    const oldDbName = 'TFF_FOS_DB_V' + i;
+                    const oldReq = indexedDB.open(oldDbName);
+                    try {
+                        const oldRes = await new Promise((r, rej) => {
+                            oldReq.onsuccess = ev => {
+                                const odb = ev.target.result;
+                                if (!odb.objectStoreNames.contains(DB_STORE)) { r(null); return; }
+                                const otx = odb.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get('root');
+                                otx.onsuccess = () => r(otx.result);
+                                otx.onerror = () => r(null);
+                            };
+                            oldReq.onerror = () => r(null);
+                        });
+                        if (oldRes && oldRes.sites) {
+                            state = oldRes;
+                            saveState(); // Save into V7 immediately
+                            console.log('✅ Migrated from', oldDbName);
+                            break;
+                        }
+                    } catch {}
+                }
+            }
+            resolve();
         };
         req.onerror = () => resolve();
     });
@@ -595,6 +624,37 @@ function applySpellAndDictationGuard(rawText) {
     return { text: fixed, changed };
 }
 
+/* ================= Timer Alert Bar ================= */
+function checkTaskTimers() {
+    const log = getDayLog();
+    let hasAlert = false;
+    let msgs = [];
+    const nowMs = Date.now();
+
+    log.tasks.forEach(t => {
+        if (t.status.includes('Progress') && t.startTimeMs) {
+            const elapMins = (nowMs - t.startTimeMs) / 60000;
+            let targetMins = 60;
+            const m = String(t.dur || '').match(/(\d+):(\d+)/);
+            if (m) targetMins = parseInt(m[1]) * 60 + parseInt(m[2]);
+            
+            if (elapMins >= targetMins) {
+                hasAlert = true;
+                msgs.push(`⚠️ انتهى وقت (${t.zones}) منذ ${Math.floor(elapMins - targetMins)} دقيقة!`);
+            }
+        }
+    });
+
+    const bar = document.getElementById('timerAlertBar');
+    if (hasAlert && bar) {
+        bar.innerHTML = `<div>${msgs.join('<br>')}</div><button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="switchTab('tasks');window.scrollTo(0,0)">إغلاق الصمام</button>`;
+        bar.classList.add('show');
+    } else if (bar) {
+        bar.classList.remove('show');
+    }
+}
+setInterval(checkTaskTimers, 60000);
+
 /* ================= Auto-Sync Irrigated Zones & Hours ================= */
 function syncIrrigatedZonesFromTasks(force = false) {
     const log = getDayLog();
@@ -668,6 +728,7 @@ function renderAll() {
     renderReadingsAndTools(log);
     renderInventory(site);
     renderExportAndIssues(site, log);
+    checkTaskTimers();
     setTimeout(triggerAllAutoGrows, 20);
 }
 
@@ -679,6 +740,7 @@ function switchTab(tabId) {
     document.getElementById('tab-' + tabId).classList.add('active');
     document.body.classList.toggle('alpha-pad', tabId === 'inv' && activeInvZoneId !== null);
     if (tabId === 'tools') renderReadingsAndTools(getDayLog());
+    if (tabId === 'tasks') checkTaskTimers();
     setTimeout(triggerAllAutoGrows, 20);
 }
 
@@ -854,7 +916,22 @@ function confirmAddWorker() {
     closeModal(); saveState(); renderAttendance(getDayLog()); showToast('✓ تمت إضافة ' + name);
 }
 
-/* ================= TAB 2: Tasks, 4 Statuses, Tanker (24,000L Pre/Post), Multi-Photo ================= */
+/* ================= TAB 2: Tasks, 4 Statuses, Tanker (24,000L Pre/Post), Multi-Photo, Timers, Queue ================= */
+function moveTaskUp(idx) {
+    if (idx === 0) return;
+    pushUndo('ترتيب مهمة لأعلى');
+    const tasks = getDayLog().tasks;
+    [tasks[idx - 1], tasks[idx]] = [tasks[idx], tasks[idx - 1]];
+    saveState(); renderTasks(getDayLog());
+}
+function moveTaskDown(idx) {
+    const tasks = getDayLog().tasks;
+    if (idx === tasks.length - 1) return;
+    pushUndo('ترتيب مهمة لأسفل');
+    [tasks[idx], tasks[idx + 1]] = [tasks[idx + 1], tasks[idx]];
+    saveState(); renderTasks(getDayLog());
+}
+
 function loadSiteIrrigationPlan() {
     const site = getSite();
     const log = getDayLog();
@@ -867,12 +944,12 @@ function loadSiteIrrigationPlan() {
         log.tasks.push({
             id: 't_' + Date.now() + '_' + i,
             task: item.task, desc: item.desc, zones: item.zones, dur: item.dur || '1:00 hr',
-            status: 'Completed / مكتمل', workers: [], note: '',
-            isTanker: isTk, tankerCapacity: isTk ? TANKER_FULL_CAPACITY : '', tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية',
-            agroName: '', agroDose: '', photos: []
+            status: 'Not Started / لم يبدأ', workers: [], note: '',
+            isTanker: isTk, tankerCapacity: isTk ? TANKER_FULL_CAPACITY : '', tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية', tankerTrips: 1,
+            agroName: '', agroDose: '', photos: [], startTimeMs: null, actualDuration: ''
         });
     });
-    logSectionHistory('tasks', 'plan', `تحميل خطة ري ${dayEn} (${planItems.length} مهام)`, {});
+    logSectionHistory('tasks', 'plan', `تحميل خطة ري ${dayEn} (${planItems.length} مهام لم تبدأ)`, {});
     syncIrrigatedZonesFromTasks(false);
     saveState(); renderTasks(log); showToast(`⚡ تم تحميل ${planItems.length} مهام ري ليوم ${dayEn}`);
 }
@@ -883,15 +960,57 @@ function quickAddNonIrrTask(taskName, desc, dur) {
     getDayLog().tasks.push({
         id: tid, task: taskName, desc, zones: 'عام / General', dur,
         status: 'Completed / مكتمل', workers: [], note: '',
-        isTanker: false, tankerCapacity: '', tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية',
-        agroName: '', agroDose: '', photos: []
+        isTanker: false, tankerCapacity: '', tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية', tankerTrips: 1,
+        agroName: '', agroDose: '', photos: [], startTimeMs: null, actualDuration: ''
     });
     logSectionHistory('tasks', 'add', `مكتمل: عام / General (${desc})`, { taskId: tid });
     saveState(); renderTasks(getDayLog()); showToast('✓ تمت إضافة المهمة');
 }
 
+function renderTasksQueue(log) {
+    const qBox = document.getElementById('tasksQueueContainer');
+    if (!qBox) return;
+    
+    const inProg = log.tasks.map((t, i) => ({ t, i })).filter(x => x.t.status.includes('Progress'));
+    const notSt = log.tasks.map((t, i) => ({ t, i })).filter(x => x.t.status.includes('Not Started'));
+    
+    if (inProg.length === 0 && notSt.length === 0) {
+        qBox.innerHTML = '';
+        return;
+    }
+    
+    let html = `<div class="queue-banner">`;
+    if (inProg.length > 0) {
+        html += `<div style="font-weight:bold;color:var(--blue);margin-bottom:6px;font-size:12px;">🔵 جاري الآن (${inProg.length}):</div>`;
+        inProg.forEach(x => {
+            const startStr = x.t.startTimeMs ? new Date(x.t.startTimeMs).toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'}) : 'الآن';
+            html += `
+            <div class="queue-item">
+                <div style="font-size:12px;"><b>${esc(x.t.zones)}</b> — ${esc(x.t.desc)} <br><span class="q-timer">▶️ بدأ: ${startStr}</span></div>
+                <button class="btn btn-green btn-sm" onclick="setTaskStatus(${x.i}, 'Completed / مكتمل')">✓ إكمال</button>
+            </div>`;
+        });
+    }
+    
+    if (notSt.length > 0) {
+        if (inProg.length > 0) html += `<hr style="border-top:1px dashed #fcd34d;margin:8px 0;">`;
+        html += `<div style="font-weight:bold;color:var(--muted);margin-bottom:6px;font-size:12px;">⏳ القادم (${notSt.length}):</div>`;
+        notSt.forEach(x => {
+            html += `
+            <div class="queue-item">
+                <div style="font-size:12px;color:var(--muted);"><b>${esc(x.t.zones)}</b> — ${esc(x.t.desc)}</div>
+                <button class="btn btn-blue btn-sm" onclick="setTaskStatus(${x.i}, 'In Progress / جاري')">▶️ ابدأ</button>
+            </div>`;
+        });
+    }
+    html += `</div>`;
+    qBox.innerHTML = html;
+}
+
 function renderTasks(log) {
     renderStickySectionHistory('tasks', 'stickyHist-tasks', 'المهام');
+    renderTasksQueue(log);
+
     const el = document.getElementById('tasksContainer');
     if (log.tasks.length === 0) {
         el.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);padding:24px;">💧 اضغط على زر خطة الري أعلاه أو أضف مهمة جديدة</div>`;
@@ -912,6 +1031,7 @@ function renderTasks(log) {
         const capVal = parseFloat(t.tankerCapacity) || 0;
         const dispVal = parseFloat(t.tankerLiters) || 0;
         const remVal = capVal > 0 ? Math.max(0, capVal - dispVal) : null;
+        const trips = t.tankerTrips || 1;
 
         let cardClass = 'task-box';
         if (isBlock) cardClass += ' is-blocked';
@@ -921,7 +1041,13 @@ function renderTasks(log) {
         return `
         <div class="card ${cardClass}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;">
-                <div style="font-weight:bold;font-size:14px;">${esc(t.task.split('/')[1] || t.task)}</div>
+                <div style="display:flex;gap:3px;">
+                    <div class="sort-controls">
+                        <button class="sort-btn" onclick="moveTaskUp(${idx})">▲</button>
+                        <button class="sort-btn" onclick="moveTaskDown(${idx})">▼</button>
+                    </div>
+                    <div style="font-weight:bold;font-size:14px;padding-top:2px;">${esc(t.task.split('/')[1] || t.task)}</div>
+                </div>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
                     <span class="zone-pill" onclick="openZonePickerModal(${idx})">📍 ${esc(t.zones)} ✏️</span>
                     ${canSplit ? `<button class="btn btn-orange btn-sm" onclick="splitTaskZones(${idx})">✂️ تفريق</button>` : ''}
@@ -970,12 +1096,15 @@ function renderTasks(log) {
             ${t.isTanker ? `
             <div class="tanker-banner">
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
-                    <span>🚚 سعة التنكر قبل البدء: <b>${capVal ? capVal.toLocaleString() + ' L' : 'غير محددة'}</b></span>
-                    <button class="btn btn-outline btn-sm" style="background:white;" onclick="openTankerPreModal(${idx})">⚙️ سعة التنكر</button>
+                    <span>🚚 سعة التنكر قبل البدء: <b>${capVal ? capVal.toLocaleString() + ' L' : 'غير محددة'}</b> ${trips > 1 ? `(نقلة #${trips})` : ''}</span>
+                    <div style="display:flex;gap:4px;">
+                        <button class="btn btn-outline btn-sm" style="background:white;padding:2px 6px;" onclick="refillTankerTrip(${idx})">🔄 إعادة تعبئة</button>
+                        <button class="btn btn-outline btn-sm" style="background:white;" onclick="openTankerPreModal(${idx})">⚙️ السعة</button>
+                    </div>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
                     <span>💧 المصروف: <b>${dispVal ? dispVal.toLocaleString() + ' L' : '0 L'}</b> ${remVal !== null ? `| المتبقي: <b>${remVal.toLocaleString()} L</b>` : ''} ${t.tankerPpm ? `| ${t.tankerPpm} ppm` : ''}</span>
-                    <button class="btn btn-blue btn-sm" onclick="openTankerFinishModal(${idx})">✓ كمية الصرف</button>
+                    <button class="btn btn-blue btn-sm" onclick="openTankerFinishModal(${idx})">✓ الصرف</button>
                 </div>
             </div>` : ''}
 
@@ -998,8 +1127,8 @@ function renderTasks(log) {
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:4px;flex-wrap:wrap;">
                     <label class="lbl" style="color:var(--red);margin:0;font-size:12px;">🛑 سبب التوقف (إلزامي):</label>
                     <div style="display:flex;gap:4px;">
-                        ${isIrr ? `<button class="btn btn-blue btn-sm" style="padding:2px 6px;font-size:10px;" onclick="createReplacementTankerTask(${idx})">🚚 تعويض بري تنكر</button>` : ''}
-                        <button class="btn btn-red btn-sm" style="padding:2px 6px;font-size:10px;" onclick="escalateTaskToIssue(${idx})">🚨 تصعيد لمشكلة</button>
+                        ${isIrr ? `<button class="btn btn-blue btn-sm" style="padding:2px 6px;font-size:10px;" onclick="createReplacementTankerTask(${idx})">🚚 تعويض تنكر</button>` : ''}
+                        <button class="btn btn-red btn-sm" style="padding:2px 6px;font-size:10px;" onclick="escalateTaskToIssue(${idx})">🚨 تصعيد مشكلة</button>
                     </div>
                 </div>
                 <div style="display:flex;gap:4px;margin-bottom:6px;">
@@ -1039,7 +1168,7 @@ function updateTaskDesc(idx, val) {
     const res = applySpellAndDictationGuard(val);
     t.desc = res.text;
     t.isTanker = t.desc.toLowerCase().includes('tanker');
-    if (t.isTanker && !t.tankerCapacity) t.tankerCapacity = TANKER_FULL_CAPACITY;
+    if (t.isTanker && !t.tankerCapacity) { t.tankerCapacity = TANKER_FULL_CAPACITY; t.tankerTrips = 1; }
     logSectionHistory('tasks', 'edit', `تعديل وصف ${t.zones}: ${t.desc}`, { taskId: t.id });
     saveState(); renderTasks(getDayLog());
 }
@@ -1048,7 +1177,7 @@ function applyIrrPreset(idx, txt, dur) {
     const t = getDayLog().tasks[idx];
     t.desc = txt; t.dur = dur;
     t.isTanker = txt.toLowerCase().includes('tanker');
-    if (t.isTanker && !t.tankerCapacity) t.tankerCapacity = TANKER_FULL_CAPACITY;
+    if (t.isTanker && !t.tankerCapacity) { t.tankerCapacity = TANKER_FULL_CAPACITY; t.tankerTrips = 1; }
     logSectionHistory('tasks', 'edit', `${t.zones}: ${txt}`, { taskId: t.id });
     saveState(); renderTasks(getDayLog());
 }
@@ -1062,7 +1191,8 @@ function splitTaskZones(idx) {
         ...JSON.parse(JSON.stringify(t)),
         id: 't_' + Date.now() + '_' + i,
         zones: z,
-        photos: i === 0 ? ensurePhotosArr(t) : []
+        photos: i === 0 ? ensurePhotosArr(t) : [],
+        startTimeMs: null
     }));
     log.tasks.splice(idx, 1, ...expanded);
     logSectionHistory('tasks', 'split', `تفريق ${t.zones} إلى ${zones.length} بطاقات مستقلة`, {});
@@ -1074,6 +1204,7 @@ function duplicateTask(idx) {
     const copy = JSON.parse(JSON.stringify(log.tasks[idx]));
     copy.id = 't_' + Date.now();
     copy.photos = [];
+    copy.startTimeMs = null;
     log.tasks.splice(idx + 1, 0, copy);
     logSectionHistory('tasks', 'add', `نسخ مهمة: ${copy.zones} (${copy.desc})`, { taskId: copy.id });
     saveState(); renderTasks(log); showToast('📋 تم نسخ المهمة');
@@ -1089,7 +1220,7 @@ function createReplacementTankerTask(idx) {
         desc: 'Irrigating the area using a water tanker',
         zones: orig.zones,
         dur: '1:00 hr',
-        status: 'Completed / مكتمل',
+        status: 'Not Started / لم يبدأ',
         workers: [...(orig.workers || [])],
         note: '',
         isTanker: true,
@@ -1097,12 +1228,24 @@ function createReplacementTankerTask(idx) {
         tankerLiters: '',
         tankerPpm: '',
         tankerVisual: 'Clear / صافية',
-        agroName: '', agroDose: '', photos: []
+        tankerTrips: 1,
+        agroName: '', agroDose: '', photos: [], startTimeMs: null, actualDuration: ''
     });
     logSectionHistory('tasks', 'add', `تعويض تنكر لـ ${orig.zones} (24,000 L)`, { taskId: tid });
     syncIrrigatedZonesFromTasks(false);
     saveState(); renderTasks(log); showToast(`🚚 تم إنشاء مهمة تنكر بديلة لمنطقة ${orig.zones}`);
 }
+function refillTankerTrip(idx) {
+    pushUndo('إعادة تعبئة التنكر');
+    const t = getDayLog().tasks[idx];
+    t.tankerTrips = (t.tankerTrips || 1) + 1;
+    t.tankerCapacity = TANKER_FULL_CAPACITY;
+    t.tankerLiters = '';
+    t.note = '';
+    logSectionHistory('tasks', 'tanker', `تعبئة نقلة #${t.tankerTrips} لـ ${t.zones}`, { taskId: t.id });
+    saveState(); renderTasks(getDayLog()); showToast(`🔄 تم تسجيل نقلة #${t.tankerTrips} بسعة 24,000 لتر`);
+}
+
 function openZonePickerModal(tIdx) {
     const site = getSite();
     const t = getDayLog().tasks[tIdx];
@@ -1137,17 +1280,39 @@ function savePickedZones(tIdx) {
     syncIrrigatedZonesFromTasks(false);
     closeModal(); saveState(); renderTasks(getDayLog());
 }
+
 function setTaskStatus(idx, st) {
     pushUndo('تغيير حالة مهمة');
     const t = getDayLog().tasks[idx];
+    const oldSt = t.status;
     t.status = st;
-    if (st.includes('Not Started') && !t.note) {
-        t.note = 'Not included in the current irrigation plan for today';
+    const now = Date.now();
+    
+    if (st.includes('Progress') && !oldSt.includes('Progress')) {
+        t.startTimeMs = now;
+        showToast('▶️ تم بدء المؤقت للمهمة');
+    } else if (st.includes('Completed') && oldSt.includes('Progress') && t.startTimeMs) {
+        const diffMins = Math.floor((now - t.startTimeMs) / 60000);
+        const h = Math.floor(diffMins / 60);
+        const m = diffMins % 60;
+        t.dur = `${h}:${String(m).padStart(2, '0')} hr`;
+        t.startTimeMs = null;
+        showToast(`⏹️ اكتملت بعد ${diffMins} دقيقة`);
+    } else if (!st.includes('Progress')) {
+        t.startTimeMs = null;
     }
+
+    if (st.includes('Not Started') && (!t.note || t.note === 'Not included in the current irrigation plan for today')) {
+        t.note = '';
+    } else if (st.includes('Not Started') && t.note) {
+        t.note = ''; 
+    }
+
     logSectionHistory('tasks', 'status', `${st.split('/')[1] || st}: ${t.zones} (${t.desc})`, { taskId: t.id });
     syncIrrigatedZonesFromTasks(false);
     saveState(); renderTasks(getDayLog());
 }
+
 function updateTaskNote(idx, v) {
     const t = getDayLog().tasks[idx];
     const res = applySpellAndDictationGuard(v);
@@ -1163,15 +1328,6 @@ function deleteTask(idx) {
     logSectionHistory('tasks', 'delete', `حذف مهمة: ${t.zones} (${t.desc})`, {});
     syncIrrigatedZonesFromTasks(false);
     saveState(); renderTasks(getDayLog());
-}
-function escalateTaskToIssue(idx) {
-    const t = getDayLog().tasks[idx];
-    const site = getSite();
-    const code = 'ISS-' + String(site.issues.length + 1).padStart(2, '0');
-    const iid = 'i_' + Date.now();
-    site.issues.unshift({ id: iid, code, date: state.activeDate, zone: t.zones, severity: 'High', desc: `${t.desc}: ${t.note || 'توقف الري'}`, status: 'Open', resolvedDate: '', photos: [...ensurePhotosArr(t)] });
-    logSectionHistory('issues', 'add', `تصعيد ${code} [${t.zones}]: ${t.note || t.desc}`, { issueId: iid });
-    saveState(); renderExportAndIssues(site, getDayLog()); showToast(`🚨 تم تصعيد العطل إلى متتبع المشاكل (${code})`);
 }
 
 function openTaskModal() {
@@ -1224,13 +1380,13 @@ function saveNewTask() {
         id: tid,
         task: isStandard ? rawTask : 'Other  /  أخرى',
         desc: finalDesc,
-        zones, dur, status: 'Completed / مكتمل', workers: [], note: '',
-        isTanker, tankerCapacity: isTanker ? TANKER_FULL_CAPACITY : '', tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية',
-        agroName: '', agroDose: '', photos: []
+        zones, dur, status: 'Not Started / لم يبدأ', workers: [], note: '',
+        isTanker, tankerCapacity: isTanker ? TANKER_FULL_CAPACITY : '', tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية', tankerTrips: 1,
+        agroName: '', agroDose: '', photos: [], startTimeMs: null
     });
     logSectionHistory('tasks', 'add', `إضافة مهمة: ${zones} (${finalDesc})`, { taskId: tid });
     syncIrrigatedZonesFromTasks(false);
-    closeModal(); saveState(); renderTasks(getDayLog()); showToast('✓ تمت إضافة المهمة');
+    closeModal(); saveState(); renderTasks(getDayLog()); showToast('✓ تمت إضافة المهمة لقائمة القادم');
 }
 
 function openAssignWorkersModal(tIdx) {
@@ -1239,12 +1395,14 @@ function openAssignWorkersModal(tIdx) {
     const presentWorkers = log.attendance.filter(w => !w.status.includes('Absent'));
     openModal(`
         <h3 class="card-title">👷 تحديد العمال المنفذين</h3>
+        <button class="btn btn-blue btn-full" style="margin-bottom:8px;" onclick="document.querySelectorAll('.wk-chk').forEach(c=>c.checked=true)">👥 الفريق بالكامل (Team)</button>
         <div style="margin-bottom:10px;">
             ${presentWorkers.map(w => {
                 const shortName = (w.name.split('/')[1] || w.name).trim();
-                const checked = task.workers.includes(shortName);
+                const checked = task.workers.includes(shortName) || task.workers.includes('Team');
+                const tCnt = log.tasks.filter(t => (t.workers||[]).includes(shortName)).length;
                 return `<label style="display:block;padding:8px;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:bold;">
-                    <input type="checkbox" class="wk-chk" value="${esc(shortName)}" ${checked ? 'checked' : ''}> ${esc(shortName)}
+                    <input type="checkbox" class="wk-chk" value="${esc(shortName)}" ${checked ? 'checked' : ''}> ${esc(shortName)} <span style="font-size:10px;color:var(--muted);">(${tCnt} مهام)</span>
                 </label>`;
             }).join('')}
         </div>
@@ -1254,7 +1412,13 @@ function openAssignWorkersModal(tIdx) {
 function saveAssignedWorkers(tIdx) {
     pushUndo('تعيين عمال لمهمة');
     const t = getDayLog().tasks[tIdx];
-    t.workers = Array.from(document.querySelectorAll('.wk-chk:checked')).map(c => c.value);
+    const chks = Array.from(document.querySelectorAll('.wk-chk:checked'));
+    const allCnt = document.querySelectorAll('.wk-chk').length;
+    if (chks.length === allCnt && allCnt > 1) {
+        t.workers = ['Team'];
+    } else {
+        t.workers = chks.map(c => c.value);
+    }
     logSectionHistory('tasks', 'workers', `عمال ${t.zones}: ${t.workers.join(' / ')}`, { taskId: t.id });
     closeModal(); saveState(); renderTasks(getDayLog());
 }
@@ -1379,7 +1543,7 @@ function openPlanEditorModal() {
     const items = (site.plan && site.plan[dayEn]) || [];
     openModal(`
         <h3 class="card-title">🗓️ تعديل خطة الري ليوم (${dayEn})</h3>
-        <div style="margin-bottom:10px;">
+        <div style="max-height:180px;overflow-y:auto;margin-bottom:10px;">
             ${items.map((it, i) => `
                 <div class="meter-card" style="padding:8px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -1394,11 +1558,14 @@ function openPlanEditorModal() {
         <input id="plZones" list="globalZonesList" class="inp" placeholder="المناطق (مثلاً: B1, B2)">
         <input id="plDesc" class="inp" placeholder="الوصف (مثلاً: Drip only)">
         <div class="grid-2">
-            <div style="display:flex;gap:4px;">
-                ${buildDurationSelectHtml('1:00 hr', 'plDurSel', '')}
-                <button class="btn btn-outline btn-sm" style="height:37px;" onclick="openCustomTimeModal('select_el', 0, 'plDurSel')">⏱️</button>
+            <div>
+                <label class="lbl">المدة:</label>
+                <div style="display:flex;gap:4px;">
+                    ${buildDurationSelectHtml('1:00 hr', 'plDurSel', '')}
+                    <button class="btn btn-outline btn-sm" style="height:37px;" onclick="openCustomTimeModal('select_el', 0, 'plDurSel')">⏱️</button>
+                </div>
             </div>
-            <label style="font-size:12px;font-weight:bold;padding-top:8px;"><input type="checkbox" id="plTanker"> تنكر 🚚</label>
+            <div style="display:flex;align-items:center;padding-top:14px;"><label style="font-size:12px;font-weight:bold;"><input type="checkbox" id="plTanker"> تنكر 🚚</label></div>
         </div>
         <div class="grid-2" style="margin-top:8px;"><button class="btn btn-green" onclick="addPlanItem('${dayEn}')">+ إضافة</button><button class="btn btn-outline" onclick="closeModal()">إغلاق</button></div>
     `);
@@ -1427,11 +1594,13 @@ function renderReadingsAndTools(log) {
         </div>
     `).join('');
 
-    const totalTankerL = log.tasks.reduce((sum, t) => sum + (parseFloat(t.tankerLiters) || 0), 0);
+    let totalTankerL = 0; let totalTrips = 0;
+    log.tasks.forEach(t => { if (parseFloat(t.tankerLiters) > 0) { totalTankerL += parseFloat(t.tankerLiters); totalTrips += (t.tankerTrips || 1); } });
+    
     const anyFaulty = log.meters.some(m => m.status === 'faulty');
     document.getElementById('tankerSummaryBox').innerHTML = (totalTankerL > 0 || anyFaulty) ? `
         <div class="tanker-banner" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
-            <span>🚚 مياه التنكر اليوم: ${totalTankerL.toLocaleString()} L (${(totalTankerL / 1000).toFixed(1)} m³)</span>
+            <span>🚚 الإجمالي: ${totalTankerL.toLocaleString()} L (${(totalTankerL / 1000).toFixed(1)} m³) | ${totalTrips} نقلات</span>
             ${anyFaulty ? `<span style="color:var(--red);">⚠️ عداد عاطل</span>` : ''}
         </div>` : '';
 
@@ -1616,7 +1785,15 @@ function saveNewTool() {
 }
 function deleteTool(idx) { pushUndo('حذف أداة'); getDayLog().tools.splice(idx, 1); saveState(); renderReadingsAndTools(getDayLog()); }
 
-/* ================= TAB 4: Plant Inventory, Multi-Photo & Master Summary ================= */
+/* ================= TAB 4: Plant Inventory, Multi-Photo, Filters & Master Summary ================= */
+function setInvFilter(val) {
+    invFilterState = val;
+    document.querySelectorAll('.inv-filter-bar .chip').forEach(c => c.classList.remove('active'));
+    const el = document.getElementById('f_' + val);
+    if(el) el.classList.add('active');
+    renderInventory(getSite());
+}
+
 function renderInventory(site) {
     renderStickySectionHistory('inv', 'stickyHist-inv', 'الجرد');
     const invBox = document.getElementById('invContainer');
@@ -1654,6 +1831,13 @@ function renderInventory(site) {
     const letters = ['أ','ب','ت','ث','ج','ح','خ','د','ذ','ر','ز','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ك','ل','م','ن','هـ','و','ي'];
     alphaBox.innerHTML = `<div class="alpha-bar">${letters.map(l => `<div class="alpha-ch has" onclick="jumpAlpha('${l}')">${l}</div>`).join('')}</div>`;
 
+    let filteredPlants = zone.plants;
+    if (invFilterState === 'warn') {
+        filteredPlants = zone.plants.filter(p => Object.keys(p.counts).some(k => k !== 'c1' && p.counts[k] > 0));
+    } else if (invFilterState === 'today') {
+        filteredPlants = zone.plants.filter(p => (p.entries||[]).some(e => e.date === state.activeDate));
+    }
+
     invBox.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:4px;flex-wrap:wrap;">
             <button class="btn btn-blue btn-sm" onclick="exitInvZone()">➡️ المناطق</button>
@@ -1663,7 +1847,9 @@ function renderInventory(site) {
                 <button class="btn btn-outline btn-sm" onclick="sortZonePlants()">🔤</button>
             </div>
         </div>
-        ${zone.plants.map((p, pIdx) => {
+        ${filteredPlants.length === 0 ? `<div style="text-align:center;color:var(--muted);padding:20px;">لا توجد نباتات تطابق الفلتر الحالي</div>` : ''}
+        ${filteredPlants.map(p => {
+            const pIdx = zone.plants.findIndex(x => x.id === p.id);
             const total = Object.values(p.counts).reduce((a, b) => a + (b || 0), 0);
             const hArr = (p.entries || []).map(e => parseFloat(e.height)).filter(n => !isNaN(n) && n > 0);
             const avgH = hArr.length ? (hArr.reduce((a, b) => a + b, 0) / hArr.length).toFixed(2) : null;
@@ -1701,6 +1887,7 @@ function renderInventory(site) {
                             </div>
                             <div style="display:flex;gap:4px;flex-wrap:wrap;">
                                 <input type="number" step="any" class="inp" style="width:75px;margin:0;padding:5px;text-align:center;" placeholder="${unit}" oninput="setPlantEntryHeight(${pIdx},'${activeEntryPrompt.entryId}',this.value)">
+                                ${lastUsedHeight ? `<button class="chip" style="color:var(--purple);border-color:var(--purple);" onclick="setPlantEntryHeight(${pIdx},'${activeEntryPrompt.entryId}',${lastUsedHeight})">تكرار ${lastUsedHeight}</button>` : ''}
                                 ${chips.map(v => `<button class="chip" onclick="setPlantEntryHeight(${pIdx},'${activeEntryPrompt.entryId}',${v})">${v}</button>`).join('')}
                             </div>
                         </div>` : ''}`;
@@ -1715,7 +1902,6 @@ function renderInventory(site) {
 
 function openInventoryMasterSummary() {
     const site = getSite();
-    const unit = state.company.heightUnit || 'م';
     let grandTotal = 0;
     const condTotals = { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 };
     const zoneLines = [];
@@ -1729,7 +1915,7 @@ function openInventoryMasterSummary() {
             HEALTH_CONDITIONS.forEach(c => { condTotals[c.id] += (p.counts[c.id] || 0); });
             return `${p.name}: ${pSum}`;
         });
-        zoneLines.push(`📍 ${z.name} (${zSum}): ${pDetails.join(' | ')}`);
+        if (zSum > 0) zoneLines.push(`📍 ${z.name} (${zSum}): ${pDetails.join(' | ')}`);
     });
 
     const summaryText = `🌿 ملخص جرد (${site.name.split('/')[0].trim()}) — ${state.activeDate}\n` +
@@ -1746,28 +1932,9 @@ function openInventoryMasterSummary() {
         <textarea id="invSumBox" class="inp" rows="7" readonly style="font-size:11.5px;">${esc(summaryText)}</textarea>
         <div class="grid-2">
             <button class="btn btn-green" onclick="navigator.clipboard.writeText(document.getElementById('invSumBox').value);showToast('📋 تم نسخ ملخص الجرد!')">📋 نسخ الملخص</button>
-            <button class="btn btn-blue" onclick="exportInventoryCSV()">📥 تصدير CSV</button>
+            <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
         </div>
-        <button class="btn btn-outline btn-full" style="margin-top:6px;" onclick="closeModal()">إغلاق</button>
     `);
-}
-
-function exportInventoryCSV() {
-    const site = getSite();
-    let csv = '\uFEFFZone,Plant,Total,' + HEALTH_CONDITIONS.map(c => c.name).join(',') + ',Avg_Height,Note\n';
-    site.inventory.forEach(z => {
-        z.plants.forEach(p => {
-            const tot = Object.values(p.counts).reduce((a, b) => a + (b || 0), 0);
-            const hArr = (p.entries || []).map(e => parseFloat(e.height)).filter(n => !isNaN(n) && n > 0);
-            const avgH = hArr.length ? (hArr.reduce((a, b) => a + b, 0) / hArr.length).toFixed(2) : '';
-            csv += `"${z.name}","${p.name}",${tot},` + HEALTH_CONDITIONS.map(c => p.counts[c.id] || 0).join(',') + `,"${avgH}","${p.note || ''}"\n`;
-        });
-    });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `Inventory_${site.id}_${state.activeDate}.csv`;
-    a.click();
 }
 
 function setStopMarker() { const site = getSite(); const m = prompt('مكان علامة التوقف الميداني:', site.stopMarker || ''); if (m !== null) { site.stopMarker = m.trim(); saveState(); renderInventory(site); } }
@@ -1811,7 +1978,7 @@ function openPlantSeqLogModal(pIdx) {
                         <div><b>#${i + 1} — ${cObj ? cObj.name : ''}</b><div style="font-size:11px;color:var(--muted);">${esc(e.date)} ${e.height ? `| ${e.height} ${state.company.heightUnit}` : ''}</div></div>
                         <button class="btn btn-outline btn-sm" onclick="openPhotoSourceChoice('plant', {pIdx:${pIdx}, entryId:'${e.id}'})">📸 +صورة (${ePhotos.length})</button>
                     </div>
-                    ${ePhotos.length > 0 ? `<div class="photo-strip">${ePhotos.map(u => `<img src="${u}" class="photo-thumb" onclick="previewSinglePhoto('${u}')">`).join('')}</div>` : ''}
+                    ${ePhotos.length > 0 ? `<div class="photo-strip">${ePhotos.map((u, pI) => `<div class="photo-item-wrap"><img src="${u}" class="photo-thumb" onclick="previewSinglePhoto('${u}')"><button class="photo-del-badge" onclick="removePhotoFromItem('plant', {pIdx:${pIdx}, entryId:'${e.id}'}, ${pI})">✕</button></div>`).join('')}</div>` : ''}
                 </div>`;
             }).join('')}
         </div>
@@ -1872,13 +2039,84 @@ function setPlantEntryHeight(pIdx, entryId, val) {
     const p = z.plants[pIdx];
     const ent = (p.entries || []).find(e => e.id === entryId);
     const num = parseFloat(val);
-    if (ent) ent.height = (!isNaN(num) && num > 0) ? num : null;
+    if (ent) {
+        ent.height = (!isNaN(num) && num > 0) ? num : null;
+        if (ent.height) lastUsedHeight = ent.height;
+    }
     const latestInvH = (getDayLog().secHistory.inv || [])[0];
     if (latestInvH && latestInvH.ref && latestInvH.ref.entryId === entryId) {
         const cObj = HEALTH_CONDITIONS.find(c => c.id === ent.condId);
         latestInvH.summary = `${z.name} | ${p.name} — ${cObj ? cObj.name : ''} ${ent.height ? `(${ent.height} ${state.company.heightUnit})` : ''}`;
     }
     saveState(); renderInventory(site);
+}
+
+/* ================= Standalone Inventory Excel Export ================= */
+async function exportInventoryStandaloneExcel() {
+    if (typeof ExcelJS === 'undefined') { showToast('⚠️ مكتبة ExcelJS غير محملة'); return; }
+    showToast('⏳ جاري بناء إكسيل الجرد بالصور...');
+    const site = getSite();
+    const wb = new ExcelJS.Workbook();
+    
+    // 1. Summary Sheet
+    const sumWs = wb.addWorksheet('ملخص الجرد', { views: [{ rightToLeft: true }] });
+    const sumHeaders = ['المنطقة', 'النبات', 'الإجمالي', ...HEALTH_CONDITIONS.map(c => c.name), 'متوسط الطول', 'ملاحظات', 'علامة التوقف'];
+    sumWs.addRow(sumHeaders).font = { bold: true };
+    sumWs.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0F2FE' } };
+    
+    let gTot = 0;
+    site.inventory.forEach(z => {
+        z.plants.forEach(p => {
+            const tot = Object.values(p.counts).reduce((a, b) => a + (b || 0), 0);
+            if (tot === 0) return;
+            gTot += tot;
+            const hArr = (p.entries || []).map(e => parseFloat(e.height)).filter(n => !isNaN(n) && n > 0);
+            const avgH = hArr.length ? (hArr.reduce((a, b) => a + b, 0) / hArr.length).toFixed(2) : '';
+            const row = [z.name, p.name, tot];
+            HEALTH_CONDITIONS.forEach(c => row.push(p.counts[c.id] || 0));
+            row.push(avgH, p.note || '', site.stopMarker || '');
+            sumWs.addRow(row);
+        });
+    });
+    sumWs.addRow(['الإجمالي الكلي', '', gTot]);
+    sumWs.columns.forEach(c => c.width = 15);
+
+    // 2. Entries & Photos Sheet
+    const entWs = wb.addWorksheet('سجل الترتيب والصور', { views: [{ rightToLeft: true }] });
+    entWs.addRow(['المنطقة', 'النبات', 'التسلسل', 'التاريخ', 'الحالة الصحية', 'الطول المقاس', 'الصورة']).font = { bold: true };
+    entWs.columns.forEach((c, i) => { c.width = i === 6 ? 22 : 15; });
+    entWs.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDF4' } };
+
+    let rIdx = 2;
+    site.inventory.forEach(z => {
+        z.plants.forEach(p => {
+            (p.entries || []).forEach((e, i) => {
+                const cObj = HEALTH_CONDITIONS.find(c => c.id === e.condId);
+                const rowObj = entWs.addRow([z.name, p.name, `#${i+1}`, e.date, cObj ? cObj.name : '', e.height || '', '']);
+                rowObj.height = 70;
+                
+                const ePhotos = ensurePhotosArr(e);
+                if (ePhotos.length > 0) {
+                    try {
+                        const imgId = wb.addImage({ base64: ePhotos[0], extension: 'jpeg' });
+                        entWs.addImage(imgId, {
+                            tl: { col: 6.1, row: rIdx - 0.9 },
+                            ext: { width: 120, height: 80 }
+                        });
+                    } catch(err) { console.error(err); }
+                }
+                rIdx++;
+            });
+        });
+    });
+
+    const outBuffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([outBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `TFF_Inventory_${site.id}_${state.activeDate}.xlsx`;
+    a.click();
+    showToast(`✅ تم تنزيل إكسيل الجرد بالصور!`);
 }
 
 /* ================= TAB 5: Issues, IR, SDL, OAR & Lightweight Gemini Export ================= */
@@ -2071,6 +2309,43 @@ function autoGenerateOAR() {
     saveState(); renderExportAndIssues(site, log); triggerAllAutoGrows(); showToast('🔄 تم توليد مسودة OAR تلقائياً');
 }
 
+function generateWhatsAppBrief() {
+    const site = getSite();
+    const log = getDayLog();
+    const pres = log.attendance.filter(w => !w.status.includes('Absent')).length;
+    const totalTk = log.tasks.reduce((s, t) => s + (parseFloat(t.tankerLiters) || 0), 0);
+    const blocked = log.tasks.filter(t => t.status.includes('Blocked')).map(t => t.zones).join(', ');
+    const txt = `*ملخص الوردية - ${site.name.split('/')[0].trim()}*\n` +
+        `📅 التاريخ: ${state.activeDate}\n` +
+        `📑 DFL-${log.dflNum}\n` +
+        `👷 الحضور: ${pres} / ${log.attendance.length}\n` +
+        `💧 التنكر: ${totalTk.toLocaleString()} L\n` +
+        (blocked ? `🛑 مناطق متوقفة: ${blocked}\n` : '') +
+        `✅ حالة الشبكة: ${log.perf.status}`;
+    
+    if (navigator.share) {
+        navigator.share({ title: 'ملخص الوردية', text: txt }).catch(()=>{});
+    } else {
+        navigator.clipboard.writeText(txt);
+        showToast('📋 تم نسخ الملخص للواتساب');
+    }
+}
+
+function openTablePreviewModal() {
+    const log = getDayLog();
+    const { taskPhotoRefs } = collectTodayPhotos();
+    openModal(`
+        <h3 class="card-title">👁️ معاينة شكل المهام في الـ DFL</h3>
+        <div style="max-height:300px;overflow-y:auto;font-size:11px;">
+            <table style="width:100%;border-collapse:collapse;text-align:center;" border="1">
+                <tr style="background:#e2e8f0;font-weight:bold;"><td>Task</td><td>Desc</td><td>Zone</td><td>Time</td><td>St</td><td>Photos</td></tr>
+                ${log.tasks.map((t, i) => `<tr><td>${t.task.split('/')[0]}</td><td>${t.desc}</td><td>${t.zones}</td><td>${t.dur}</td><td>${t.status.split('/')[0]}</td><td style="color:var(--blue);">${taskPhotoRefs[i] || '-'}</td></tr>`).join('')}
+            </table>
+        </div>
+        <button class="btn btn-outline btn-full" style="margin-top:10px;" onclick="closeModal()">إغلاق</button>
+    `);
+}
+
 /* ================= Multi-Photo Collector, Gallery & ZIP Download ================= */
 function collectTodayPhotos() {
     const site = getSite();
@@ -2174,6 +2449,7 @@ function runPreExportCheck() {
     if (log.meters.some(m => ensurePhotosArr(m).length === 0)) warnings.push('• لم تُلتقط صورة عداد المياه اليوم.');
     if (log.tasks.some(t => t.status.includes('Blocked') && !t.note.trim())) warnings.push('• توجد مهمة متوقفة بدون كتابة سبب التوقف.');
     if (log.tasks.some(t => t.status.includes('Blocked')) && !log.oar.obs) warnings.push('• توجد مهام متوقفة ولم يُملأ تقرير OAR بعد.');
+    if (log.tasks.some(t => t.status.includes('Progress'))) warnings.push('• توجد مهام جارية لم تُكتمل بعد.');
 
     if (warnings.length > 0) {
         openModal(`
@@ -2195,10 +2471,12 @@ function exportLightweightDFL() {
     const { photos, taskPhotoRefs, meterPhotoRefs, sickPlants, activeIssues, issuePhotoRefs } = collectTodayPhotos();
     const rowOffset = Math.max(0, log.attendance.length - 5);
 
-    const totalTankerL = log.tasks.reduce((s, t) => s + (parseFloat(t.tankerLiters) || 0), 0);
+    let totalTankerL = 0; let totalTrips = 0;
+    log.tasks.forEach(t => { if (parseFloat(t.tankerLiters) > 0) { totalTankerL += parseFloat(t.tankerLiters); totalTrips += (t.tankerTrips || 1); } });
+    
     const machNote = (log.machinery.pumpHrs || log.machinery.genHrs || log.machinery.fuelL)
         ? ` | Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h, Fuel: ${log.machinery.fuelL || 0}L` : '';
-    const tankerNote = totalTankerL > 0 ? ` | Tanker Total: ${totalTankerL.toLocaleString()} L` : '';
+    const tankerNote = totalTankerL > 0 ? ` | Tanker Total: ${totalTankerL.toLocaleString()} L (${totalTrips} Trips)` : '';
 
     const lightPayload = {
         templateVersion: 'V03_Clean',
@@ -2447,6 +2725,13 @@ function removePhotoFromItem(type, idx, photoIdx) {
     if (type === 'task') ensurePhotosArr(log.tasks[idx]).splice(photoIdx, 1);
     else if (type === 'meter') ensurePhotosArr(log.meters[idx]).splice(photoIdx, 1);
     else if (type === 'issue') ensurePhotosArr(getSite().issues[idx]).splice(photoIdx, 1);
+    else if (type === 'plant') {
+        const { pIdx, entryId } = idx;
+        const z = getSite().inventory.find(x => x.id === activeInvZoneId);
+        const p = z ? z.plants[pIdx] : null;
+        const ent = p ? (p.entries || []).find(e => e.id === entryId) : null;
+        if (ent) ensurePhotosArr(ent).splice(photoIdx, 1);
+    }
     saveState(); renderAll(); showToast('🗑️ تم حذف الصورة');
 }
 
@@ -2476,9 +2761,9 @@ function startDictation(targetId, onDone) {
 function openNewSiteModal() {
     openModal(`
         <h3 class="card-title">🏗️ إضافة موقع جديد للشركة</h3>
-        <label class="lbl">اسم الموقع (عربي / إنجليزي):</label><input id="nsName" class="inp" placeholder="مثلاً: Al-Kufa Project">
+        <label class="lbl">اسم الموقع (عربي / إنجليزي):</label><div class="inp-wrap"><input id="nsName" class="inp" placeholder="مثلاً: Al-Kufa Project"><button class="clr-btn" onclick="quickClearField('nsName')">✕</button></div>
         <label class="lbl">رقم DFL البدائي:</label><input type="number" id="nsDfl" class="inp" value="1">
-        <label class="lbl">المناطق (مفصولة بفاصلة):</label><input id="nsZones" class="inp" value="Z1, Z2, Z3, Z4, Nursery, Admin">
+        <label class="lbl">المناطق (مفصولة بفاصلة):</label><div class="inp-wrap"><input id="nsZones" class="inp" value="Z1, Z2, Z3, Z4, Nursery, Admin"><button class="clr-btn" onclick="quickClearField('nsZones')">✕</button></div>
         <div class="grid-2"><button class="btn btn-green" onclick="createNewSite()">إنشاء</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
     `);
 }
@@ -2502,14 +2787,17 @@ function openSettingsModal() {
     const site = getSite();
     openModal(`
         <h3 class="card-title">⚙️ إعدادات الشركة والموقع</h3>
-        <label class="lbl">قائد الفريق (Team Lead):</label><input id="stTl" class="inp" value="${esc(state.company.teamLead)}">
-        <label class="lbl">المشرف (Supervisor Ref):</label><input id="stSup" class="inp" value="${esc(state.company.supervisor || 'Maitham Ibrahim')}">
+        <label class="lbl">قائد الفريق (Team Lead):</label><div class="inp-wrap"><input id="stTl" class="inp" value="${esc(state.company.teamLead)}"><button class="clr-btn" onclick="quickClearField('stTl')">✕</button></div>
+        <label class="lbl">المشرف (Supervisor Ref):</label><div class="inp-wrap"><input id="stSup" class="inp" value="${esc(state.company.supervisor || 'Maitham Ibrahim')}"><button class="clr-btn" onclick="quickClearField('stSup')">✕</button></div>
         <div class="grid-2">
             <div><label class="lbl">وحدة الأطوال:</label><select id="stUnit" class="inp"><option value="م" ${state.company.heightUnit === 'م' ? 'selected' : ''}>المتر (م)</option><option value="سم" ${state.company.heightUnit === 'سم' ? 'selected' : ''}>السنتيمتر (سم)</option></select></div>
             <div><label class="lbl">أجر العامل الخارجي:</label><input type="number" id="stRate" class="inp" value="${state.company.outsideRate}"></div>
         </div>
         <label class="lbl">مناطق الموقع الحالي (مفصولة بفاصلة):</label>
-        <textarea id="stSiteZones" class="inp auto-grow" rows="2">${esc(site.zones.join(', '))}</textarea>
+        <div class="inp-wrap">
+            <textarea id="stSiteZones" class="inp auto-grow" rows="2">${esc(site.zones.join(', '))}</textarea>
+            <button class="clr-btn top-align" onclick="quickClearField('stSiteZones')">✕</button>
+        </div>
         <button class="btn btn-blue btn-full" onclick="openStaffPoolManager()">👷 إدارة القائمة الدائمة للكادر (${state.company.staffPool.length})</button>
         <button class="btn btn-outline btn-full" style="color:var(--red);" onclick="purgeOldPhotos()">🧹 تنظيف الصور الأقدم من 30 يوم</button>
         <div class="grid-2"><button class="btn btn-green" onclick="saveSettings()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إغلاق</button></div>
@@ -2570,7 +2858,7 @@ function onBackupFileLoaded(e) {
     r.readAsText(f);
 }
 
-function openModal(html) { document.getElementById('genericModalBody').innerHTML = html; document.getElementById('genericModal').classList.add('active'); }
+function openModal(html) { document.getElementById('genericModalBody').innerHTML = html; document.getElementById('genericModal').classList.add('active'); setTimeout(triggerAllAutoGrows, 20); }
 function closeModal() { document.getElementById('genericModal').classList.remove('active'); }
 
 window.addEventListener('DOMContentLoaded', async () => {
