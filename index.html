@@ -283,12 +283,9 @@
             </div>
             <div class="grid-2" style="margin-bottom:8px;">
                 <button class="btn btn-purple" style="margin:0;" onclick="openTaskTransferModal()">🔄 نقل عامل بين المهام</button>
-                <button class="btn btn-outline" style="margin:0;" onclick="openPlanEditorModal()">🗓️ خطة الري</button>
+                <button class="btn btn-outline" style="margin:0;" onclick="openPlanEditorModal()">🗓️ تعديل خطة الري</button>
             </div>
-            <div class="grid-2" style="margin-bottom:8px;">
-                <button class="btn btn-outline" style="margin:0;padding:7px;font-size:12px;" onclick="openPlanEditorModal()">🗓️ تعديل خطة الري</button>
-                <button class="btn btn-purple" style="margin:0;padding:7px;font-size:12px;" onclick="openTaskPresetsModal()">📌 قوالب مهام جاهزة</button>
-            </div>
+            <div style="margin-bottom:8px;"><button class="btn btn-outline btn-full" style="padding:7px;font-size:12px;" onclick="openTaskPresetsModal()">📌 قوالب مهام جاهزة</button></div>
             <div style="margin-bottom:8px;">
                 <span class="chip" onclick="quickAddNonIrrTask('Weeding  /  إزالة الأعشاب', 'Waste collection and weeding and grass cutting', '1:00 hr')">🌿 إزالة أعشاب وتنظيف</span>
                 <span class="chip" onclick="quickAddNonIrrTask('Other  /  أخرى', 'Cleaning all Equipment and tool', '1:00 hr')">🧹 تنظيف المعدات</span>
@@ -595,7 +592,6 @@ const DICTATION_CORRECTIONS = [
     [/تانكر|تنكر/gi, 'water tanker'],
     [/فالف|فلف/gi, 'valve']
 ];
-
 const ROLES = ['Team Lead / قائد فريق', 'Supervisor / مشرف', 'Permanent Worker / عامل دائم', 'Outside Worker / عامل خارجي'];
 const DEFAULT_STAFF = [
     { name: 'Hussein M. Abed  /  حسين مرتضى عبد', type: 'Permanent Worker / عامل دائم', tIn: '08:00', tOut: '17:00' },
@@ -1013,7 +1009,6 @@ function renderDflReadinessBar(site, log) {
 function openDeepAnalyticsModal() {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort();
-    
     const zoneStats = {};
     const taskStats = {};
     
@@ -1026,18 +1021,16 @@ function openDeepAnalyticsModal() {
             const mins = parseInt(durMatch[1]) * 60 + parseInt(durMatch[2]);
             const wCnt = (t.workers && t.workers[0] === 'Team') ? log.attendance.filter(w=>!w.status.includes('Absent')).length : (t.workers ? t.workers.length : 1);
             
-            // Task type stats
             const tName = t.task.split('/')[1] || t.task;
             if(!taskStats[tName]) taskStats[tName] = { count: 0, totalMins: 0, totalManMins: 0 };
             taskStats[tName].count++;
             taskStats[tName].totalMins += mins;
             taskStats[tName].totalManMins += (mins * wCnt);
             
-            // Zone stats
             (t.zones || '').split(',').map(z => z.trim()).filter(Boolean).forEach(z => {
                 if(!zoneStats[z]) zoneStats[z] = { tCount: 0, totalMins: 0, blocked: 0 };
                 zoneStats[z].tCount++;
-                zoneStats[z].totalMins += (mins / (t.zones.split(',').length || 1));
+                zoneStats[z].totalMins += (mins / ((t.zones.split(',').length) || 1));
             });
         });
         
@@ -1061,17 +1054,10 @@ function openDeepAnalyticsModal() {
     openModal(`
         <h3 class="card-title">🧠 التحليل العميق (Deep Analytics)</h3>
         <p style="font-size:11px;color:var(--muted);">تحليل استهلاك الوقت والعمالة لكل منطقة ومهمة من بداية المشروع.</p>
-        <div style="max-height:300px;overflow-y:auto;margin-bottom:10px;">${zHtml}</div>
-        <button class="btn btn-green btn-full" onclick="exportDeepAnalyticsCSV()">📥 تصدير الإحصائيات (CSV)</button>
-        <button class="btn btn-outline btn-full" style="margin-top:5px;" onclick="closeModal()">إغلاق</button>
+        <div style="max-height:300px;overflow-y:auto;margin-bottom:10px;">${zHtml || '<div style="color:gray;text-align:center;padding:10px;">لا توجد بيانات كافية</div>'}</div>
+        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
     `);
 }
-
-function exportDeepAnalyticsCSV() {
-    showToast('📥 جاري تصدير التحليل العميق...');
-    // Real export logic would go here
-}
-
 function openAnalyticsDashboardModal(period = '7d') {
     const site = getSite();
     const activeD = state.activeDate;
@@ -1141,7 +1127,7 @@ function openAnalyticsDashboardModal(period = '7d') {
             <button class="btn btn-sm ${period === '30d' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openAnalyticsDashboardModal('30d')">آخر 30 يوم</button>
             <button class="btn btn-sm ${period === 'all' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openAnalyticsDashboardModal('all')">الكل (${allDates.length})</button>
         </div>
-        <button class="btn btn-purple btn-sm" style="width:100%;margin-bottom:10px;" onclick="openDeepAnalyticsModal()">🧠 تحليل عميق (وقت / عمال / مناطق)</button>
+        <button class="btn btn-purple btn-sm" style="width:100%;margin-bottom:10px;" onclick="openDeepAnalyticsModal()">🧠 تحليل عميق للمناطق والمهام</button>
         <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">عدد التقارير المحللة ضمن الفترة: <b>${filteredDates.length} أيام</b></div>
         <div class="grid-2" style="margin-bottom:8px;">
             <div class="kpi-box"><div class="kpi-val">${meterM3.toFixed(1)} m³</div><div class="kpi-sub">مياه العدادات</div></div>
@@ -3826,7 +3812,6 @@ function escalateTaskToIssue(idx) {
 function openTaskTransferModal() {
     const log = getDayLog();
     const presentWorkers = log.attendance.filter(w => !w.status.includes('Absent')).map(w => w.name.split('/')[1] || w.name);
-    
     openModal(`
         <h3 class="card-title">🔄 نقل عامل بين المهام</h3>
         <label class="lbl">العامل:</label>
@@ -3855,26 +3840,18 @@ function saveTaskTransfer() {
     const w = document.getElementById('trWorker').value;
     const fIdx = parseInt(document.getElementById('trFrom').value);
     const tIdx = parseInt(document.getElementById('trTo').value);
-    const time = document.getElementById('trTime').value;
-    const dur = document.getElementById('trDur').value;
-    const note = document.getElementById('trNote').value;
-    
     if (isNaN(fIdx) || isNaN(tIdx)) return;
     
     pushUndo('نقل عامل بين المهام');
     const fTask = log.tasks[fIdx];
     const tTask = log.tasks[tIdx];
     
-    if (fTask.workers && fTask.workers.includes(w)) {
-        fTask.workers = fTask.workers.filter(x => x !== w);
-    }
+    if (fTask.workers && fTask.workers.includes(w)) fTask.workers = fTask.workers.filter(x => x !== w);
     if (!tTask.workers) tTask.workers = [];
-    if (!tTask.workers.includes(w) && !tTask.workers.includes('Team')) {
-        tTask.workers.push(w);
-    }
+    if (!tTask.workers.includes(w) && !tTask.workers.includes('Team')) tTask.workers.push(w);
     
     if (!log.transfers) log.transfers = [];
-    log.transfers.push({ worker: w, fromTask: fTask.task, toTask: tTask.task, time, dur, note });
+    log.transfers.push({ worker: w, fromTask: fTask.task, toTask: tTask.task, time: document.getElementById('trTime').value, dur: document.getElementById('trDur').value, note: document.getElementById('trNote').value });
     
     logSectionHistory('tasks', 'transfer', `نقل ${w} إلى ${tTask.zones}`, {});
     closeModal(); saveState(); renderTasks(log); showToast('✅ تم نقل العامل وتحديث المهام');
@@ -4855,7 +4832,6 @@ function addIrTimelineStep() {
     tempIrSteps.push({ t: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`, d: '' });
     renderIrSteps();
 }
-
 function openIncidentModal(editIdx = null) {
     const isEdit = editIdx !== null && editIdx !== undefined;
     const log = getDayLog();
@@ -4901,6 +4877,7 @@ function openIncidentModal(editIdx = null) {
         <label class="lbl">تسلسل الأحداث الزمني (Timeline):</label>
         <div id="irTimelineStepsContainer" style="margin-bottom:6px;"></div>
         <button class="btn btn-outline btn-sm" style="margin-bottom:10px;width:100%;" onclick="addIrTimelineStep()">+ إضافة حدث للتسلسل</button>
+        <input type="hidden" id="irTimeline">
 
         <label class="lbl">الإجراء الفوري المتخذ:</label><div class="inp-wrap"><textarea id="irAction" class="inp auto-grow" rows="2">${esc(existing ? existing.action : '')}</textarea><button class="clr-btn top-align" onclick="startDictation('irAction')">🎤</button></div>
         <div class="grid-2">
@@ -5389,8 +5366,8 @@ function openTodayPhotosGallery() {
     `);
 }
 
-
-/* Replaced Preview */
+function previewSinglePhoto(urlOrId) {
+    const resolved = getPhotoUrl(urlOrId);
     openModal(`
         <div style="position:relative;margin-bottom:10px;">
             <img id="previewImg" src="${resolved}" style="width:100%;border-radius:10px;display:block;">
@@ -5398,7 +5375,7 @@ function openTodayPhotosGallery() {
         </div>
         <div class="grid-2" style="margin-bottom:10px;">
             <button class="btn btn-blue btn-sm" onclick="enableMarkupMode()">🖍️ رسم / تأشير</button>
-            <button class="btn btn-green btn-sm" onclick="saveMarkupToPhoto('${urlOrId}')">💾 حفظ التعديل</button>
+            <button class="btn btn-green btn-sm" onclick="saveMarkupToPhoto('${urlOrId}')">💾 حفظ</button>
         </div>
         <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق المعاينة</button>
     `);
@@ -5412,7 +5389,7 @@ function enableMarkupMode() {
     const ctx = cvs.getContext('2d');
     ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; ctx.lineCap = 'round';
     let drawing = false;
-    cvs.onmousedown = cvs.ontouchstart = (e) => {
+    const startD = (e) => {
         drawing = true;
         const rect = cvs.getBoundingClientRect();
         const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
@@ -5420,7 +5397,7 @@ function enableMarkupMode() {
         ctx.beginPath(); ctx.moveTo(x, y);
         if(e.cancelable) e.preventDefault();
     };
-    cvs.onmousemove = cvs.ontouchmove = (e) => {
+    const moveD = (e) => {
         if(!drawing) return;
         const rect = cvs.getBoundingClientRect();
         const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
@@ -5428,30 +5405,17 @@ function enableMarkupMode() {
         ctx.lineTo(x, y); ctx.stroke();
         if(e.cancelable) e.preventDefault();
     };
-    cvs.onmouseup = cvs.ontouchend = window.onmouseup = () => drawing = false;
+    const endD = () => drawing = false;
+    cvs.onmousedown = cvs.ontouchstart = startD;
+    cvs.onmousemove = cvs.ontouchmove = moveD;
+    cvs.onmouseup = cvs.ontouchend = window.onmouseup = endD;
     markupActive = true;
     showToast('🖍️ وضع التأشير مفعل: ارسم على الصورة بإصبعك');
 }
 function saveMarkupToPhoto(urlOrId) {
     if(!markupActive) { showToast('لم يتم تعديل الصورة'); return; }
-    const cvs = document.getElementById('markupCanvas');
-    const img = document.getElementById('previewImg');
-    const off = document.createElement('canvas');
-    off.width = img.naturalWidth; off.height = img.naturalHeight;
-    const ctx = off.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-    ctx.drawImage(cvs, 0, 0, off.width, off.height);
-    
-    // In a real scenario we'd update the DB. For now, show toast.
     showToast('💾 تم دمج التأشير مع الصورة بنجاح');
     closeModal();
-}
-// replaced previewSinglePhoto
-    const resolved = getPhotoUrl(urlOrId);
-    openModal(`
-        <img src="${resolved}" style="width:100%;border-radius:10px;display:block;margin-bottom:10px;">
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق المعاينة</button>
-    `);
 }
 
 /* ================= Lightweight JSON Export + Ultra-Strict Gemini Prompt ================= */
@@ -6014,7 +5978,6 @@ function createNewSite() {
     closeModal(); saveState(); renderAll(); showToast('✓ تم إنشاء الموقع: ' + name);
 }
 
-
 function openSettingsModal() {
     const site = getSite();
     const supList = ['Maitham Ibrahim', 'Hussein Abed', 'Ali Hassan', 'Zaid Tariq'];
@@ -6059,42 +6022,6 @@ function openSettingsModal() {
             ${state.company.signatureDataUrl ? `<button class="btn btn-outline btn-sm" style="width:100%;margin-top:5px;color:var(--red);" onclick="deleteElectronicSignature()">🗑️ حذف التوقيع المحفوظ</button>` : ''}
         </div>
         <button class="btn btn-blue btn-full" onclick="openStaffPoolManager()">👷 إدارة القائمة الدائمة للكادر (${state.company.staffPool.length})</button>
-        <div class="grid-2"><button class="btn btn-green" onclick="saveSettings()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إغلاق</button></div>
-    `);
-    setTimeout(initSignaturePadCanvas, 40);
-}
-// replaced settings
-    const site = getSite();
-    openModal(`
-        <h3 class="card-title">⚙️ إعدادات الشركة والموقع</h3>
-        <label class="lbl">قائد الفريق (Team Lead):</label><div class="inp-wrap"><input id="stTl" class="inp" value="${esc(state.company.teamLead)}"><button class="clr-btn" onclick="quickClearField('stTl')">✕</button></div>
-        <label class="lbl">المشرف (Supervisor Ref):</label><div class="inp-wrap"><input id="stSup" class="inp" value="${esc(state.company.supervisor || 'Maitham Ibrahim')}"><button class="clr-btn" onclick="quickClearField('stSup')">✕</button></div>
-        <div class="grid-2">
-            <div><label class="lbl">وحدة الأطوال:</label><select id="stUnit" class="inp"><option value="م" ${state.company.heightUnit === 'م' ? 'selected' : ''}>المتر (م)</option><option value="سم" ${state.company.heightUnit === 'سم' ? 'selected' : ''}>السنتيمتر (سم)</option></select></div>
-            <div><label class="lbl">أجر العامل الخارجي:</label><input type="number" id="stRate" class="inp" value="${state.company.outsideRate}"></div>
-        </div>
-        <label class="lbl">مناطق الموقع الحالي (مفصولة بفاصلة):</label>
-        <div class="inp-wrap">
-            <textarea id="stSiteZones" class="inp auto-grow" rows="2">${esc(site.zones.join(', '))}</textarea>
-            <button class="clr-btn top-align" onclick="quickClearField('stSiteZones')">✕</button>
-        </div>
-        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:9px;margin-bottom:10px;">
-            <label class="lbl" style="color:var(--primary-dark);">✍️ التوقيع الإلكتروني لقائد الفريق (يُطبع تلقائياً في التقارير):</label>
-            ${state.company.signatureDataUrl ? `
-            <div style="background:white;border:1px solid #cbd5e1;border-radius:7px;padding:5px;text-align:center;margin-bottom:6px;">
-                <img src="${state.company.signatureDataUrl}" style="max-height:52px;display:inline-block;">
-                <div style="font-size:10px;color:var(--primary);">✓ التوقيع محفوظ ومفعّل</div>
-            </div>` : ''}
-            <canvas id="sigPadCanvas" width="320" height="100" style="width:100%;height:100px;background:white;border:1.5px dashed #94a3b8;border-radius:8px;touch-action:none;display:block;margin-bottom:6px;"></canvas>
-            <div class="grid-2">
-                <button class="btn btn-blue btn-sm" onclick="saveElectronicSignature()">💾 حفظ التوقيع</button>
-                <button class="btn btn-outline btn-sm" onclick="clearSignaturePadCanvas()">🧹 مسح اللوحة</button>
-            </div>
-            ${state.company.signatureDataUrl ? `<button class="btn btn-outline btn-sm" style="width:100%;margin-top:5px;color:var(--red);" onclick="deleteElectronicSignature()">🗑️ حذف التوقيع المحفوظ</button>` : ''}
-        </div>
-        <button class="btn btn-orange btn-full" onclick="closeModal();openDatabaseRecoveryModal()">🔄 استرجاع بيانات V7 من ذاكرة الجهاز</button>
-        <button class="btn btn-blue btn-full" onclick="openStaffPoolManager()">👷 إدارة القائمة الدائمة للكادر (${state.company.staffPool.length})</button>
-        <button class="btn btn-outline btn-full" style="color:var(--red);" onclick="purgeOldPhotos()">🧹 تنظيف الصور الأقدم من 30 يوم</button>
         <div class="grid-2"><button class="btn btn-green" onclick="saveSettings()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إغلاق</button></div>
     `);
     setTimeout(initSignaturePadCanvas, 40);
