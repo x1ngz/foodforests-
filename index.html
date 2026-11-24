@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V11.1</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V11.2</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -26,7 +26,7 @@
         /* Header */
         .app-header { background: linear-gradient(135deg, #15803d, #166534); color: white; padding: 10px 12px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 3px 10px rgba(0,0,0,0.16); }
         .header-row1 { display: flex; justify-content: space-between; align-items: center; gap: 5px; margin-bottom: 7px; }
-        .site-select { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); color: white; padding: 6px 7px; border-radius: 8px; font-weight: bold; font-size: 12px; max-width: 48%; }
+        .site-select { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); color: white; padding: 6px 7px; border-radius: 8px; font-weight: bold; font-size: 12px; flex: 1; min-width: 0; }
         .site-select option { color: #0f172a; background: white; }
         .header-tools { display: flex; align-items: center; gap: 4px; }
         .save-pill { font-size: 10px; background: rgba(255,255,255,0.2); padding: 4px 7px; border-radius: 99px; font-weight: bold; white-space: nowrap; }
@@ -44,7 +44,7 @@
 
         /* Sticky Live Section History Banner */
         .sticky-sec-bar {
-            position: sticky; top: 82px; z-index: 920;
+            position: sticky; top: 114px; z-index: 920;
             background: rgba(255,255,255,0.97);
             border: 1.5px solid var(--blue); border-right: 6px solid var(--blue);
             border-radius: 10px; padding: 7px 10px; margin-bottom: 10px;
@@ -57,7 +57,7 @@
         .sticky-sec-actions { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 
         /* Timer Alert Bar */
-        .timer-alert-bar { background: #fef2f2; border-bottom: 2px solid #ef4444; color: #991b1b; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 78px; z-index: 950; }
+        .timer-alert-bar { background: #fef2f2; border-bottom: 2px solid #ef4444; color: #991b1b; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 110px; z-index: 950; }
         .timer-alert-bar.show { display: flex; animation: slideDown 0.3s; }
         @keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -212,15 +212,12 @@
 
     <header class="app-header">
         <div class="header-row1">
-            <div style="display:flex;gap:5px;align-items:center;flex:1;min-width:0;">
-                <select id="siteSelect" class="site-select" onchange="onSiteSelectChange(this.value)"></select>
-                <select id="currentUserSelect" class="site-select" style="max-width:128px;background:#e0f2fe;color:#0369a1;font-size:11px;" onchange="setCurrentUser(this.value)" title="مستخدم البرنامج الحالي"><option value="">👤 المستخدم</option></select>
-            </div>
-            <div class="header-tools">
+            <select id="siteSelect" class="site-select" onchange="onSiteSelectChange(this.value)"></select>
+            <div class="header-tools" style="flex-shrink:0;">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V11.1 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V11.2 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -233,6 +230,12 @@
                 <span>DFL-</span>
                 <input type="number" id="dflNumInput" class="dfl-num" onchange="onDflNumChange(this.value)">
             </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;background:rgba(255,255,255,0.14);padding:5px 9px;border-radius:8px;">
+            <span style="font-size:11.5px;font-weight:bold;white-space:nowrap;">👤 المستخدم النشط:</span>
+            <select id="currentUserSelect" style="flex:1;min-width:0;background:rgba(255,255,255,0.96);color:#0f172a;border:none;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:bold;" onchange="setCurrentUser(this.value)" title="مستخدم البرنامج الحالي">
+                <option value="">اختر المستخدم...</option>
+            </select>
         </div>
     </header>
 
@@ -719,7 +722,7 @@ let state = {
 
 
 
-/* ================= V11.1: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V11.2: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -884,7 +887,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V11.1: Task Presets Manager ================= */
+/* ================= V11.2: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -971,7 +974,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V11.1: DFL Readiness Progress Bar ================= */
+/* ================= V11.2: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1011,7 +1014,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V11.1: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V11.2: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1267,7 +1270,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V11.1: Electronic Touch Signature Pad ================= */
+/* ================= V11.2: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1577,7 +1580,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V11.1: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V11.2: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -3568,9 +3571,9 @@ function renderTasksQueue(log) {
             const netStr = formatMsAsHrMin(getTaskNetElapsedMs(x.t));
             html += `
             <div class="queue-item">
-                <div style="font-size:12px;flex:1;">
-                    <b style="cursor:pointer;color:var(--blue);text-decoration:underline;" onclick="jumpToZoneFromTask('${esc(x.t.zones)}')" title="الانتقال إلى بطاقة المنطقة">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)}<br>
-                    <span class="live-timer-pill ${x.t.pausedAtMs ? 'is-paused' : ''}" onclick="openRetroStartTimeModal(${x.i})">
+                <div style="font-size:12px;flex:1;cursor:pointer;" onclick="scrollToTaskCard(${x.i})" title="الانتقال إلى بطاقة المهمة">
+                    <b style="color:var(--blue);text-decoration:underline;">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)} ⬇️<br>
+                    <span class="live-timer-pill ${x.t.pausedAtMs ? 'is-paused' : ''}" onclick="event.stopPropagation();openRetroStartTimeModal(${x.i})">
                         ▶️ بدأ: ${startStr} ✏️ | <span data-live-task-id="${x.t.id}">${x.t.pausedAtMs ? `⏸️ استراحة (${netStr})` : `⏱️ مستمر منذ ${netStr}`}</span>
                     </span>
                 </div>
@@ -3588,7 +3591,7 @@ function renderTasksQueue(log) {
         notSt.forEach(x => {
             html += `
             <div class="queue-item">
-                <div style="font-size:12px;color:var(--muted);"><b style="cursor:pointer;color:var(--blue);text-decoration:underline;" onclick="jumpToZoneFromTask('${esc(x.t.zones)}')" title="الانتقال إلى بطاقة المنطقة">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)}</div>
+                <div style="font-size:12px;color:var(--muted);flex:1;cursor:pointer;" onclick="scrollToTaskCard(${x.i})" title="الانتقال إلى بطاقة المهمة"><b style="color:var(--blue);text-decoration:underline;">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)} ⬇️</div>
                 <button class="btn btn-blue btn-sm" onclick="setTaskStatus(${x.i}, 'In Progress / جاري')">▶️ ابدأ</button>
             </div>`;
         });
@@ -3655,7 +3658,7 @@ function renderTasks(log) {
         else if (isDone) cardClass += ' is-done';
 
         return `
-        <div class="card ${cardClass}">
+        <div id="taskCard_${idx}" class="card ${cardClass}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;">
                 <div style="display:flex;gap:3px;">
                     <div class="sort-controls">
@@ -3665,7 +3668,7 @@ function renderTasks(log) {
                     <div style="font-weight:bold;font-size:14px;padding-top:2px;">${esc(t.task.split('/')[1] || t.task)}</div>
                 </div>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-                    <span class="zone-pill" onclick="openZonePickerModal(${idx})">📍 ${esc(t.zones)} ✏️</span> <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1;font-size:11px;padding:3px 6px;" onclick="jumpToZoneFromTask('${esc(t.zones)}')" title="فتح المنطقة في تبويب المناطق">🔗 فتح المنطقة</span>
+                    <span class="zone-pill" onclick="openZonePickerModal(${idx})">📍 ${esc(t.zones)} ✏️</span> <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1;font-size:11px;padding:3px 6px;" onclick="jumpToZoneFromTask('${esc(t.zones)}')" title="فتح جرد هذه المنطقة">🌿 جرد المنطقة</span>
                     ${canSplit ? `<button class="btn btn-orange btn-sm" onclick="splitTaskZones(${idx})">✂️ تفريق</button>` : ''}
                 </div>
             </div>
@@ -3872,6 +3875,19 @@ function refillTankerTrip(idx) {
     t.note = '';
     logSectionHistory('tasks', 'tanker', `تعبئة نقلة #${t.tankerTrips} لـ ${t.zones}`, { taskId: t.id });
     saveState(); renderTasks(getDayLog()); showToast(`🔄 تم تسجيل نقلة #${t.tankerTrips} بسعة 24,000 لتر`);
+}
+
+function scrollToTaskCard(idx) {
+    const card = document.getElementById('taskCard_' + idx);
+    if (!card) return;
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.style.transition = 'box-shadow 0.25s, transform 0.25s';
+    card.style.boxShadow = '0 0 0 3px #0284c7, 0 8px 20px rgba(2,132,199,0.28)';
+    card.style.transform = 'scale(1.01)';
+    setTimeout(() => {
+        card.style.boxShadow = '';
+        card.style.transform = '';
+    }, 2200);
 }
 
 function jumpToZoneFromTask(zonesStr) {
@@ -6418,39 +6434,11 @@ function updateGlobalAttendanceList() {
 }
 
 function bootApp() {
-    setInterval(() => {
-        try {
-            if (state && state.sites) {
-                localStorage.setItem('tff_emergency_autosave_v11', JSON.stringify({ ts: Date.now(), state }));
-            }
-        } catch {}
-    }, 30000);
+    try { localStorage.removeItem('tff_emergency_autosave_v11'); } catch {}
     normalizeState();
     getDayLog();
     renderAll();
     updateGlobalAttendanceList();
-
-    try {
-        const rawAuto = localStorage.getItem('tff_emergency_autosave_v11');
-        if (rawAuto) {
-            const parsedWrap = JSON.parse(rawAuto);
-            const savedSt = parsedWrap && parsedWrap.state;
-            if (savedSt && savedSt.sites && JSON.stringify(savedSt.sites) !== JSON.stringify(state.sites)) {
-                setTimeout(() => {
-                    if (confirm('⚠️ توجد نسخة احتياطية تلقائية محفوظة قبل انغلاق التطبيق، هل تريد استعادتها؟')) {
-                        state = savedSt;
-                        normalizeState();
-                        saveState();
-                        renderAll();
-                        updateGlobalAttendanceList();
-                        showToast('✅ تم استرجاع البيانات بنجاح!');
-                    } else {
-                        localStorage.removeItem('tff_emergency_autosave_v11');
-                    }
-                }, 900);
-            }
-        }
-    } catch {}
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -6459,7 +6447,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V11.1 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V11.2 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
