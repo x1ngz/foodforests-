@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V13.0</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V13.1</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -217,7 +217,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V13.0 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V13.1 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -315,6 +315,21 @@
             <div style="margin-bottom:8px;">
                 <button class="btn btn-outline btn-full" style="margin:0;padding:6px;font-size:12px;" onclick="openTaskPresetsModal()">📌 قوالب مهام جاهزة</button>
             </div>
+            <!-- End-of-Shift (15:45) Reminder Banner -->
+            <div id="endOfShiftBanner" style="display:none;background:#fef2f2;border:1.5px solid #f87171;border-radius:10px;padding:8px 10px;margin-bottom:9px;font-size:12px;color:#991b1b;font-weight:bold;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <span>🌇 قرب انتهاء الدوام (4:00 عصراً) — راجع المهام غير المكتملة ورحّل المتبقي للغد</span>
+                    <button class="btn btn-red btn-sm" onclick="openCarryTaskToTomorrowModal(0)">⏭️ ترحيل للغد</button>
+                </div>
+            </div>
+
+            <!-- Fast Task Search Bar -->
+            <div class="inp-wrap" style="margin-bottom:8px;">
+                <input id="taskSearchInp" class="inp" style="background:white;border-color:#93c5fd;padding-right:32px;font-weight:bold;" placeholder="🔍 ابحث برمز منطقة، وصف، عامل، أو حالة..." oninput="onTaskSearchInput(this.value)">
+                <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;">🔍</span>
+                <button class="clr-btn" onclick="quickClearField('taskSearchInp', () => onTaskSearchInput(''))">✕</button>
+            </div>
+
             <div style="margin-bottom:8px;">
                 <span class="chip" onclick="quickAddTaskPresetChip('Irrigation  /  ري المنطقة', 'Drip only', '1:00 hr', false, true)">💧 ري تنقيط</span>
                 <span class="chip" onclick="quickAddTaskPresetChip('Irrigation  /  ري المنطقة', 'Sprinklers only', '0:15 hr', false, true)">💦 ري مرشات</span>
@@ -747,7 +762,7 @@ let state = {
 
 
 
-/* ================= V13.0: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V13.1: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -893,7 +908,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V13.0: Task Presets Manager ================= */
+/* ================= V13.1: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -980,7 +995,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V13.0: DFL Readiness Progress Bar ================= */
+/* ================= V13.1: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1020,7 +1035,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V13.0: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V13.1: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1277,7 +1292,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V13.0: Electronic Touch Signature Pad ================= */
+/* ================= V13.1: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1725,7 +1740,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V13.0: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V13.1: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -2763,6 +2778,73 @@ function requestBreakNotificationsPermission() {
         else showToast('⚠️ لم يتم منح إذن الإشعارات — ستظهر التنبيهات أعلى شاشة التطبيق');
     });
 }
+
+let taskSearchQuery = '';
+function onTaskSearchInput(val) {
+    taskSearchQuery = (val || '').trim().toLowerCase();
+    renderTasks(getDayLog());
+}
+
+function getWorkerTransferTraces(log, taskObj, taskIdx) {
+    const transfers = Array.isArray(log.transfers) ? log.transfers : [];
+    if (!transfers.length) return [];
+    const tLabel = `${(taskObj.task.split('/')[1] || taskObj.task).trim()} (${taskObj.zones})`.toLowerCase();
+    const zTokens = (taskObj.zones || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    return transfers.filter(tr => {
+        const fStr = (tr.fromTask || '').toLowerCase();
+        if (fStr === tLabel) return true;
+        return zTokens.some(z => z && fStr.includes(`(${z})`));
+    });
+}
+
+function getTaskPostBreakState(t, log) {
+    const bw = getBreakWindowMs(state.activeDate);
+    const evs = Array.isArray(t.events) ? t.events : [];
+    const hasPostEv = evs.some(ev => {
+        const m = String(ev.time || '').match(/(\d{1,2}):(\d{2})/);
+        if (!m) return false;
+        const evMins = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+        const [eh, em] = (bw.endStr || '13:00').split(':').map(Number);
+        return evMins >= ((eh || 13) * 60 + (em || 0));
+    });
+    if (hasPostEv) return true;
+    if (t.startTimeMs && t.startTimeMs >= bw.endMs) return true;
+    const tLabel = `${(t.task.split('/')[1] || t.task).trim()} (${t.zones})`.toLowerCase();
+    const hasPostTr = (log.transfers || []).some(tr => {
+        if ((tr.toTask || '').toLowerCase() !== tLabel) return false;
+        const m = String(tr.time || '').match(/(\d{1,2}):(\d{2})/);
+        if (!m) return false;
+        const trMins = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+        const [eh, em] = (bw.endStr || '13:00').split(':').map(Number);
+        return trMins >= ((eh || 13) * 60 + (em || 0));
+    });
+    return hasPostTr;
+}
+
+function checkEndOfShiftReminder() {
+    const now = new Date();
+    const mins = now.getHours() * 60 + now.getMinutes();
+    const todayStr = now.toISOString().split('T')[0];
+    const log = getDayLog(todayStr);
+    const hasUnfinished = (log.tasks || []).some(t =>
+        !t.status.includes('Completed') && !t.status.includes('Carried Over')
+    );
+    const banner = document.getElementById('endOfShiftBanner');
+    const shouldShowBanner = hasUnfinished && mins >= 15 * 60 + 45 && mins <= 16 * 60 + 30;
+    if (banner) {
+        banner.style.display = shouldShowBanner ? 'block' : 'none';
+    }
+    if (hasUnfinished && mins >= 15 * 60 + 45 && mins <= 16 * 60 + 5) {
+        const key = `tff_eos_rem_${todayStr}`;
+        if (!localStorage.getItem(key)) {
+            localStorage.setItem(key, '1');
+            playGentleChime();
+            showToast('🌇 تنبيه: بقيت 15 دقيقة على نهاية الدوام (4:00) — راجع المهام ورحّل المتبقي للغد');
+            sendSystemBrowserNotice('🌇 قرب انتهاء الدوام (4:00 عصراً)', 'راجع المهام غير المكتملة واضغط «⏭️ للغد» لترحيل المناطق المتبقية إلى سجل الغد.');
+        }
+    }
+}
+setInterval(checkEndOfShiftReminder, 30000);
 
 function checkDailyBreakStatus() {
     const now = new Date();
@@ -4225,7 +4307,33 @@ function renderTasks(log) {
         el.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);padding:24px;">💧 اضغط على زر خطة الري أعلاه أو أضف مهمة جديدة</div>`;
         return;
     }
-    el.innerHTML = log.tasks.map((t, idx) => {
+    checkEndOfShiftReminder();
+    const bw = getBreakWindowMs(state.activeDate);
+    let shiftDividerInserted = false;
+    const filteredEntries = log.tasks.map((t, idx) => ({ t, idx })).filter(({ t }) => {
+        if (!taskSearchQuery) return true;
+        const hay = `${t.task || ''} ${t.desc || ''} ${t.zones || ''} ${t.status || ''} ${t.note || ''} ${(t.workers || []).join(' ')}`.toLowerCase();
+        return hay.includes(taskSearchQuery);
+    });
+
+    if (filteredEntries.length === 0) {
+        el.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);padding:20px;">🔍 لا توجد مهام مطابقة للبحث "${esc(taskSearchQuery)}"</div>`;
+        return;
+    }
+
+    el.innerHTML = filteredEntries.map(({ t, idx }) => {
+        const isPostBreak = getTaskPostBreakState(t, log);
+        let shiftDividerHtml = '';
+        if (isPostBreak && !shiftDividerInserted && !taskSearchQuery) {
+            shiftDividerInserted = true;
+            shiftDividerHtml = `
+            <div style="display:flex;align-items:center;gap:8px;margin:12px 0 10px 0;">
+                <div style="flex:1;height:1.5px;background:#93c5fd;"></div>
+                <span style="background:#dbeafe;color:#1e3a8a;border:1px solid #93c5fd;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:bold;white-space:nowrap;">🌇 بعد الاستراحة (من ${esc(bw.endStr || '13:00')})</span>
+                <div style="flex:1;height:1.5px;background:#93c5fd;"></div>
+            </div>`;
+        }
+        const trTraces = getWorkerTransferTraces(log, t, idx);
         const isDone = t.status.includes('Completed');
         const isProg = t.status.includes('Progress');
         const isNotSt = t.status.includes('Not Started');
@@ -4252,7 +4360,7 @@ function renderTasks(log) {
         else if (isNotSt) cardClass += ' is-notstarted';
         else if (isDone) cardClass += ' is-done';
 
-        return `
+        return `${shiftDividerHtml}
         <div id="taskCard_${idx}" class="card ${cardClass}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px;">
                 <div style="display:flex;gap:3px;">
@@ -4318,6 +4426,11 @@ function renderTasks(log) {
                 <span class="chip" onclick="duplicateTask(${idx})" title="نسخ المهمة">📋</span>
                 <span class="chip" style="color:var(--red);" onclick="deleteTask(${idx})" title="حذف">🗑️</span>
             </div>
+
+            ${trTraces.length > 0 ? `
+            <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:7px;padding:5px 8px;margin-bottom:5px;font-size:11px;color:#581c87;">
+                ${trTraces.map(tr => `<div>🔄 <b>${esc(tr.worker)}</b> أكمل وانتقل إلى <b>${esc(tr.toTask)}</b> الساعة <b>${esc(tr.time || '')}</b>${tr.dur ? ` (المدة: ${esc(tr.dur)})` : ''}</div>`).join('')}
+            </div>` : ''}
 
             <!-- Multi-Photo Thumbnails Strip -->
             ${photos.length > 0 ? `
@@ -7115,6 +7228,7 @@ function bootApp() {
     renderAll();
     updateGlobalAttendanceList();
     checkDailyBreakStatus();
+    checkEndOfShiftReminder();
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -7123,7 +7237,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V13.0 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V13.1 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
