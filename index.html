@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V11.0</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V11.1</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -212,15 +212,15 @@
 
     <header class="app-header">
         <div class="header-row1">
-            <div style="display:flex; gap:5px; align-items:center;">
+            <div style="display:flex;gap:5px;align-items:center;flex:1;min-width:0;">
                 <select id="siteSelect" class="site-select" onchange="onSiteSelectChange(this.value)"></select>
-                <select id="currentUserSelect" class="site-select" style="max-width:110px; background-color:#e0f2fe; color:#0369a1;" onchange="setCurrentUser(this.value)"><option value="">👤 المستخدم</option></select>
+                <select id="currentUserSelect" class="site-select" style="max-width:128px;background:#e0f2fe;color:#0369a1;font-size:11px;" onchange="setCurrentUser(this.value)" title="مستخدم البرنامج الحالي"><option value="">👤 المستخدم</option></select>
             </div>
             <div class="header-tools">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V11.0 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V11.1 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -247,6 +247,7 @@
     <div id="toastBar" class="toast-bar"></div>
     <datalist id="globalZonesList"></datalist>
     <datalist id="globalAttendanceList"></datalist>
+    <datalist id="globalSupervisorsList"></datalist>
     <datalist id="globalPlantsList"></datalist>
     <datalist id="globalTasksList"></datalist>
     <datalist id="globalToolsList"></datalist>
@@ -284,11 +285,13 @@
                 <button class="btn btn-blue" style="margin:0;" onclick="loadSiteIrrigationPlan()">⚡ خطة ري <span id="planDayLabel"></span></button>
                 <button class="btn btn-orange" style="margin:0;" onclick="carryOverUnfinishedTasks()">📥 ترحيل المتبقي من الأمس</button>
             </div>
-            <div class="grid-2" style="margin-bottom:8px;">
-                <button class="btn btn-purple" style="margin:0;" onclick="openTaskTransferModal()">🔄 نقل عامل بين المهام</button>
-                <button class="btn btn-outline" style="margin:0;" onclick="openPlanEditorModal()">🗓️ تعديل خطة الري</button>
+            <div class="grid-2" style="margin-bottom:6px;">
+                <button class="btn btn-purple" style="margin:0;padding:7px;font-size:12px;" onclick="openTaskTransferModal()">🔄 نقل عامل لمهمة ثانية</button>
+                <button class="btn btn-outline" style="margin:0;padding:7px;font-size:12px;" onclick="openPlanEditorModal()">🗓️ تعديل خطة الري</button>
             </div>
-            <div style="margin-bottom:8px;"><button class="btn btn-outline btn-full" style="padding:7px;font-size:12px;" onclick="openTaskPresetsModal()">📌 قوالب مهام جاهزة</button></div>
+            <div style="margin-bottom:8px;">
+                <button class="btn btn-outline btn-full" style="margin:0;padding:6px;font-size:12px;" onclick="openTaskPresetsModal()">📌 قوالب مهام جاهزة</button>
+            </div>
             <div style="margin-bottom:8px;">
                 <span class="chip" onclick="quickAddNonIrrTask('Weeding  /  إزالة الأعشاب', 'Waste collection and weeding and grass cutting', '1:00 hr')">🌿 إزالة أعشاب وتنظيف</span>
                 <span class="chip" onclick="quickAddNonIrrTask('Other  /  أخرى', 'Cleaning all Equipment and tool', '1:00 hr')">🧹 تنظيف المعدات</span>
@@ -597,7 +600,6 @@ const DICTATION_CORRECTIONS = [
     [/فالف|فلف/gi, 'valve']
 ];
 const ROLES = ['Team Lead / قائد فريق', 'Supervisor / مشرف', 'Permanent Worker / عامل دائم', 'Outside Worker / عامل خارجي'];
-let currentUser = null;
 const DEFAULT_STAFF = [
     { name: 'Hussein M. Abed  /  حسين مرتضى عبد', type: 'Permanent Worker / عامل دائم', tIn: '08:00', tOut: '17:00' },
     { name: 'Hussein Y. Hussin / حسين يوسف حسين', type: 'Permanent Worker / عامل دائم', tIn: '08:00', tOut: '17:00' },
@@ -717,7 +719,7 @@ let state = {
 
 
 
-/* ================= V11.0: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V11.1: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -882,7 +884,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V11.0: Task Presets Manager ================= */
+/* ================= V11.1: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -969,7 +971,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V11.0: DFL Readiness Progress Bar ================= */
+/* ================= V11.1: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1009,60 +1011,166 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V11.0: Weekly / Monthly Site Analytics Dashboard ================= */
-
-function openDeepAnalyticsModal() {
+/* ================= V11.1: Weekly / Monthly Site Analytics Dashboard ================= */
+function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
-    const allDates = Object.keys(site.logs).sort();
+    const allDates = Object.keys(site.logs).sort().reverse();
     const zoneStats = {};
-    const taskStats = {};
-    
+    const zoneTaskStats = {};
+    const historyRows = [];
+
     allDates.forEach(d => {
         const log = site.logs[d];
-        (log.tasks || []).forEach(t => {
-            if (!t.status.includes('Completed')) return;
-            const durMatch = String(t.dur || '').match(/(\d+):(\d+)/);
-            if (!durMatch) return;
-            const mins = parseInt(durMatch[1]) * 60 + parseInt(durMatch[2]);
-            const wCnt = (t.workers && t.workers[0] === 'Team') ? log.attendance.filter(w=>!w.status.includes('Absent')).length : (t.workers ? t.workers.length : 1);
-            
-            const tName = t.task.split('/')[1] || t.task;
-            if(!taskStats[tName]) taskStats[tName] = { count: 0, totalMins: 0, totalManMins: 0 };
-            taskStats[tName].count++;
-            taskStats[tName].totalMins += mins;
-            taskStats[tName].totalManMins += (mins * wCnt);
-            
-            (t.zones || '').split(',').map(z => z.trim()).filter(Boolean).forEach(z => {
-                if(!zoneStats[z]) zoneStats[z] = { tCount: 0, totalMins: 0, blocked: 0 };
-                zoneStats[z].tCount++;
-                zoneStats[z].totalMins += (mins / ((t.zones.split(',').length) || 1));
-            });
-        });
-        
-        (log.tasks || []).forEach(t => {
-            if (t.status.includes('Blocked')) {
-                (t.zones || '').split(',').map(z => z.trim()).filter(Boolean).forEach(z => {
-                    if(!zoneStats[z]) zoneStats[z] = { tCount: 0, totalMins: 0, blocked: 0 };
-                    zoneStats[z].blocked++;
-                });
+        const presCnt = (log.attendance || []).filter(w => !w.status.includes('Absent')).length;
+        let dayDone = 0, dayBlocked = 0, dayWaterM3 = 0;
+
+        (log.meters || []).forEach(m => {
+            if (m.status === 'working' && m.curr !== '' && !isNaN(parseFloat(m.curr))) {
+                const diff = parseFloat(m.curr) - (parseFloat(m.prev) || 0);
+                if (diff > 0) dayWaterM3 += diff;
             }
         });
+
+        (log.tasks || []).forEach(t => {
+            const zArr = (t.zones || 'General').split(',').map(z => z.trim()).filter(Boolean);
+            const wCnt = (t.workers && t.workers[0] === 'Team') ? Math.max(1, presCnt) : (t.workers && t.workers.length ? t.workers.length : 1);
+            const durMatch = String(t.dur || '').match(/(\d+):(\d+)/);
+            const mins = durMatch ? (parseInt(durMatch[1]) * 60 + parseInt(durMatch[2])) : 0;
+            const tShort = (t.task.split('/')[1] || t.task).trim();
+
+            if (t.status.includes('Completed')) dayDone++;
+            if (t.status.includes('Blocked')) dayBlocked++;
+
+            zArr.forEach(z => {
+                if (!zoneStats[z]) zoneStats[z] = { tasks: 0, totalMins: 0, totalWorkers: 0, blocked: 0, problems: [] };
+                const shareMins = mins / (zArr.length || 1);
+                zoneStats[z].tasks++;
+                zoneStats[z].totalMins += shareMins;
+                zoneStats[z].totalWorkers += wCnt;
+                if (t.status.includes('Blocked')) {
+                    zoneStats[z].blocked++;
+                    if (t.note) zoneStats[z].problems.push(`${d}: ${t.note}`);
+                }
+
+                const ztKey = `${z}|||${tShort}`;
+                if (!zoneTaskStats[ztKey]) zoneTaskStats[ztKey] = { zone: z, task: tShort, count: 0, totalMins: 0, totalWorkers: 0 };
+                zoneTaskStats[ztKey].count++;
+                zoneTaskStats[ztKey].totalMins += shareMins;
+                zoneTaskStats[ztKey].totalWorkers += wCnt;
+            });
+        });
+
+        (site.issues || []).forEach(iss => {
+            if (iss.date === d && iss.zone) {
+                if (!zoneStats[iss.zone]) zoneStats[iss.zone] = { tasks: 0, totalMins: 0, totalWorkers: 0, blocked: 0, problems: [] };
+                zoneStats[iss.zone].blocked++;
+                zoneStats[iss.zone].problems.push(`${d}: [${iss.code}] ${iss.desc}`);
+            }
+        });
+
+        historyRows.push({
+            date: d,
+            dflNum: log.dflNum,
+            presCnt,
+            totalTasks: (log.tasks || []).length,
+            dayDone,
+            dayBlocked,
+            dayWaterM3: dayWaterM3.toFixed(1)
+        });
     });
-    
-    const zHtml = Object.keys(zoneStats).sort((a,b)=>zoneStats[b].totalMins - zoneStats[a].totalMins).map(z => {
-        const avg = zoneStats[z].tCount ? Math.round(zoneStats[z].totalMins / zoneStats[z].tCount) : 0;
-        return `<div class="meter-card" style="padding:6px;font-size:12px;">
-            <b>📍 ${z}</b>: ${zoneStats[z].tCount} مهام، متوسط المهمة: ${avg} دقيقة | توقفات: ${zoneStats[z].blocked}
-        </div>`;
-    }).join('');
-    
+
+    let bodyHtml = '';
+    if (subTab === 'zones') {
+        const zSorted = Object.keys(zoneStats).sort((a, b) => zoneStats[b].totalMins - zoneStats[a].totalMins);
+        bodyHtml = zSorted.length === 0
+            ? '<div style="text-align:center;color:var(--muted);padding:16px;">لا توجد بيانات كافية بعد</div>'
+            : zSorted.map(z => {
+                const st = zoneStats[z];
+                const avgMins = st.tasks ? Math.round(st.totalMins / st.tasks) : 0;
+                const avgWorkers = st.tasks ? (st.totalWorkers / st.tasks).toFixed(1) : '0';
+                return `
+                <div class="meter-card" style="padding:8px;margin-bottom:6px;border-right:4px solid ${st.blocked > 0 ? 'var(--red)' : 'var(--primary)'};">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <b style="font-size:13px;">📍 ${esc(z)}</b>
+                        <span class="badge" style="background:#e0f2fe;color:#0369a1;">${st.tasks} مهام</span>
+                    </div>
+                    <div style="font-size:11px;margin-top:4px;color:#334155;">
+                        ⏱️ متوسط الوقت: <b>${avgMins} دقيقة</b> | 👷 متوسط العمال: <b>${avgWorkers} عامل</b> | 🚫 المشاكل/التوقفات: <b style="color:${st.blocked ? 'var(--red)' : 'inherit'};">${st.blocked}</b>
+                    </div>
+                    ${st.problems.length ? `<div style="font-size:10px;color:#b91c1c;margin-top:3px;">• ${esc(st.problems.slice(-2).join(' | '))}</div>` : ''}
+                </div>`;
+            }).join('');
+    } else if (subTab === 'tasks') {
+        const ztSorted = Object.values(zoneTaskStats).sort((a, b) => b.count - a.count);
+        bodyHtml = ztSorted.length === 0
+            ? '<div style="text-align:center;color:var(--muted);padding:16px;">لا توجد بيانات مهام مكتملة بعد</div>'
+            : ztSorted.map(item => {
+                const avgM = Math.round(item.totalMins / item.count);
+                const avgW = (item.totalWorkers / item.count).toFixed(1);
+                return `
+                <div class="meter-card" style="padding:7px;margin-bottom:5px;font-size:12px;">
+                    <b>📍 ${esc(item.zone)} — ${esc(item.task)}</b>
+                    <div style="font-size:11px;color:var(--muted);margin-top:2px;">
+                        التكرار: <b>${item.count}×</b> | متوسط الوقت: <b>${avgM} دقيقة</b> | متوسط العمال: <b>${avgW}</b>
+                    </div>
+                </div>`;
+            }).join('');
+    } else {
+        bodyHtml = historyRows.length === 0
+            ? '<div style="text-align:center;color:var(--muted);padding:16px;">لا يوجد سجل أيام بعد</div>'
+            : historyRows.map(r => `
+                <div class="meter-card" style="padding:7px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="jumpToArchiveDate('${r.date}')">
+                    <div>
+                        <b style="font-size:12px;">📅 ${r.date} — DFL-${r.dflNum}</b>
+                        <div style="font-size:10px;color:var(--muted);">👷 الحضور: ${r.presCnt} | ✅ مكتمل: ${r.dayDone}/${r.totalTasks} | 🚫 متوقف: ${r.dayBlocked} | 💧 ${r.dayWaterM3} m³</div>
+                    </div>
+                    <span class="btn btn-blue btn-sm">فتح</span>
+                </div>
+            `).join('');
+    }
+
     openModal(`
-        <h3 class="card-title">🧠 التحليل العميق (Deep Analytics)</h3>
-        <p style="font-size:11px;color:var(--muted);">تحليل استهلاك الوقت والعمالة لكل منطقة ومهمة من بداية المشروع.</p>
-        <div style="max-height:300px;overflow-y:auto;margin-bottom:10px;">${zHtml || '<div style="color:gray;text-align:center;padding:10px;">لا توجد بيانات كافية</div>'}</div>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
+        <h3 class="card-title">🧠 هستوري الـ DFL والتحليل العميق</h3>
+        <div style="display:flex;gap:4px;margin-bottom:8px;">
+            <button class="btn btn-sm ${subTab === 'zones' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openDeepAnalyticsModal('zones')">📍 المناطق</button>
+            <button class="btn btn-sm ${subTab === 'tasks' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openDeepAnalyticsModal('tasks')">📋 المهام/منطقة</button>
+            <button class="btn btn-sm ${subTab === 'history' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openDeepAnalyticsModal('history')">📜 سجل DFL</button>
+        </div>
+        <div style="max-height:310px;overflow-y:auto;margin-bottom:10px;">${bodyHtml}</div>
+        <button class="btn btn-green btn-full" onclick="exportDeepAnalyticsCSV()">📥 سحب التحليل الكامل (Excel / CSV)</button>
+        <button class="btn btn-outline btn-full" style="margin-top:5px;" onclick="closeModal()">إغلاق</button>
     `);
 }
+
+function exportDeepAnalyticsCSV() {
+    const site = getSite();
+    const allDates = Object.keys(site.logs).sort();
+    let csv = '\uFEFF';
+    csv += 'Date,DFL_Num,Zone,Task,Status,Workers_Count,Duration_Mins,Man_Mins,Problem_Or_Block_Note\n';
+    allDates.forEach(d => {
+        const log = site.logs[d];
+        const presCnt = (log.attendance || []).filter(w => !w.status.includes('Absent')).length;
+        (log.tasks || []).forEach(t => {
+            const zArr = (t.zones || 'General').split(',').map(z => z.trim()).filter(Boolean);
+            const wCnt = (t.workers && t.workers[0] === 'Team') ? Math.max(1, presCnt) : (t.workers && t.workers.length ? t.workers.length : 1);
+            const durMatch = String(t.dur || '').match(/(\d+):(\d+)/);
+            const mins = durMatch ? (parseInt(durMatch[1]) * 60 + parseInt(durMatch[2])) : 0;
+            const note = String(t.note || '').replace(/"/g, '""');
+            zArr.forEach(z => {
+                const zMins = (mins / (zArr.length || 1)).toFixed(1);
+                const zMan = (zMins * wCnt).toFixed(1);
+                csv += `"${d}","DFL-${log.dflNum}","${z}","${(t.task.split('/')[0] || t.task).trim()}","${(t.status.split('/')[0] || t.status).trim()}","${wCnt}","${zMins}","${zMan}","${note}"\n`;
+            });
+        });
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `DFL_Deep_Analytics_${state.activeDate}.csv`;
+    a.click();
+    showToast('✅ تم تنزيل ملف التحليل الإحصائي (CSV)');
+}
+
 function openAnalyticsDashboardModal(period = '7d') {
     const site = getSite();
     const activeD = state.activeDate;
@@ -1132,7 +1240,7 @@ function openAnalyticsDashboardModal(period = '7d') {
             <button class="btn btn-sm ${period === '30d' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openAnalyticsDashboardModal('30d')">آخر 30 يوم</button>
             <button class="btn btn-sm ${period === 'all' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openAnalyticsDashboardModal('all')">الكل (${allDates.length})</button>
         </div>
-        <button class="btn btn-purple btn-sm" style="width:100%;margin-bottom:10px;" onclick="openDeepAnalyticsModal()">🧠 تحليل عميق للمناطق والمهام</button>
+        <button class="btn btn-purple btn-full" style="margin-bottom:8px;" onclick="openDeepAnalyticsModal('zones')">🧠 هستوري الـ DFL والتحليل العميق (مناطق / مهام / CSV)</button>
         <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">عدد التقارير المحللة ضمن الفترة: <b>${filteredDates.length} أيام</b></div>
         <div class="grid-2" style="margin-bottom:8px;">
             <div class="kpi-box"><div class="kpi-val">${meterM3.toFixed(1)} m³</div><div class="kpi-sub">مياه العدادات</div></div>
@@ -1159,7 +1267,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V11.0: Electronic Touch Signature Pad ================= */
+/* ================= V11.1: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1338,16 +1446,69 @@ function downloadCleanTemplateV04() {
 /* ================= V9: Weather Auto-Fetch & Full Fields ================= */
 function ensureWeatherObj(log) {
     if (!log.weather || typeof log.weather !== 'object') {
-        const hum8 = data.hourly.relative_humidity_2m[8];
-            const press8 = data.hourly.surface_pressure[8];
+        log.weather = { cond: '', tMin: '', tMax: '', wind: '', hum: '', uv: '', press: '', precip: '', time: '', notes: '' };
+    }
+    return log.weather;
+}
+
+function updateWeatherField(k, v) {
+    const wx = ensureWeatherObj(getDayLog());
+    wx[k] = v;
+    saveState();
+}
+
+function applyWeatherPreset(cond, tMin, tMax, wind, hum, uv, press, precip) {
+    const log = getDayLog();
+    log.weather = { cond, tMin, tMax, wind, hum, uv, press, precip, time: '08:00', notes: 'Hilla Field Observation' };
+    saveState();
+    renderReadingsAndTools(log);
+    showToast('🌤️ تم تعبئة جميع حقول الطقس');
+}
+
+function mapWmoCodeToBilingual(code) {
+    const c = Number(code);
+    if (c === 0) return 'Clear / صافي';
+    if ([1, 2].includes(c)) return 'Partly Cloudy / غائم جزئياً';
+    if (c === 3) return 'Overcast / غائم';
+    if ([45, 48].includes(c)) return 'Fog / ضباب';
+    if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(c)) return 'Rain / أمطار';
+    if ([95, 96, 99].includes(c)) return 'Thunderstorm / عاصفة رعدية';
+    return 'Clear / صافي';
+}
+
+async function fetchHillaWeather(manualTrigger = false) {
+    const log = getDayLog();
+    const wx = ensureWeatherObj(log);
+    if (!manualTrigger && wx.cond && wx.tMax !== '') return;
+    if (!navigator.onLine) {
+        if (manualTrigger) showToast('⚠️ لا يوجد اتصال بالإنترنت — استخدم الأزرار السريعة للطقس');
+        return;
+    }
+    if (manualTrigger) showToast('⏳ جاري جلب طقس الحلة الكامل...');
+    try {
+        const d = state.activeDate;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=32.6105&longitude=44.3828&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,uv_index,weather_code&timezone=Asia%2FBaghdad&start_date=${d}&end_date=${d}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (data && data.daily && data.daily.time && data.daily.time.length > 0) {
+            const humArr = (data.hourly && data.hourly.relative_humidity_2m) || [];
+            const pressArr = (data.hourly && data.hourly.surface_pressure) || [];
+            const avgHum = humArr.length ? Math.round(humArr.reduce((a, b) => a + b, 0) / humArr.length) : 45;
+            const avgPress = pressArr.length ? Math.round(pressArr.reduce((a, b) => a + b, 0) / pressArr.length) : 1015;
+            const hHum = data.hourly && data.hourly.relative_humidity_2m ? data.hourly.relative_humidity_2m[8] : undefined;
+            const hPress = data.hourly && data.hourly.surface_pressure ? data.hourly.surface_pressure[8] : undefined;
+            const hWind = data.hourly && data.hourly.wind_speed_10m ? data.hourly.wind_speed_10m[8] : undefined;
+            const hUv = data.hourly && data.hourly.uv_index ? data.hourly.uv_index[8] : undefined;
+            const hCode = data.hourly && data.hourly.weather_code ? data.hourly.weather_code[8] : data.daily.weather_code[0];
             log.weather = {
-                cond: mapWmoCodeToBilingual(data.daily.weather_code[0]),
+                cond: mapWmoCodeToBilingual(hCode !== undefined ? hCode : data.daily.weather_code[0]),
                 tMin: Math.round(data.daily.temperature_2m_min[0] * 10) / 10,
                 tMax: Math.round(data.daily.temperature_2m_max[0] * 10) / 10,
-                wind: Math.round(data.daily.wind_speed_10m_max[0] * 10) / 10,
-                hum: hum8 !== undefined ? Math.round(hum8) : avgHum,
-                uv: Math.round((data.daily.uv_index_max[0] || 5) * 10) / 10,
-                press: press8 !== undefined ? Math.round(press8) : avgPress,
+                wind: Math.round(((hWind !== undefined ? hWind : data.daily.wind_speed_10m_max[0]) || 0) * 10) / 10,
+                hum: hHum !== undefined ? Math.round(hHum) : avgHum,
+                uv: Math.round(((hUv !== undefined ? hUv : data.daily.uv_index_max[0]) || 3) * 10) / 10,
+                press: hPress !== undefined ? Math.round(hPress) : avgPress,
                 precip: Math.round((data.daily.precipitation_sum[0] || 0) * 10) / 10,
                 time: '08:00',
                 notes: 'Auto-fetched (Mahawil @ 08:00)'
@@ -1416,7 +1577,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V11.0: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V11.1: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -1874,6 +2035,12 @@ async function generateDirectExcelDFL() {
         // 15. Section 10: Sign-Off (Row 131+pOff) + Electronic Signature
         ws.getCell(`A${131 + pOff}`).value = `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`;
         ws.getCell(`H${131 + pOff}`).value = `Date & Time  /  التاريخ والوقت: ${state.activeDate}`;
+        if (state.company.textSignature) {
+            const dSigCell = ws.getCell(`E${131 + pOff}`);
+            dSigCell.value = state.company.textSignature;
+            dSigCell.font = { name: 'Georgia', size: 12, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
+            dSigCell.alignment = { horizontal: 'center', vertical: 'middle' };
+        }
         let sigImgId = null;
         if (state.company.signatureDataUrl) {
             try {
@@ -1945,6 +2112,10 @@ async function generateDirectExcelDFL() {
                 irWs.getCell('B97').value = ir.ana || '';
                 irWs.getCell('B99').value = ir.rec || ir.correctiveAction || '';
                 irWs.getCell('B104').value = `Name  /  الاسم: ${state.company.teamLead}`;
+                if (state.company.textSignature) {
+                    irWs.getCell('C105').value = state.company.textSignature;
+                    irWs.getCell('C105').font = { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
+                }
                 irWs.getCell('B106').value = `Date  /  التاريخ: ${state.activeDate}`;
                 if (sigImgId !== null) {
                     try {
@@ -2001,6 +2172,10 @@ async function generateDirectExcelDFL() {
                     if (sd.resolution.preventiveRef) sdlWs.getCell('G55').value = sd.resolution.preventiveRef;
                     sdlWs.getCell('H47').value = 'Yes / نعم';
                 }
+                if (state.company.textSignature) {
+                    sdlWs.getCell('C60').value = state.company.textSignature;
+                    sdlWs.getCell('C60').font = { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
+                }
                 if (sigImgId !== null) {
                     try {
                         sdlWs.getRow(60).height = 32;
@@ -2038,6 +2213,9 @@ function normalizeState() {
     if (!Array.isArray(state.company.customTasks)) state.company.customTasks = [...MASTER_TASKS];
     if (!Array.isArray(state.company.customTools)) state.company.customTools = DEFAULT_TOOLS.map(t => t.name);
     if (!state.company.speciesDict || typeof state.company.speciesDict !== 'object') state.company.speciesDict = {};
+    if (typeof state.company.currentUser !== 'string') state.company.currentUser = '';
+    if (typeof state.company.textSignature !== 'string') state.company.textSignature = '';
+    if (!Array.isArray(state.company.supervisors) || !state.company.supervisors.length) state.company.supervisors = ['Maitham Ibrahim'];
 
     if (!state.sites || typeof state.sites !== 'object' || !Object.keys(state.sites).length) {
         state.sites = {
@@ -2320,12 +2498,11 @@ function getDayLog(dateStr = state.activeDate) {
         const sortedDates = Object.keys(site.logs).sort();
         const prevDate = sortedDates.filter(d => d < dateStr).pop();
         const prevLog = prevDate ? site.logs[prevDate] : null;
-        const tl = state.company.teamLead || 'Unknown';
+        const activeUserKey = (state.company.currentUser || state.company.teamLead || 'Default').trim();
         if (!site.dflSequences) site.dflSequences = {};
-        let assignedDfl = site.dflSequences[tl] || site.nextDfl;
-        site.dflSequences[tl] = assignedDfl + 1;
-        site.nextDfl = assignedDfl + 1;
-        
+        const assignedDfl = site.dflSequences[activeUserKey] || site.nextDfl || 1;
+        site.dflSequences[activeUserKey] = assignedDfl + 1;
+        site.nextDfl = Math.max(site.nextDfl || 1, assignedDfl + 1);
         site.logs[dateStr] = {
             dflNum: assignedDfl,
             attendance: state.company.staffPool.map((s, idx) => ({
@@ -3129,18 +3306,17 @@ function switchTab(tabId) {
 function onDateChange(val) { if (!val) return; state.activeDate = val; getDayLog(val); saveState(); renderAll(); }
 function onDflNumChange(val) {
     const n = parseInt(val);
-    if (!isNaN(n) && n > 0) { 
-        pushUndo('تعديل رقم DFL'); 
+    if (!isNaN(n) && n > 0) {
+        pushUndo('تعديل رقم DFL');
         const site = getSite();
-        const tl = state.company.teamLead || 'Unknown';
+        const activeUserKey = (state.company.currentUser || state.company.teamLead || 'Default').trim();
         if (!site.dflSequences) site.dflSequences = {};
-        
-        getDayLog().dflNum = n; 
-        site.dflSequences[tl] = n + 1;
-        site.nextDfl = n + 1; // update global fallback
-        saveState(); 
+        getDayLog().dflNum = n;
+        site.dflSequences[activeUserKey] = n + 1;
+        site.nextDfl = Math.max(site.nextDfl || 1, n + 1);
+        saveState();
+        showToast(`🔢 تم تثبيت تسلسل DFL لـ (${activeUserKey}) ليكمل من ${n + 1}`);
     }
-}
 }
 function onSiteSelectChange(val) {
     if (val === '__NEW__') { openNewSiteModal(); renderAll(); return; }
@@ -3176,6 +3352,7 @@ function jumpToArchiveDate(d) { state.activeDate = d; closeModal(); saveState();
 
 /* ================= TAB 1: Attendance ================= */
 function renderAttendance(log) {
+    if (typeof updateGlobalAttendanceList === 'function') updateGlobalAttendanceList();
     renderStickySectionHistory('att', 'stickyHist-att', 'الحضور');
     let presentCount = 0, outsidePresent = 0, totalOt = 0;
     log.attendance.forEach(w => {
@@ -3263,7 +3440,7 @@ function editWorkerModal(idx) {
         <label class="lbl">الاسم:</label><input id="edWName" class="inp" value="${esc(w.name)}">
         <label class="lbl">نوع التوظيف:</label>
         <select id="edWType" class="inp">
-            ${ROLES.map(r => `<option value="${r}" ${w.type.includes(r.split('/')[0].trim()) ? 'selected' : ''}>${r}</option>`).join('')}
+            ${ROLES.map(r => `<option value="${r}" ${w.type === r || w.type.includes(r.split('/')[0].trim()) ? 'selected' : ''}>${r}</option>`).join('')}
         </select>
         <label class="lbl">ملاحظة:</label><input id="edWNote" class="inp" value="${esc(w.note || '')}">
         <div class="grid-2"><button class="btn btn-green" onclick="saveEditWorker(${idx})">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
@@ -3295,7 +3472,7 @@ function confirmAddWorker() {
     const type = document.getElementById('newWType').value;
     if (!name) return;
     pushUndo('إضافة عامل: ' + name);
-    const tOut = type.includes('Employee') ? '17:00' : '16:00';
+    const tOut = type.includes('Outside') ? '16:00' : '17:00';
     const wid = 'w_' + Date.now();
     getDayLog().attendance.push({ id: wid, name, type, status: 'Present / حاضر', tIn: '08:00', tOut, ot: 0, note: '' });
     if (document.getElementById('newWSavePool').checked && !state.company.staffPool.some(s => s.name === name)) {
@@ -3392,7 +3569,7 @@ function renderTasksQueue(log) {
             html += `
             <div class="queue-item">
                 <div style="font-size:12px;flex:1;">
-                    <b style="cursor:pointer;color:var(--blue);text-decoration:underline;" onclick="jumpToZoneFromTask('${esc(x.t.zones)}')">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)}<br>
+                    <b style="cursor:pointer;color:var(--blue);text-decoration:underline;" onclick="jumpToZoneFromTask('${esc(x.t.zones)}')" title="الانتقال إلى بطاقة المنطقة">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)}<br>
                     <span class="live-timer-pill ${x.t.pausedAtMs ? 'is-paused' : ''}" onclick="openRetroStartTimeModal(${x.i})">
                         ▶️ بدأ: ${startStr} ✏️ | <span data-live-task-id="${x.t.id}">${x.t.pausedAtMs ? `⏸️ استراحة (${netStr})` : `⏱️ مستمر منذ ${netStr}`}</span>
                     </span>
@@ -3411,7 +3588,7 @@ function renderTasksQueue(log) {
         notSt.forEach(x => {
             html += `
             <div class="queue-item">
-                <div style="font-size:12px;color:var(--muted);"><b style="cursor:pointer;color:var(--blue);text-decoration:underline;" onclick="jumpToZoneFromTask('${esc(x.t.zones)}')">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)}</div>
+                <div style="font-size:12px;color:var(--muted);"><b style="cursor:pointer;color:var(--blue);text-decoration:underline;" onclick="jumpToZoneFromTask('${esc(x.t.zones)}')" title="الانتقال إلى بطاقة المنطقة">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)}</div>
                 <button class="btn btn-blue btn-sm" onclick="setTaskStatus(${x.i}, 'In Progress / جاري')">▶️ ابدأ</button>
             </div>`;
         });
@@ -3426,19 +3603,28 @@ function renderTasks(log) {
     renderZoneThirstRadar();
 
     const trBox = document.getElementById('transfersContainer');
-    if (log.transfers && log.transfers.length > 0) {
-        trBox.innerHTML = `
-            <div style="font-weight:bold;color:var(--muted);margin:10px 0 6px;font-size:12px;">🔄 سجل تنقلات العمال اليوم:</div>
-            ${log.transfers.map(tr => `<div class="card" style="padding:8px;font-size:12px;background:#f8fafc;border-left:3px solid #8b5cf6;">
-                <b>👷 ${esc(tr.worker)}</b> — انتقل الساعة ${esc(tr.time)}<br>
-                <span style="color:#ef4444;">من: ${esc(tr.fromTask)}</span> ➡️ <span style="color:#10b981;">إلى: ${esc(tr.toTask)}</span>
-                ${tr.dur ? `<br><span style="color:var(--muted);">المدة السابقة: ${esc(tr.dur)}</span>` : ''}
-                ${tr.note ? `<br><i>ملاحظة: ${esc(tr.note)}</i>` : ''}
-            </div>`).join('')}
-        `;
-    } else if (trBox) {
-        trBox.innerHTML = '';
+    if (trBox) {
+        if (Array.isArray(log.transfers) && log.transfers.length > 0) {
+            trBox.innerHTML = `
+                <div class="card" style="border-right:4px solid var(--purple);background:#faf5ff;margin-top:8px;">
+                    <div style="font-weight:bold;color:var(--purple);font-size:13px;margin-bottom:6px;">🔄 سجل تنقلات العمال بين المهام (${log.transfers.length})</div>
+                    ${log.transfers.map((tr, trIdx) => `
+                        <div style="background:white;border:1px solid #e9d5ff;border-radius:8px;padding:7px;margin-bottom:5px;font-size:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+                            <div>
+                                <b>👷 ${esc(tr.worker)}</b> <span class="badge" style="background:#f3e8ff;color:#6b21a8;">⏰ ${esc(tr.time || '')}</span>
+                                <div style="margin-top:3px;"><span style="color:#b91c1c;">من: ${esc(tr.fromTask)}</span> ➡️ <span style="color:#15803d;">إلى: ${esc(tr.toTask)}</span></div>
+                                ${tr.dur ? `<div style="font-size:11px;color:var(--muted);">⏱️ المدة في المهمة الأولى: ${esc(tr.dur)}</div>` : ''}
+                                ${tr.note ? `<div style="font-size:11px;color:#475569;">📝 ${esc(tr.note)}</div>` : ''}
+                            </div>
+                            <button class="btn btn-outline btn-sm" style="color:var(--red);padding:2px 6px;" onclick="deleteTaskTransfer(${trIdx})">✕</button>
+                        </div>
+                    `).join('')}
+                </div>`;
+        } else {
+            trBox.innerHTML = '';
+        }
     }
+
     const el = document.getElementById('tasksContainer');
     if (log.tasks.length === 0) {
         el.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);padding:24px;">💧 اضغط على زر خطة الري أعلاه أو أضف مهمة جديدة</div>`;
@@ -3479,7 +3665,7 @@ function renderTasks(log) {
                     <div style="font-weight:bold;font-size:14px;padding-top:2px;">${esc(t.task.split('/')[1] || t.task)}</div>
                 </div>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-                    <span class="zone-pill" onclick="openZonePickerModal(${idx})">📍 ${esc(t.zones)} ✏️</span> <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0284c7;font-size:10px;padding:2px 5px;" onclick="jumpToZoneFromTask('${esc(t.zones)}')" title="الذهاب لبطاقة المنطقة">🔗</span>
+                    <span class="zone-pill" onclick="openZonePickerModal(${idx})">📍 ${esc(t.zones)} ✏️</span> <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1;font-size:11px;padding:3px 6px;" onclick="jumpToZoneFromTask('${esc(t.zones)}')" title="فتح المنطقة في تبويب المناطق">🔗 فتح المنطقة</span>
                     ${canSplit ? `<button class="btn btn-orange btn-sm" onclick="splitTaskZones(${idx})">✂️ تفريق</button>` : ''}
                 </div>
             </div>
@@ -3688,21 +3874,32 @@ function refillTankerTrip(idx) {
     saveState(); renderTasks(getDayLog()); showToast(`🔄 تم تسجيل نقلة #${t.tankerTrips} بسعة 24,000 لتر`);
 }
 
-
 function jumpToZoneFromTask(zonesStr) {
-    const firstZone = zonesStr.split(',')[0].trim();
-    if (!firstZone) return;
-    switchTab('inv');
-    const zObj = getSite().inventory.find(z => z.name.includes(firstZone) || firstZone.includes(z.name));
-    if (zObj) {
-        enterInvZone(zObj.id);
-        setTimeout(() => {
-            const el = document.getElementById('invContainer');
-            if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
-        }, 100);
-    } else {
-        showToast('⚠️ المنطقة غير موجودة في سجل الجرد');
+    const firstZone = (zonesStr || '').split(',')[0].trim();
+    if (!firstZone || firstZone.includes('عام') || firstZone.includes('General')) {
+        switchTab('inv');
+        return;
     }
+    const site = getSite();
+    let zObj = site.inventory.find(z =>
+        z.name.trim().toLowerCase() === firstZone.toLowerCase() ||
+        z.name.includes(firstZone) ||
+        firstZone.includes(z.name)
+    );
+    if (!zObj) {
+        zObj = { id: 'z_' + Date.now(), name: firstZone, plants: [] };
+        site.inventory.push(zObj);
+        saveState();
+        showToast(`📍 تم فتح وإنشاء بطاقة المنطقة (${firstZone})`);
+    } else {
+        showToast(`📍 الانتقال إلى منطقة (${zObj.name})`);
+    }
+    switchTab('inv');
+    enterInvZone(zObj.id);
+    setTimeout(() => {
+        const el = document.getElementById('invContainer');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
 }
 
 function openZonePickerModal(tIdx) {
@@ -3796,30 +3993,36 @@ function escalateTaskToIssue(idx) {
     saveState(); renderExportAndIssues(site, getDayLog()); showToast(`🚨 تم تصعيد العطل إلى متتبع المشاكل (${code})`);
 }
 
-
 function openTaskTransferModal() {
     const log = getDayLog();
-    const presentWorkers = log.attendance.filter(w => !w.status.includes('Absent')).map(w => w.name.split('/')[1] || w.name);
+    if (log.tasks.length < 2) {
+        showToast('⚠️ يجب وجود مهمتين على الأقل لنقل عامل بينهما');
+        return;
+    }
+    const presentWorkers = log.attendance.filter(w => !w.status.includes('Absent')).map(w => (w.name.split('/')[1] || w.name).trim());
+    const now = new Date();
+    const nowStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     openModal(`
-        <h3 class="card-title">🔄 نقل عامل بين المهام</h3>
-        <label class="lbl">العامل:</label>
+        <h3 class="card-title">🔄 انتقال عامل من مهمة إلى مهمة ثانية</h3>
+        <label class="lbl">اختر العامل (من الحضور):</label>
         <select id="trWorker" class="inp">
             ${presentWorkers.map(w => `<option value="${esc(w)}">${esc(w)}</option>`).join('')}
         </select>
         <div class="grid-2">
-            <div><label class="lbl">من المهمة (أكملها):</label><select id="trFrom" class="inp">
-                ${log.tasks.map((t,i) => `<option value="${i}">${esc(t.task.split('/')[1] || t.task)} [${esc(t.zones)}]</option>`).join('')}
+            <div><label class="lbl">المهمة الأولى (أكملها):</label><select id="trFrom" class="inp">
+                ${log.tasks.map((t, i) => `<option value="${i}">${esc((t.task.split('/')[1] || t.task).trim())} [${esc(t.zones)}]</option>`).join('')}
             </select></div>
-            <div><label class="lbl">إلى المهمة (الجديدة):</label><select id="trTo" class="inp">
-                ${log.tasks.map((t,i) => `<option value="${i}">${esc(t.task.split('/')[1] || t.task)} [${esc(t.zones)}]</option>`).join('')}
+            <div><label class="lbl">المهمة الثانية (انتقل إليها):</label><select id="trTo" class="inp">
+                ${log.tasks.map((t, i) => `<option value="${i}" ${i === 1 ? 'selected' : ''}>${esc((t.task.split('/')[1] || t.task).trim())} [${esc(t.zones)}]</option>`).join('')}
             </select></div>
         </div>
         <div class="grid-2">
-            <div><label class="lbl">وقت الانتقال:</label><input type="time" id="trTime" class="inp" value="${formatTime24FromMs(Date.now())}"></div>
-            <div><label class="lbl">المدة المستغرقة في الأولى:</label><input id="trDur" class="inp" placeholder="مثلاً: 2:00 hr"></div>
+            <div><label class="lbl">وقت الانتقال:</label><input type="time" id="trTime" class="inp" value="${nowStr}"></div>
+            <div><label class="lbl">المدة في المهمة الأولى:</label><input id="trDur" class="inp" placeholder="مثلاً: 1:30 hr"></div>
         </div>
-        <label class="lbl">ملاحظة الانتقال:</label><input id="trNote" class="inp" placeholder="أكمل جزءه وانتقل للمساعدة...">
-        <div class="grid-2"><button class="btn btn-green" onclick="saveTaskTransfer()">حفظ النقل</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
+        <label class="lbl">ملاحظة / سبب الانتقال:</label>
+        <input id="trNote" class="inp" placeholder="أكمل جزءه وانتقل لإسناد الفريق...">
+        <div class="grid-2"><button class="btn btn-green" onclick="saveTaskTransfer()">💾 حفظ الانتقال</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
     `);
 }
 
@@ -3828,21 +4031,41 @@ function saveTaskTransfer() {
     const w = document.getElementById('trWorker').value;
     const fIdx = parseInt(document.getElementById('trFrom').value);
     const tIdx = parseInt(document.getElementById('trTo').value);
-    if (isNaN(fIdx) || isNaN(tIdx)) return;
-    
+    if (!w || isNaN(fIdx) || isNaN(tIdx) || fIdx === tIdx) {
+        showToast('⚠️ اختر مهمتين مختلفتين');
+        return;
+    }
     pushUndo('نقل عامل بين المهام');
     const fTask = log.tasks[fIdx];
     const tTask = log.tasks[tIdx];
-    
-    if (fTask.workers && fTask.workers.includes(w)) fTask.workers = fTask.workers.filter(x => x !== w);
-    if (!tTask.workers) tTask.workers = [];
-    if (!tTask.workers.includes(w) && !tTask.workers.includes('Team')) tTask.workers.push(w);
-    
-    if (!log.transfers) log.transfers = [];
-    log.transfers.push({ worker: w, fromTask: fTask.task, toTask: tTask.task, time: document.getElementById('trTime').value, dur: document.getElementById('trDur').value, note: document.getElementById('trNote').value });
-    
-    logSectionHistory('tasks', 'transfer', `نقل ${w} إلى ${tTask.zones}`, {});
-    closeModal(); saveState(); renderTasks(log); showToast('✅ تم نقل العامل وتحديث المهام');
+
+    if (Array.isArray(fTask.workers) && fTask.workers.includes(w)) {
+        fTask.workers = fTask.workers.filter(x => x !== w);
+    }
+    if (!Array.isArray(tTask.workers)) tTask.workers = [];
+    if (!tTask.workers.includes(w) && !tTask.workers.includes('Team')) {
+        tTask.workers.push(w);
+    }
+    if (!Array.isArray(log.transfers)) log.transfers = [];
+    log.transfers.push({
+        id: 'tr_' + Date.now(),
+        worker: w,
+        fromTask: `${(fTask.task.split('/')[1] || fTask.task).trim()} (${fTask.zones})`,
+        toTask: `${(tTask.task.split('/')[1] || tTask.task).trim()} (${tTask.zones})`,
+        time: document.getElementById('trTime').value,
+        dur: document.getElementById('trDur').value.trim(),
+        note: document.getElementById('trNote').value.trim()
+    });
+    logSectionHistory('tasks', 'transfer', `انتقال ${w} إلى ${tTask.zones}`, {});
+    closeModal(); saveState(); renderTasks(log); showToast(`✅ تم تسجيل انتقال ${w} وتحديث المهام`);
+}
+
+function deleteTaskTransfer(idx) {
+    const log = getDayLog();
+    if (!Array.isArray(log.transfers)) return;
+    pushUndo('حذف سجل انتقال عامل');
+    log.transfers.splice(idx, 1);
+    saveState(); renderTasks(log);
 }
 
 function openTaskModal() {
@@ -4202,7 +4425,7 @@ function renderReadingsAndTools(log) {
         : log.tools.map((tl, idx) => `
             <div class="worker-item" style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
                 <div>
-                    <div style="font-size:13px;font-weight:bold;">${esc(tl.name)} <span style="color:var(--blue);">×${tl.qty}</span></div>
+                    <div style="font-size:13px;font-weight:bold;">${esc(tl.name)} <span style="color:var(--blue);">×${tl.qty}</span> ${tl.holder ? `<span class="badge" style="background:#fef3c7;color:#92400e;">👤 ${esc(tl.holder)}</span>` : ''}</div>
                     <div style="font-size:10px;color:var(--muted);">${esc(tl.cat)} | ${esc(tl.cond)}</div>
                 </div>
                 <div style="display:flex;gap:4px;">
@@ -4311,10 +4534,9 @@ function openToolModal() {
             <div><label class="lbl">الكمية:</label><input type="number" id="tlQty" class="inp" value="1"></div>
         </div>
         <div class="grid-2">
-            <div><label class="lbl">بعهدة (المستلم):</label><input id="tlHolder" list="globalAttendanceList" class="inp" placeholder="اسم العامل..."></div>
+            <div><label class="lbl">الحالة:</label><select id="tlCond" class="inp"><option value="Good / جيد">Good / جيد</option><option value="Needs Maintenance / يحتاج صيانة">Needs Maintenance</option><option value="Out of Service / خارج الخدمة">Out of Service</option></select></div>
+            <div><label class="lbl">المستلم / بعهدة:</label><input id="tlHolder" list="globalAttendanceList" class="inp" placeholder="اختر من الحضور..."></div>
         </div>
-        <label class="lbl">الحالة:</label>
-        <select id="tlCond" class="inp"><option value="Good / جيد">Good / جيد</option><option value="Needs Maintenance / يحتاج صيانة">Needs Maintenance</option><option value="Out of Service / خارج الخدمة">Out of Service</option></select>
         <div class="grid-2"><button class="btn btn-green" onclick="saveNewTool()">إضافة</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
     `);
 }
@@ -4324,7 +4546,8 @@ function saveNewTool() {
     pushUndo('إضافة أداة: ' + name);
     const qty = parseFloat(document.getElementById('tlQty').value) || 1;
     const tIdx = getDayLog().tools.length;
-    getDayLog().tools.push({ name, cat: document.getElementById('tlCat').value, qty, cond: document.getElementById('tlCond').value, note: '' });
+    const holder = document.getElementById('tlHolder') ? document.getElementById('tlHolder').value.trim() : '';
+    getDayLog().tools.push({ name, cat: document.getElementById('tlCat').value, qty, cond: document.getElementById('tlCond').value, note: '', holder });
     const site = getSite();
     ensureSiteStock(site);
     const stkItem = site.stockItems.find(it => it.name.trim() === name);
@@ -4560,30 +4783,6 @@ function confirmAddInvZone() {
     const z = { id: 'z_' + Date.now(), name, plants: [] };
     getSite().inventory.push(z); activeInvZoneId = z.id;
     closeModal(); saveState(); renderAll();
-    updateGlobalAttendanceList();
-
-    // Emergency Recovery Check
-    const savedV10 = localStorage.getItem('tff_emergency_autosave_v10');
-    if (savedV10) {
-        try {
-            const parsed = JSON.parse(savedV10);
-            // If the saved state has a newer active date or different data, prompt recovery
-            if (parsed.activeDate !== state.activeDate || JSON.stringify(parsed.sites) !== JSON.stringify(state.sites)) {
-                setTimeout(() => {
-                    if(confirm('⚠️ تم العثور على بيانات سابقة لم تكتمل (بسبب انغلاق البرنامج). هل تريد استعادتها الآن؟')) {
-                        state = parsed;
-                        saveState();
-                        renderAll();
-                        updateGlobalAttendanceList();
-                        showToast('✅ تم استرجاع البيانات بنجاح!');
-                    } else {
-                        localStorage.removeItem('tff_emergency_autosave_v10');
-                    }
-                }, 1000);
-            }
-        } catch(e) {}
-    }
-
 }
 function deleteInvZone(id) { if (confirm('حذف المنطقة؟')) { pushUndo('حذف منطقة جرد'); getSite().inventory = getSite().inventory.filter(z => z.id !== id); saveState(); renderInventory(getSite()); } }
 function enterInvZone(id) { activeInvZoneId = id; activeEntryPrompt = null; renderAll(); }
@@ -4828,16 +5027,17 @@ function cycleModalPpeStatus(idx) {
     if (box) box.innerHTML = renderModalPpeGrid();
 }
 
-
 let tempIrSteps = [];
 function renderIrSteps() {
     const c = document.getElementById('irTimelineStepsContainer');
-    if(!c) return;
+    if (!c) return;
     c.innerHTML = tempIrSteps.map((st, i) => `
-        <div style="display:flex;gap:4px;margin-bottom:4px;">
-            <input type="time" class="inp" style="width:70px;padding:4px;" value="${esc(st.t)}" onchange="tempIrSteps[${i}].t = this.value">
-            <input class="inp" style="flex:1;padding:4px;" placeholder="وصف الحدث الدقيق..." value="${esc(st.d)}" onchange="tempIrSteps[${i}].d = this.value">
-            <button class="btn btn-outline btn-sm" style="color:var(--red);padding:4px 8px;" onclick="tempIrSteps.splice(${i},1);renderIrSteps()">✕</button>
+        <div style="display:flex;gap:4px;margin-bottom:5px;align-items:center;">
+            <span style="font-weight:bold;font-size:11px;color:var(--primary);min-width:18px;">${i + 1}.</span>
+            <input type="time" class="inp" style="width:92px;padding:4px;margin:0;" value="${esc(st.t)}" onchange="tempIrSteps[${i}].t = this.value">
+            <input id="irStepInp_${i}" class="inp" style="flex:1;padding:5px;margin:0;" placeholder="وصف الفقرة الزمنية..." value="${esc(st.d)}" onchange="tempIrSteps[${i}].d = this.value">
+            <button class="btn btn-outline btn-sm" style="padding:4px 6px;" onclick="startDictation('irStepInp_${i}', v => { tempIrSteps[${i}].d = v; })" title="إملاء صوتي">🎤</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--red);padding:4px 7px;" onclick="tempIrSteps.splice(${i},1);renderIrSteps()">✕</button>
         </div>
     `).join('');
 }
@@ -4846,6 +5046,7 @@ function addIrTimelineStep() {
     tempIrSteps.push({ t: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`, d: '' });
     renderIrSteps();
 }
+
 function openIncidentModal(editIdx = null) {
     const isEdit = editIdx !== null && editIdx !== undefined;
     const log = getDayLog();
@@ -4859,9 +5060,8 @@ function openIncidentModal(editIdx = null) {
     const defaultTime = existing ? existing.time : `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const sevVal = existing ? existing.severity : 'Moderate / متوسط';
     const medVal = existing ? existing.medical : 'No / لا';
-    tempIrSteps = existing && Array.isArray(existing.timelineSteps) ? [...existing.timelineSteps] : (existing && existing.timeline ? [{t:"", d:existing.timeline}] : []);
+    tempIrSteps = existing && Array.isArray(existing.timelineSteps) && existing.timelineSteps.length ? JSON.parse(JSON.stringify(existing.timelineSteps)) : [{ t: defaultTime, d: existing ? (existing.timeline || '') : '' }];
 
-    setTimeout(renderIrSteps, 10);
     openModal(`
         <h3 class="card-title">${isEdit ? `✏️ تعديل تقرير الحادث (${esc(existing.code)})` : '🚨 نموذج تقرير حادث (Incident Report)'}</h3>
         <div class="grid-2">
@@ -4884,22 +5084,20 @@ function openIncidentModal(editIdx = null) {
             <span class="chip" onclick="document.getElementById('irType').value='تسرب وقود أو مواد / Spill'">🛢️ تسرب مواد</span>
         </div>
         <div class="grid-2">
-            <div><label class="lbl">الأشخاص المتورطون:</label><input id="irPersons" list="globalAttendanceList" class="inp" value="${esc(existing ? existing.persons : '')}" placeholder="اختر من الحضور أو اكتب..."></div>
+            <div><label class="lbl">الأشخاص المتورطون (من الحضور):</label><input id="irPersons" list="globalAttendanceList" class="inp" value="${esc(existing ? existing.persons : '')}" placeholder="اختر من القائمة..."></div>
             <div><label class="lbl">الإصابة / التأثير:</label><input id="irImpact" class="inp" value="${esc(existing ? existing.impact : '')}" placeholder="لا توجد إصابة / طفيفة..."></div>
         </div>
-        
-        <label class="lbl">تسلسل الأحداث الزمني (Timeline):</label>
-        <div id="irTimelineStepsContainer" style="margin-bottom:6px;"></div>
-        <button class="btn btn-outline btn-sm" style="margin-bottom:10px;width:100%;" onclick="addIrTimelineStep()">+ إضافة حدث للتسلسل</button>
-        <input type="hidden" id="irTimeline">
-
-        <label class="lbl">الإجراء الفوري المتخذ:</label><div class="inp-wrap"><textarea id="irAction" class="inp auto-grow" rows="2">${esc(existing ? existing.action : '')}</textarea><button class="clr-btn top-align" onclick="startDictation('irAction')">🎤</button></div>
+        <label class="lbl">تسلسل الأحداث كفقرات زمنية (Timeline Steps):</label>
+        <div id="irTimelineStepsContainer" style="margin-bottom:5px;"></div>
+        <button class="btn btn-outline btn-sm" style="margin-bottom:8px;width:100%;" onclick="addIrTimelineStep()">+ إضافة فقرة زمنية جديدة</button>
+        <label class="lbl">الإجراء الفوري المتخذ:</label>
+        <div class="inp-wrap"><textarea id="irAction" class="inp auto-grow" rows="2">${esc(existing ? existing.action : '')}</textarea><button class="clr-btn top-align" onclick="startDictation('irAction')">🎤</button></div>
         <div class="grid-2">
             <div><label class="lbl">رعاية طبية؟</label><select id="irMed" class="inp"><option value="No / لا" ${medVal.includes('No') ? 'selected' : ''}>No / لا</option><option value="Yes / نعم" ${medVal.includes('Yes') ? 'selected' : ''}>Yes / نعم</option></select></div>
             <div><label class="lbl">جهة العلاج / المستشفى:</label><input id="irHospital" class="inp" value="${esc(existing ? existing.hospital : '')}" placeholder="إن وُجدت..."></div>
         </div>
         <div class="grid-2">
-            <div><label class="lbl">الشهود (إن وجدوا):</label><input id="irWitnesses" class="inp" value="${esc(existing ? existing.witnesses : '')}" placeholder="أسماء الشهود..."></div>
+            <div><label class="lbl">الشهود (من الحضور):</label><input id="irWitnesses" list="globalAttendanceList" class="inp" value="${esc(existing ? existing.witnesses : '')}" placeholder="أسماء الشهود..."></div>
             <div><label class="lbl">الإجراء التصحيحي لمنع التكرار:</label><input id="irCorrective" class="inp" value="${esc(existing ? existing.correctiveAction : '')}" placeholder="مثلاً: استبدال القفل..."></div>
         </div>
         <label class="lbl">🦺 تقييم معدات الحماية الشخصية (اضغط للتبديل):</label>
@@ -4919,6 +5117,7 @@ function openIncidentModal(editIdx = null) {
             <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
         </div>
     `);
+    setTimeout(renderIrSteps, 20);
 }
 
 function saveIncident(editIdx = null) {
@@ -4928,7 +5127,8 @@ function saveIncident(editIdx = null) {
     const code = isEdit ? log.incidents[editIdx].code : ('IR-' + String(log.incidents.length + 1).padStart(3, '0'));
     const zone = document.getElementById('irZone').value.trim() || 'General';
     const irType = document.getElementById('irType').value.trim() || 'Site Incident';
-    const timeline = tempIrSteps.map(s => `[${s.t}] ${s.d}`).join(" \n");
+    const cleanSteps = tempIrSteps.filter(s => (s.d || '').trim());
+    const timeline = cleanSteps.map((s, idx) => `${idx + 1}. [${s.t}] ${s.d.trim()}`).join('\n');
     const action = document.getElementById('irAction').value.trim();
     const corrective = document.getElementById('irCorrective').value.trim();
     const obs = document.getElementById('irObs').value.trim() || `${irType} في منطقة ${zone} الساعة ${document.getElementById('irTime').value}: ${timeline}`;
@@ -4944,7 +5144,7 @@ function saveIncident(editIdx = null) {
         persons: document.getElementById('irPersons').value.trim(),
         impact: document.getElementById('irImpact').value.trim(),
         timeline,
-        timelineSteps: JSON.parse(JSON.stringify(tempIrSteps)),
+        timelineSteps: JSON.parse(JSON.stringify(cleanSteps)),
         action,
         medical: document.getElementById('irMed').value,
         hospital: document.getElementById('irHospital').value.trim(),
@@ -4996,7 +5196,7 @@ function openSdlModal(editIdx = null) {
             <div><label class="lbl">نوع الانحراف:</label><input id="sdlType" class="inp" value="${esc(existing ? existing.type : '')}" placeholder="تجاوز / تأخير / تنفيذ"></div>
         </div>
         <div class="grid-2">
-            <div><label class="lbl">الطرف المسؤول:</label><input id="sdlParty" list="globalAttendanceList" class="inp" value="${esc(existing ? existing.party : '')}" placeholder="المقاول / العامل"></div>
+            <div><label class="lbl">الطرف المسؤول / المُبلِّغ:</label><input id="sdlParty" list="globalAttendanceList" class="inp" value="${esc(existing ? existing.party : '')}" placeholder="المقاول / الجهة"></div>
             <div><label class="lbl">الصلاحية المنتهكة:</label><input id="sdlAuth" class="inp" value="${esc(existing ? existing.authority : '')}" placeholder="اختياري..."></div>
         </div>
         <label class="lbl">الملاحظة (OBS):</label><div class="inp-wrap"><textarea id="sdlObs" class="inp auto-grow" rows="2">${esc(existing ? existing.obs : '')}</textarea><button class="clr-btn top-align" onclick="startDictation('sdlObs')">🎤</button></div>
@@ -5382,83 +5582,99 @@ function openTodayPhotosGallery() {
 
 function previewSinglePhoto(urlOrId) {
     const resolved = getPhotoUrl(urlOrId);
+    window._markupActive = false;
     openModal(`
-        <div style="position:relative;margin-bottom:10px;">
-            <img id="previewImg" src="${resolved}" style="width:100%;border-radius:10px;display:block;">
-            <canvas id="markupCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;"></canvas>
+        <h3 class="card-title">🖼️ معاينة وتأشير الصورة</h3>
+        <div style="position:relative;margin-bottom:10px;background:#0f172a;border-radius:10px;overflow:hidden;">
+            <img id="previewImg" src="${resolved}" style="width:100%;display:block;">
+            <canvas id="markupCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;pointer-events:none;"></canvas>
         </div>
-        <div class="grid-2" style="margin-bottom:10px;">
-            <button class="btn btn-blue btn-sm" onclick="enableMarkupMode()">🖍️ رسم / تأشير</button>
-            <button class="btn btn-green btn-sm" onclick="saveMarkupToPhoto('${urlOrId}')">💾 حفظ</button>
+        <div class="grid-3" style="margin-bottom:8px;">
+            <button class="btn btn-blue btn-sm" onclick="enableMarkupMode('#ef4444')">🔴 قلم أحمر</button>
+            <button class="btn btn-orange btn-sm" onclick="enableMarkupMode('#facc15')">🟡 قلم أصفر</button>
+            <button class="btn btn-green btn-sm" onclick="saveMarkupToPhoto('${esc(urlOrId)}')">💾 حفظ التأشير</button>
         </div>
         <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق المعاينة</button>
     `);
 }
-let markupActive = false;
-function enableMarkupMode() {
+
+function enableMarkupMode(color = '#ef4444') {
     const img = document.getElementById('previewImg');
     const cvs = document.getElementById('markupCanvas');
-    if(!img || !cvs) return;
-    cvs.width = img.clientWidth; cvs.height = img.clientHeight;
-    const ctx = cvs.getContext('2d');
-    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-    let drawing = false;
-    const startD = (e) => {
-        drawing = true;
-        const rect = cvs.getBoundingClientRect();
-        const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-        const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-        ctx.beginPath(); ctx.moveTo(x, y);
-        if(e.cancelable) e.preventDefault();
-    };
-    const moveD = (e) => {
-        if(!drawing) return;
-        const rect = cvs.getBoundingClientRect();
-        const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-        const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-        ctx.lineTo(x, y); ctx.stroke();
-        if(e.cancelable) e.preventDefault();
-    };
-    const endD = () => drawing = false;
-    cvs.onmousedown = cvs.ontouchstart = startD;
-    cvs.onmousemove = cvs.ontouchmove = moveD;
-    cvs.onmouseup = cvs.ontouchend = window.onmouseup = endD;
-    markupActive = true;
-    showToast('🖍️ وضع التأشير مفعل: ارسم على الصورة بإصبعك');
-}
-function saveMarkupToPhoto(urlOrId) {
-    if(!markupActive) { showToast('لم يتم تعديل الصورة'); return; }
-    const cvs = document.getElementById('markupCanvas');
-    const img = document.getElementById('previewImg');
-    if(!cvs || !img) return;
-    
-    const off = document.createElement('canvas');
-    off.width = img.naturalWidth; 
-    off.height = img.naturalHeight;
-    const ctx = off.getContext('2d');
-    
-    // Draw original
-    ctx.drawImage(img, 0, 0);
-    // Draw markup scaled to original
-    ctx.drawImage(cvs, 0, 0, off.width, off.height);
-    
-    const newB64 = off.toDataURL('image/jpeg', 0.9);
-    
-    // Replace in local photoStore
-    if (urlOrId.startsWith('photo_')) {
-        const pObj = photoStore.find(p => p.id === urlOrId);
-        if (pObj) {
-            pObj.dataUrl = newB64;
-            pObj.driveLink = ''; // Reset drive link since image changed
-            savePhotoStoreToDB();
-        }
-    } else {
-        // inline base64 fallback (older format)
-        // Highly complex to trace back to specific task/meter from here, 
-        // but since V9+ uses photoStore, this ID replacement handles 99% of cases.
+    if (!img || !cvs) return;
+    if (!window._markupActive) {
+        cvs.width = img.clientWidth || 320;
+        cvs.height = img.clientHeight || 240;
     }
-    
-    showToast('💾 تم دمج التأشير مع الصورة بنجاح');
+    cvs.style.pointerEvents = 'auto';
+    const ctx = cvs.getContext('2d');
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    let drawing = false;
+    const getXY = e => {
+        const rect = cvs.getBoundingClientRect();
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: cx - rect.left, y: cy - rect.top };
+    };
+    const startD = e => {
+        drawing = true;
+        const p = getXY(e);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        if (e.cancelable) e.preventDefault();
+    };
+    const moveD = e => {
+        if (!drawing) return;
+        const p = getXY(e);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        if (e.cancelable) e.preventDefault();
+    };
+    const endD = () => { drawing = false; };
+    cvs.onmousedown = startD;
+    cvs.onmousemove = moveD;
+    cvs.onmouseup = endD;
+    cvs.ontouchstart = startD;
+    cvs.ontouchmove = moveD;
+    cvs.ontouchend = endD;
+    window._markupActive = true;
+    showToast('🖍️ ارسم دائرة أو خط على موقع العطل بإصبعك');
+}
+
+function saveMarkupToPhoto(urlOrId) {
+    if (!window._markupActive) {
+        showToast('⚠️ اضغط على قلم الرسم أولاً وحدد على الصورة');
+        return;
+    }
+    const cvs = document.getElementById('markupCanvas');
+    const img = document.getElementById('previewImg');
+    if (!cvs || !img) return;
+    const off = document.createElement('canvas');
+    off.width = img.naturalWidth || cvs.width;
+    off.height = img.naturalHeight || cvs.height;
+    const ctx = off.getContext('2d');
+    ctx.drawImage(img, 0, 0, off.width, off.height);
+    ctx.drawImage(cvs, 0, 0, off.width, off.height);
+    const newB64 = off.toDataURL('image/jpeg', 0.9);
+
+    if (urlOrId && !urlOrId.startsWith('data:')) {
+        photoCache.set(urlOrId, newB64);
+        if (photoDb) {
+            try {
+                photoDb.transaction(PHOTO_STORE, 'readwrite').objectStore(PHOTO_STORE).put({ id: urlOrId, dataUrl: newB64, ts: Date.now() });
+            } catch {}
+        }
+        const log = getDayLog();
+        if (log.photoLinks && log.photoLinks[urlOrId]) {
+            delete log.photoLinks[urlOrId];
+        }
+        saveState();
+        renderAll();
+    }
+    showToast('✅ تم دمج التأشير وحفظ الصورة بنجاح');
     closeModal();
 }
 
@@ -5469,9 +5685,9 @@ function runPreExportCheck(mode = 'gemini_json') {
     const unlinkedCnt = photos.filter(p => !p.driveLink).length;
     const warnings = [];
     if (log.meters.some(m => m.status === 'working' && m.curr === '')) warnings.push('• توجد قراءة عداد شغال غير مدخلة.');
-    if (log.gauges.some(g => g.val === '')) warnings.push('• توجد مقاييس ضغط لم يتم إدخال قراءتها اليوم.');
-    if (log.attendance.some(w => !w.status.includes('Absent') && w.tOut === '')) warnings.push('• نسيت تحديد وقت خروج لبعض العمال الحاضرين.');
-    if (log.tasks.some(t => !t.zones.trim())) warnings.push('• توجد مهمة بدون تحديد المنطقة المستهدفة.');
+    if (log.gauges.some(g => g.val === '')) warnings.push('• توجد مقاييس ضغط (Gauges) لم تُدخل قراءتها اليوم.');
+    if (log.attendance.some(w => !w.status.includes('Absent') && !w.tOut)) warnings.push('• يوجد عمال حاضرون بدون وقت خروج مسجّل.');
+    if (log.tasks.some(t => !(t.zones || '').trim())) warnings.push('• توجد مهمة بدون تحديد المنطقة.');
     if (log.meters.some(m => ensurePhotosArr(m).length === 0)) warnings.push('• لم تُلتقط صورة عداد المياه اليوم.');
     if (unlinkedCnt > 0) warnings.push(`• توجد <b>${unlinkedCnt}</b> صور ملتقطة اليوم بدون رابط Google Drive بعد.`);
     if (log.tasks.some(t => t.status.includes('Blocked') && !t.note.trim())) warnings.push('• توجد مهمة متوقفة بدون كتابة سبب التوقف.');
@@ -5598,7 +5814,7 @@ async function exportLightweightDFL() {
             B7_date: state.activeDate,
             F7_day: dayEn,
             B8_teamLead: state.company.teamLead,
-            B11_textSignature: state.company.textSignature || "",
+            textSignature: state.company.textSignature || "",
             B9_shift: state.company.shift,
             F9_supervisor: state.company.supervisor || 'Maitham Ibrahim',
             B10_outsideWorkerRateIQD: state.company.outsideRate
@@ -6027,23 +6243,12 @@ function createNewSite() {
 
 function openSettingsModal() {
     const site = getSite();
-    const supList = ['Maitham Ibrahim', 'Hussein Abed', 'Ali Hassan', 'Zaid Tariq'];
     openModal(`
         <h3 class="card-title">⚙️ إعدادات الشركة والموقع</h3>
         <label class="lbl">قائد الفريق (Team Lead):</label><div class="inp-wrap"><input id="stTl" list="globalAttendanceList" class="inp" value="${esc(state.company.teamLead)}"><button class="clr-btn" onclick="quickClearField('stTl')">✕</button></div>
-        
-        <label class="lbl">التوقيع النصي (Text Signature):</label>
-        <div class="inp-wrap">
-            <input id="stTxtSig" class="inp" value="${esc(state.company.textSignature || '')}" placeholder="مثال: HUSSEIN Y. HUSSEIN" style="font-family:'Courier New', monospace; font-weight:bold;">
-            <button class="clr-btn" onclick="quickClearField('stTxtSig')">✕</button>
-        </div>
-
-        <label class="lbl">المشرف (Supervisor Ref):</label>
-        <div class="inp-wrap">
-            <input id="stSup" list="globalAttendanceList" class="inp" value="${esc(state.company.supervisor || 'Maitham Ibrahim')}">
-            <button class="clr-btn" onclick="quickClearField('stSup')">✕</button>
-        </div>
-        
+        <label class="lbl">✍️ التوقيع الكتابي النصي (يُطبع في الإكسيل):</label>
+        <div class="inp-wrap"><input id="stTxtSig" class="inp" style="font-family:Georgia,serif;font-style:italic;font-weight:bold;letter-spacing:0.5px;" value="${esc(state.company.textSignature || '')}" placeholder="مثلاً: HUSSEIN Y. HUSSEIN"><button class="clr-btn" onclick="quickClearField('stTxtSig')">✕</button></div>
+        <label class="lbl">المشرف / السوبرفايزر (Supervisor):</label><div class="inp-wrap"><input id="stSup" list="globalSupervisorsList" class="inp" value="${esc(state.company.supervisor || 'Maitham Ibrahim')}"><button class="clr-btn" onclick="quickClearField('stSup')">✕</button></div>
         <div class="grid-2">
             <div><label class="lbl">وحدة الأطوال:</label><select id="stUnit" class="inp"><option value="م" ${state.company.heightUnit === 'م' ? 'selected' : ''}>المتر (م)</option><option value="سم" ${state.company.heightUnit === 'سم' ? 'selected' : ''}>السنتيمتر (سم)</option></select></div>
             <div><label class="lbl">أجر العامل الخارجي:</label><input type="number" id="stRate" class="inp" value="${state.company.outsideRate}"></div>
@@ -6054,7 +6259,7 @@ function openSettingsModal() {
             <button class="clr-btn top-align" onclick="quickClearField('stSiteZones')">✕</button>
         </div>
         <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:9px;margin-bottom:10px;">
-            <label class="lbl" style="color:var(--primary-dark);">✍️ التوقيع الإلكتروني اليدوي:</label>
+            <label class="lbl" style="color:var(--primary-dark);">✍️ التوقيع الإلكتروني لقائد الفريق (يُطبع تلقائياً في التقارير):</label>
             ${state.company.signatureDataUrl ? `
             <div style="background:white;border:1px solid #cbd5e1;border-radius:7px;padding:5px;text-align:center;margin-bottom:6px;">
                 <img src="${state.company.signatureDataUrl}" style="max-height:52px;display:inline-block;">
@@ -6067,14 +6272,22 @@ function openSettingsModal() {
             </div>
             ${state.company.signatureDataUrl ? `<button class="btn btn-outline btn-sm" style="width:100%;margin-top:5px;color:var(--red);" onclick="deleteElectronicSignature()">🗑️ حذف التوقيع المحفوظ</button>` : ''}
         </div>
+        <button class="btn btn-orange btn-full" onclick="closeModal();openDatabaseRecoveryModal()">🔄 استرجاع بيانات V7 من ذاكرة الجهاز</button>
         <button class="btn btn-blue btn-full" onclick="openStaffPoolManager()">👷 إدارة القائمة الدائمة للكادر (${state.company.staffPool.length})</button>
+        <button class="btn btn-outline btn-full" style="color:var(--red);" onclick="purgeOldPhotos()">🧹 تنظيف الصور الأقدم من 30 يوم</button>
         <div class="grid-2"><button class="btn btn-green" onclick="saveSettings()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إغلاق</button></div>
     `);
     setTimeout(initSignaturePadCanvas, 40);
 }
 function saveSettings() {
     state.company.teamLead = document.getElementById('stTl').value.trim();
-    state.company.supervisor = document.getElementById('stSup').value.trim();
+    state.company.textSignature = document.getElementById('stTxtSig').value.trim();
+    const newSup = document.getElementById('stSup').value.trim();
+    state.company.supervisor = newSup;
+    if (newSup) {
+        if (!Array.isArray(state.company.supervisors)) state.company.supervisors = ['Maitham Ibrahim'];
+        if (!state.company.supervisors.includes(newSup)) state.company.supervisors.push(newSup);
+    }
     state.company.heightUnit = document.getElementById('stUnit').value;
     state.company.outsideRate = parseFloat(document.getElementById('stRate').value) || 25000;
     const zArr = document.getElementById('stSiteZones').value.split(',').map(s => s.trim()).filter(Boolean);
@@ -6155,71 +6368,89 @@ window.onerror = function(msg, src, lineNo) {
     if (t) { t.textContent = '⚠️ خطأ تقني (' + lineNo + '): ' + msg; t.classList.add('show'); }
 };
 
-
 function setCurrentUser(val) {
-    currentUser = val;
-    showToast('👤 المستخدم الحالي: ' + (val || 'غير محدد'));
+    state.company.currentUser = val || '';
+    if (val) {
+        const log = getDayLog();
+        const found = log.attendance.find(w => (w.name.split('/')[1] || w.name).trim() === val);
+        if (found && found.type.includes('Lead')) {
+            state.company.teamLead = found.name;
+        }
+    }
+    saveState();
+    renderAll();
+    updateGlobalAttendanceList();
+    showToast('👤 المستخدم النشط: ' + (val || 'الافتراضي'));
 }
+
 function updateGlobalAttendanceList() {
     const dl = document.getElementById('globalAttendanceList');
+    const supDl = document.getElementById('globalSupervisorsList');
     const curSel = document.getElementById('currentUserSelect');
-    if (!dl || !curSel) return;
     const log = getDayLog();
-    const sorted = [...log.attendance].sort((a,b) => {
+    const sorted = [...log.attendance].sort((a, b) => {
         if (a.type.includes('Lead')) return -1;
         if (b.type.includes('Lead')) return 1;
         if (a.type.includes('Supervisor')) return -1;
         if (b.type.includes('Supervisor')) return 1;
         return 0;
     });
-    const opts = sorted.map(w => `<option value="${esc(w.name.split('/')[1] || w.name)}">`);
-    dl.innerHTML = opts.join('');
-    
-    // Update user selector keeping current choice if valid
-    const currVal = curSel.value;
-    curSel.innerHTML = '<option value="">👤 المستخدم</option>' + sorted.map(w => {
-        const n = w.name.split('/')[1] || w.name;
-        let icon = '👷';
-        if(w.type.includes('Lead')) icon = '👑';
-        if(w.type.includes('Supervisor')) icon = '👔';
-        return `<option value="${esc(n)}"${currVal === n ? ' selected' : ''}>${icon} ${esc(n)}</option>`;
-    }).join('');
+    if (dl) {
+        dl.innerHTML = sorted.map(w => `<option value="${esc((w.name.split('/')[1] || w.name).trim())}">`).join('');
+    }
+    if (supDl) {
+        const supSet = new Set(['Maitham Ibrahim', ...(state.company.supervisors || [])]);
+        sorted.forEach(w => {
+            if (w.type.includes('Supervisor') || w.type.includes('Lead')) {
+                supSet.add((w.name.split('/')[1] || w.name).trim());
+            }
+        });
+        supDl.innerHTML = Array.from(supSet).map(s => `<option value="${esc(s)}">`).join('');
+    }
+    if (curSel) {
+        const currVal = state.company.currentUser || '';
+        curSel.innerHTML = '<option value="">👤 المستخدم</option>' + sorted.map(w => {
+            const n = (w.name.split('/')[1] || w.name).trim();
+            const icon = w.type.includes('Lead') ? '👑' : (w.type.includes('Supervisor') ? '👔' : '👷');
+            return `<option value="${esc(n)}" ${currVal === n ? 'selected' : ''}>${icon} ${esc(n)}</option>`;
+        }).join('');
+    }
 }
 
 function bootApp() {
     setInterval(() => {
-        if(state && getSite()) {
-            localStorage.setItem('tff_emergency_autosave_v10', JSON.stringify(state));
-        }
+        try {
+            if (state && state.sites) {
+                localStorage.setItem('tff_emergency_autosave_v11', JSON.stringify({ ts: Date.now(), state }));
+            }
+        } catch {}
     }, 30000);
-
     normalizeState();
     getDayLog();
     renderAll();
     updateGlobalAttendanceList();
 
-    // Emergency Recovery Check
-    const savedV10 = localStorage.getItem('tff_emergency_autosave_v10');
-    if (savedV10) {
-        try {
-            const parsed = JSON.parse(savedV10);
-            // If the saved state has a newer active date or different data, prompt recovery
-            if (parsed.activeDate !== state.activeDate || JSON.stringify(parsed.sites) !== JSON.stringify(state.sites)) {
+    try {
+        const rawAuto = localStorage.getItem('tff_emergency_autosave_v11');
+        if (rawAuto) {
+            const parsedWrap = JSON.parse(rawAuto);
+            const savedSt = parsedWrap && parsedWrap.state;
+            if (savedSt && savedSt.sites && JSON.stringify(savedSt.sites) !== JSON.stringify(state.sites)) {
                 setTimeout(() => {
-                    if(confirm('⚠️ تم العثور على بيانات سابقة لم تكتمل (بسبب انغلاق البرنامج). هل تريد استعادتها الآن؟')) {
-                        state = parsed;
+                    if (confirm('⚠️ توجد نسخة احتياطية تلقائية محفوظة قبل انغلاق التطبيق، هل تريد استعادتها؟')) {
+                        state = savedSt;
+                        normalizeState();
                         saveState();
                         renderAll();
                         updateGlobalAttendanceList();
                         showToast('✅ تم استرجاع البيانات بنجاح!');
                     } else {
-                        localStorage.removeItem('tff_emergency_autosave_v10');
+                        localStorage.removeItem('tff_emergency_autosave_v11');
                     }
-                }, 1000);
+                }, 900);
             }
-        } catch(e) {}
-    }
-
+        }
+    } catch {}
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -6228,7 +6459,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V11.0 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V11.1 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
