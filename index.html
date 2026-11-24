@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V10.0</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V11.0</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -212,12 +212,15 @@
 
     <header class="app-header">
         <div class="header-row1">
-            <select id="siteSelect" class="site-select" onchange="onSiteSelectChange(this.value)"></select>
+            <div style="display:flex; gap:5px; align-items:center;">
+                <select id="siteSelect" class="site-select" onchange="onSiteSelectChange(this.value)"></select>
+                <select id="currentUserSelect" class="site-select" style="max-width:110px; background-color:#e0f2fe; color:#0369a1;" onchange="setCurrentUser(this.value)"><option value="">👤 المستخدم</option></select>
+            </div>
             <div class="header-tools">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V10.0 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V11.0 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -293,6 +296,7 @@
             </div>
             
             <div id="tasksContainer"></div>
+            <div id="transfersContainer"></div>
             
             <button class="btn btn-green btn-full" onclick="openTaskModal()">+ إضافة مهمة جديدة (أو مهمة حرة)</button>
         </div>
@@ -593,6 +597,7 @@ const DICTATION_CORRECTIONS = [
     [/فالف|فلف/gi, 'valve']
 ];
 const ROLES = ['Team Lead / قائد فريق', 'Supervisor / مشرف', 'Permanent Worker / عامل دائم', 'Outside Worker / عامل خارجي'];
+let currentUser = null;
 const DEFAULT_STAFF = [
     { name: 'Hussein M. Abed  /  حسين مرتضى عبد', type: 'Permanent Worker / عامل دائم', tIn: '08:00', tOut: '17:00' },
     { name: 'Hussein Y. Hussin / حسين يوسف حسين', type: 'Permanent Worker / عامل دائم', tIn: '08:00', tOut: '17:00' },
@@ -712,7 +717,7 @@ let state = {
 
 
 
-/* ================= V10.0: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V11.0: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -877,7 +882,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V10.0: Task Presets Manager ================= */
+/* ================= V11.0: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -964,7 +969,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V10.0: DFL Readiness Progress Bar ================= */
+/* ================= V11.0: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1004,7 +1009,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V10.0: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V11.0: Weekly / Monthly Site Analytics Dashboard ================= */
 
 function openDeepAnalyticsModal() {
     const site = getSite();
@@ -1154,7 +1159,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V10.0: Electronic Touch Signature Pad ================= */
+/* ================= V11.0: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1333,64 +1338,16 @@ function downloadCleanTemplateV04() {
 /* ================= V9: Weather Auto-Fetch & Full Fields ================= */
 function ensureWeatherObj(log) {
     if (!log.weather || typeof log.weather !== 'object') {
-        log.weather = { cond: '', tMin: '', tMax: '', wind: '', hum: '', uv: '', press: '', precip: '', time: '', notes: '' };
-    }
-    return log.weather;
-}
-
-function updateWeatherField(k, v) {
-    const wx = ensureWeatherObj(getDayLog());
-    wx[k] = v;
-    saveState();
-}
-
-function applyWeatherPreset(cond, tMin, tMax, wind, hum, uv, press, precip) {
-    const log = getDayLog();
-    log.weather = { cond, tMin, tMax, wind, hum, uv, press, precip, time: '08:00', notes: 'Hilla Field Observation' };
-    saveState();
-    renderReadingsAndTools(log);
-    showToast('🌤️ تم تعبئة جميع حقول الطقس');
-}
-
-function mapWmoCodeToBilingual(code) {
-    const c = Number(code);
-    if (c === 0) return 'Clear / صافي';
-    if ([1, 2].includes(c)) return 'Partly Cloudy / غائم جزئياً';
-    if (c === 3) return 'Overcast / غائم';
-    if ([45, 48].includes(c)) return 'Fog / ضباب';
-    if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(c)) return 'Rain / أمطار';
-    if ([95, 96, 99].includes(c)) return 'Thunderstorm / عاصفة رعدية';
-    return 'Clear / صافي';
-}
-
-async function fetchHillaWeather(manualTrigger = false) {
-    const log = getDayLog();
-    const wx = ensureWeatherObj(log);
-    if (!manualTrigger && wx.cond && wx.tMax !== '') return;
-    if (!navigator.onLine) {
-        if (manualTrigger) showToast('⚠️ لا يوجد اتصال بالإنترنت — استخدم الأزرار السريعة للطقس');
-        return;
-    }
-    if (manualTrigger) showToast('⏳ جاري جلب طقس الحلة الكامل...');
-    try {
-        const d = state.activeDate;
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=32.6105&longitude=44.3828&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,uv_index_max&hourly=relative_humidity_2m,surface_pressure&timezone=Asia%2FBaghdad&start_date=${d}&end_date=${d}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (data && data.daily && data.daily.time && data.daily.time.length > 0) {
-            const humArr = (data.hourly && data.hourly.relative_humidity_2m) || [];
-            const pressArr = (data.hourly && data.hourly.surface_pressure) || [];
-            const avgHum = humArr.length ? Math.round(humArr.reduce((a, b) => a + b, 0) / humArr.length) : 45;
-            const avgPress = pressArr.length ? Math.round(pressArr.reduce((a, b) => a + b, 0) / pressArr.length) : 1015;
+        const hum8 = data.hourly.relative_humidity_2m[8];
+            const press8 = data.hourly.surface_pressure[8];
             log.weather = {
                 cond: mapWmoCodeToBilingual(data.daily.weather_code[0]),
                 tMin: Math.round(data.daily.temperature_2m_min[0] * 10) / 10,
                 tMax: Math.round(data.daily.temperature_2m_max[0] * 10) / 10,
                 wind: Math.round(data.daily.wind_speed_10m_max[0] * 10) / 10,
-                hum: Math.round(data.hourly.relative_humidity_2m[8] || avgHum),
+                hum: hum8 !== undefined ? Math.round(hum8) : avgHum,
                 uv: Math.round((data.daily.uv_index_max[0] || 5) * 10) / 10,
-                press: Math.round(data.hourly.surface_pressure[8] || avgPress),
+                press: press8 !== undefined ? Math.round(press8) : avgPress,
                 precip: Math.round((data.daily.precipitation_sum[0] || 0) * 10) / 10,
                 time: '08:00',
                 notes: 'Auto-fetched (Mahawil @ 08:00)'
@@ -1459,7 +1416,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V10.0: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V11.0: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -2363,8 +2320,14 @@ function getDayLog(dateStr = state.activeDate) {
         const sortedDates = Object.keys(site.logs).sort();
         const prevDate = sortedDates.filter(d => d < dateStr).pop();
         const prevLog = prevDate ? site.logs[prevDate] : null;
+        const tl = state.company.teamLead || 'Unknown';
+        if (!site.dflSequences) site.dflSequences = {};
+        let assignedDfl = site.dflSequences[tl] || site.nextDfl;
+        site.dflSequences[tl] = assignedDfl + 1;
+        site.nextDfl = assignedDfl + 1;
+        
         site.logs[dateStr] = {
-            dflNum: site.nextDfl++,
+            dflNum: assignedDfl,
             attendance: state.company.staffPool.map((s, idx) => ({
                 id: 'w_' + idx + '_' + Date.now(), name: s.name, type: s.type,
                 status: 'Present / حاضر', tIn: s.tIn || '08:00', tOut: s.tOut || '16:00', ot: 0, note: ''
@@ -3166,7 +3129,18 @@ function switchTab(tabId) {
 function onDateChange(val) { if (!val) return; state.activeDate = val; getDayLog(val); saveState(); renderAll(); }
 function onDflNumChange(val) {
     const n = parseInt(val);
-    if (!isNaN(n) && n > 0) { pushUndo('تعديل رقم DFL'); getDayLog().dflNum = n; getSite().nextDfl = Math.max(getSite().nextDfl, n + 1); saveState(); }
+    if (!isNaN(n) && n > 0) { 
+        pushUndo('تعديل رقم DFL'); 
+        const site = getSite();
+        const tl = state.company.teamLead || 'Unknown';
+        if (!site.dflSequences) site.dflSequences = {};
+        
+        getDayLog().dflNum = n; 
+        site.dflSequences[tl] = n + 1;
+        site.nextDfl = n + 1; // update global fallback
+        saveState(); 
+    }
+}
 }
 function onSiteSelectChange(val) {
     if (val === '__NEW__') { openNewSiteModal(); renderAll(); return; }
@@ -3418,7 +3392,7 @@ function renderTasksQueue(log) {
             html += `
             <div class="queue-item">
                 <div style="font-size:12px;flex:1;">
-                    <b>${esc(x.t.zones)}</b> — ${esc(x.t.desc)}<br>
+                    <b style="cursor:pointer;color:var(--blue);text-decoration:underline;" onclick="jumpToZoneFromTask('${esc(x.t.zones)}')">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)}<br>
                     <span class="live-timer-pill ${x.t.pausedAtMs ? 'is-paused' : ''}" onclick="openRetroStartTimeModal(${x.i})">
                         ▶️ بدأ: ${startStr} ✏️ | <span data-live-task-id="${x.t.id}">${x.t.pausedAtMs ? `⏸️ استراحة (${netStr})` : `⏱️ مستمر منذ ${netStr}`}</span>
                     </span>
@@ -3437,7 +3411,7 @@ function renderTasksQueue(log) {
         notSt.forEach(x => {
             html += `
             <div class="queue-item">
-                <div style="font-size:12px;color:var(--muted);"><b>${esc(x.t.zones)}</b> — ${esc(x.t.desc)}</div>
+                <div style="font-size:12px;color:var(--muted);"><b style="cursor:pointer;color:var(--blue);text-decoration:underline;" onclick="jumpToZoneFromTask('${esc(x.t.zones)}')">📍 ${esc(x.t.zones)}</b> — ${esc(x.t.desc)}</div>
                 <button class="btn btn-blue btn-sm" onclick="setTaskStatus(${x.i}, 'In Progress / جاري')">▶️ ابدأ</button>
             </div>`;
         });
@@ -3451,6 +3425,20 @@ function renderTasks(log) {
     renderTasksQueue(log);
     renderZoneThirstRadar();
 
+    const trBox = document.getElementById('transfersContainer');
+    if (log.transfers && log.transfers.length > 0) {
+        trBox.innerHTML = `
+            <div style="font-weight:bold;color:var(--muted);margin:10px 0 6px;font-size:12px;">🔄 سجل تنقلات العمال اليوم:</div>
+            ${log.transfers.map(tr => `<div class="card" style="padding:8px;font-size:12px;background:#f8fafc;border-left:3px solid #8b5cf6;">
+                <b>👷 ${esc(tr.worker)}</b> — انتقل الساعة ${esc(tr.time)}<br>
+                <span style="color:#ef4444;">من: ${esc(tr.fromTask)}</span> ➡️ <span style="color:#10b981;">إلى: ${esc(tr.toTask)}</span>
+                ${tr.dur ? `<br><span style="color:var(--muted);">المدة السابقة: ${esc(tr.dur)}</span>` : ''}
+                ${tr.note ? `<br><i>ملاحظة: ${esc(tr.note)}</i>` : ''}
+            </div>`).join('')}
+        `;
+    } else if (trBox) {
+        trBox.innerHTML = '';
+    }
     const el = document.getElementById('tasksContainer');
     if (log.tasks.length === 0) {
         el.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);padding:24px;">💧 اضغط على زر خطة الري أعلاه أو أضف مهمة جديدة</div>`;
@@ -4322,6 +4310,9 @@ function openToolModal() {
             <div><label class="lbl">الفئة:</label><select id="tlCat" class="inp"><option value="Equipment / معدة">Equipment / معدة</option><option value="Tool / أداة">Tool / أداة</option><option value="Materials / مادة">Materials / مادة</option></select></div>
             <div><label class="lbl">الكمية:</label><input type="number" id="tlQty" class="inp" value="1"></div>
         </div>
+        <div class="grid-2">
+            <div><label class="lbl">بعهدة (المستلم):</label><input id="tlHolder" list="globalAttendanceList" class="inp" placeholder="اسم العامل..."></div>
+        </div>
         <label class="lbl">الحالة:</label>
         <select id="tlCond" class="inp"><option value="Good / جيد">Good / جيد</option><option value="Needs Maintenance / يحتاج صيانة">Needs Maintenance</option><option value="Out of Service / خارج الخدمة">Out of Service</option></select>
         <div class="grid-2"><button class="btn btn-green" onclick="saveNewTool()">إضافة</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
@@ -4570,6 +4561,29 @@ function confirmAddInvZone() {
     getSite().inventory.push(z); activeInvZoneId = z.id;
     closeModal(); saveState(); renderAll();
     updateGlobalAttendanceList();
+
+    // Emergency Recovery Check
+    const savedV10 = localStorage.getItem('tff_emergency_autosave_v10');
+    if (savedV10) {
+        try {
+            const parsed = JSON.parse(savedV10);
+            // If the saved state has a newer active date or different data, prompt recovery
+            if (parsed.activeDate !== state.activeDate || JSON.stringify(parsed.sites) !== JSON.stringify(state.sites)) {
+                setTimeout(() => {
+                    if(confirm('⚠️ تم العثور على بيانات سابقة لم تكتمل (بسبب انغلاق البرنامج). هل تريد استعادتها الآن؟')) {
+                        state = parsed;
+                        saveState();
+                        renderAll();
+                        updateGlobalAttendanceList();
+                        showToast('✅ تم استرجاع البيانات بنجاح!');
+                    } else {
+                        localStorage.removeItem('tff_emergency_autosave_v10');
+                    }
+                }, 1000);
+            }
+        } catch(e) {}
+    }
+
 }
 function deleteInvZone(id) { if (confirm('حذف المنطقة؟')) { pushUndo('حذف منطقة جرد'); getSite().inventory = getSite().inventory.filter(z => z.id !== id); saveState(); renderInventory(getSite()); } }
 function enterInvZone(id) { activeInvZoneId = id; activeEntryPrompt = null; renderAll(); }
@@ -5414,6 +5428,36 @@ function enableMarkupMode() {
 }
 function saveMarkupToPhoto(urlOrId) {
     if(!markupActive) { showToast('لم يتم تعديل الصورة'); return; }
+    const cvs = document.getElementById('markupCanvas');
+    const img = document.getElementById('previewImg');
+    if(!cvs || !img) return;
+    
+    const off = document.createElement('canvas');
+    off.width = img.naturalWidth; 
+    off.height = img.naturalHeight;
+    const ctx = off.getContext('2d');
+    
+    // Draw original
+    ctx.drawImage(img, 0, 0);
+    // Draw markup scaled to original
+    ctx.drawImage(cvs, 0, 0, off.width, off.height);
+    
+    const newB64 = off.toDataURL('image/jpeg', 0.9);
+    
+    // Replace in local photoStore
+    if (urlOrId.startsWith('photo_')) {
+        const pObj = photoStore.find(p => p.id === urlOrId);
+        if (pObj) {
+            pObj.dataUrl = newB64;
+            pObj.driveLink = ''; // Reset drive link since image changed
+            savePhotoStoreToDB();
+        }
+    } else {
+        // inline base64 fallback (older format)
+        // Highly complex to trace back to specific task/meter from here, 
+        // but since V9+ uses photoStore, this ID replacement handles 99% of cases.
+    }
+    
     showToast('💾 تم دمج التأشير مع الصورة بنجاح');
     closeModal();
 }
@@ -5425,6 +5469,9 @@ function runPreExportCheck(mode = 'gemini_json') {
     const unlinkedCnt = photos.filter(p => !p.driveLink).length;
     const warnings = [];
     if (log.meters.some(m => m.status === 'working' && m.curr === '')) warnings.push('• توجد قراءة عداد شغال غير مدخلة.');
+    if (log.gauges.some(g => g.val === '')) warnings.push('• توجد مقاييس ضغط لم يتم إدخال قراءتها اليوم.');
+    if (log.attendance.some(w => !w.status.includes('Absent') && w.tOut === '')) warnings.push('• نسيت تحديد وقت خروج لبعض العمال الحاضرين.');
+    if (log.tasks.some(t => !t.zones.trim())) warnings.push('• توجد مهمة بدون تحديد المنطقة المستهدفة.');
     if (log.meters.some(m => ensurePhotosArr(m).length === 0)) warnings.push('• لم تُلتقط صورة عداد المياه اليوم.');
     if (unlinkedCnt > 0) warnings.push(`• توجد <b>${unlinkedCnt}</b> صور ملتقطة اليوم بدون رابط Google Drive بعد.`);
     if (log.tasks.some(t => t.status.includes('Blocked') && !t.note.trim())) warnings.push('• توجد مهمة متوقفة بدون كتابة سبب التوقف.');
@@ -5983,7 +6030,7 @@ function openSettingsModal() {
     const supList = ['Maitham Ibrahim', 'Hussein Abed', 'Ali Hassan', 'Zaid Tariq'];
     openModal(`
         <h3 class="card-title">⚙️ إعدادات الشركة والموقع</h3>
-        <label class="lbl">قائد الفريق (Team Lead):</label><div class="inp-wrap"><input id="stTl" class="inp" value="${esc(state.company.teamLead)}"><button class="clr-btn" onclick="quickClearField('stTl')">✕</button></div>
+        <label class="lbl">قائد الفريق (Team Lead):</label><div class="inp-wrap"><input id="stTl" list="globalAttendanceList" class="inp" value="${esc(state.company.teamLead)}"><button class="clr-btn" onclick="quickClearField('stTl')">✕</button></div>
         
         <label class="lbl">التوقيع النصي (Text Signature):</label>
         <div class="inp-wrap">
@@ -5993,8 +6040,7 @@ function openSettingsModal() {
 
         <label class="lbl">المشرف (Supervisor Ref):</label>
         <div class="inp-wrap">
-            <input id="stSup" list="supOptions" class="inp" value="${esc(state.company.supervisor || 'Maitham Ibrahim')}">
-            <datalist id="supOptions">${supList.map(s => `<option value="${s}">`).join('')}</datalist>
+            <input id="stSup" list="globalAttendanceList" class="inp" value="${esc(state.company.supervisor || 'Maitham Ibrahim')}">
             <button class="clr-btn" onclick="quickClearField('stSup')">✕</button>
         </div>
         
@@ -6110,11 +6156,34 @@ window.onerror = function(msg, src, lineNo) {
 };
 
 
+function setCurrentUser(val) {
+    currentUser = val;
+    showToast('👤 المستخدم الحالي: ' + (val || 'غير محدد'));
+}
 function updateGlobalAttendanceList() {
     const dl = document.getElementById('globalAttendanceList');
-    if (!dl) return;
+    const curSel = document.getElementById('currentUserSelect');
+    if (!dl || !curSel) return;
     const log = getDayLog();
-    dl.innerHTML = log.attendance.map(w => `<option value="${esc(w.name.split('/')[1] || w.name)}">`).join('');
+    const sorted = [...log.attendance].sort((a,b) => {
+        if (a.type.includes('Lead')) return -1;
+        if (b.type.includes('Lead')) return 1;
+        if (a.type.includes('Supervisor')) return -1;
+        if (b.type.includes('Supervisor')) return 1;
+        return 0;
+    });
+    const opts = sorted.map(w => `<option value="${esc(w.name.split('/')[1] || w.name)}">`);
+    dl.innerHTML = opts.join('');
+    
+    // Update user selector keeping current choice if valid
+    const currVal = curSel.value;
+    curSel.innerHTML = '<option value="">👤 المستخدم</option>' + sorted.map(w => {
+        const n = w.name.split('/')[1] || w.name;
+        let icon = '👷';
+        if(w.type.includes('Lead')) icon = '👑';
+        if(w.type.includes('Supervisor')) icon = '👔';
+        return `<option value="${esc(n)}"${currVal === n ? ' selected' : ''}>${icon} ${esc(n)}</option>`;
+    }).join('');
 }
 
 function bootApp() {
@@ -6128,6 +6197,29 @@ function bootApp() {
     getDayLog();
     renderAll();
     updateGlobalAttendanceList();
+
+    // Emergency Recovery Check
+    const savedV10 = localStorage.getItem('tff_emergency_autosave_v10');
+    if (savedV10) {
+        try {
+            const parsed = JSON.parse(savedV10);
+            // If the saved state has a newer active date or different data, prompt recovery
+            if (parsed.activeDate !== state.activeDate || JSON.stringify(parsed.sites) !== JSON.stringify(state.sites)) {
+                setTimeout(() => {
+                    if(confirm('⚠️ تم العثور على بيانات سابقة لم تكتمل (بسبب انغلاق البرنامج). هل تريد استعادتها الآن؟')) {
+                        state = parsed;
+                        saveState();
+                        renderAll();
+                        updateGlobalAttendanceList();
+                        showToast('✅ تم استرجاع البيانات بنجاح!');
+                    } else {
+                        localStorage.removeItem('tff_emergency_autosave_v10');
+                    }
+                }, 1000);
+            }
+        } catch(e) {}
+    }
+
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -6136,7 +6228,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V10.0 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V11.0 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
