@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V15.4</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V15.5</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -248,7 +248,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V15.4 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V15.5 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -794,7 +794,7 @@ let state = {
 
 
 
-/* ================= V15.4: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V15.5: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -940,7 +940,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V15.4: Task Presets Manager ================= */
+/* ================= V15.5: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1027,7 +1027,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V15.4: DFL Readiness Progress Bar ================= */
+/* ================= V15.5: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1067,7 +1067,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V15.4: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V15.5: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1324,7 +1324,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V15.4: Electronic Touch Signature Pad ================= */
+/* ================= V15.5: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1849,7 +1849,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V15.4: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V15.5: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -3183,7 +3183,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V15.4: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V15.5: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function openTaskTimelineEditorModal(tIdx) {
     const log = getDayLog();
     const t = log.tasks[tIdx];
@@ -3564,6 +3564,21 @@ function getWorkerIntervalsForTask(t, shortName, nowMs = Date.now()) {
     };
 }
 
+function jumpToTaskFromWorkerHours(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    closeModal();
+    if (!t) return;
+    if (t.status && t.status.includes('Completed')) {
+        expandedDoneTaskIds.add(t.id);
+    }
+    if (taskStatusFilter !== 'all') {
+        taskStatusFilter = 'all';
+    }
+    switchTab('tasks');
+    setTimeout(() => scrollToTaskCard(tIdx), 80);
+}
+
 function computeWorkerTaskHours(log = getDayLog()) {
     const nowMs = Date.now();
     const resultMap = {};
@@ -3587,16 +3602,28 @@ function computeWorkerTaskHours(log = getDayLog()) {
         }
         shiftMins += Math.round((parseFloat(w.ot) || 0) * 60);
 
-        const allIntervals = [];
+        const activeIntervals = [];
+        const passiveIntervals = [];
         const breakdown = [];
+        const activeTasksList = [];
 
-        (log.tasks || []).forEach(t => {
+        (log.tasks || []).forEach((t, tIdx) => {
             const wList = t.workers || [];
             const isAssigned = wList.includes(shortName) || (wList.includes('Team') && !isAbs);
             if (!isAssigned) return;
 
+            const isPassive = isTaskPassiveIrrigation(t);
+            const isProg = !!(t.status && t.status.includes('Progress'));
+            if (isProg) {
+                activeTasksList.push({ taskIdx: tIdx, zones: t.zones, desc: t.desc });
+            }
+
             const info = getWorkerIntervalsForTask(t, shortName, nowMs);
-            info.intervals.forEach(iv => allIntervals.push(iv));
+            if (isPassive) {
+                info.intervals.forEach(iv => passiveIntervals.push(iv));
+            } else {
+                info.intervals.forEach(iv => activeIntervals.push(iv));
+            }
 
             const modeTag = info.wt && info.wt.mode === 'roundtrip'
                 ? ' • انتقال مؤقت'
@@ -3604,16 +3631,28 @@ function computeWorkerTaskHours(log = getDayLog()) {
             const tLabel = `${(t.task.split('/')[1] || t.task).trim()} [${t.zones}]${info.labelRange ? ` (${info.labelRange}${modeTag})` : ''}`;
 
             breakdown.push({
+                taskIdx: tIdx,
+                taskId: t.id,
+                zones: t.zones,
                 label: tLabel,
                 status: (t.status.split('/')[1] || t.status).trim(),
+                isInProgress: isProg,
+                isPassive,
                 mins: info.mins,
                 isTransfer: !!(info.wt && (info.wt.mode === 'roundtrip' || info.wt.mode === 'moved'))
             });
         });
 
-        const merged = mergeTimeIntervals(allIntervals);
-        const workedMins = Math.round(merged.reduce((sum, [a, b]) => sum + (b - a), 0) / 60000);
+        // Use active labor intervals; only count valve supervision (up to 15m) if worker had passive irrigation only
+        const mergedActive = mergeTimeIntervals(activeIntervals);
+        let workedMins = Math.round(mergedActive.reduce((sum, [a, b]) => sum + (b - a), 0) / 60000);
+        if (workedMins === 0 && passiveIntervals.length > 0) {
+            const mergedPassive = mergeTimeIntervals(passiveIntervals);
+            const rawPassiveMins = Math.round(mergedPassive.reduce((sum, [a, b]) => sum + (b - a), 0) / 60000);
+            workedMins = Math.min(15, rawPassiveMins);
+        }
 
+        const diffMins = workedMins - shiftMins;
         resultMap[w.id] = {
             id: w.id,
             name: w.name,
@@ -3621,11 +3660,15 @@ function computeWorkerTaskHours(log = getDayLog()) {
             type: w.type,
             isAbs,
             workedMins,
+            workedFormatted: formatMsAsHrMin(workedMins * 60000),
             workedHrs: +(workedMins / 60).toFixed(2),
             shiftMins,
+            shiftFormatted: formatMsAsHrMin(shiftMins * 60000),
             shiftHrs: +(shiftMins / 60).toFixed(2),
-            diffMins: workedMins - shiftMins,
-            diffHrs: +((workedMins - shiftMins) / 60).toFixed(2),
+            diffMins,
+            diffFormatted: formatMsAsHrMin(Math.abs(diffMins) * 60000),
+            diffHrs: +(diffMins / 60).toFixed(2),
+            activeTasksList,
             breakdown
         };
     });
@@ -3643,18 +3686,22 @@ function openWorkerHoursModal(wIdx) {
     openModal(`
         <h3 class="card-title">⏱️ تفاصيل ساعات عمل: ${esc(stats.shortName)}</h3>
         <div class="grid-2" style="margin-bottom:10px;">
-            <div class="kpi-box"><div class="kpi-val">${stats.workedHrs} س</div><div class="kpi-sub">مجموع ساعات المهام (${stats.workedMins} د)</div></div>
-            <div class="kpi-box"><div class="kpi-val">${stats.shiftHrs} س</div><div class="kpi-sub">صافي ساعات الدوام (بعد الاستراحة)</div></div>
+            <div class="kpi-box"><div class="kpi-val">${stats.workedFormatted}</div><div class="kpi-sub">مجموع المهام (${stats.workedMins} دقيقة)</div></div>
+            <div class="kpi-box"><div class="kpi-val">${stats.shiftFormatted}</div><div class="kpi-sub">صافي الدوام (${stats.shiftMins} دقيقة)</div></div>
         </div>
-        <div style="max-height:260px;overflow-y:auto;margin-bottom:10px;">
+        <p style="font-size:11px;color:var(--muted);margin-top:0;">اضغط على أي مهمة أدناه للانتقال مباشرة إلى بطاقتها وتعديلها:</p>
+        <div style="max-height:270px;overflow-y:auto;margin-bottom:10px;">
             ${stats.breakdown.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:14px;">لا توجد مهام مسجلة لهذا العامل اليوم</div>' :
             stats.breakdown.map(b => `
-                <div class="meter-card" style="padding:8px;margin-bottom:5px;border-right:4px solid ${b.isTransfer ? 'var(--purple)' : 'var(--blue)'};">
-                    <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <b style="font-size:12px;">${esc(b.label)}</b>
-                        <span class="badge" style="background:#e0f2fe;color:#0369a1;">${formatMsAsHrMin(b.mins * 60000)}</span>
+                <div class="meter-card" onclick="jumpToTaskFromWorkerHours(${b.taskIdx})" title="اضغط للانتقال إلى بطاقة المهمة" style="cursor:pointer;padding:8px;margin-bottom:6px;border-right:4px solid ${b.isInProgress ? '#0284c7' : (b.isTransfer ? 'var(--purple)' : '#16a34a')};">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;">
+                        <b style="font-size:12px;color:var(--text);">${esc(b.label)}</b>
+                        <span class="badge" style="background:#e0f2fe;color:#0369a1;white-space:nowrap;">${formatMsAsHrMin(b.mins * 60000)} (${b.mins} د)</span>
                     </div>
-                    <div style="font-size:10.5px;color:var(--muted);margin-top:2px;">الحالة: ${esc(b.status)}</div>
+                    <div style="font-size:10.5px;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between;align-items:center;">
+                        <span>الحالة: <b>${esc(b.status)}</b> ${b.isPassive ? '• 🚰 ري آلي' : ''}</span>
+                        <span style="color:var(--blue);font-weight:bold;">الانتقال للمهمة ↗️</span>
+                    </div>
                 </div>
             `).join('')}
         </div>
@@ -3662,32 +3709,53 @@ function openWorkerHoursModal(wIdx) {
     `);
 }
 
+let allWorkersHoursFilter = 'all';
+function setAllWorkersHoursFilter(f) {
+    allWorkersHoursFilter = f || 'all';
+    openAllWorkersHoursModal();
+}
+
 function openAllWorkersHoursModal() {
     const log = getDayLog();
     const statsMap = computeWorkerTaskHours(log);
-    const list = Object.values(statsMap).filter(x => !x.isAbs);
+    const allPresent = Object.values(statsMap).filter(x => !x.isAbs);
+    const unassignedCnt = allPresent.filter(s => s.breakdown.length === 0).length;
+    const activeCnt = allPresent.filter(s => s.activeTasksList.length > 0).length;
+
+    const list = allPresent.filter(s => {
+        if (allWorkersHoursFilter === 'unassigned') return s.breakdown.length === 0;
+        if (allWorkersHoursFilter === 'active') return s.activeTasksList.length > 0;
+        return true;
+    });
+
     const summaryText = `⏱️ ملخص ساعات عمل الكادر بالمهام — ${state.activeDate}\n` +
-        list.map(s => `• ${s.shortName}: ${s.workedHrs} ساعة من أصل ${s.shiftHrs} ساعة (${s.breakdown.length} مهام)`).join('\n');
+        allPresent.map(s => `• ${s.shortName}: ${s.workedFormatted} (${s.workedMins} د) من أصل ${s.shiftFormatted} (${s.breakdown.length} مهام)`).join('\n');
 
     window._latestWorkerHoursText = summaryText;
     openModal(`
         <h3 class="card-title">⏱️ مجموع ساعات العمال بالمهام اليوم</h3>
-        <p style="font-size:11px;color:var(--muted);">يشمل المهام الفردية، مهام الفريق، والمهام قبل الانتقال (بعد خصم استراحة الظهر):</p>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+            <span class="chip ${allWorkersHoursFilter === 'all' ? 'active' : ''}" style="margin:0;" onclick="setAllWorkersHoursFilter('all')">الكل (${allPresent.length})</span>
+            <span class="chip ${allWorkersHoursFilter === 'unassigned' ? 'active' : ''}" style="margin:0;${unassignedCnt > 0 ? 'border-color:#fca5a5;color:#b91c1c;' : ''}" onclick="setAllWorkersHoursFilter('unassigned')">⚠️ بدون مهام (${unassignedCnt})</span>
+            <span class="chip ${allWorkersHoursFilter === 'active' ? 'active' : ''}" style="margin:0;" onclick="setAllWorkersHoursFilter('active')">🔵 شغال الآن (${activeCnt})</span>
+        </div>
         <div style="max-height:290px;overflow-y:auto;margin-bottom:10px;">
-            ${list.map(s => {
+            ${list.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:16px;">لا يوجد عمال ضمن هذا الفلتر</div>' :
+            list.map(s => {
                 const isOver = s.diffMins > 10;
                 const pct = s.shiftMins > 0 ? Math.min(100, Math.round((s.workedMins / s.shiftMins) * 100)) : 0;
                 return `
-                <div class="meter-card" style="padding:8px;margin-bottom:6px;border-right:4px solid ${isOver ? 'var(--orange)' : 'var(--primary)'};">
+                <div class="meter-card" style="padding:8px;margin-bottom:6px;border-right:4px solid ${s.breakdown.length === 0 ? 'var(--red)' : (isOver ? 'var(--orange)' : 'var(--primary)')};">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                         <b style="font-size:12.5px;">👷 ${esc(s.shortName)}</b>
-                        <span style="font-weight:bold;font-size:12px;color:${isOver ? 'var(--orange)' : 'var(--primary-dark)'};">${s.workedHrs} / ${s.shiftHrs} س ${isOver ? `(+${s.diffHrs}h OT)` : ''}</span>
+                        <span style="font-weight:bold;font-size:12px;color:${isOver ? 'var(--orange)' : 'var(--primary-dark)'};">${s.workedFormatted} / ${s.shiftFormatted} (${s.workedMins} د) ${isOver ? `(+${s.diffFormatted} OT)` : ''}</span>
                     </div>
                     <div style="width:100%;height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin:5px 0;">
                         <div style="width:${pct}%;height:100%;background:${isOver ? 'var(--orange)' : 'var(--primary)'};"></div>
                     </div>
-                    <div style="font-size:10.5px;color:var(--muted);">
-                        ${s.breakdown.map(b => `${esc(b.label)} (${formatMsAsHrMin(b.mins * 60000)})`).join(' | ') || 'بدون مهام مسندة'}
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+                        ${s.breakdown.length === 0 ? '<span style="font-size:11px;color:var(--red);font-weight:bold;">⚠️ غير معيّن على أي مهمة اليوم</span>' :
+                        s.breakdown.map(b => `<span class="chip" style="margin:0;font-size:10.5px;background:white;" onclick="jumpToTaskFromWorkerHours(${b.taskIdx})">${esc(b.label)} (${formatMsAsHrMin(b.mins * 60000)}) ↗️</span>`).join('')}
                     </div>
                 </div>`;
             }).join('')}
@@ -3928,7 +3996,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V15.4: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V15.5: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function openShiftTimeDistributorModal() {
     const log = getDayLog();
     const mornTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'morning');
@@ -4585,8 +4653,9 @@ function renderAttendance(log) {
         const isPres = w.status.includes('Present');
         const isAbs = w.status.includes('Absent');
         const isLate = w.status.includes('Late');
-        const wStat = workerHoursMap[w.id] || { workedHrs: 0, shiftHrs: 7, diffMins: 0, diffHrs: 0, breakdown: [] };
+        const wStat = workerHoursMap[w.id] || { workedMins: 0, workedFormatted: '0:00 hr', shiftFormatted: '7:00 hr', diffMins: 0, diffFormatted: '0:00 hr', activeTasksList: [], breakdown: [] };
         const isOver = !isAbs && wStat.diffMins > 10;
+        const activeFirst = !isAbs && wStat.activeTasksList && wStat.activeTasksList.length > 0 ? wStat.activeTasksList[0] : null;
         return `
         <div class="worker-item">
             <div class="worker-top">
@@ -4607,9 +4676,10 @@ function renderAttendance(log) {
                 <span>دخول: <input class="time-mini" value="${esc(w.tIn)}" onchange="updateWorkerField(${idx},'tIn',this.value)"></span>
                 <span>خروج: <input class="time-mini" value="${esc(w.tOut)}" onchange="updateWorkerField(${idx},'tOut',this.value)"></span>
                 <span>OT: <input type="number" step="0.5" class="time-mini" style="width:44px;" value="${w.ot || 0}" onchange="updateWorkerField(${idx},'ot',this.value)"></span>
-                <span class="badge" style="cursor:pointer;background:${isOver ? '#fef3c7' : '#e0f2fe'};color:${isOver ? '#92400e' : '#0369a1'};" onclick="openWorkerHoursModal(${idx})" title="اضغط لعرض مهام العامل">
-                    ⏱️ بالمهام: ${wStat.workedHrs} / ${wStat.shiftHrs} س ${isOver ? `(+${wStat.diffHrs}h)` : ''}
+                <span class="badge" style="cursor:pointer;background:${isOver ? '#fef3c7' : '#e0f2fe'};color:${isOver ? '#92400e' : '#0369a1'};" onclick="openWorkerHoursModal(${idx})" title="اضغط لعرض مهام العامل والانتقال إليها">
+                    ⏱️ بالمهام: ${wStat.workedFormatted} (${wStat.workedMins} د) / ${wStat.shiftFormatted} ${isOver ? `(+${wStat.diffFormatted})` : ''}
                 </span>
+                ${activeFirst ? `<span class="badge" style="cursor:pointer;background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd;" onclick="jumpToTaskFromWorkerHours(${activeFirst.taskIdx})" title="الانتقال إلى المهمة الجارية">🔵 جاري: ${esc(activeFirst.zones)} ↗️</span>` : ''}
             </div>` : ''}
         </div>`;
     }).join('');
@@ -4617,10 +4687,31 @@ function renderAttendance(log) {
 
 function setWorkerAtt(idx, st) {
     pushUndo('تغيير حالة حضور');
-    const w = getDayLog().attendance[idx];
+    const log = getDayLog();
+    const w = log.attendance[idx];
     w.status = st;
-    logSectionHistory('att', 'status', `${w.name.split('/')[1] || w.name}: ${st.split('/')[1] || st}`, { workerId: w.id });
-    saveState(); renderAttendance(getDayLog());
+    const shortName = (w.name.split('/')[1] || w.name).trim();
+    let removedFromTasks = 0;
+
+    if (st.includes('Absent')) {
+        (log.tasks || []).forEach(t => {
+            if (Array.isArray(t.workers) && t.workers.includes(shortName)) {
+                t.workers = t.workers.filter(x => x !== shortName);
+                removedFromTasks++;
+            }
+            if (t.workerTimings && t.workerTimings[shortName]) {
+                delete t.workerTimings[shortName];
+                syncWorkerTimingNotesOnTask(t);
+            }
+        });
+    }
+
+    logSectionHistory('att', 'status', `${shortName}: ${st.split('/')[1] || st}`, { workerId: w.id });
+    saveState(); renderAttendance(log);
+    if (removedFromTasks > 0) {
+        renderTasks(log);
+        showToast(`⚠️ تم تسجيل غياب ${shortName} وإزالته تلقائياً من ${removedFromTasks} مهام اليوم`);
+    }
 }
 function updateWorkerField(idx, k, v) { pushUndo('تعديل وقت/أوفرتايم عامل'); getDayLog().attendance[idx][k] = v; saveState(); renderAttendance(getDayLog()); }
 function markAllPresent() {
@@ -5762,7 +5853,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V15.4: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V15.5: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -8481,7 +8572,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V15.4 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V15.5 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
