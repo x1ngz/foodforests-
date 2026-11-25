@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V15.5</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V15.7</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -153,7 +153,11 @@
         .task-box.is-prog .task-num-badge { background: #0284c7; }
         .task-box.is-blocked .task-num-badge { background: #dc2626; }
         .fixed-start-pill { display: inline-flex; align-items: center; gap: 3px; background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; padding: 2px 7px; border-radius: 7px; font-size: 10.5px; font-weight: bold; cursor: pointer; }
+        .fixed-start-pill.is-locked { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
         .task-box.is-done .fixed-start-pill { background: #dcfce7; border-color: #86efac; color: #166534; }
+        .task-box.is-done .fixed-start-pill.is-locked { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+        .lock-mini-btn { display: inline-flex; align-items: center; justify-content: center; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 7px; padding: 2px 6px; font-size: 11px; cursor: pointer; font-weight: bold; }
+        .lock-mini-btn.locked { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
         .task-box.is-linked-prev { margin-top: -6px; border-top: 2px dashed var(--purple); border-top-right-radius: 4px; border-top-left-radius: 4px; }
         .zone-pill { background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid #bae6fd; }
         
@@ -248,7 +252,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V15.5 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V15.7 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -794,7 +798,7 @@ let state = {
 
 
 
-/* ================= V15.5: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V15.7: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -940,7 +944,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V15.5: Task Presets Manager ================= */
+/* ================= V15.7: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1027,7 +1031,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V15.5: DFL Readiness Progress Bar ================= */
+/* ================= V15.7: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1067,7 +1071,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V15.5: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V15.7: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1324,7 +1328,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V15.5: Electronic Touch Signature Pad ================= */
+/* ================= V15.7: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1849,7 +1853,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V15.5: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V15.7: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -2012,12 +2016,14 @@ async function generateDirectExcelDFL() {
             const isTeam = wList.includes('Team');
             const wCount = isTeam ? presentCount : (wList.length > 0 ? wList.length : 1);
             const wStr = isTeam ? 'Team' : wList.join(' / ');
+            const stTime = getTaskFixedStartTimeStr(t);
             zones.forEach((z, zIdx) => {
                 expandedRows.push({
                     task: t.task,
                     desc: t.desc,
                     zone: z,
                     dur: t.dur,
+                    startTime: stTime,
                     wCount,
                     status: t.status.includes('Carried Over') ? 'Not Started / لم يبدأ' : t.status,
                     note: (getTaskShiftPeriod(t) === 'both' && !(t.note || '').includes('Morning & Afternoon'))
@@ -2037,7 +2043,7 @@ async function generateDirectExcelDFL() {
                 groups.push({ start: 0, end: 0 });
             } else {
                 const prev = expandedRows[idx - 1];
-                const sameSignature = prev.task === item.task && prev.desc === item.desc && prev.dur === item.dur && prev.wStr === item.wStr && prev.wCount === item.wCount;
+                const sameSignature = prev.startTime === item.startTime && prev.task === item.task && prev.desc === item.desc && prev.dur === item.dur && prev.wStr === item.wStr && prev.wCount === item.wCount;
                 if (item.groupWithPrev || sameSignature) {
                     groups[groups.length - 1].end = idx;
                 } else {
@@ -2088,7 +2094,7 @@ async function generateDirectExcelDFL() {
             }
         });
 
-        // 6. Section 4: Equipment (Rows 64+off .. 66+off)
+        // 6. Section 4: Equipment (Rows 64+off .. 66+off; summarize any >3 items into row 3 note so nothing is lost)
         for (let i = 0; i < 3; i++) {
             const r = 64 + off + i;
             const tl = log.tools[i];
@@ -2099,7 +2105,12 @@ async function generateDirectExcelDFL() {
                 ws.getCell(`C${r}`).value = tl.cat;
                 ws.getCell(`D${r}`).value = tl.qty;
                 ws.getCell(`E${r}`).value = tl.cond;
-                ws.getCell(`F${r}`).value = tl.note || '';
+                let noteVal = tl.note || '';
+                if (i === 2 && log.tools.length > 3) {
+                    const extraStr = log.tools.slice(3).map(x => `${x.name} (×${x.qty})`).join('، ');
+                    noteVal = [noteVal, `إضافي: ${extraStr}`].filter(Boolean).join(' | ');
+                }
+                ws.getCell(`F${r}`).value = noteVal;
             } else {
                 ws.getRow(r).hidden = true;
             }
@@ -2330,137 +2341,146 @@ async function generateDirectExcelDFL() {
 
         ws.pageSetup.printArea = `A1:L${140 + pOff}`;
 
-        // 16. Fill Incident Report & Site Deviation Log sheets completely
+        // 16. Fill ALL Incident Report & Site Deviation Log sheets (cloning sheets if >1 report)
+        const cloneSheetModel = (srcSheet, newName) => {
+            const dst = wb.addWorksheet(newName);
+            dst.model = JSON.parse(JSON.stringify(srcSheet.model));
+            dst.name = newName;
+            return dst;
+        };
+
         if (log.incidents && log.incidents.length > 0) {
-            const irWs = wb.getWorksheet('Incident Report');
-            const ir = log.incidents[0];
-            if (irWs && ir) {
-                irWs.getCell('G5').value = ir.code;
-                irWs.getCell('D6').value = 'The Food Forests (TFF)';
-                irWs.getCell('G6').value = site.name;
-                irWs.getCell('D7').value = state.activeDate;
-                irWs.getCell('G7').value = ir.time;
-                irWs.getCell('D8').value = state.company.teamLead;
-                irWs.getCell('G8').value = 'Team Lead  /  قائد الفريق';
-                irWs.getCell('D9').value = `DFL-${log.dflNum}`;
-                irWs.getCell('G9').value = state.activeDate;
-                irWs.getCell('D12').value = ir.severity;
-                irWs.getCell('H12').value = ir.severity.includes('Major') || ir.severity.includes('Critical') ? 'Consultant + GM' : (ir.severity.includes('Moderate') ? 'Supervisor' : 'Team Lead');
-                irWs.getCell('D16').value = site.name;
-                irWs.getCell('G16').value = ir.zone;
-                irWs.getCell('D19').value = ir.type;
-                irWs.getCell('C23').value = ir.persons || '-';
-                irWs.getCell('G23').value = ir.impact || '-';
-                irWs.getCell('C31').value = ir.time;
-                irWs.getCell('D31').value = ir.timeline;
-                irWs.getCell('B39').value = ir.action;
-                irWs.getCell('D45').value = ir.medical;
-                if (ir.hospital) irWs.getCell('G46').value = ir.hospital;
-                if (ir.witnesses) irWs.getCell('C51').value = ir.witnesses;
+            const baseIrWs = wb.getWorksheet('Incident Report');
+            log.incidents.forEach((ir, irIdx) => {
+                const targetIrWs = irIdx === 0 ? baseIrWs : (baseIrWs ? cloneSheetModel(baseIrWs, `Incident Report ${irIdx + 1}`) : null);
+                if (!targetIrWs || !ir) return;
+                targetIrWs.getCell('G5').value = ir.code;
+                targetIrWs.getCell('D6').value = 'The Food Forests (TFF)';
+                targetIrWs.getCell('G6').value = site.name;
+                targetIrWs.getCell('D7').value = state.activeDate;
+                targetIrWs.getCell('G7').value = ir.time;
+                targetIrWs.getCell('D8').value = state.company.teamLead;
+                targetIrWs.getCell('G8').value = 'Team Lead  /  قائد الفريق';
+                targetIrWs.getCell('D9').value = `DFL-${log.dflNum}`;
+                targetIrWs.getCell('G9').value = state.activeDate;
+                targetIrWs.getCell('D12').value = ir.severity;
+                targetIrWs.getCell('H12').value = ir.severity.includes('Major') || ir.severity.includes('Critical') ? 'Consultant + GM' : (ir.severity.includes('Moderate') ? 'Supervisor' : 'Team Lead');
+                targetIrWs.getCell('D16').value = site.name;
+                targetIrWs.getCell('G16').value = ir.zone;
+                targetIrWs.getCell('D19').value = ir.type;
+                targetIrWs.getCell('C23').value = ir.persons || '-';
+                targetIrWs.getCell('G23').value = ir.impact || '-';
+                targetIrWs.getCell('C31').value = ir.time;
+                targetIrWs.getCell('D31').value = ir.timeline;
+                targetIrWs.getCell('B39').value = ir.action;
+                targetIrWs.getCell('D45').value = ir.medical;
+                if (ir.hospital) targetIrWs.getCell('G46').value = ir.hospital;
+                if (ir.witnesses) targetIrWs.getCell('C51').value = ir.witnesses;
                 if (Array.isArray(ir.ppe)) {
                     ir.ppe.forEach(pItem => {
                         if (pItem.row >= 59 && pItem.row <= 67) {
-                            irWs.getCell(`E${pItem.row}`).value = pItem.status;
+                            targetIrWs.getCell(`E${pItem.row}`).value = pItem.status;
                         }
                     });
                 }
-                const irNames = (irPhotoRefs[0] || '').split(' / ').filter(Boolean);
-                const irLinks = (irPhotoLinks[0] || []).filter(Boolean);
+                const irNames = (irPhotoRefs[irIdx] || '').split(' / ').filter(Boolean);
+                const irLinks = (irPhotoLinks[irIdx] || []).filter(Boolean);
                 irNames.slice(0, 5).forEach((fn, pIdx) => {
                     const prRow = 72 + pIdx;
                     if (irLinks[pIdx]) {
-                        irWs.getCell(`C${prRow}`).value = { text: fn, hyperlink: irLinks[pIdx] };
-                        irWs.getCell(`C${prRow}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
-                        irWs.getCell(`G${prRow}`).value = `${ir.type} (${ir.zone}) — ${irLinks[pIdx]}`;
+                        targetIrWs.getCell(`C${prRow}`).value = { text: fn, hyperlink: irLinks[pIdx] };
+                        targetIrWs.getCell(`C${prRow}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                        targetIrWs.getCell(`G${prRow}`).value = `${ir.type} (${ir.zone}) — ${irLinks[pIdx]}`;
                     } else {
-                        irWs.getCell(`C${prRow}`).value = fn;
-                        irWs.getCell(`G${prRow}`).value = `${ir.type} (${ir.zone})`;
+                        targetIrWs.getCell(`C${prRow}`).value = fn;
+                        targetIrWs.getCell(`G${prRow}`).value = `${ir.type} (${ir.zone})`;
                     }
-                    irWs.getCell(`F${prRow}`).value = 'Photo / صورة';
+                    targetIrWs.getCell(`F${prRow}`).value = 'Photo / صورة';
                 });
-                irWs.getCell('C80').value = ir.correctiveAction || ir.action;
-                irWs.getCell('E80').value = state.company.teamLead;
-                irWs.getCell('F80').value = state.activeDate;
-                irWs.getCell('G80').value = 'Pending / معلق';
-                irWs.getCell('B88').value = state.company.supervisor || 'Maitham Ibrahim';
-                irWs.getCell('D88').value = 'Supervisor / المشرف';
-                irWs.getCell('F88').value = `${state.activeDate} ${ir.time}`;
-                irWs.getCell('H88').value = 'Yes / نعم';
-                irWs.getCell('B95').value = ir.obs || ir.timeline;
-                irWs.getCell('B97').value = ir.ana || '';
-                irWs.getCell('B99').value = ir.rec || ir.correctiveAction || '';
-                irWs.getCell('B104').value = `Name  /  الاسم: ${state.company.teamLead}`;
+                targetIrWs.getCell('C80').value = ir.correctiveAction || ir.action;
+                targetIrWs.getCell('E80').value = state.company.teamLead;
+                targetIrWs.getCell('F80').value = state.activeDate;
+                targetIrWs.getCell('G80').value = 'Pending / معلق';
+                targetIrWs.getCell('B88').value = state.company.supervisor || 'Maitham Ibrahim';
+                targetIrWs.getCell('D88').value = 'Supervisor / المشرف';
+                targetIrWs.getCell('F88').value = `${state.activeDate} ${ir.time}`;
+                targetIrWs.getCell('H88').value = 'Yes / نعم';
+                targetIrWs.getCell('B95').value = ir.obs || ir.timeline;
+                targetIrWs.getCell('B97').value = ir.ana || '';
+                targetIrWs.getCell('B99').value = ir.rec || ir.correctiveAction || '';
+                targetIrWs.getCell('B104').value = `Name  /  الاسم: ${state.company.teamLead}`;
                 if (state.company.textSignature) {
-                    irWs.getCell('C105').value = state.company.textSignature;
-                    irWs.getCell('C105').font = { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
+                    targetIrWs.getCell('C105').value = state.company.textSignature;
+                    targetIrWs.getCell('C105').font = { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
                 }
-                irWs.getCell('B106').value = `Date  /  التاريخ: ${state.activeDate}`;
+                targetIrWs.getCell('B106').value = `Date  /  التاريخ: ${state.activeDate}`;
                 if (sigImgId !== null) {
                     try {
-                        irWs.getRow(105).height = 32;
-                        irWs.addImage(sigImgId, { tl: { col: 2.1, row: 104.05 }, ext: { width: 95, height: 26 } });
+                        targetIrWs.getRow(105).height = 32;
+                        targetIrWs.addImage(sigImgId, { tl: { col: 2.1, row: 104.05 }, ext: { width: 95, height: 26 } });
                     } catch {}
                 }
-            }
+            });
         }
 
         if (log.sdls && log.sdls.length > 0) {
-            const sdlWs = wb.getWorksheet('Site Deviation Log');
-            const sd = log.sdls[0];
-            if (sdlWs && sd) {
-                sdlWs.getCell('G5').value = sd.code;
-                sdlWs.getCell('D6').value = 'The Food Forests (TFF)';
-                sdlWs.getCell('G6').value = site.name;
-                sdlWs.getCell('D7').value = state.activeDate;
-                sdlWs.getCell('G7').value = sd.time || '08:00';
-                sdlWs.getCell('D8').value = state.company.teamLead;
-                sdlWs.getCell('G8').value = 'Team Lead  /  قائد الفريق';
-                sdlWs.getCell('G9').value = state.company.supervisor || 'Maitham Ibrahim';
-                sdlWs.getCell('D11').value = sd.status || 'Open / مفتوح';
-                sdlWs.getCell('G11').value = sd.severity;
-                sdlWs.getCell('D15').value = sd.subject;
-                sdlWs.getCell('D16').value = sd.zone;
-                sdlWs.getCell('D17').value = sd.type;
-                sdlWs.getCell('D18').value = sd.party;
-                if (sd.authority) sdlWs.getCell('D19').value = sd.authority;
-                sdlWs.getCell('B31').value = sd.obs;
-                sdlWs.getCell('B33').value = sd.ana;
-                sdlWs.getCell('B35').value = sd.rec;
-                const sdNames = (sdlPhotoRefs[0] || '').split(' / ').filter(Boolean);
-                const sdLinks = (sdlPhotoLinks[0] || []).filter(Boolean);
+            const baseSdlWs = wb.getWorksheet('Site Deviation Log');
+            log.sdls.forEach((sd, sdIdx) => {
+                const targetSdlWs = sdIdx === 0 ? baseSdlWs : (baseSdlWs ? cloneSheetModel(baseSdlWs, `Site Deviation Log ${sdIdx + 1}`) : null);
+                if (!targetSdlWs || !sd) return;
+                targetSdlWs.getCell('G5').value = sd.code;
+                targetSdlWs.getCell('D6').value = 'The Food Forests (TFF)';
+                targetSdlWs.getCell('G6').value = site.name;
+                targetSdlWs.getCell('D7').value = state.activeDate;
+                targetSdlWs.getCell('G7').value = sd.time || '08:00';
+                targetSdlWs.getCell('D8').value = state.company.teamLead;
+                targetSdlWs.getCell('G8').value = 'Team Lead  /  قائد الفريق';
+                targetSdlWs.getCell('G9').value = state.company.supervisor || 'Maitham Ibrahim';
+                targetSdlWs.getCell('D11').value = sd.status || 'Open / مفتوح';
+                targetSdlWs.getCell('G11').value = sd.severity;
+                targetSdlWs.getCell('D15').value = sd.subject;
+                targetSdlWs.getCell('D16').value = sd.zone;
+                targetSdlWs.getCell('D17').value = sd.type;
+                targetSdlWs.getCell('D18').value = sd.party;
+                if (sd.authority) targetSdlWs.getCell('D19').value = sd.authority;
+                targetSdlWs.getCell('B31').value = sd.obs;
+                targetSdlWs.getCell('B33').value = sd.ana;
+                targetSdlWs.getCell('B35').value = sd.rec;
+                const sdNames = (sdlPhotoRefs[sdIdx] || '').split(' / ').filter(Boolean);
+                const sdLinks = (sdlPhotoLinks[sdIdx] || []).filter(Boolean);
                 sdNames.slice(0, 6).forEach((fn, pIdx) => {
                     const prRow = 38 + pIdx;
                     if (sdLinks[pIdx]) {
-                        sdlWs.getCell(`C${prRow}`).value = { text: fn, hyperlink: sdLinks[pIdx] };
-                        sdlWs.getCell(`C${prRow}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
-                        sdlWs.getCell(`G${prRow}`).value = `${sd.subject} (${sd.zone}) — ${sdLinks[pIdx]}`;
+                        targetSdlWs.getCell(`C${prRow}`).value = { text: fn, hyperlink: sdLinks[pIdx] };
+                        targetSdlWs.getCell(`C${prRow}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                        targetSdlWs.getCell(`G${prRow}`).value = `${sd.subject} (${sd.zone}) — ${sdLinks[pIdx]}`;
                     } else {
-                        sdlWs.getCell(`C${prRow}`).value = fn;
-                        sdlWs.getCell(`G${prRow}`).value = `${sd.subject} (${sd.zone})`;
+                        targetSdlWs.getCell(`C${prRow}`).value = fn;
+                        targetSdlWs.getCell(`G${prRow}`).value = `${sd.subject} (${sd.zone})`;
                     }
-                    sdlWs.getCell(`F${prRow}`).value = 'Photo / صورة';
+                    targetSdlWs.getCell(`F${prRow}`).value = 'Photo / صورة';
                 });
                 if (sd.resolution) {
-                    sdlWs.getCell('D52').value = sd.resolution.dateResolved;
-                    sdlWs.getCell('G52').value = sd.resolution.resolvedBy;
-                    sdlWs.getCell('D53').value = sd.resolution.actionsTaken;
-                    sdlWs.getCell('D54').value = sd.resolution.resolvedBy;
-                    sdlWs.getCell('G54').value = sd.resolution.dateResolved;
-                    sdlWs.getCell('D55').value = sd.resolution.preventiveMeasure;
-                    if (sd.resolution.preventiveRef) sdlWs.getCell('G55').value = sd.resolution.preventiveRef;
-                    sdlWs.getCell('H47').value = 'Yes / نعم';
+                    targetSdlWs.getCell('D52').value = sd.resolution.dateResolved;
+                    targetSdlWs.getCell('G52').value = sd.resolution.resolvedBy;
+                    targetSdlWs.getCell('D53').value = sd.resolution.actionsTaken;
+                    targetSdlWs.getCell('D54').value = sd.resolution.resolvedBy;
+                    targetSdlWs.getCell('G54').value = sd.resolution.dateResolved;
+                    targetSdlWs.getCell('D55').value = sd.resolution.preventiveMeasure;
+                    if (sd.resolution.preventiveRef) targetSdlWs.getCell('G55').value = sd.resolution.preventiveRef;
+                    targetSdlWs.getCell('H47').value = 'Yes / نعم';
                 }
                 if (state.company.textSignature) {
-                    sdlWs.getCell('C60').value = state.company.textSignature;
-                    sdlWs.getCell('C60').font = { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
+                    targetSdlWs.getCell('C60').value = state.company.textSignature;
+                    targetSdlWs.getCell('C60').font = { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
                 }
                 if (sigImgId !== null) {
                     try {
-                        sdlWs.getRow(60).height = 32;
-                        sdlWs.addImage(sigImgId, { tl: { col: 2.1, row: 59.05 }, ext: { width: 95, height: 26 } });
+                        targetSdlWs.getRow(60).height = 32;
+                        targetSdlWs.addImage(sigImgId, { tl: { col: 2.1, row: 59.05 }, ext: { width: 95, height: 26 } });
                     } catch {}
                 }
-            }
+            });
         }
 
         const outBuffer = await wb.xlsx.writeBuffer();
@@ -3183,7 +3203,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V15.5: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V15.7: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function openTaskTimelineEditorModal(tIdx) {
     const log = getDayLog();
     const t = log.tasks[tIdx];
@@ -3364,6 +3384,14 @@ function getTaskShiftPeriod(t) {
     return 'morning';
 }
 
+function normalizeTaskSequenceOrder(log = getDayLog()) {
+    if (!log || !Array.isArray(log.tasks) || log.tasks.length < 2) return;
+    const rank = { morning: 0, evening: 1, both: 2 };
+    const decorated = log.tasks.map((t, i) => ({ t, i, r: rank[getTaskShiftPeriod(t)] ?? 0 }));
+    decorated.sort((a, b) => (a.r - b.r) || (a.i - b.i));
+    log.tasks = decorated.map(x => x.t);
+}
+
 function cycleTaskShiftPeriod(idx) {
     const log = getDayLog();
     const t = log.tasks[idx];
@@ -3385,6 +3413,7 @@ function cycleTaskShiftPeriod(idx) {
             const info = getShiftDefaultStartInfo('Evening Shift', state.activeDate);
             t.startTimeMs = info.ms;
         }
+        normalizeTaskSequenceOrder(log);
         showToast(`🌆 نُقلت المهمة إلى الشفت المسائي (${bEndStr})`);
     } else if (next === 'both') {
         t.fixedStartTime = '08:00';
@@ -3393,6 +3422,7 @@ function cycleTaskShiftPeriod(idx) {
         const hasEve = t.events.some(e => (e.label || '').includes('مسائي'));
         if (!hasMorn) t.events.unshift({ time: '08:00', label: '🌅 فترة صباحية' });
         if (!hasEve) t.events.push({ time: bEndStr, label: '🌆 استكمال مسائي' });
+        normalizeTaskSequenceOrder(log);
         showToast('🌅+🌆 نُقلت المهمة إلى قسم الفترتين (صباحي + مسائي)');
     } else {
         t.fixedStartTime = '08:00';
@@ -3410,6 +3440,7 @@ function cycleTaskShiftPeriod(idx) {
             if (getTaskShiftPeriod(log.tasks[i]) === 'morning') insertAt = i + 1;
         }
         log.tasks.splice(insertAt, 0, movedTask);
+        normalizeTaskSequenceOrder(log);
         showToast('🌅 أُعيدت المهمة إلى نهاية قائمة الصباحي (08:00)');
     }
     saveState(); renderTasks(log); renderAttendance(log);
@@ -3530,13 +3561,47 @@ function mergeTimeIntervals(intervals) {
     return merged;
 }
 
+function clampIntervalsToAttendanceWindow(parts, shortName) {
+    const log = getDayLog();
+    const wRec = (log.attendance || []).find(w => (w.name.split('/')[1] || w.name).trim() === shortName);
+    if (!wRec || !wRec.tIn || !wRec.tOut) return parts;
+    const attInMs = hhmmToDateMs(wRec.tIn, state.activeDate);
+    const attOutMs = hhmmToDateMs(wRec.tOut, state.activeDate);
+    if (!attInMs || !attOutMs || attOutMs <= attInMs) return parts;
+    return parts.map(([a, b]) => [Math.max(a, attInMs), Math.min(b, attOutMs)]).filter(([a, b]) => b > a);
+}
+
+function deductPausedMsFromIntervals(parts, pausedMs) {
+    if (!pausedMs || pausedMs <= 0 || !parts.length) return parts;
+    let remPause = pausedMs;
+    const out = [];
+    for (let i = parts.length - 1; i >= 0; i--) {
+        const [a, b] = parts[i];
+        const segDur = b - a;
+        if (remPause <= 0) {
+            out.unshift([a, b]);
+        } else if (segDur > remPause) {
+            out.unshift([a, b - remPause]);
+            remPause = 0;
+        } else {
+            remPause -= segDur;
+        }
+    }
+    return out;
+}
+
 function getWorkerIntervalsForTask(t, shortName, nowMs = Date.now()) {
     const wt = (t.workerTimings && t.workerTimings[shortName]) || null;
+    let wtPausedMs = (wt && wt.pausedTotalMs) || 0;
+    if (wt && wt.pausedAtMs) wtPausedMs += Math.max(0, nowMs - wt.pausedAtMs);
+
     if (wt && wt.from && wt.to) {
         const sMs = hhmmToDateMs(wt.from, state.activeDate);
         const eMs = hhmmToDateMs(wt.to, state.activeDate);
         if (sMs && eMs && eMs > sMs) {
-            const cleanParts = t.ignoreBreak ? [[sMs, eMs]] : subtractBreakFromInterval(sMs, eMs, state.activeDate);
+            let cleanParts = t.ignoreBreak ? [[sMs, eMs]] : subtractBreakFromInterval(sMs, eMs, state.activeDate);
+            cleanParts = clampIntervalsToAttendanceWindow(cleanParts, shortName);
+            cleanParts = deductPausedMsFromIntervals(cleanParts, wtPausedMs);
             const mins = Math.round(cleanParts.reduce((s, [a, b]) => s + (b - a), 0) / 60000);
             return { intervals: cleanParts, mins, labelRange: `${wt.from}–${wt.to}`, wt };
         }
@@ -3546,6 +3611,9 @@ function getWorkerIntervalsForTask(t, shortName, nowMs = Date.now()) {
     if (fullTaskMins <= 0) return { intervals: [], mins: 0, labelRange: '', wt };
 
     let sMs = t.startTimeMs || null;
+    if (!sMs && t.fixedStartTime) {
+        sMs = hhmmToDateMs(t.fixedStartTime, state.activeDate);
+    }
     if (!sMs && Array.isArray(t.events) && t.events.length > 0) {
         const stEv = t.events.find(e => (e.label || '').includes('بدأ') || (e.label || '').includes('▶️') || (e.label || '').includes('صباحية'));
         if (stEv) sMs = hhmmToDateMs(stEv.time, state.activeDate);
@@ -3555,10 +3623,13 @@ function getWorkerIntervalsForTask(t, shortName, nowMs = Date.now()) {
         sMs = getShiftDefaultStartInfo(sp === 'evening' ? 'Evening Shift' : 'Morning Shift', state.activeDate).ms;
     }
     const eMs = t.ignoreBreak ? (sMs + fullTaskMins * 60000) : addNetWorkMinsSkippingBreak(sMs, fullTaskMins, state.activeDate);
-    const cleanParts = t.ignoreBreak ? [[sMs, eMs]] : subtractBreakFromInterval(sMs, eMs, state.activeDate);
+    let cleanParts = t.ignoreBreak ? [[sMs, eMs]] : subtractBreakFromInterval(sMs, eMs, state.activeDate);
+    cleanParts = clampIntervalsToAttendanceWindow(cleanParts, shortName);
+    cleanParts = deductPausedMsFromIntervals(cleanParts, wtPausedMs);
+    const netMins = Math.round(cleanParts.reduce((s, [a, b]) => s + (b - a), 0) / 60000);
     return {
         intervals: cleanParts,
-        mins: fullTaskMins,
+        mins: netMins,
         labelRange: `${formatTime24FromMs(sMs)}–${formatTime24FromMs(eMs)}`,
         wt
     };
@@ -3996,19 +4067,20 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V15.5: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V15.7: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function openShiftTimeDistributorModal() {
     const log = getDayLog();
     const mornTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'morning');
     const eveTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'evening');
+    const bothTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'both');
     const activeIsEve = (state.company.shift || '').includes('Evening');
 
     openModal(`
         <h3 class="card-title">⚖️ توزيع وموازنة أوقات مهام الشفت</h3>
         <p style="font-size:12px;color:var(--muted);margin-top:0;">
-            يوزع البرنامج صافي ساعات الشفت بالتساوي وبالتسلسل الزمني على المهام. وإذا خصصت وقتاً لمهمة من زر <b>«مخصص»</b>، ينخصم الفرق تلقائياً من باقي مهام نفس الشفت:
+            يوزع البرنامج صافي ساعات الشفت بالتساوي وبالتسلسل الزمني، ويحترم أي <b>وقت بداية مقفول (🔒 بدأ)</b> أو <b>مدة مقفولة (🔒)</b> دون تداخل:
         </p>
-        <div class="grid-2" style="margin-bottom:10px;">
+        <div class="grid-2" style="margin-bottom:8px;">
             <button class="btn ${!activeIsEve ? 'btn-blue' : 'btn-outline'}" style="flex-direction:column;padding:10px;" onclick="closeModal();rebalanceShiftTasks('morning', true)">
                 <span>🌅 توزيع الصباحي (4:00 hr)</span>
                 <span style="font-size:10.5px;opacity:0.85;">08:00 – 12:00 (${mornTasks.length} مهام)</span>
@@ -4018,19 +4090,63 @@ function openShiftTimeDistributorModal() {
                 <span style="font-size:10.5px;opacity:0.85;">13:00 – 16:00 (${eveTasks.length} مهام)</span>
             </button>
         </div>
-        <button class="btn btn-outline btn-full" style="margin-bottom:8px;" onclick="closeModal();unlockAllShiftTasks()">🔓 فك قفل (📌) جميع المهام وإعادة التوزيع</button>
+        ${bothTasks.length > 0 ? `
+        <button class="btn btn-green btn-full" style="margin-bottom:8px;padding:9px;font-size:12.5px;" onclick="closeModal();rebalanceShiftTasks('both', true)">
+            🌅+🌆 توزيع مهام الفترتين (08:00 – 16:00 | ${bothTasks.length} مهام)
+        </button>` : ''}
+        <button class="btn btn-outline btn-full" style="margin-bottom:8px;" onclick="closeModal();unlockAllShiftTasks()">🔓 فك قفل (🔒) جميع المهام وإعادة التوزيع</button>
         <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
     `);
+}
+
+function toggleTaskStartLock(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t) return;
+    pushUndo('تبديل قفل وقت بداية مهمة');
+    t.startLocked = !t.startLocked;
+    if (t.startLocked && !t.fixedStartTime) {
+        t.fixedStartTime = getTaskFixedStartTimeStr(t);
+    }
+    const sp = getTaskShiftPeriod(t);
+    if (log.shiftBalanced && log.shiftBalanced[sp]) {
+        rebalanceShiftTasks(sp, false);
+    }
+    saveState(); renderTasks(log); renderAttendance(log);
+    showToast(t.startLocked ? `📌 تم قفل وقت بداية المهمة (${getTaskFixedStartTimeStr(t)})` : '🔓 تم فك قفل وقت بداية المهمة');
+}
+
+function toggleTaskDurLock(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t) return;
+    pushUndo('تبديل قفل مدة مهمة');
+    t.durLocked = !t.durLocked;
+    const sp = getTaskShiftPeriod(t);
+    if (log.shiftBalanced && log.shiftBalanced[sp]) {
+        rebalanceShiftTasks(sp, false);
+    }
+    saveState(); renderTasks(log); renderAttendance(log);
+    showToast(t.durLocked ? `📌 تم قفل مدة المهمة (${t.dur}) وحمايتها من التغيير` : '🔓 تم فك قفل مدة المهمة');
 }
 
 function unlockAllShiftTasks() {
     const log = getDayLog();
     pushUndo('فك تثبيت أوقات المهام');
-    log.tasks.forEach(t => { t.durLocked = false; });
+    log.tasks.forEach(t => { t.durLocked = false; t.startLocked = false; });
     rebalanceShiftTasks('morning', false);
     rebalanceShiftTasks('evening', false);
+    if (log.tasks.some(t => getTaskShiftPeriod(t) === 'both')) {
+        rebalanceShiftTasks('both', false);
+    }
     saveState(); renderTasks(log); renderAttendance(log);
-    showToast('🔓 تم فك التثبيت وإعادة توزيع أوقات الشفت بالتساوي');
+    showToast('🔓 تم فك قفل البداية والمدة وإعادة توزيع أوقات الشفت بالتساوي');
+}
+
+function getNetWindowMins(sMs, eMs, dateStr = state.activeDate) {
+    if (!sMs || !eMs || eMs <= sMs) return 0;
+    const brk = getBreakOverlapMs(sMs, eMs, dateStr);
+    return Math.max(0, Math.round((eMs - sMs - brk) / 60000));
 }
 
 function rebalanceShiftTasks(periodKey = 'morning', notify = true) {
@@ -4045,52 +4161,77 @@ function rebalanceShiftTasks(periodKey = 'morning', notify = true) {
     }
 
     const startBaseStr = periodKey === 'evening' ? bEndStr : '08:00';
-    const endCapStr = periodKey === 'evening' ? '16:00' : bStartStr;
+    const endCapStr = periodKey === 'morning' ? bStartStr : '16:00';
     const startBaseMs = hhmmToDateMs(startBaseStr, state.activeDate);
     const endCapMs = hhmmToDateMs(endCapStr, state.activeDate);
-    const totalShiftMins = Math.max(60, Math.round((endCapMs - startBaseMs) / 60000));
+    const totalShiftMins = Math.max(30, getNetWindowMins(startBaseMs, endCapMs, state.activeDate));
 
-    const activeTasks = shiftTasks.filter(t => !isTaskPassiveIrrigation(t));
-    const poolTasks = activeTasks.length > 0 ? activeTasks : shiftTasks;
-
-    const lockedTasks = poolTasks.filter(t => t.durLocked);
-    const unlockedTasks = poolTasks.filter(t => !t.durLocked);
-
-    let lockedMins = 0;
-    lockedTasks.forEach(t => { lockedMins += parseDurationToMins(t.dur); });
-
-    const remainingMins = Math.max(0, totalShiftMins - lockedMins);
-    if (unlockedTasks.length > 0) {
-        const baseEach = Math.floor(remainingMins / unlockedTasks.length);
-        let remExtra = remainingMins - baseEach * unlockedTasks.length;
-        unlockedTasks.forEach(t => {
-            const addOne = remExtra > 0 ? 1 : 0;
-            if (remExtra > 0) remExtra--;
-            const mins = Math.max(5, baseEach + addOne);
-            t.dur = formatMsAsHrMin(mins * 60000);
-        });
-    }
-
-    let cursorMs = startBaseMs;
+    // Split shift tasks into segments separated by any task with startLocked === true
+    const segments = [];
+    let curSeg = { startMs: startBaseMs, endMs: endCapMs, tasks: [] };
     shiftTasks.forEach(t => {
-        const tMins = parseDurationToMins(t.dur) || 30;
-        const stStr = formatTime24FromMs(cursorMs);
-        t.fixedStartTime = stStr;
-        const endMs = t.ignoreBreak ? (cursorMs + tMins * 60000) : addNetWorkMinsSkippingBreak(cursorMs, tMins, state.activeDate);
-        const enStr = formatTime24FromMs(endMs);
+        const lockedMs = (t.startLocked && t.fixedStartTime) ? hhmmToDateMs(t.fixedStartTime, state.activeDate) : null;
+        if (lockedMs && lockedMs > curSeg.startMs && lockedMs < endCapMs) {
+            if (curSeg.tasks.length > 0) {
+                curSeg.endMs = lockedMs;
+                segments.push(curSeg);
+            }
+            curSeg = { startMs: lockedMs, endMs: endCapMs, tasks: [t] };
+        } else {
+            curSeg.tasks.push(t);
+        }
+    });
+    if (curSeg.tasks.length > 0) segments.push(curSeg);
 
-        if (t.status.includes('Progress')) {
-            t.startTimeMs = cursorMs;
-            t.pausedTotalMs = 0;
-            t.pausedAtMs = null;
+    segments.forEach(seg => {
+        const segMins = Math.max(10, getNetWindowMins(seg.startMs, seg.endMs, state.activeDate));
+        const activeTasks = seg.tasks.filter(t => !isTaskPassiveIrrigation(t));
+        const poolTasks = activeTasks.length > 0 ? activeTasks : seg.tasks;
+
+        const lockedTasks = poolTasks.filter(t => t.durLocked);
+        const unlockedTasks = poolTasks.filter(t => !t.durLocked);
+
+        let lockedMins = 0;
+        lockedTasks.forEach(t => { lockedMins += parseDurationToMins(t.dur); });
+
+        const remainingMins = Math.max(0, segMins - lockedMins);
+        if (unlockedTasks.length > 0) {
+            const baseEach = Math.floor(remainingMins / unlockedTasks.length);
+            let remExtra = remainingMins - baseEach * unlockedTasks.length;
+            unlockedTasks.forEach(t => {
+                const addOne = remExtra > 0 ? 1 : 0;
+                if (remExtra > 0) remExtra--;
+                const mins = Math.max(5, baseEach + addOne);
+                t.dur = formatMsAsHrMin(mins * 60000);
+            });
         }
-        t.events = [{ time: stStr, label: periodKey === 'evening' ? '🌆 بدأ المسائي' : '▶️ بدأ العمل' }];
-        if (t.status.includes('Completed')) {
-            t.events.push({ time: enStr, label: '✅ اكتمل' });
-        }
-        if (!isTaskPassiveIrrigation(t)) {
-            cursorMs = endMs;
-        }
+
+        let cursorMs = seg.startMs;
+        seg.tasks.forEach(t => {
+            const tMins = parseDurationToMins(t.dur) || 30;
+            let taskStartMs = cursorMs;
+            if (t.startLocked && t.fixedStartTime) {
+                const lockedMs = hhmmToDateMs(t.fixedStartTime, state.activeDate);
+                if (lockedMs) taskStartMs = lockedMs;
+            }
+            const stStr = formatTime24FromMs(taskStartMs);
+            t.fixedStartTime = stStr;
+            const endMs = t.ignoreBreak ? (taskStartMs + tMins * 60000) : addNetWorkMinsSkippingBreak(taskStartMs, tMins, state.activeDate);
+            const enStr = formatTime24FromMs(endMs);
+
+            if (t.status.includes('Progress')) {
+                t.startTimeMs = taskStartMs;
+                t.pausedTotalMs = 0;
+                t.pausedAtMs = null;
+            }
+            t.events = [{ time: stStr, label: periodKey === 'evening' ? '🌆 بدأ المسائي' : '▶️ بدأ العمل' }];
+            if (t.status.includes('Completed')) {
+                t.events.push({ time: enStr, label: '✅ اكتمل' });
+            }
+            if (!isTaskPassiveIrrigation(t)) {
+                cursorMs = endMs;
+            }
+        });
     });
 
     log.shiftBalanced = log.shiftBalanced || {};
@@ -4098,7 +4239,8 @@ function rebalanceShiftTasks(periodKey = 'morning', notify = true) {
 
     if (notify) {
         saveState(); renderTasks(log); renderAttendance(log);
-        showToast(`⚖️ تم توزيع ${formatMsAsHrMin(totalShiftMins * 60000)} على ${shiftTasks.length} مهام (${periodKey === 'evening' ? 'المسائي' : 'الصباحي'})`);
+        const lbl = periodKey === 'evening' ? 'المسائي' : (periodKey === 'both' ? 'الفترتين' : 'الصباحي');
+        showToast(`⚖️ تم توزيع ${formatMsAsHrMin(totalShiftMins * 60000)} على ${shiftTasks.length} مهام (${lbl})`);
     }
 }
 
@@ -4295,7 +4437,8 @@ function deleteHistoryItem(secKey, hid, reopenModal = false, labelTitle = '') {
         if (item.actionType === 'add') log.attendance = log.attendance.filter(w => w.id !== ref.workerId);
         else { const w = log.attendance.find(x => x.id === ref.workerId); if (w) w.status = 'Present / حاضر'; }
     } else if (secKey === 'tools') {
-        if (ref.toolIdx != null && log.tools[ref.toolIdx]) log.tools.splice(ref.toolIdx, 1);
+        if (ref.toolId) { const ti = log.tools.findIndex(x => x.id === ref.toolId); if (ti !== -1) log.tools.splice(ti, 1); }
+        else if (ref.toolIdx != null && log.tools[ref.toolIdx]) log.tools.splice(ref.toolIdx, 1);
         else if (ref.meterId) { const m = log.meters.find(x => x.id === ref.meterId); if (m) m.curr = ''; }
         else if (ref.gaugeId) { const g = log.gauges.find(x => x.id === ref.gaugeId); if (g) g.val = ''; }
     } else if (secKey === 'issues' && ref.issueId) {
@@ -4791,18 +4934,30 @@ function confirmAddWorker() {
 
 /* ================= TAB 2: Tasks, 4 Statuses, Live Timer, Copy Prev Workers, Radar ================= */
 function moveTaskUp(idx) {
-    if (idx === 0) return;
+    const log = getDayLog();
+    const tasks = log.tasks;
+    if (idx <= 0 || !tasks[idx]) return;
+    const sp = getTaskShiftPeriod(tasks[idx]);
+    if (getTaskShiftPeriod(tasks[idx - 1]) !== sp) {
+        showToast('⚠️ المهمة في بداية هذا الشفت بالفعل');
+        return;
+    }
     pushUndo('ترتيب مهمة لأعلى');
-    const tasks = getDayLog().tasks;
     [tasks[idx - 1], tasks[idx]] = [tasks[idx], tasks[idx - 1]];
-    saveState(); renderTasks(getDayLog());
+    saveState(); renderTasks(log);
 }
 function moveTaskDown(idx) {
-    const tasks = getDayLog().tasks;
-    if (idx === tasks.length - 1) return;
+    const log = getDayLog();
+    const tasks = log.tasks;
+    if (idx < 0 || idx >= tasks.length - 1) return;
+    const sp = getTaskShiftPeriod(tasks[idx]);
+    if (getTaskShiftPeriod(tasks[idx + 1]) !== sp) {
+        showToast('⚠️ المهمة في نهاية هذا الشفت بالفعل');
+        return;
+    }
     pushUndo('ترتيب مهمة لأسفل');
     [tasks[idx], tasks[idx + 1]] = [tasks[idx + 1], tasks[idx]];
-    saveState(); renderTasks(getDayLog());
+    saveState(); renderTasks(log);
 }
 
 function copyWorkersFromPrevTask(idx) {
@@ -4928,15 +5083,18 @@ function openTaskFixedStartModal(tIdx) {
         <p style="font-size:12px;color:var(--muted);margin-top:0;">${esc((t.task.split('/')[1] || t.task).trim())} — ${esc(t.desc)}</p>
         <label class="lbl">ساعة البدء الثابتة للمهمة:</label>
         <input type="time" id="fixedStartTimeInp" class="inp" style="font-size:16px;font-weight:bold;text-align:center;" value="${esc(curStart)}">
-        <div style="margin-bottom:10px;">
+        <div style="margin-bottom:8px;">
             <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='08:00'">🌅 08:00</span>
             <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='09:00'">09:00</span>
             <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='10:00'">10:00</span>
             <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='${esc(bEndStr)}'">🌆 ${esc(bEndStr)}</span>
             <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='14:00'">14:00</span>
         </div>
+        <label style="display:block;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:7px 9px;margin-bottom:9px;font-size:12px;font-weight:bold;color:#92400e;">
+            <input type="checkbox" id="fixedStartLockChk" checked> 📌 قفل وقت البداية (عدم تغييره عند إعادة توزيع الشفت)
+        </label>
         <div class="grid-2">
-            <button class="btn btn-green" onclick="saveTaskFixedStart(${tIdx})">💾 تثبيت وقت البدء</button>
+            <button class="btn btn-green" onclick="saveTaskFixedStart(${tIdx})">💾 حفظ وتثبيت البداية</button>
             <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
         </div>
     `);
@@ -4945,11 +5103,13 @@ function openTaskFixedStartModal(tIdx) {
 function saveTaskFixedStart(tIdx) {
     const val = document.getElementById('fixedStartTimeInp')?.value;
     if (!val) return;
+    const lockChecked = !!document.getElementById('fixedStartLockChk')?.checked;
     const log = getDayLog();
     const t = log.tasks[tIdx];
     if (!t) return;
     pushUndo('تعديل وقت بداية مهمة');
     t.fixedStartTime = val;
+    t.startLocked = lockChecked;
     const [hh, mm] = val.split(':').map(Number);
     const baseDate = new Date(state.activeDate + 'T00:00:00');
     baseDate.setHours(hh || 8, mm || 0, 0, 0);
@@ -4963,6 +5123,18 @@ function saveTaskFixedStart(tIdx) {
         addTaskEventLog(t, '▶️ بدأ العمل', val);
     } else {
         t.events[0].time = val;
+    }
+    if (t.status && t.status.includes('Completed')) {
+        const durMins = parseDurationToMins(t.dur) || 60;
+        const endMs = t.ignoreBreak ? (baseDate.getTime() + durMins * 60000) : addNetWorkMinsSkippingBreak(baseDate.getTime(), durMins, state.activeDate);
+        const endStr = formatTime24FromMs(endMs);
+        const doneEv = t.events.find(e => (e.label || '').includes('اكتمل') || (e.label || '').includes('✅'));
+        if (doneEv) doneEv.time = endStr;
+        else addTaskEventLog(t, '✅ اكتمل', endStr);
+    }
+    const sp = getTaskShiftPeriod(t);
+    if (lockChecked && log.shiftBalanced && log.shiftBalanced[sp]) {
+        rebalanceShiftTasks(sp, false);
     }
     logSectionHistory('tasks', 'edit', `تثبيت بداية #${tIdx + 1} (${t.zones}) على ${val}`, { taskId: t.id });
     closeModal();
@@ -5049,6 +5221,7 @@ function renderTasksQueue(log) {
 }
 
 function renderTasks(log) {
+    normalizeTaskSequenceOrder(log);
     renderStickySectionHistory('tasks', 'stickyHist-tasks', 'المهام');
     updateLiveShiftClockDom();
     renderYesterdayCarryBanner(log);
@@ -5199,7 +5372,8 @@ function renderTasks(log) {
                         <span class="badge" onclick="cycleTaskShiftPeriod(${idx})" style="cursor:pointer;background:${spBg};color:${spCol};font-size:10px;">${spLabel}</span>
                     </div>
                     <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-                        <span class="fixed-start-pill" onclick="openTaskFixedStartModal(${idx})" title="تعديل ساعة البداية">🕒 بدأ: ${esc(fixedStartStr)} ✏️</span>
+                        <span class="fixed-start-pill ${t.startLocked ? 'is-locked' : ''}" onclick="openTaskFixedStartModal(${idx})" title="تعديل ساعة البداية">${t.startLocked ? '📌' : '🕒'} بدأ: ${esc(fixedStartStr)} ✏️</span>
+                        <button type="button" class="lock-mini-btn ${t.startLocked ? 'locked' : ''}" onclick="toggleTaskStartLock(${idx})" title="${t.startLocked ? 'وقت البداية مقفول — اضغط لفك القفل' : 'اضغط لقفل وقت البداية'}">${t.startLocked ? '🔒' : '🔓'}</button>
                         <span class="zone-pill" onclick="openZonePickerModal(${idx})">📍 ${esc(t.zones)}</span>
                         <button class="btn btn-outline btn-sm" style="background:white;color:#166534;border-color:#86efac;padding:3px 7px;" onclick="toggleDoneCardExpand('${t.id}')">▼ تعديل</button>
                     </div>
@@ -5231,7 +5405,8 @@ function renderTasks(log) {
                     </div>
                 </div>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-                    <span class="fixed-start-pill" onclick="openTaskFixedStartModal(${idx})" title="وقت بداية المهمة الثابت — اضغط للتعديل">🕒 بدأ: ${esc(fixedStartStr)} ✏️</span>
+                    <span class="fixed-start-pill ${t.startLocked ? 'is-locked' : ''}" onclick="openTaskFixedStartModal(${idx})" title="وقت بداية المهمة — اضغط للتعديل">${t.startLocked ? '📌' : '🕒'} بدأ: ${esc(fixedStartStr)} ✏️</span>
+                    <button type="button" class="lock-mini-btn ${t.startLocked ? 'locked' : ''}" onclick="toggleTaskStartLock(${idx})" title="${t.startLocked ? 'وقت البداية مقفول — اضغط لفك القفل' : 'اضغط لقفل وقت البداية'}">${t.startLocked ? '🔒' : '🔓'}</button>
                     <span class="zone-pill" onclick="openZonePickerModal(${idx})">📍 ${esc(t.zones)} ✏️</span>
                     ${!isDone && !isCarried ? `<button class="btn btn-orange btn-sm" style="padding:2px 6px;font-size:10.5px;" onclick="openCarryTaskToTomorrowModal(${idx})" title="ترحيل المتبقي لغداً">⏭️ للغد</button>` : ''}
                 </div>
@@ -5268,13 +5443,14 @@ function renderTasks(log) {
 
             <!-- Duration Dropdown + Custom Time Button + Workers + Copy Prev Workers + Photos -->
             <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:4px;">
-                <div style="display:inline-flex;align-items:center;gap:3px;background:#f1f5f9;border:1px solid var(--border);border-radius:99px;padding:2px 6px;">
-                    <span style="font-size:11px;">⏱️</span>
+                <div style="display:inline-flex;align-items:center;gap:3px;background:${t.durLocked ? '#fef3c7' : '#f1f5f9'};border:1px solid ${t.durLocked ? '#f59e0b' : 'var(--border)'};border-radius:99px;padding:2px 6px;">
+                    <span style="font-size:11px;">${t.durLocked ? '📌' : '⏱️'}</span>
                     <select style="border:none;background:transparent;font-size:11px;font-weight:bold;color:var(--text);" onchange="updateTaskDurationSelect(${idx}, this.value)">
                         ${!DURATION_OPTIONS.includes(t.dur) ? `<option value="${esc(t.dur)}" selected>${esc(t.dur)}</option>` : ''}
                         ${DURATION_OPTIONS.map(d => `<option value="${d}" ${t.dur === d ? 'selected' : ''}>${d}</option>`).join('')}
                     </select>
                     <button class="btn btn-blue btn-sm" style="padding:1px 6px;font-size:10px;border-radius:99px;" onclick="openCustomTimeModal('task_card', ${idx})">مخصص</button>
+                    <button type="button" style="border:none;background:transparent;font-size:11.5px;cursor:pointer;padding:0 2px;" onclick="toggleTaskDurLock(${idx})" title="${t.durLocked ? 'مدة المهمة مقفولة — اضغط لفك القفل' : 'اضغط لقفل مدة المهمة'}">${t.durLocked ? '🔒' : '🔓'}</button>
                 </div>
                 <span class="chip" onclick="openAssignWorkersModal(${idx})" style="background:#e0f2fe;color:#0369a1;border-color:#7dd3fc;">👷 ${(t.workers && t.workers.length) ? `العمال (${t.workers.includes('Team') ? 'Team' : t.workers.length})` : '+ عمال'}</span>
                 ${(() => {
@@ -5385,10 +5561,16 @@ function renderTasks(log) {
 
 function updateTaskDurationSelect(idx, val) {
     pushUndo('تعديل مدة مهمة');
-    const t = getDayLog().tasks[idx];
+    const log = getDayLog();
+    const t = log.tasks[idx];
     t.dur = val;
+    const sp = getTaskShiftPeriod(t);
+    if (log.shiftBalanced && log.shiftBalanced[sp] && (sp === 'morning' || sp === 'evening')) {
+        t.durLocked = true;
+        rebalanceShiftTasks(sp, false);
+    }
     logSectionHistory('tasks', 'edit', `مدة ${t.zones}: ${val}`, { taskId: t.id });
-    saveState(); renderTasks(getDayLog());
+    saveState(); renderTasks(log); renderAttendance(log);
 }
 
 function updateTaskDesc(idx, val) {
@@ -5559,7 +5741,11 @@ function setTaskStatus(idx, st) {
     const oldSt = t.status;
     t.status = st;
     const now = Date.now();
-    const eff = getEffectiveActionStartTime(state.company.shift);
+    const taskSp = getTaskShiftPeriod(t);
+    const taskShiftName = taskSp === 'evening' ? 'Evening Shift' : (taskSp === 'morning' ? 'Morning Shift' : state.company.shift);
+    const eff = (st.includes('Completed') && oldSt.includes('Not Started'))
+        ? getShiftDefaultStartInfo(taskShiftName, state.activeDate)
+        : getEffectiveActionStartTime(taskShiftName);
     
     if (st.includes('Progress') && !oldSt.includes('Progress')) {
         if (t.fixedStartTime) {
@@ -5853,7 +6039,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V15.5: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V15.7: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -5912,10 +6098,12 @@ function openWorkerTimingModal(tIdx, workerName) {
 
     const sp = getTaskShiftPeriod(t);
     const defStart = getShiftDefaultStartInfo(sp === 'evening' ? 'Evening Shift' : 'Morning Shift', state.activeDate);
+    const baseStStr = t.fixedStartTime || defStart.hhmm;
+    const baseStMs = hhmmToDateMs(baseStStr, state.activeDate) || defStart.ms;
     const taskMins = parseDurationToMins(t.dur) || 60;
-    const defEndMs = addNetWorkMinsSkippingBreak(defStart.ms, taskMins, state.activeDate);
+    const defEndMs = addNetWorkMinsSkippingBreak(baseStMs, taskMins, state.activeDate);
 
-    const fromVal = existing.from || defStart.hhmm;
+    const fromVal = existing.from || baseStStr;
     const toVal = existing.to || formatTime24FromMs(defEndMs);
     const modeVal = existing.mode || 'normal';
     const noteVal = existing.note || '';
@@ -6562,8 +6750,9 @@ function saveNewTool() {
     pushUndo('إضافة أداة: ' + name);
     const qty = parseFloat(document.getElementById('tlQty').value) || 1;
     const tIdx = getDayLog().tools.length;
+    const toolId = 'tl_' + Date.now();
     const holder = document.getElementById('tlHolder') ? document.getElementById('tlHolder').value.trim() : '';
-    getDayLog().tools.push({ name, cat: document.getElementById('tlCat').value, qty, cond: document.getElementById('tlCond').value, note: '', holder });
+    getDayLog().tools.push({ id: toolId, name, cat: document.getElementById('tlCat').value, qty, cond: document.getElementById('tlCond').value, note: '', holder });
     const site = getSite();
     ensureSiteStock(site);
     const stkItem = site.stockItems.find(it => it.name.trim() === name);
@@ -6574,7 +6763,7 @@ function saveNewTool() {
         }
     }
     if (!state.company.customTools.includes(name)) state.company.customTools.push(name);
-    logSectionHistory('tools', 'add', `إضافة أداة: ${name} (×${qty})`, { toolIdx: tIdx });
+    logSectionHistory('tools', 'add', `إضافة أداة: ${name} (×${qty})`, { toolId, toolIdx: tIdx });
     closeModal(); saveState(); renderReadingsAndTools(getDayLog());
 }
 function deleteTool(idx) { pushUndo('حذف أداة'); getDayLog().tools.splice(idx, 1); saveState(); renderReadingsAndTools(getDayLog()); }
@@ -6893,9 +7082,10 @@ async function exportInventoryStandaloneExcel() {
                 const rowObj = entWs.addRow([z.name, p.name, `#${i+1}`, e.date, cObj ? cObj.name : '', e.height || '', '']);
                 rowObj.height = 70;
                 const ePhotos = ensurePhotosArr(e);
-                if (ePhotos.length > 0) {
+                const resolvedDataUrl = ePhotos.length > 0 ? getPhotoUrl(ePhotos[0]) : '';
+                if (resolvedDataUrl) {
                     try {
-                        const imgId = wb.addImage({ base64: ePhotos[0], extension: 'jpeg' });
+                        const imgId = wb.addImage({ base64: resolvedDataUrl, extension: 'jpeg' });
                         entWs.addImage(imgId, { tl: { col: 6.1, row: rIdx - 0.9 }, ext: { width: 120, height: 80 } });
                     } catch {}
                 }
@@ -7412,23 +7602,51 @@ function openTablePreviewModal() {
                     <td style="padding:4px;">الصور</td>
                 </tr>
                 ${log.tasks.length === 0 ? '<tr><td colspan="9" style="padding:8px;color:var(--muted);">لا توجد مهام مسجلة</td></tr>' :
-                log.tasks.map((t, i) => {
-                    const noteOut = (getTaskShiftPeriod(t) === 'both' && !(t.note || '').includes('Morning & Afternoon'))
-                        ? [t.note, '(Morning & Afternoon / صباحي ومسائي)'].filter(Boolean).join(' ')
-                        : (t.note || '-');
-                    const wStr = (t.workers && t.workers.includes('Team')) ? 'Team' : ((t.workers || []).join(' / ') || '-');
-                    return `<tr>
-                        <td style="padding:3px;">${i + 1}</td>
-                        <td style="padding:3px;">${esc((t.task.split('/')[1] || t.task).trim())}</td>
-                        <td style="padding:3px;">${esc(t.desc)}</td>
-                        <td style="padding:3px;font-weight:bold;">${esc(t.zones)}</td>
-                        <td style="padding:3px;">${esc(t.dur)}</td>
-                        <td style="padding:3px;">${esc(wStr)}</td>
-                        <td style="padding:3px;">${esc((t.status.split('/')[1] || t.status).trim())}</td>
-                        <td style="padding:3px;text-align:right;">${esc(noteOut)}</td>
-                        <td style="padding:3px;color:var(--blue);">${esc(taskPhotoRefs[i] || '-')}</td>
-                    </tr>`;
-                }).join('')}
+                (() => {
+                    const rows = [];
+                    log.tasks.forEach((t, i) => {
+                        const zones = (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean);
+                        const wStr = (t.workers && t.workers.includes('Team')) ? 'Team' : ((t.workers || []).join(' / ') || '-');
+                        const stTime = getTaskFixedStartTimeStr(t);
+                        const noteOut = (getTaskShiftPeriod(t) === 'both' && !(t.note || '').includes('Morning & Afternoon'))
+                            ? [t.note, '(Morning & Afternoon / صباحي ومسائي)'].filter(Boolean).join(' ')
+                            : (t.note || '-');
+                        zones.forEach((z, zIdx) => {
+                            rows.push({
+                                task: t.task, desc: t.desc, zone: z, dur: t.dur, startTime: stTime,
+                                wStr, status: (t.status.split('/')[1] || t.status).trim(), note: noteOut,
+                                pRef: zIdx === 0 ? (taskPhotoRefs[i] || '-') : '-',
+                                groupWithPrev: zIdx > 0 || (zIdx === 0 && !!t.syncWithPrev && i > 0)
+                            });
+                        });
+                    });
+                    const grpIds = [];
+                    let gCur = 0;
+                    rows.forEach((r, idx) => {
+                        if (idx === 0) { gCur = 1; }
+                        else {
+                            const p = rows[idx - 1];
+                            const sameSig = p.startTime === r.startTime && p.task === r.task && p.desc === r.desc && p.dur === r.dur && p.wStr === r.wStr;
+                            if (!r.groupWithPrev && !sameSig) gCur++;
+                        }
+                        grpIds.push(gCur);
+                    });
+                    return rows.map((r, idx) => {
+                        const isFirstInGrp = idx === 0 || grpIds[idx] !== grpIds[idx - 1];
+                        const span = isFirstInGrp ? grpIds.filter(x => x === grpIds[idx]).length : 0;
+                        return `<tr>
+                            ${isFirstInGrp ? `<td rowspan="${span}" style="padding:3px;background:#f1f5f9;font-weight:bold;">${grpIds[idx]}</td>` : ''}
+                            ${isFirstInGrp ? `<td rowspan="${span}" style="padding:3px;">${esc((r.task.split('/')[1] || r.task).trim())}</td>` : ''}
+                            ${isFirstInGrp ? `<td rowspan="${span}" style="padding:3px;">${esc(r.desc)}</td>` : ''}
+                            <td style="padding:3px;font-weight:bold;background:#fefce8;">${esc(r.zone)}</td>
+                            ${isFirstInGrp ? `<td rowspan="${span}" style="padding:3px;">${esc(r.dur)}<div style="font-size:9px;color:var(--blue);">${esc(r.startTime)}</div></td>` : ''}
+                            ${isFirstInGrp ? `<td rowspan="${span}" style="padding:3px;">${esc(r.wStr)}</td>` : ''}
+                            <td style="padding:3px;">${esc(r.status)}</td>
+                            <td style="padding:3px;text-align:right;">${esc(r.note)}</td>
+                            <td style="padding:3px;color:var(--blue);">${esc(r.pRef)}</td>
+                        </tr>`;
+                    }).join('');
+                })()}
             </table>
 
             <b style="display:block;margin-bottom:4px;color:var(--primary-dark);">💧 القسم 5 — العدادات وأداء الري:</b>
@@ -7802,6 +8020,8 @@ function runPreExportCheck(mode = 'gemini_json') {
     if (log.tasks.some(t => t.status.includes('Blocked') && !t.note.trim())) warnings.push('• توجد مهمة متوقفة بدون كتابة سبب التوقف.');
     if (log.tasks.some(t => t.status.includes('Blocked')) && !log.oar.obs) warnings.push('• توجد مهام متوقفة ولم يُملأ تقرير OAR بعد.');
     if (log.tasks.some(t => t.status.includes('Progress'))) warnings.push('• توجد مهام جارية لم تُكتمل بعد.');
+    const totalZoneRows = log.tasks.reduce((sum, t) => sum + Math.max(1, (t.zones || '').split(',').map(s => s.trim()).filter(Boolean).length), 0);
+    if (totalZoneRows > 33) warnings.push(`• عدد أسطر المناطق بالمهام (${totalZoneRows} سطر) يتجاوز سعة القالب (33 سطر) — يُفضّل دمج المناطق المتشابهة.`);
 
     const execFn = mode === 'gemini_json' ? 'exportLightweightDFL()' : 'generateDirectExcelDFL()';
     if (warnings.length > 0) {
@@ -7962,6 +8182,7 @@ async function exportLightweightDFL() {
                 task: t.task,
                 briefDescription: t.desc,
                 zonesList: (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean),
+                startTime: getTaskFixedStartTimeStr(t),
                 time: t.dur,
                 workersCount: wCount,
                 status: t.status.includes('Carried Over') ? 'Not Started / لم يبدأ' : t.status,
@@ -8090,7 +8311,7 @@ async function exportLightweightDFL() {
 - أول صف بيانات للمهام هو **صف ${27 + rowOffset}** مباشرة (لا تترك صف ${27 + rowOffset} فارغاً!).
 1. **تفريق المناطق (منطقة واحدة لكل صف):** لكل عنصر في section3_tasks، أفرد مناطق zonesList في صفوف متتالية بحيث يأخذ كل صف منطقة واحدة فقط في العمود D (Zone).
 2. **دمج المهام المتزامنة والمتشابهة عمودياً:**
-   - اجمع الصفوف المتتالية التي تكون ناتجة عن تفريق نفس المهمة، أو التي تحمل syncWithPrev == True، أو التي تشترك في نفس (task + briefDescription + time + workersAssigned + workersCount).
+   - اجمع الصفوف المتتالية التي تكون ناتجة عن تفريق نفس المهمة، أو التي تحمل syncWithPrev == True، أو التي تشترك في نفس (startTime + task + briefDescription + time + workersAssigned + workersCount) أي حدثت في نفس الوقت تماماً.
    - ادمج عمودياً عبر هذه الصفوف المتشابهة الأعمدة التالية فقط: **A ('#')**، **B ('Task')**، **C ('Brief Description')**، **E ('Time')**، **F ('Workers #')**، و**K ('Worker(s) Assigned')**.
    - **ممنوع** دمج العمود **D ('Zone')** أو **G ('Status')** أو **H:J ('Notes')** أو **L ('Image Reference')** عمودياً! أبقِ H{r}:J{r} مدمجاً أفقياً لكل صف على حدة فقط.
    - انسخ التنسيق الأصلي من صف ${27 + rowOffset} لكل خلية (A: #ECEFF1، B,C,G,H:J,K,L: #FFFDF0، D,E,F: #FFFDE7) قبل وبعد أي دمج عمودي!
@@ -8266,7 +8487,7 @@ async function onPhotoSelected(e) {
     if (type === 'inline_modal') {
         tempModalPhotos.push(...stampedUrls);
         const strip = document.getElementById('inlineModalPhotoStrip');
-        if (strip) strip.innerHTML = tempModalPhotos.map(u => `<img src="${u}" class="photo-thumb">`).join('');
+        if (strip) strip.innerHTML = tempModalPhotos.map((u, pI) => `<div class="photo-item-wrap"><img src="${getPhotoUrl(u)}" class="photo-thumb"><button class="photo-del-badge" onclick="tempModalPhotos.splice(${pI},1);this.parentElement.remove()">✕</button></div>`).join('');
         showToast(`📸 تم إرفاق ${stampedUrls.length} صورة للنموذج`);
         return;
     }
@@ -8488,7 +8709,7 @@ function onBackupFileLoaded(e) {
     r.onload = ev => {
         try {
             const parsed = JSON.parse(ev.target.result);
-            if (parsed && parsed.sites) { state = parsed; normalizeState(); saveState(); renderAll(); showToast('✓ تم استيراد النسخة الاحتياطية'); }
+            if (parsed && parsed.sites) { state = parsed; normalizeState(); migrateInlinePhotosInState(); saveState(); renderAll(); showToast('✓ تم استيراد النسخة الاحتياطية ونقل الصور للمخزن الكبير'); }
         } catch { showToast('⚠️ ملف غير صالح'); }
     };
     r.readAsText(f);
@@ -8572,7 +8793,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V15.5 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V15.7 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
