@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V15.7</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V15.8</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -252,7 +252,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V15.7 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V15.8 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -798,7 +798,7 @@ let state = {
 
 
 
-/* ================= V15.7: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V15.8: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -944,7 +944,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V15.7: Task Presets Manager ================= */
+/* ================= V15.8: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -985,6 +985,7 @@ function applyTaskPreset(idx) {
     const log = getDayLog();
     pr.tasks.forEach((item, i) => {
         const isTk = (item.desc || '').toLowerCase().includes('tanker');
+        const initCap = isTk ? (getLatestTankerRemaining() || TANKER_FULL_CAPACITY) : '';
         log.tasks.push({
             id: 't_' + Date.now() + '_pr_' + i,
             task: item.task,
@@ -995,8 +996,10 @@ function applyTaskPreset(idx) {
             workers: [],
             note: '',
             isTanker: isTk,
-            tankerCapacity: isTk ? TANKER_FULL_CAPACITY : '',
+            tankerCapacity: initCap,
             tankerLiters: '',
+            tankerPrevTripsLiters: 0,
+            tankerTripHistory: [],
             tankerPpm: '',
             tankerVisual: 'Clear / صافية',
             tankerTrips: 1,
@@ -1031,7 +1034,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V15.7: DFL Readiness Progress Bar ================= */
+/* ================= V15.8: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1071,7 +1074,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V15.7: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V15.8: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1268,8 +1271,9 @@ function openAnalyticsDashboardModal(period = '7d') {
                     zoneBlockCounts[z] = (zoneBlockCounts[z] || 0) + 1;
                 });
             }
-            if (parseFloat(t.tankerLiters) > 0) {
-                tankerL += parseFloat(t.tankerLiters);
+            const tkTot = getTaskTotalTankerLiters(t);
+            if (tkTot > 0) {
+                tankerL += tkTot;
                 tankerTrips += (t.tankerTrips || 1);
             }
         });
@@ -1328,7 +1332,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V15.7: Electronic Touch Signature Pad ================= */
+/* ================= V15.8: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1470,23 +1474,48 @@ function getPhotoUrl(idOrB64) {
 
 function migrateInlinePhotosInState() {
     let migrated = false;
-    const convArr = arr => {
+    const convArr = (arr, linksMap = null) => {
         if (!Array.isArray(arr)) return;
         for (let i = 0; i < arr.length; i++) {
-            if (typeof arr[i] === 'string' && arr[i].startsWith('data:')) {
-                arr[i] = savePhotoToStore(arr[i]);
+            const oldVal = arr[i];
+            if (typeof oldVal === 'string' && oldVal.startsWith('data:')) {
+                const newPid = savePhotoToStore(oldVal);
+                arr[i] = newPid;
+                if (linksMap && linksMap[oldVal]) {
+                    linksMap[newPid] = linksMap[oldVal];
+                    delete linksMap[oldVal];
+                }
                 migrated = true;
             }
         }
     };
     Object.values(state.sites || {}).forEach(s => {
-        (s.issues || []).forEach(iss => convArr(iss.photos));
-        (s.inventory || []).forEach(z => (z.plants || []).forEach(p => (p.entries || []).forEach(e => convArr(e.photos))));
-        Object.values(s.logs || {}).forEach(dl => {
-            (dl.tasks || []).forEach(t => convArr(t.photos));
-            (dl.meters || []).forEach(m => convArr(m.photos));
-            (dl.incidents || []).forEach(ir => convArr(ir.photos));
-            (dl.sdls || []).forEach(sd => convArr(sd.photos));
+        const allLogs = Object.values(s.logs || {});
+        const remapEverywhere = arr => {
+            if (!Array.isArray(arr)) return;
+            for (let i = 0; i < arr.length; i++) {
+                const oldVal = arr[i];
+                if (typeof oldVal === 'string' && oldVal.startsWith('data:')) {
+                    const newPid = savePhotoToStore(oldVal);
+                    arr[i] = newPid;
+                    allLogs.forEach(dl => {
+                        if (dl && dl.photoLinks && dl.photoLinks[oldVal]) {
+                            dl.photoLinks[newPid] = dl.photoLinks[oldVal];
+                            delete dl.photoLinks[oldVal];
+                        }
+                    });
+                    migrated = true;
+                }
+            }
+        };
+        (s.issues || []).forEach(iss => remapEverywhere(iss.photos));
+        (s.inventory || []).forEach(z => (z.plants || []).forEach(p => (p.entries || []).forEach(e => remapEverywhere(e.photos))));
+        allLogs.forEach(dl => {
+            const lMap = dl.photoLinks || null;
+            (dl.tasks || []).forEach(t => convArr(t.photos, lMap));
+            (dl.meters || []).forEach(m => convArr(m.photos, lMap));
+            (dl.incidents || []).forEach(ir => convArr(ir.photos, lMap));
+            (dl.sdls || []).forEach(sd => convArr(sd.photos, lMap));
         });
     });
     if (migrated) saveState();
@@ -1660,6 +1689,13 @@ function confirmCarryTaskToTomorrow(idx) {
             note: noteTxt,
             photos: [],
             events: [{ time: formatTime24FromMs(Date.now()), label: '⏭️ رُحّل للغد' }],
+            durLocked: false,
+            startLocked: false,
+            tankerLiters: '',
+            tankerPrevTripsLiters: 0,
+            tankerTripHistory: [],
+            tankerTrips: 1,
+            tankerNextZone: '',
             startTimeMs: null,
             pausedTotalMs: 0,
             pausedAtMs: null
@@ -1682,6 +1718,15 @@ function confirmCarryTaskToTomorrow(idx) {
         note: `[مرحّل من ${state.activeDate}] ${noteTxt}`,
         photos: [],
         events: [],
+        durLocked: false,
+        startLocked: false,
+        fixedStartTime: '',
+        tankerCapacity: t.isTanker ? TANKER_FULL_CAPACITY : '',
+        tankerLiters: '',
+        tankerPrevTripsLiters: 0,
+        tankerTripHistory: [],
+        tankerTrips: 1,
+        tankerNextZone: '',
         startTimeMs: null,
         pausedTotalMs: 0,
         pausedAtMs: null,
@@ -1853,7 +1898,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V15.7: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V15.8: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -2052,7 +2097,42 @@ async function generateDirectExcelDFL() {
             }
         });
 
-        const maxTaskSlots = taskEndRow - taskStartRow + 1;
+        const extraTaskRows = Math.max(0, expandedRows.length - 33);
+        if (extraTaskRows > 0) {
+            const insertAtRow = taskEndRow + 1;
+            const taskMerges = [];
+            ws.model.merges.forEach(mStr => {
+                const [tl, br] = mStr.split(':');
+                const m1 = tl.match(/^([A-Z]+)(\d+)$/);
+                const m2 = br.match(/^([A-Z]+)(\d+)$/);
+                if (m1 && m2 && (parseInt(m1[2]) >= insertAtRow || parseInt(m2[2]) >= insertAtRow)) {
+                    taskMerges.push({ c1: m1[1], r1: parseInt(m1[2]), c2: m2[1], r2: parseInt(m2[2]), orig: mStr });
+                }
+            });
+            taskMerges.forEach(m => { try { ws.unMergeCells(m.orig); } catch {} });
+
+            const emptyTRows = Array.from({ length: extraTaskRows }, () => []);
+            ws.spliceRows(insertAtRow, 0, ...emptyTRows);
+            for (let k = 0; k < extraTaskRows; k++) {
+                const r = insertAtRow + k;
+                ws.getRow(r).height = ws.getRow(taskEndRow).height || 26;
+                for (let c = 1; c <= 12; c++) {
+                    cloneStyle(ws.getCell(taskEndRow, c), ws.getCell(r, c));
+                }
+                ws.mergeCells(`H${r}:J${r}`);
+            }
+            taskMerges.forEach(m => {
+                if (m.r1 >= insertAtRow) {
+                    try { ws.mergeCells(`${m.c1}${m.r1 + extraTaskRows}:${m.c2}${m.r2 + extraTaskRows}`); } catch {}
+                }
+            });
+            for (const baseR of [79, 80]) {
+                const nr = baseR + off + extraTaskRows;
+                ws.getCell(`H${nr}`).value = { formula: `IF(OR(F${nr}="",G${nr}=""),"",G${nr}-F${nr})` };
+            }
+        }
+
+        const maxTaskSlots = 33 + extraTaskRows;
         for (let i = 0; i < maxTaskSlots; i++) {
             const r = taskStartRow + i;
             const rowObj = ws.getRow(r);
@@ -2094,9 +2174,10 @@ async function generateDirectExcelDFL() {
             }
         });
 
-        // 6. Section 4: Equipment (Rows 64+off .. 66+off; summarize any >3 items into row 3 note so nothing is lost)
+        const offAfterTasks = off + extraTaskRows;
+        // 6. Section 4: Equipment (Rows 64+offAfterTasks .. 66+offAfterTasks; summarize any >3 items into row 3 note so nothing is lost)
         for (let i = 0; i < 3; i++) {
-            const r = 64 + off + i;
+            const r = 64 + offAfterTasks + i;
             const tl = log.tools[i];
             if (tl) {
                 ws.getRow(r).hidden = false;
@@ -2118,7 +2199,7 @@ async function generateDirectExcelDFL() {
 
         // 7. Section 5A: Moisture (Rows 71+off .. 75+off)
         for (let i = 0; i < 5; i++) {
-            const r = 71 + off + i;
+            const r = 71 + offAfterTasks + i;
             const mo = log.moisture[i];
             if (mo && (mo.zone || mo.pct !== '')) {
                 ws.getRow(r).hidden = false;
@@ -2133,7 +2214,7 @@ async function generateDirectExcelDFL() {
 
         // 8. Section 5B: Water Meters (Rows 79+off .. 80+off)
         for (let i = 0; i < 2; i++) {
-            const r = 79 + off + i;
+            const r = 79 + offAfterTasks + i;
             const m = log.meters[i];
             if (m) {
                 ws.getRow(r).hidden = false;
@@ -2162,7 +2243,7 @@ async function generateDirectExcelDFL() {
 
         // 9. Section 5C: Irrigation Performance (Rows 83+off .. 85+off)
         let totalTankerL = 0, totalTrips = 0;
-        log.tasks.forEach(t => { if (parseFloat(t.tankerLiters) > 0) { totalTankerL += parseFloat(t.tankerLiters); totalTrips += (t.tankerTrips || 1); } });
+        log.tasks.forEach(t => { const tkTot = getTaskTotalTankerLiters(t); if (tkTot > 0) { totalTankerL += tkTot; totalTrips += (t.tankerTrips || 1); } });
         const perfParts = [];
         if (log.perf.notes) perfParts.push(log.perf.notes);
         if (totalTankerL > 0) perfParts.push(`Tanker Total: ${totalTankerL.toLocaleString()} L (${totalTrips} Trips)`);
@@ -2174,15 +2255,15 @@ async function generateDirectExcelDFL() {
             perfParts.push(`Transfers: ${trStr}`);
         }
 
-        ws.getCell(`B${83 + off}`).value = log.perf.status || 'جيد';
-        ws.getCell(`E${83 + off}`).value = log.perf.duration ? `${log.perf.duration} hrs` : '';
-        ws.getCell(`B${84 + off}`).value = log.perf.zonesIrrigated || '';
-        ws.getCell(`E${84 + off}`).value = log.perf.pressureNotes || '';
-        ws.getCell(`B${85 + off}`).value = perfParts.join(' | ');
+        ws.getCell(`B${83 + offAfterTasks}`).value = log.perf.status || 'جيد';
+        ws.getCell(`E${83 + offAfterTasks}`).value = log.perf.duration ? `${log.perf.duration} hrs` : '';
+        ws.getCell(`B${84 + offAfterTasks}`).value = log.perf.zonesIrrigated || '';
+        ws.getCell(`E${84 + offAfterTasks}`).value = log.perf.pressureNotes || '';
+        ws.getCell(`B${85 + offAfterTasks}`).value = perfParts.join(' | ');
 
         // 10. Section 5D: Bar Gauges (Rows 89+off .. 94+off)
         for (let i = 0; i < 6; i++) {
-            const r = 89 + off + i;
+            const r = 89 + offAfterTasks + i;
             const g = log.gauges[i];
             if (g) {
                 ws.getRow(r).hidden = false;
@@ -2201,7 +2282,7 @@ async function generateDirectExcelDFL() {
 
         // 11. Section 6: Plants Health (Rows 98+off .. 102+off)
         for (let i = 0; i < 5; i++) {
-            const r = 98 + off + i;
+            const r = 98 + offAfterTasks + i;
             const sp = sickPlants[i];
             if (sp) {
                 ws.getRow(r).hidden = false;
@@ -2242,7 +2323,7 @@ async function generateDirectExcelDFL() {
             }))
         ];
         for (let i = 0; i < 4; i++) {
-            const r = 106 + off + i;
+            const r = 106 + offAfterTasks + i;
             const item = sec7Combined[i];
             if (item) {
                 ws.getRow(r).hidden = false;
@@ -2270,19 +2351,19 @@ async function generateDirectExcelDFL() {
                 const [tl, br] = mStr.split(':');
                 const m1 = tl.match(/^([A-Z]+)(\d+)$/);
                 const m2 = br.match(/^([A-Z]+)(\d+)$/);
-                if (m1 && m2 && parseInt(m1[2]) >= 119 + off) {
+                if (m1 && m2 && parseInt(m1[2]) >= 119 + offAfterTasks) {
                     sec8Merges.push({ c1: m1[1], r1: parseInt(m1[2]), c2: m2[1], r2: parseInt(m2[2]), orig: mStr });
                 }
             });
             sec8Merges.forEach(m => { try { ws.unMergeCells(m.orig); } catch {} });
 
             const emptyPRows = Array.from({ length: extraPhotoRows }, () => []);
-            ws.spliceRows(119 + off, 0, ...emptyPRows);
+            ws.spliceRows(119 + offAfterTasks, 0, ...emptyPRows);
             for (let k = 0; k < extraPhotoRows; k++) {
-                const r = 119 + off + k;
+                const r = 119 + offAfterTasks + k;
                 ws.getRow(r).height = 24.0;
                 for (let c = 1; c <= 11; c++) {
-                    cloneStyle(ws.getCell(118 + off, c), ws.getCell(r, c));
+                    cloneStyle(ws.getCell(118 + offAfterTasks, c), ws.getCell(r, c));
                 }
                 ws.mergeCells(`B${r}:D${r}`);
                 ws.mergeCells(`E${r}:G${r}`);
@@ -2295,7 +2376,7 @@ async function generateDirectExcelDFL() {
 
         const totalPhotoSlots = 6 + extraPhotoRows;
         for (let i = 0; i < totalPhotoSlots; i++) {
-            const r = 113 + off + i;
+            const r = 113 + offAfterTasks + i;
             const pr = photos[i];
             if (pr) {
                 ws.getRow(r).hidden = false;
@@ -2314,7 +2395,7 @@ async function generateDirectExcelDFL() {
             }
         }
 
-        const pOff = off + extraPhotoRows;
+        const pOff = offAfterTasks + extraPhotoRows;
 
         // 14. Section 9: OAR (Rows 123+pOff, 125+pOff, 127+pOff)
         ws.getCell(`A${123 + pOff}`).value = log.oar.obs || '';
@@ -3203,7 +3284,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V15.7: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V15.8: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function openTaskTimelineEditorModal(tIdx) {
     const log = getDayLog();
     const t = log.tasks[tIdx];
@@ -4067,7 +4148,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V15.7: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V15.8: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function openShiftTimeDistributorModal() {
     const log = getDayLog();
     const mornTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'morning');
@@ -4166,11 +4247,13 @@ function rebalanceShiftTasks(periodKey = 'morning', notify = true) {
     const endCapMs = hhmmToDateMs(endCapStr, state.activeDate);
     const totalShiftMins = Math.max(30, getNetWindowMins(startBaseMs, endCapMs, state.activeDate));
 
-    // Split shift tasks into segments separated by any task with startLocked === true
+    // Split shift tasks into chronological segments separated by any task with startLocked === true
     const segments = [];
     let curSeg = { startMs: startBaseMs, endMs: endCapMs, tasks: [] };
+    let tightWarning = false;
     shiftTasks.forEach(t => {
-        const lockedMs = (t.startLocked && t.fixedStartTime) ? hhmmToDateMs(t.fixedStartTime, state.activeDate) : null;
+        const rawLockedMs = (t.startLocked && t.fixedStartTime) ? hhmmToDateMs(t.fixedStartTime, state.activeDate) : null;
+        const lockedMs = rawLockedMs ? Math.max(startBaseMs, Math.min(endCapMs - 5 * 60000, rawLockedMs)) : null;
         if (lockedMs && lockedMs > curSeg.startMs && lockedMs < endCapMs) {
             if (curSeg.tasks.length > 0) {
                 curSeg.endMs = lockedMs;
@@ -4184,7 +4267,7 @@ function rebalanceShiftTasks(periodKey = 'morning', notify = true) {
     if (curSeg.tasks.length > 0) segments.push(curSeg);
 
     segments.forEach(seg => {
-        const segMins = Math.max(10, getNetWindowMins(seg.startMs, seg.endMs, state.activeDate));
+        const segMins = Math.max(5, getNetWindowMins(seg.startMs, seg.endMs, state.activeDate));
         const activeTasks = seg.tasks.filter(t => !isTaskPassiveIrrigation(t));
         const poolTasks = activeTasks.length > 0 ? activeTasks : seg.tasks;
 
@@ -4196,6 +4279,7 @@ function rebalanceShiftTasks(periodKey = 'morning', notify = true) {
 
         const remainingMins = Math.max(0, segMins - lockedMins);
         if (unlockedTasks.length > 0) {
+            if (remainingMins < unlockedTasks.length * 5) tightWarning = true;
             const baseEach = Math.floor(remainingMins / unlockedTasks.length);
             let remExtra = remainingMins - baseEach * unlockedTasks.length;
             unlockedTasks.forEach(t => {
@@ -4204,6 +4288,8 @@ function rebalanceShiftTasks(periodKey = 'morning', notify = true) {
                 const mins = Math.max(5, baseEach + addOne);
                 t.dur = formatMsAsHrMin(mins * 60000);
             });
+        } else if (lockedMins > segMins) {
+            tightWarning = true;
         }
 
         let cursorMs = seg.startMs;
@@ -4240,7 +4326,11 @@ function rebalanceShiftTasks(periodKey = 'morning', notify = true) {
     if (notify) {
         saveState(); renderTasks(log); renderAttendance(log);
         const lbl = periodKey === 'evening' ? 'المسائي' : (periodKey === 'both' ? 'الفترتين' : 'الصباحي');
-        showToast(`⚖️ تم توزيع ${formatMsAsHrMin(totalShiftMins * 60000)} على ${shiftTasks.length} مهام (${lbl})`);
+        if (tightWarning) {
+            showToast(`⚠️ تم التوزيع (${lbl}) مع تنبيه: بعض الفترات المحصورة بين الأقفال ضيقة`);
+        } else {
+            showToast(`⚖️ تم توزيع ${formatMsAsHrMin(totalShiftMins * 60000)} على ${shiftTasks.length} مهام (${lbl})`);
+        }
     }
 }
 
@@ -4984,11 +5074,12 @@ function loadSiteIrrigationPlan() {
     pushUndo('تحميل خطة ري ' + dayEn);
     planItems.forEach((item, i) => {
         const isTk = !!item.isTanker || (item.desc || '').toLowerCase().includes('tanker');
+        const initCap = isTk ? (getLatestTankerRemaining() || TANKER_FULL_CAPACITY) : '';
         log.tasks.push({
             id: 't_' + Date.now() + '_' + i,
             task: item.task, desc: item.desc, zones: item.zones, dur: item.dur || '1:00 hr',
             status: 'Not Started / لم يبدأ', workers: [], note: '',
-            isTanker: isTk, tankerCapacity: isTk ? TANKER_FULL_CAPACITY : '', tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية', tankerTrips: 1,
+            isTanker: isTk, tankerCapacity: initCap, tankerLiters: '', tankerPrevTripsLiters: 0, tankerTripHistory: [], tankerPpm: '', tankerVisual: 'Clear / صافية', tankerTrips: 1,
             agroName: '', agroDose: '', photos: [], startTimeMs: null, pausedTotalMs: 0, pausedAtMs: null
         });
     });
@@ -5013,8 +5104,10 @@ function quickAddTaskPresetChip(taskName, desc, dur, isTk = false, isPassive = f
         note: '',
         isTanker: isTk,
         isPassiveIrr: isPassive,
-        tankerCapacity: isTk ? TANKER_FULL_CAPACITY : '',
+        tankerCapacity: isTk ? (getLatestTankerRemaining() || TANKER_FULL_CAPACITY) : '',
         tankerLiters: '',
+        tankerPrevTripsLiters: 0,
+        tankerTripHistory: [],
         tankerPpm: '',
         tankerVisual: 'Clear / صافية',
         tankerTrips: 1,
@@ -5347,6 +5440,8 @@ function renderTasks(log) {
 
         const capVal = parseFloat(t.tankerCapacity) || 0;
         const dispVal = parseFloat(t.tankerLiters) || 0;
+        const prevTripsVal = parseFloat(t.tankerPrevTripsLiters) || 0;
+        const totCardDispVal = prevTripsVal + dispVal;
         const remVal = capVal > 0 ? Math.max(0, capVal - dispVal) : null;
         const trips = t.tankerTrips || 1;
 
@@ -5508,7 +5603,7 @@ function renderTasks(log) {
                     </div>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
-                    <span>💧 المصروف: <b>${dispVal ? dispVal.toLocaleString() + ' L' : '0 L'}</b> ${remVal !== null ? `| المتبقي: <b>${remVal.toLocaleString()} L</b>` : ''} ${t.tankerPpm ? `| ${t.tankerPpm} ppm` : ''}</span>
+                    <span>💧 المصروف: <b>${dispVal ? dispVal.toLocaleString() + ' L' : '0 L'}</b>${prevTripsVal > 0 ? ` (الإجمالي: <b>${totCardDispVal.toLocaleString()} L</b>)` : ''} ${remVal !== null ? `| المتبقي: <b>${remVal.toLocaleString()} L</b>` : ''} ${t.tankerPpm ? `| ${t.tankerPpm} ppm` : ''}</span>
                     <button class="btn btn-blue btn-sm" onclick="openTankerFinishModal(${idx})">✓ الصرف</button>
                 </div>
             </div>` : ''}
@@ -5598,13 +5693,33 @@ function splitTaskZones(idx) {
     const zones = (t.zones || '').split(',').map(s => s.trim()).filter(Boolean);
     if (zones.length <= 1) return;
     pushUndo('تفريق مناطق مهمة');
-    const expanded = zones.map((z, i) => ({
-        ...JSON.parse(JSON.stringify(t)),
-        id: 't_' + Date.now() + '_' + i,
-        zones: z,
-        photos: i === 0 ? ensurePhotosArr(t) : [],
-        startTimeMs: null, pausedTotalMs: 0, pausedAtMs: null
-    }));
+    const origCap = parseFloat(t.tankerCapacity) || TANKER_FULL_CAPACITY;
+    const origDisp = parseFloat(t.tankerLiters) || 0;
+    const remAfterFirst = Math.max(0, origCap - origDisp);
+
+    const expanded = zones.map((z, i) => {
+        const clone = JSON.parse(JSON.stringify(t));
+        clone.id = 't_' + Date.now() + '_' + i;
+        clone.zones = z;
+        clone.photos = i === 0 ? ensurePhotosArr(t) : [];
+        clone.startTimeMs = null;
+        clone.pausedTotalMs = 0;
+        clone.pausedAtMs = null;
+        if (clone.isTanker) {
+            if (i === 0) {
+                clone.tankerCapacity = origCap;
+                clone.tankerLiters = origDisp > 0 ? origDisp : '';
+            } else {
+                clone.tankerCapacity = remAfterFirst > 0 ? remAfterFirst : TANKER_FULL_CAPACITY;
+                clone.tankerLiters = '';
+                clone.tankerPrevTripsLiters = 0;
+                clone.tankerTripHistory = [];
+                clone.tankerTrips = 1;
+                clone.tankerNextZone = '';
+            }
+        }
+        return clone;
+    });
     log.tasks.splice(idx, 1, ...expanded);
     logSectionHistory('tasks', 'split', `تفريق ${t.zones} إلى ${zones.length} بطاقات مستقلة`, {});
     saveState(); renderTasks(log); showToast(`✂️ تم تفريق المهمة إلى ${zones.length} مناطق`);
@@ -5618,6 +5733,17 @@ function duplicateTask(idx) {
     copy.startTimeMs = null;
     copy.pausedTotalMs = 0;
     copy.pausedAtMs = null;
+    copy.durLocked = false;
+    copy.startLocked = false;
+    copy.fixedStartTime = '';
+    if (copy.isTanker) {
+        copy.tankerCapacity = getLatestTankerRemaining() || TANKER_FULL_CAPACITY;
+        copy.tankerLiters = '';
+        copy.tankerPrevTripsLiters = 0;
+        copy.tankerTripHistory = [];
+        copy.tankerTrips = 1;
+        copy.tankerNextZone = '';
+    }
     log.tasks.splice(idx + 1, 0, copy);
     logSectionHistory('tasks', 'add', `نسخ مهمة: ${copy.zones} (${copy.desc})`, { taskId: copy.id });
     saveState(); renderTasks(log); showToast('📋 تم نسخ المهمة');
@@ -5637,8 +5763,10 @@ function createReplacementTankerTask(idx) {
         workers: [...(orig.workers || [])],
         note: '',
         isTanker: true,
-        tankerCapacity: TANKER_FULL_CAPACITY,
+        tankerCapacity: getLatestTankerRemaining() || TANKER_FULL_CAPACITY,
         tankerLiters: '',
+        tankerPrevTripsLiters: 0,
+        tankerTripHistory: [],
         tankerPpm: '',
         tankerVisual: 'Clear / صافية',
         tankerTrips: 1,
@@ -5651,12 +5779,26 @@ function createReplacementTankerTask(idx) {
 function refillTankerTrip(idx) {
     pushUndo('إعادة تعبئة التنكر');
     const t = getDayLog().tasks[idx];
-    t.tankerTrips = (t.tankerTrips || 1) + 1;
+    const prevDisp = parseFloat(t.tankerLiters) || 0;
+    const prevTripNum = t.tankerTrips || 1;
+    if (!Array.isArray(t.tankerTripHistory)) t.tankerTripHistory = [];
+    if (prevDisp > 0) {
+        t.tankerTripHistory.push({
+            trip: prevTripNum,
+            capacity: parseFloat(t.tankerCapacity) || TANKER_FULL_CAPACITY,
+            liters: prevDisp,
+            ppm: t.tankerPpm || '',
+            visual: t.tankerVisual || 'Clear / صافية'
+        });
+        t.tankerPrevTripsLiters = (parseFloat(t.tankerPrevTripsLiters) || 0) + prevDisp;
+    }
+    t.tankerTrips = prevTripNum + 1;
     t.tankerCapacity = TANKER_FULL_CAPACITY;
     t.tankerLiters = '';
-    t.note = '';
-    logSectionHistory('tasks', 'tanker', `تعبئة نقلة #${t.tankerTrips} لـ ${t.zones}`, { taskId: t.id });
-    saveState(); renderTasks(getDayLog()); showToast(`🔄 تم تسجيل نقلة #${t.tankerTrips} بسعة 24,000 لتر`);
+    t.tankerNextZone = '';
+    logSectionHistory('tasks', 'tanker', `تعبئة نقلة #${t.tankerTrips} لـ ${t.zones} (السابق: ${(parseFloat(t.tankerPrevTripsLiters) || 0).toLocaleString()} L)`, { taskId: t.id });
+    saveState(); renderTasks(getDayLog()); renderReadingsAndTools(getDayLog());
+    showToast(`🔄 تم حفظ النقلة #${prevTripNum} وبدء النقلة #${t.tankerTrips} بسعة 24,000 لتر`);
 }
 
 function scrollToTaskCard(idx) {
@@ -5834,7 +5976,7 @@ function deleteTask(idx) {
 function escalateTaskToIssue(idx) {
     const t = getDayLog().tasks[idx];
     const site = getSite();
-    const code = 'ISS-' + String(site.issues.length + 1).padStart(2, '0');
+    const code = getNextSequentialCode(site.issues, 'ISS', 2);
     const iid = 'i_' + Date.now();
     site.issues.unshift({ id: iid, code, date: state.activeDate, zone: t.zones, severity: 'High', desc: `${t.desc}: ${t.note || 'توقف الري'}`, status: 'Open', resolvedDate: '', photos: [...ensurePhotosArr(t)] });
     logSectionHistory('issues', 'add', `تصعيد ${code} [${t.zones}]: ${t.note || t.desc}`, { issueId: iid });
@@ -6030,7 +6172,7 @@ function saveNewTask() {
         task: isStandard ? rawTask : 'Other  /  أخرى',
         desc: finalDesc,
         zones, dur, status: 'Not Started / لم يبدأ', shiftPeriod: (state.company.shift || '').includes('Evening') ? 'evening' : 'morning', workers: [], note: '',
-        isTanker, tankerCapacity: isTanker ? TANKER_FULL_CAPACITY : '', tankerLiters: '', tankerPpm: '', tankerVisual: 'Clear / صافية', tankerTrips: 1,
+        isTanker, tankerCapacity: isTanker ? (getLatestTankerRemaining() || TANKER_FULL_CAPACITY) : '', tankerLiters: '', tankerPrevTripsLiters: 0, tankerTripHistory: [], tankerPpm: '', tankerVisual: 'Clear / صافية', tankerTrips: 1,
         agroName: '', agroDose: '', photos: [], startTimeMs: null, pausedTotalMs: 0, pausedAtMs: null
     });
     logSectionHistory('tasks', 'add', `إضافة مهمة: ${zones} (${finalDesc})`, { taskId: tid });
@@ -6039,7 +6181,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V15.7: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V15.8: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -6101,7 +6243,7 @@ function openWorkerTimingModal(tIdx, workerName) {
     const baseStStr = t.fixedStartTime || defStart.hhmm;
     const baseStMs = hhmmToDateMs(baseStStr, state.activeDate) || defStart.ms;
     const taskMins = parseDurationToMins(t.dur) || 60;
-    const defEndMs = addNetWorkMinsSkippingBreak(baseStMs, taskMins, state.activeDate);
+    const defEndMs = t.ignoreBreak ? (baseStMs + taskMins * 60000) : addNetWorkMinsSkippingBreak(baseStMs, taskMins, state.activeDate);
 
     const fromVal = existing.from || baseStStr;
     const toVal = existing.to || formatTime24FromMs(defEndMs);
@@ -6165,7 +6307,8 @@ function saveWorkerTiming(tIdx, workerName) {
     const mode = document.getElementById('wtModeSel').value;
     const note = document.getElementById('wtNoteInp').value.trim();
 
-    t.workerTimings[workerName] = { from, to, mode, note };
+    const prevWt = t.workerTimings[workerName] || {};
+    t.workerTimings[workerName] = { ...prevWt, from, to, mode, note };
     syncWorkerTimingNotesOnTask(t);
 
     // Worker timing is kept cleanly on worker badges & formal notes without polluting task timeline events
@@ -6338,16 +6481,26 @@ function saveAssignedWorkers(tIdx) {
 }
 
 /* ================= Tanker Pre-Start (24,000 L Capacity) & Finish Dispensed Modals ================= */
-function getPreviousTankerRemaining(currentIdx) {
-    const tasks = getDayLog().tasks;
-    for (let i = currentIdx - 1; i >= 0; i--) {
+function getTaskTotalTankerLiters(t) {
+    if (!t) return 0;
+    return (parseFloat(t.tankerPrevTripsLiters) || 0) + (parseFloat(t.tankerLiters) || 0);
+}
+
+function getLatestTankerRemaining(beforeIdx = null) {
+    const tasks = getDayLog().tasks || [];
+    const limit = beforeIdx === null ? tasks.length - 1 : beforeIdx - 1;
+    for (let i = limit; i >= 0; i--) {
         const pt = tasks[i];
-        if (pt.isTanker && parseFloat(pt.tankerCapacity) > 0) {
+        if (pt && pt.isTanker && parseFloat(pt.tankerCapacity) > 0) {
             const rem = parseFloat(pt.tankerCapacity) - (parseFloat(pt.tankerLiters) || 0);
             if (rem > 0) return rem;
         }
     }
     return null;
+}
+
+function getPreviousTankerRemaining(currentIdx) {
+    return getLatestTankerRemaining(currentIdx);
 }
 
 function openTankerPreModal(tIdx) {
@@ -6422,24 +6575,60 @@ function saveTankerDispensed(tIdx) {
     pushUndo('تسجيل كمية صرف التنكر');
     const t = getDayLog().tasks[tIdx];
     if (!t.tankerCapacity) t.tankerCapacity = TANKER_FULL_CAPACITY;
-    t.tankerLiters = parseFloat(document.getElementById('tkDisp').value) || 0;
+    const capNum = parseFloat(t.tankerCapacity) || TANKER_FULL_CAPACITY;
+    const dispNum = parseFloat(document.getElementById('tkDisp').value) || 0;
+    t.tankerLiters = dispNum;
     t.tankerPpm = document.getElementById('tkPpm').value.trim();
     t.tankerVisual = document.getElementById('tkVis').value;
     t.tankerNextZone = (document.getElementById('tkNextZone')?.value || '').trim();
-    if (t.tankerLiters > 0) {
-        const litersFmt = Number(t.tankerLiters).toLocaleString();
-        const remL = Math.max(0, (parseFloat(t.tankerCapacity) || TANKER_FULL_CAPACITY) - t.tankerLiters);
+
+    if (dispNum > 0) {
+        const litersFmt = Number(dispNum).toLocaleString();
+        const remL = Math.max(0, capNum - dispNum);
+        const tripNum = t.tankerTrips || 1;
+        const tripTagAr = tripNum > 1 ? ` (النقلة #${tripNum})` : '';
+        const tripTagEn = tripNum > 1 ? ` (Trip #${tripNum})` : '';
         const ppmAr = t.tankerPpm ? ` (الملوحة: ${t.tankerPpm} ppm)` : '';
         const ppmEn = t.tankerPpm ? ` (${t.tankerPpm} ppm)` : '';
+        const visParts = String(t.tankerVisual || '').split('/');
+        const visEn = (visParts[0] || '').trim();
+        const visAr = (visParts[1] || visEn).trim();
+        const visNoteAr = visAr ? `، نقاوة الماء: ${visAr}` : '';
+        const visNoteEn = visEn ? `, water: ${visEn}` : '';
         const remAr = remL > 0 ? `، والمتبقي في الحوضية ${remL.toLocaleString()} لتر` : '';
         const remEn = remL > 0 ? `, remaining ${remL.toLocaleString()} L` : '';
         const moveAr = t.tankerNextZone ? `، وانتقل التنكر من منطقة (${t.zones}) إلى منطقة (${t.tankerNextZone})` : '';
         const moveEn = t.tankerNextZone ? `, transferred from (${t.zones}) to (${t.tankerNextZone})` : '';
 
-        t.note = `تم استعمال ${litersFmt} لتر من مياه الحوضية في منطقة (${t.zones})${ppmAr}${remAr}${moveAr} / Used ${litersFmt} L of tanker water in (${t.zones})${ppmEn}${remEn}${moveEn}`;
+        const newTankerLine = `تم استعمال ${litersFmt} لتر من مياه الحوضية${tripTagAr} في منطقة (${t.zones})${ppmAr}${visNoteAr}${remAr}${moveAr} / Used ${litersFmt} L of tanker water${tripTagEn} in (${t.zones})${ppmEn}${visNoteEn}${remEn}${moveEn}`;
+
+        // Preserve any manual notes and worker timing suffix (| 👥 ...)
+        const existingNote = String(t.note || '');
+        const workerMarker = ' | 👥 ';
+        let workerSuffix = '';
+        let withoutWorker = existingNote;
+        const wIdx = existingNote.indexOf(workerMarker);
+        if (wIdx !== -1) {
+            workerSuffix = existingNote.slice(wIdx);
+            withoutWorker = existingNote.slice(0, wIdx).trim();
+        } else if (existingNote.startsWith('👥 ')) {
+            workerSuffix = ' | ' + existingNote;
+            withoutWorker = '';
+        }
+
+        const otherLines = withoutWorker
+            .split('\n')
+            .map(s => s.trim())
+            .filter(s => s && !s.startsWith('تم استعمال ') && !s.includes('Used ') && !(tripNum > 1 && s.includes(`النقلة #${tripNum}`)));
+        otherLines.push(newTankerLine);
+        t.note = otherLines.join('\n') + workerSuffix;
+
         logSectionHistory('tasks', 'tanker', `صرف تنكر ${t.zones}: ${litersFmt} L`, { taskId: t.id });
     }
     closeModal(); saveState(); renderTasks(getDayLog()); renderReadingsAndTools(getDayLog());
+    if (dispNum > capNum) {
+        showToast(`⚠️ تنبيه: الكمية المصروفة (${dispNum.toLocaleString()} L) أكبر من سعة الحوضية (${capNum.toLocaleString()} L)`);
+    }
 }
 
 function openAgroModal(tIdx) {
@@ -6537,7 +6726,7 @@ function renderReadingsAndTools(log) {
     `).join('');
 
     let totalTankerL = 0; let totalTrips = 0;
-    log.tasks.forEach(t => { if (parseFloat(t.tankerLiters) > 0) { totalTankerL += parseFloat(t.tankerLiters); totalTrips += (t.tankerTrips || 1); } });
+    log.tasks.forEach(t => { const tkTot = getTaskTotalTankerLiters(t); if (tkTot > 0) { totalTankerL += tkTot; totalTrips += (t.tankerTrips || 1); } });
     
     const anyFaulty = log.meters.some(m => m.status === 'faulty');
     document.getElementById('tankerSummaryBox').innerHTML = (totalTankerL > 0 || anyFaulty) ? `
@@ -6649,9 +6838,13 @@ function setMeterStatus(idx, st) {
 }
 function updateMeterField(idx, k, v) {
     pushUndo('تحديث قراءة عداد');
+    const site = getSite();
     const m = getDayLog().meters[idx];
     m[k] = v;
-    if (k === 'curr' && v !== '' && getSite().meters[idx]) getSite().meters[idx].lastReading = parseFloat(v);
+    const latestDate = Object.keys(site.logs || {}).sort().pop() || state.activeDate;
+    if (k === 'curr' && v !== '' && site.meters[idx] && state.activeDate >= latestDate) {
+        site.meters[idx].lastReading = parseFloat(v);
+    }
     logSectionHistory('tools', 'meter', `قراءة ${m.name}: ${v}`, { meterId: m.id });
     saveState(); renderReadingsAndTools(getDayLog());
 }
@@ -7186,12 +7379,24 @@ function openIssueModal() {
         <div class="grid-2"><button class="btn btn-red" onclick="saveNewIssue()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
     `);
 }
+function getNextSequentialCode(items, prefix, padLen = 2) {
+    let maxNum = 0;
+    (items || []).forEach(it => {
+        const m = String(it && it.code || '').match(/(\d+)$/);
+        if (m) {
+            const n = parseInt(m[1], 10);
+            if (!isNaN(n) && n > maxNum) maxNum = n;
+        }
+    });
+    return `${prefix}-${String(maxNum + 1).padStart(padLen, '0')}`;
+}
+
 function saveNewIssue() {
     const site = getSite();
     const desc = applySpellAndDictationGuard(document.getElementById('issDesc').value.trim()).text;
     if (!desc) return;
     pushUndo('تسجيل مشكلة ميدانية');
-    const code = 'ISS-' + String(site.issues.length + 1).padStart(2, '0');
+    const code = getNextSequentialCode(site.issues, 'ISS', 2);
     const zone = document.getElementById('issZone').value.trim() || 'General';
     const iid = 'i_' + Date.now();
     site.issues.unshift({ id: iid, code, date: state.activeDate, zone, severity: document.getElementById('issSev').value, desc, status: 'Open', resolvedDate: '', photos: [] });
@@ -7337,7 +7542,7 @@ function saveIncident(editIdx = null) {
     const isEdit = editIdx !== null && editIdx !== undefined;
     pushUndo(isEdit ? 'تعديل تقرير حادث' : 'إضافة تقرير حادث');
     const log = getDayLog();
-    const code = isEdit ? log.incidents[editIdx].code : ('IR-' + String(log.incidents.length + 1).padStart(3, '0'));
+    const code = isEdit ? log.incidents[editIdx].code : getNextSequentialCode(log.incidents, 'IR', 3);
     const zone = document.getElementById('irZone').value.trim() || 'General';
     const irType = document.getElementById('irType').value.trim() || 'Site Incident';
     const cleanSteps = tempIrSteps.filter(s => (s.d || '').trim());
@@ -7434,7 +7639,7 @@ function saveSdl(editIdx = null) {
     pushUndo(isEdit ? 'تعديل سجل انحراف' : 'إضافة سجل انحراف');
     const log = getDayLog();
     const prevObj = isEdit ? log.sdls[editIdx] : null;
-    const code = prevObj ? prevObj.code : ('SDL-' + String(log.sdls.length + 1).padStart(3, '0'));
+    const code = prevObj ? prevObj.code : getNextSequentialCode(log.sdls, 'SDL', 3);
     const zone = document.getElementById('sdlZone').value.trim() || 'General';
 
     const record = {
@@ -7520,12 +7725,18 @@ function autoGenerateOAR() {
     const faultyMeters = log.meters.filter(m => m.status === 'faulty').map(m => `${m.name} (${m.note || 'عاطل'})`);
     const lowGauges = log.gauges.filter(g => g.val !== '' && parseFloat(g.val) < g.normal).map(g => `${g.name} (${g.val} bar)`);
     const openIssues = site.issues.filter(i => i.status === 'Open').map(i => `${i.code} [${i.zone}]: ${i.desc}`);
-    const totalTanker = log.tasks.reduce((s, t) => s + (parseFloat(t.tankerLiters) || 0), 0);
+    const totalTanker = log.tasks.reduce((s, t) => s + getTaskTotalTankerLiters(t), 0);
+    const totalTkTrips = log.tasks.reduce((s, t) => s + (getTaskTotalTankerLiters(t) > 0 ? (t.tankerTrips || 1) : 0), 0);
+    const hasBlockedIrr = log.tasks.some(t => t.status.includes('Blocked') && (t.task || '').includes('Irrigation'));
 
     const obsParts = [];
     if (blocked.length) obsParts.push(`توقف الري في: ${blocked.join('؛ ')}.`);
     if (faultyMeters.length) obsParts.push(`عدادات مياه عاطلة: ${faultyMeters.join('، ')}.`);
-    if (totalTanker > 0) obsParts.push(`تم تعويض الري بالتنكر بكمية إجمالية ${totalTanker.toLocaleString()} لتر.`);
+    if (totalTanker > 0) {
+        obsParts.push(hasBlockedIrr
+            ? `تم تعويض الري بالحوضيات (التنكر) بكمية إجمالية ${totalTanker.toLocaleString()} لتر (${totalTkTrips} نقلة).`
+            : `تم تنفيذ أعمال الري بالحوضيات (التنكر) بكمية إجمالية ${totalTanker.toLocaleString()} لتر (${totalTkTrips} نقلة).`);
+    }
     if (lowGauges.length) obsParts.push(`انخفاض ضغط في المقاييس: ${lowGauges.join('، ')}.`);
     if (openIssues.length) obsParts.push(`مشاكل ميدانية مفتوحة: ${openIssues.join('؛ ')}.`);
 
@@ -7544,7 +7755,7 @@ function generateWhatsAppBrief() {
     const site = getSite();
     const log = getDayLog();
     const pres = log.attendance.filter(w => !w.status.includes('Absent')).length;
-    const totalTk = log.tasks.reduce((s, t) => s + (parseFloat(t.tankerLiters) || 0), 0);
+    const totalTk = log.tasks.reduce((s, t) => s + getTaskTotalTankerLiters(t), 0);
     const blocked = log.tasks.filter(t => t.status.includes('Blocked')).map(t => t.zones).join(', ');
     const txt = `*ملخص الوردية - ${site.name.split('/')[0].trim()}*
 ` +
@@ -8122,7 +8333,7 @@ async function exportLightweightDFL() {
     const presentCount = log.attendance.filter(w => !w.status.includes('Absent')).length;
 
     let totalTankerL = 0; let totalTrips = 0;
-    log.tasks.forEach(t => { if (parseFloat(t.tankerLiters) > 0) { totalTankerL += parseFloat(t.tankerLiters); totalTrips += (t.tankerTrips || 1); } });
+    log.tasks.forEach(t => { const tkTot = getTaskTotalTankerLiters(t); if (tkTot > 0) { totalTankerL += tkTot; totalTrips += (t.tankerTrips || 1); } });
 
     const machNote = (log.machinery.pumpHrs || log.machinery.genHrs)
         ? `Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h` : '';
@@ -8672,6 +8883,7 @@ function purgeOldPhotos() {
                 (l.sdls || []).forEach(sd => sd.photos = clearArr(sd.photos));
             }
         });
+        (s.issues || []).forEach(iss => { if (iss.date && iss.date < cutoff && iss.status !== 'Open') iss.photos = clearArr(iss.photos); });
         s.inventory.forEach(z => z.plants.forEach(p => (p.entries || []).forEach(e => { if (e.date < cutoff) e.photos = clearArr(e.photos); })));
     });
     saveState(); showToast('🧹 تم حذف الصور القديمة من المخزن مع بقاء كل الأرقام والسجلات');
@@ -8793,7 +9005,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V15.7 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V15.8 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
