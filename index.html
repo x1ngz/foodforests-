@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V13.1</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V14.0</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -217,7 +217,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V13.1 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V14.0 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -231,10 +231,14 @@
                 <input type="number" id="dflNumInput" class="dfl-num" onchange="onDflNumChange(this.value)">
             </div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;background:rgba(255,255,255,0.14);padding:5px 9px;border-radius:8px;">
-            <span style="font-size:11.5px;font-weight:bold;white-space:nowrap;">👤 المستخدم النشط:</span>
-            <select id="currentUserSelect" style="flex:1;min-width:0;background:rgba(255,255,255,0.96);color:#0f172a;border:none;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:bold;" onchange="setCurrentUser(this.value)" title="مستخدم البرنامج الحالي">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:6px;background:rgba(255,255,255,0.14);padding:5px 9px;border-radius:8px;flex-wrap:wrap;">
+            <span style="font-size:11px;font-weight:bold;white-space:nowrap;">👤 المستخدم:</span>
+            <select id="currentUserSelect" style="flex:1;min-width:110px;background:rgba(255,255,255,0.96);color:#0f172a;border:none;border-radius:6px;padding:4px 6px;font-size:11.5px;font-weight:bold;" onchange="setCurrentUser(this.value)" title="مستخدم البرنامج الحالي">
                 <option value="">اختر المستخدم...</option>
+            </select>
+            <select id="activeShiftSelect" style="background:rgba(255,255,255,0.96);color:#166534;border:none;border-radius:6px;padding:4px 6px;font-size:11.5px;font-weight:bold;" onchange="onShiftSelectChange(this.value)" title="الشفت النشط">
+                <option value="Morning Shift">🌅 الصباحي</option>
+                <option value="Evening Shift">🌆 المسائي</option>
             </select>
         </div>
     </header>
@@ -312,8 +316,9 @@
                 <button class="btn btn-purple" style="margin:0;padding:7px;font-size:12px;" onclick="openTaskTransferModal()">🔄 نقل عامل لمهمة ثانية</button>
                 <button class="btn btn-outline" style="margin:0;padding:7px;font-size:12px;" onclick="openPlanEditorModal()">🗓️ تعديل خطة الري</button>
             </div>
-            <div style="margin-bottom:8px;">
-                <button class="btn btn-outline btn-full" style="margin:0;padding:6px;font-size:12px;" onclick="openTaskPresetsModal()">📌 قوالب مهام جاهزة</button>
+            <div class="grid-2" style="margin-bottom:8px;">
+                <button class="btn btn-outline" style="margin:0;padding:6px;font-size:11.5px;" onclick="openTaskPresetsModal()">📌 قوالب مهام جاهزة</button>
+                <button class="btn btn-blue" style="margin:0;padding:6px;font-size:11.5px;" onclick="openShiftHandoverModal()">🔄 تسليم / استنساخ بين الشفتات</button>
             </div>
             <!-- End-of-Shift (15:45) Reminder Banner -->
             <div id="endOfShiftBanner" style="display:none;background:#fef2f2;border:1.5px solid #f87171;border-radius:10px;padding:8px 10px;margin-bottom:9px;font-size:12px;color:#991b1b;font-weight:bold;">
@@ -762,7 +767,7 @@ let state = {
 
 
 
-/* ================= V13.1: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V14.0: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -908,7 +913,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V13.1: Task Presets Manager ================= */
+/* ================= V14.0: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -995,7 +1000,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V13.1: DFL Readiness Progress Bar ================= */
+/* ================= V14.0: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1035,7 +1040,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V13.1: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V14.0: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1292,7 +1297,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V13.1: Electronic Touch Signature Pad ================= */
+/* ================= V14.0: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1740,7 +1745,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V13.1: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V14.0: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -3076,6 +3081,272 @@ function updateLiveShiftClockDom() {
 }
 setInterval(updateLiveShiftClockDom, 1000);
 
+
+/* ================= V14.0: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+function openTaskTimelineEditorModal(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t) return;
+    if (!Array.isArray(t.events)) t.events = [];
+    const now = new Date();
+    const nowStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    openModal(`
+        <h3 class="card-title">🕒 تعديل السجل الزمني للمهمة (${esc(t.zones)})</h3>
+        <p style="font-size:11.5px;color:var(--muted);">أي تعديل أو إضافة أو حذف هنا ينعكس تلقائياً على حساب وقت المهمة وساعات العمل:</p>
+        <div id="tlEventsListBox" style="max-height:240px;overflow-y:auto;margin-bottom:10px;">
+            ${t.events.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:12px;">لا توجد فقرات مسجلة بعد</div>' :
+            t.events.map((ev, eIdx) => `
+                <div style="display:flex;gap:5px;align-items:center;margin-bottom:6px;background:#f8fafc;padding:6px;border-radius:8px;border:1px solid var(--border);">
+                    <input type="time" id="tlEvTime_${eIdx}" class="inp" style="width:96px;margin:0;padding:5px;font-weight:bold;" value="${esc(ev.time || nowStr)}">
+                    <input type="text" id="tlEvLabel_${eIdx}" class="inp" style="flex:1;margin:0;padding:5px;font-size:12px;" value="${esc(ev.label || '')}">
+                    <button class="btn btn-outline btn-sm" style="color:var(--red);padding:4px 7px;" onclick="deleteTaskTimelineEvent(${tIdx}, ${eIdx})" title="حذف">🗑️</button>
+                </div>
+            `).join('')}
+        </div>
+
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:9px;padding:8px;margin-bottom:10px;">
+            <label class="lbl" style="color:#0369a1;">+ إضافة حدث جديد للسجل الزمني:</label>
+            <div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;">
+                <input type="time" id="newTlEvTime" class="inp" style="width:96px;margin:0;padding:5px;" value="${nowStr}">
+                <input type="text" id="newTlEvLabel" class="inp" style="flex:1;margin:0;padding:5px;" placeholder="مثلاً: ⏸️ توقف مؤقت (إصلاح أنبوب)">
+            </div>
+            <div style="margin-bottom:6px;">
+                <span class="chip" onclick="document.getElementById('newTlEvLabel').value='▶️ بدأ العمل'">▶️ بدأ</span>
+                <span class="chip" onclick="document.getElementById('newTlEvLabel').value='⏸️ توقف مؤقت (عطل)'">⏸️ توقف مؤقت</span>
+                <span class="chip" onclick="document.getElementById('newTlEvLabel').value='▶️ رجع اشتغل'">▶️ رجع اشتغل</span>
+                <span class="chip" onclick="document.getElementById('newTlEvLabel').value='✅ اكتمل'">✅ اكتمل</span>
+            </div>
+            <button class="btn btn-blue btn-sm" style="width:100%;" onclick="addNewTaskTimelineEvent(${tIdx})">+ إضافة الفقرة الزمنية</button>
+        </div>
+
+        <div class="grid-2">
+            <button class="btn btn-green" onclick="saveTaskTimelineEdits(${tIdx})">💾 حفظ وإعادة الحساب</button>
+            <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
+        </div>
+    `);
+}
+
+function recalcTaskTimingFromTimeline(t) {
+    if (!Array.isArray(t.events) || t.events.length === 0) return;
+    t.events.sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
+
+    const toMs = hhmm => {
+        const m = String(hhmm || '').match(/(\d{1,2}):(\d{2})/);
+        if (!m) return null;
+        const d = new Date(state.activeDate + 'T00:00:00');
+        d.setHours(parseInt(m[1], 10), parseInt(m[2], 10), 0, 0);
+        return d.getTime();
+    };
+
+    const firstStart = t.events.find(e => (e.label || '').includes('بدأ') || (e.label || '').includes('▶️'));
+    if (firstStart) {
+        const sMs = toMs(firstStart.time);
+        if (sMs) t.startTimeMs = sMs;
+    }
+
+    // Sum all pause intervals (⏸️ -> ▶️)
+    let pausedTotal = 0;
+    let pauseStart = null;
+    t.events.forEach(ev => {
+        const ms = toMs(ev.time);
+        if (!ms) return;
+        const lbl = ev.label || '';
+        if (lbl.includes('توقف') || lbl.includes('⏸')) {
+            if (pauseStart === null) pauseStart = ms;
+        } else if ((lbl.includes('رجع') || lbl.includes('استئناف') || lbl.includes('▶️')) && pauseStart !== null) {
+            if (ms > pauseStart) pausedTotal += (ms - pauseStart);
+            pauseStart = null;
+        }
+    });
+    t.pausedTotalMs = pausedTotal;
+    t.pausedAtMs = pauseStart;
+
+    // If task is Completed and has both start and end events, update net duration
+    const endEv = [...t.events].reverse().find(e => (e.label || '').includes('اكتمل') || (e.label || '').includes('✅'));
+    if (t.status && t.status.includes('Completed') && t.startTimeMs && endEv) {
+        const eMs = toMs(endEv.time);
+        if (eMs && eMs > t.startTimeMs) {
+            const brk = t.ignoreBreak ? 0 : getBreakOverlapMs(t.startTimeMs, eMs, state.activeDate);
+            const net = Math.max(0, eMs - t.startTimeMs - pausedTotal - brk);
+            t.dur = formatMsAsHrMin(net);
+        }
+    }
+}
+
+function saveTaskTimelineEdits(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t) return;
+    pushUndo('تعديل السجل الزمني لمهمة');
+    t.events = t.events.map((ev, eIdx) => {
+        const tm = document.getElementById(`tlEvTime_${eIdx}`)?.value || ev.time;
+        const lb = document.getElementById(`tlEvLabel_${eIdx}`)?.value.trim() || ev.label;
+        return { time: tm, label: lb };
+    });
+    recalcTaskTimingFromTimeline(t);
+    logSectionHistory('tasks', 'edit', `تعديل السجل الزمني لـ ${t.zones}`, { taskId: t.id });
+    closeModal(); saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
+    showToast('✅ تم تحديث السجل الزمني وإعادة حساب الوقت');
+}
+
+function addNewTaskTimelineEvent(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    const tm = document.getElementById('newTlEvTime')?.value;
+    const lb = document.getElementById('newTlEvLabel')?.value.trim();
+    if (!t || !tm || !lb) { showToast('⚠️ أدخل الوقت ووصف الحدث'); return; }
+    pushUndo('إضافة حدث للسجل الزمني');
+    if (!Array.isArray(t.events)) t.events = [];
+    t.events.push({ time: tm, label: lb });
+    recalcTaskTimingFromTimeline(t);
+    saveState(); openTaskTimelineEditorModal(tIdx); renderTasks(log); renderAttendance(log);
+}
+
+function deleteTaskTimelineEvent(tIdx, eIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t || !Array.isArray(t.events)) return;
+    pushUndo('حذف فقرة من السجل الزمني');
+    t.events.splice(eIdx, 1);
+    recalcTaskTimingFromTimeline(t);
+    saveState(); openTaskTimelineEditorModal(tIdx); renderTasks(log); renderAttendance(log);
+}
+
+function onShiftSelectChange(val) {
+    state.company.shift = val || 'Morning Shift';
+    saveState();
+    renderAll();
+    showToast(val === 'Evening Shift' ? '🌆 تم التبديل إلى الشفت المسائي' : '🌅 تم التبديل إلى الشفت الصباحي');
+}
+
+function openShiftHandoverModal(preTaskIdx = null) {
+    const log = getDayLog();
+    const tasks = log.tasks || [];
+    if (!tasks.length) {
+        showToast('⚠️ لا توجد مهام مسجلة اليوم للنقل أو الاستنساخ');
+        return;
+    }
+    const curShiftAr = (state.company.shift || '').includes('Evening') ? 'الشفت المسائي 🌆' : 'الشفت الصباحي 🌅';
+
+    openModal(`
+        <h3 class="card-title">🔄 تسليم / استنساخ / تكملة المهام بين الشفتات</h3>
+        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:7px 9px;margin-bottom:8px;font-size:11.5px;">
+            الشفت النشط حالياً: <b>${curShiftAr}</b>
+        </div>
+        <label class="lbl">اختر نوع العملية:</label>
+        <select id="shMode" class="inp" style="font-weight:bold;">
+            <option value="continue">⏭️ تكملة مهمة غير مكتملة في الشفت المسائي (ينقل المتبقي ويثبت إنجاز الصباحي)</option>
+            <option value="clone">📋 استنساخ المهام للشفت المسائي (نسخة جديدة بحالة لم يبدأ)</option>
+            <option value="move">🚚 تحويل / نقل المهمة بالكامل للشفت المسائي</option>
+        </select>
+        <label class="lbl">حدد المهام المطلوبة:</label>
+        <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:7px;margin-bottom:8px;">
+            ${tasks.map((t, idx) => {
+                const isSelected = preTaskIdx !== null ? idx === preTaskIdx : !t.status.includes('Completed');
+                const shTag = t.shiftLabel ? ` [${t.shiftLabel}]` : '';
+                return `
+                <label style="display:block;padding:6px 4px;border-bottom:1px solid #f1f5f9;font-size:12px;">
+                    <input type="checkbox" class="sh-task-chk" value="${idx}" ${isSelected ? 'checked' : ''}>
+                    <b>📍 ${esc(t.zones)}</b> — ${esc((t.task.split('/')[1] || t.task).trim())} (${esc(t.desc)})
+                    <span style="color:var(--muted);font-size:10.5px;">[${esc(t.status.split('/')[1] || t.status)}${shTag}]</span>
+                </label>`;
+            }).join('')}
+        </div>
+        <div style="margin-bottom:8px;">
+            <span class="chip" onclick="document.querySelectorAll('.sh-task-chk').forEach(c=>c.checked=true)">✓ تحديد الكل</span>
+            <span class="chip" onclick="document.querySelectorAll('.sh-task-chk').forEach(c=>c.checked=false)">✕ إلغاء التحديد</span>
+        </div>
+        <label class="lbl">ملاحظة التسليم للشفت المسائي:</label>
+        <input id="shNote" class="inp" value="تسليم واستكمال من الشفت الصباحي إلى الشفت المسائي">
+        <div class="grid-2">
+            <button class="btn btn-green" onclick="executeShiftHandover()">✅ تنفيذ التحويل للشفت المسائي</button>
+            <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+        </div>
+    `);
+}
+
+function executeShiftHandover() {
+    const log = getDayLog();
+    const mode = document.getElementById('shMode').value;
+    const noteTxt = document.getElementById('shNote').value.trim() || 'تسليم للشفت المسائي';
+    const indices = Array.from(document.querySelectorAll('.sh-task-chk:checked')).map(c => parseInt(c.value, 10)).filter(n => !isNaN(n));
+    if (!indices.length) {
+        showToast('⚠️ اختر مهمة واحدة على الأقل');
+        return;
+    }
+    pushUndo('تسليم/استنساخ مهام للشفت المسائي');
+    const nowStr = formatTime24FromMs(Date.now());
+    const newEveningTasks = [];
+
+    indices.forEach((idx, k) => {
+        const orig = log.tasks[idx];
+        if (!orig) return;
+
+        if (mode === 'continue') {
+            orig.shiftLabel = orig.shiftLabel || 'شفت صباحي';
+            if (orig.status.includes('Progress') && orig.startTimeMs) {
+                orig.dur = formatMsAsHrMin(getTaskNetElapsedMs(orig, Date.now()));
+            }
+            orig.status = 'Completed / مكتمل';
+            orig.startTimeMs = null;
+            orig.pausedAtMs = null;
+            orig.pausedTotalMs = 0;
+            orig.note = orig.note ? `${orig.note} | أُغلق الصباحي وسُلّم للمسائي (${nowStr})` : `أُغلق الصباحي وسُلّم للمسائي (${nowStr})`;
+            addTaskEventLog(orig, '🌆 سُلّم للمسائي', nowStr);
+
+            newEveningTasks.push({
+                ...JSON.parse(JSON.stringify(orig)),
+                id: 't_' + Date.now() + '_ev_' + k,
+                shiftLabel: 'شفت مسائي',
+                status: 'Not Started / لم يبدأ',
+                workers: [],
+                note: `[تكملة من الصباحي] ${noteTxt}`,
+                photos: [],
+                events: [{ time: nowStr, label: '🌆 استلام من الصباحي' }],
+                startTimeMs: null,
+                pausedTotalMs: 0,
+                pausedAtMs: null,
+                syncWithPrev: false
+            });
+        } else if (mode === 'clone') {
+            orig.shiftLabel = orig.shiftLabel || 'شفت صباحي';
+            newEveningTasks.push({
+                ...JSON.parse(JSON.stringify(orig)),
+                id: 't_' + Date.now() + '_cl_' + k,
+                shiftLabel: 'شفت مسائي',
+                status: 'Not Started / لم يبدأ',
+                workers: [],
+                note: `[مستنسخ للمسائي] ${noteTxt}`,
+                photos: [],
+                events: [],
+                startTimeMs: null,
+                pausedTotalMs: 0,
+                pausedAtMs: null,
+                syncWithPrev: false
+            });
+        } else if (mode === 'move') {
+            orig.shiftLabel = 'شفت مسائي';
+            orig.status = 'Not Started / لم يبدأ';
+            orig.startTimeMs = null;
+            orig.pausedAtMs = null;
+            orig.pausedTotalMs = 0;
+            orig.note = `[محوّل للمسائي] ${noteTxt}`;
+            addTaskEventLog(orig, '🌆 حُوّل للمسائي', nowStr);
+        }
+    });
+
+    if (newEveningTasks.length > 0) {
+        log.tasks.push(...newEveningTasks);
+    }
+
+    state.company.shift = 'Evening Shift';
+    logSectionHistory('tasks', 'handover', `تحويل/استنساخ ${indices.length} مهام للشفت المسائي`, {});
+    syncIrrigatedZonesFromTasks(false);
+    closeModal(); saveState(); renderAll();
+    showToast(`🌆 تم تحويل/تجهيز ${indices.length} مهام للشفت المسائي بنجاح!`);
+}
+
 function addTaskEventLog(t, iconAndLabel, customTimeStr = null) {
     if (!Array.isArray(t.events)) t.events = [];
     const now = new Date();
@@ -3914,6 +4185,8 @@ function renderAll() {
     document.getElementById('dayBadge').textContent = dayEn;
     document.getElementById('planDayLabel').textContent = dayEn;
     document.getElementById('dflNumInput').value = log.dflNum;
+    const shSel = document.getElementById('activeShiftSelect');
+    if (shSel) shSel.value = state.company.shift || 'Morning Shift';
 
     document.getElementById('globalZonesList').innerHTML = site.zones.map(z => `<option value="${esc(z)}">`).join('');
     document.getElementById('globalTasksList').innerHTML = state.company.customTasks.map(t => `<option value="${esc(t)}">`).join('');
@@ -4368,7 +4641,7 @@ function renderTasks(log) {
                         <button class="sort-btn" onclick="moveTaskUp(${idx})">▲</button>
                         <button class="sort-btn" onclick="moveTaskDown(${idx})">▼</button>
                     </div>
-                    <div style="font-weight:bold;font-size:14px;padding-top:2px;">${esc(t.task.split('/')[1] || t.task)}</div>
+                    <div style="font-weight:bold;font-size:14px;padding-top:2px;">${esc(t.task.split('/')[1] || t.task)} ${t.shiftLabel ? `<span class="badge" style="background:${t.shiftLabel.includes('مسائي') ? '#ede9fe' : '#fef3c7'};color:${t.shiftLabel.includes('مسائي') ? '#5b21b6' : '#92400e'};font-size:10px;">${esc(t.shiftLabel)}</span>` : ''}</div>
                 </div>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
                     <span class="zone-pill" onclick="openZonePickerModal(${idx})">📍 ${esc(t.zones)} ✏️</span>
@@ -4380,11 +4653,11 @@ function renderTasks(log) {
 
             ${isCarried ? `<div style="background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:7px;padding:5px 8px;font-size:11.5px;font-weight:bold;margin-bottom:6px;">⏭️ مُرحّل للغد (Carried Over) — ${esc(t.note || 'انتهاء وقت الدوام')}</div>` : ''}
 
-            ${evList.length > 0 ? `
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:5px 8px;margin-bottom:6px;font-size:11px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;">
-                <span style="font-weight:bold;color:var(--muted);">🕒 السجل الزمني:</span>
-                ${evList.map((ev, eIdx) => `<span style="background:white;border:1px solid #cbd5e1;border-radius:5px;padding:1px 5px;font-weight:bold;">${esc(ev.label)} <b>${esc(ev.time)}</b></span>${eIdx < evList.length - 1 ? '<span style="color:#94a3b8;">⬅️</span>' : ''}`).join('')}
-            </div>` : ''}
+            <div onclick="openTaskTimelineEditorModal(${idx})" title="اضغط لتعديل أو إضافة فقرات السجل الزمني" style="cursor:pointer;background:#f8fafc;border:1px dashed #93c5fd;border-radius:7px;padding:5px 8px;margin-bottom:6px;font-size:11px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;">
+                <span style="font-weight:bold;color:var(--blue);">🕒 السجل الزمني ✏️:</span>
+                ${evList.length === 0 ? '<span style="color:var(--muted);">اضغط لتسجيل أوقات البدء/التوقف يدوياً...</span>' :
+                evList.map((ev, eIdx) => `<span style="background:white;border:1px solid #cbd5e1;border-radius:5px;padding:1px 5px;font-weight:bold;">${esc(ev.label)} <b>${esc(ev.time)}</b></span>${eIdx < evList.length - 1 ? '<span style="color:#94a3b8;">⬅️</span>' : ''}`).join('')}
+            </div>
 
             ${isProg ? `
             <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:7px;flex-wrap:wrap;">
@@ -4419,7 +4692,8 @@ function renderTasks(log) {
                 </div>
                 <span class="chip" onclick="openAssignWorkersModal(${idx})">👷 ${esc(wNames)} (${t.workers ? t.workers.length : 0})</span>
                 ${isIrr ? `<span class="chip ${isPassive ? 'active' : ''}" onclick="togglePassiveIrrFlag(${idx})" title="فصل وقت تشغيل التنقيط عن جهد العامل">${isPassive ? '🚰 تنقيط آلي (15د عامل)' : '👷 جهد كامل على العامل'}</span>` : ''}
-                <span class="chip" style="color:var(--purple);border-color:#d8b4fe;" onclick="openTaskTransferModal(${idx})">🔄 نقل</span>
+                <span class="chip" style="color:var(--purple);border-color:#d8b4fe;" onclick="openTaskTransferModal(${idx})">🔄 نقل عامل</span>
+                <span class="chip" style="color:#0369a1;border-color:#7dd3fc;" onclick="openShiftHandoverModal(${idx})">🌆 للمسائي</span>
                 ${prevHasWorkers ? `<span class="chip" style="color:var(--blue);border-color:#bae6fd;" onclick="copyWorkersFromPrevTask(${idx})">👥 نفس عمال السابقة</span>` : ''}
                 ${idx > 0 ? `<span class="chip ${t.syncWithPrev ? 'active' : ''}" onclick="toggleTaskSyncWithPrev(${idx})">${t.syncWithPrev ? '🔗 مرتبطة بالسابقة' : '🔗 دمج مع السابقة'}</span>` : ''}
                 <span class="chip" onclick="openPhotoSourceChoice('task', ${idx})">📸 +صورة (${photos.length})</span>
@@ -7237,7 +7511,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V13.1 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V14.0 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
