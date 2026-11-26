@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V16.3</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V16.4</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -260,7 +260,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V16.3 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V16.4 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -807,7 +807,7 @@ let state = {
 
 
 
-/* ================= V16.3: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V16.4: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -953,7 +953,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V16.3: Task Presets Manager ================= */
+/* ================= V16.4: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1043,7 +1043,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V16.3: DFL Readiness Progress Bar ================= */
+/* ================= V16.4: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1083,7 +1083,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V16.3: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V16.4: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1341,7 +1341,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V16.3: Electronic Touch Signature Pad ================= */
+/* ================= V16.4: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1934,7 +1934,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V16.3: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V16.4: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -3199,8 +3199,28 @@ function getTaskActiveIntervals(t, nowMs = Date.now(), dateStr = state.activeDat
     let sMs = null;
     let eMs = null;
 
-    if (st.includes('Progress') && t.startTimeMs) {
-        sMs = t.startTimeMs;
+    if (st.includes('Progress')) {
+        sMs = t.startTimeMs || null;
+        if (sMs) {
+            const dObj = new Date(sMs);
+            const sDateStr = `${dObj.getFullYear()}-${String(dObj.getMonth() + 1).padStart(2, '0')}-${String(dObj.getDate()).padStart(2, '0')}`;
+            if (sDateStr !== dateStr) {
+                const aligned = new Date(dateStr + 'T00:00:00');
+                aligned.setHours(dObj.getHours(), dObj.getMinutes(), 0, 0);
+                sMs = aligned.getTime();
+            }
+        }
+        if (!sMs && t.fixedStartTime) {
+            sMs = hhmmToDateMs(t.fixedStartTime, dateStr);
+        }
+        if (!sMs && Array.isArray(t.events) && t.events.length > 0) {
+            const stEv = t.events.find(e => (e.label || '').includes('بدأ') || (e.label || '').includes('▶️') || (e.label || '').includes('صباحية'));
+            if (stEv) sMs = hhmmToDateMs(stEv.time, dateStr);
+        }
+        if (!sMs) {
+            const sp = getTaskShiftPeriod(t);
+            sMs = getShiftDefaultStartInfo(sp === 'evening' ? 'Evening Shift' : 'Morning Shift', dateStr).ms;
+        }
         if (t.timerFrozen && t.frozenAtMs) {
             eMs = t.frozenAtMs;
         } else if (t.pausedAtMs) {
@@ -3210,6 +3230,12 @@ function getTaskActiveIntervals(t, nowMs = Date.now(), dateStr = state.activeDat
             if (!t.ignoreShiftEndCap && !t.isAfterHours) {
                 const capMs = getTaskShiftEndCapMs(t, dateStr);
                 if (capMs && eMs > capMs) eMs = capMs;
+                // Guard: if a daytime task was accidentally started after shift end (>= 16:00), anchor start to shift start (08:00 / 13:00)
+                if (capMs && sMs >= capMs) {
+                    const sp = getTaskShiftPeriod(t);
+                    const defStartMs = getShiftDefaultStartInfo(sp === 'evening' ? 'Evening Shift' : 'Morning Shift', dateStr).ms;
+                    if (defStartMs && defStartMs < capMs) sMs = defStartMs;
+                }
             }
         }
     } else {
@@ -3396,9 +3422,10 @@ function openRetroStartTimeModal(tIdx) {
             <label class="lbl">2️⃣ أو تحديد ساعة البداية الفعلية:</label>
             <input type="time" id="retroTimeInp" class="inp" style="font-size:15px;font-weight:bold;text-align:center;" value="${currentHHMM}">
             <div style="margin-bottom:6px;">
-                <span class="chip" onclick="shiftRetroMins(-30)">-30 دقيقة</span>
-                <span class="chip" onclick="shiftRetroMins(-60)">-1 ساعة</span>
-                <span class="chip" onclick="shiftRetroMins(-120)">-2 ساعة</span>
+                <span class="chip" style="background:#dcfce7;color:#166534;border-color:#86efac;" onclick="document.getElementById('retroTimeInp').value='08:00';saveRetroStartTime(${tIdx});">🌅 من بداية الدوام (08:00)</span>
+                <span class="chip" style="background:#ede9fe;color:#5b21b6;border-color:#c4b5fd;" onclick="document.getElementById('retroTimeInp').value='${esc((state.company && state.company.breakEnd) || '13:00')}';saveRetroStartTime(${tIdx});">🌆 من بداية المسائي (${esc((state.company && state.company.breakEnd) || '13:00')})</span>
+                <span class="chip" onclick="shiftRetroMins(-30)">-30 د</span>
+                <span class="chip" onclick="shiftRetroMins(-60)">-1 س</span>
             </div>
             <button class="btn btn-green btn-full" style="margin:0;padding:8px;" onclick="saveRetroStartTime(${tIdx})">🕒 اعتماد ساعة البداية</button>
         </div>
@@ -3602,7 +3629,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V16.3: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V16.4: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function openTaskTimelineEditorModal(tIdx) {
     const log = getDayLog();
     const t = log.tasks[tIdx];
@@ -3765,7 +3792,7 @@ function getShiftDefaultStartInfo(shiftName = state.company.shift, dateStr = sta
     };
 }
 
-function getEffectiveActionStartTime(shiftName = state.company.shift) {
+function getEffectiveActionStartTime(shiftName = state.company.shift, explicitAfterHours = false) {
     const def = getShiftDefaultStartInfo(shiftName, state.activeDate);
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
@@ -3777,17 +3804,17 @@ function getEffectiveActionStartTime(shiftName = state.company.shift) {
         const [beh, bem] = bEndStr.split(':').map(Number);
         const mEnd = (bsh || 12) * 60 + (bsm || 0);
         const eStart = (beh || 13) * 60 + (bem || 0);
+        if (explicitAfterHours && mins >= 16 * 60) {
+            return { ms: now.getTime(), hhmm: formatTime24FromMs(now.getTime()), periodKey: 'evening', isAfterHours: true };
+        }
         if (!def.isEvening && mins >= 8 * 60 && mins < mEnd) {
             return { ms: now.getTime(), hhmm: formatTime24FromMs(now.getTime()), periodKey: 'morning', isAfterHours: false };
         }
         if (def.isEvening && mins >= eStart && mins < 16 * 60) {
             return { ms: now.getTime(), hhmm: formatTime24FromMs(now.getTime()), periodKey: 'evening', isAfterHours: false };
         }
-        if (mins >= 16 * 60) {
-            return { ms: now.getTime(), hhmm: formatTime24FromMs(now.getTime()), periodKey: 'evening', isAfterHours: true };
-        }
     }
-    return { ms: def.ms, hhmm: def.hhmm, periodKey: def.periodKey, isAfterHours: false };
+    return { ms: def.ms, hhmm: def.hhmm, periodKey: def.periodKey, isAfterHours: !!explicitAfterHours };
 }
 
 function getTaskShiftPeriod(t) {
@@ -3804,7 +3831,7 @@ function getTaskShiftPeriod(t) {
 
 function normalizeTaskSequenceOrder(log = getDayLog()) {
     if (!log || !Array.isArray(log.tasks) || log.tasks.length < 2) return;
-    const rank = { morning: 0, evening: 1, both: 2 };
+    const rank = { morning: 0, both: 0, evening: 1 };
     const decorated = log.tasks.map((t, i) => ({ t, i, r: rank[getTaskShiftPeriod(t)] ?? 0 }));
     decorated.sort((a, b) => (a.r - b.r) || (a.i - b.i));
     log.tasks = decorated.map(x => x.t);
@@ -3840,8 +3867,18 @@ function cycleTaskShiftPeriod(idx) {
         const hasEve = t.events.some(e => (e.label || '').includes('مسائي'));
         if (!hasMorn) t.events.unshift({ time: '08:00', label: '🌅 فترة صباحية' });
         if (!hasEve) t.events.push({ time: bEndStr, label: '🌆 استكمال مسائي' });
+        if (t.status.includes('Progress')) {
+            const info = getShiftDefaultStartInfo('Morning Shift', state.activeDate);
+            t.startTimeMs = info.ms;
+        }
+        const [movedTask] = log.tasks.splice(idx, 1);
+        let insertAt = 0;
+        for (let i = 0; i < log.tasks.length; i++) {
+            if (getTaskShiftPeriod(log.tasks[i]) !== 'evening') insertAt = i + 1;
+        }
+        log.tasks.splice(insertAt, 0, movedTask);
         normalizeTaskSequenceOrder(log);
-        showToast('🌅+🌆 نُقلت المهمة إلى قسم الفترتين (صباحي + مسائي)');
+        showToast('🌅+🌆 تم ضبط المهمة على الفترتين (صباحي + مسائي) في نفس القائمة');
     } else {
         t.fixedStartTime = '08:00';
         if (Array.isArray(t.events)) {
@@ -4541,7 +4578,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V16.3: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V16.4: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function openShiftTimeDistributorModal() {
     const log = getDayLog();
     const mornTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'morning');
@@ -5622,8 +5659,8 @@ function moveTaskUp(idx) {
     const log = getDayLog();
     const tasks = log.tasks;
     if (idx <= 0 || !tasks[idx]) return;
-    const sp = getTaskShiftPeriod(tasks[idx]);
-    if (getTaskShiftPeriod(tasks[idx - 1]) !== sp) {
+    const grp = x => (getTaskShiftPeriod(x) === 'evening' ? 'evening' : 'main');
+    if (grp(tasks[idx - 1]) !== grp(tasks[idx])) {
         showToast('⚠️ المهمة في بداية هذا الشفت بالفعل');
         return;
     }
@@ -5635,8 +5672,8 @@ function moveTaskDown(idx) {
     const log = getDayLog();
     const tasks = log.tasks;
     if (idx < 0 || idx >= tasks.length - 1) return;
-    const sp = getTaskShiftPeriod(tasks[idx]);
-    if (getTaskShiftPeriod(tasks[idx + 1]) !== sp) {
+    const grp = x => (getTaskShiftPeriod(x) === 'evening' ? 'evening' : 'main');
+    if (grp(tasks[idx + 1]) !== grp(tasks[idx])) {
         showToast('⚠️ المهمة في نهاية هذا الشفت بالفعل');
         return;
     }
@@ -5988,7 +6025,6 @@ function renderTasks(log) {
     checkEndOfShiftReminder();
     const bw = getBreakWindowMs(state.activeDate);
     let eveningDividerInserted = false;
-    let bothDividerInserted = false;
     const filteredEntries = log.tasks.map((t, idx) => ({ t, idx })).filter(({ t }) => {
         if (taskStatusFilter === 'done' && !t.status.includes('Completed')) return false;
         if (taskStatusFilter === 'pending' && t.status.includes('Completed')) return false;
@@ -6005,9 +6041,8 @@ function renderTasks(log) {
     const orderedEntries = (taskSearchQuery || taskStatusFilter !== 'all')
         ? filteredEntries
         : [
-            ...filteredEntries.filter(({ t }) => getTaskShiftPeriod(t) === 'morning'),
-            ...filteredEntries.filter(({ t }) => getTaskShiftPeriod(t) === 'evening'),
-            ...filteredEntries.filter(({ t }) => getTaskShiftPeriod(t) === 'both')
+            ...filteredEntries.filter(({ t }) => getTaskShiftPeriod(t) !== 'evening'),
+            ...filteredEntries.filter(({ t }) => getTaskShiftPeriod(t) === 'evening')
         ];
 
     el.innerHTML = orderedEntries.map(({ t, idx }) => {
@@ -6021,14 +6056,6 @@ function renderTasks(log) {
                     <div style="flex:1;height:2px;background:#7c3aed;"></div>
                     <span style="background:#ede9fe;color:#5b21b6;border:1.5px solid #c4b5fd;border-radius:99px;padding:4px 12px;font-size:11.5px;font-weight:bold;white-space:nowrap;">🌇 الشفت المسائي (من ${esc(bw.endStr || '13:00')})</span>
                     <div style="flex:1;height:2px;background:#7c3aed;"></div>
-                </div>`;
-            } else if (spCur === 'both' && !bothDividerInserted) {
-                bothDividerInserted = true;
-                shiftDividerHtml = `
-                <div id="bothShiftDivider" style="display:flex;align-items:center;gap:8px;margin:14px 0 10px 0;">
-                    <div style="flex:1;height:2px;background:#15803d;"></div>
-                    <span style="background:#dcfce7;color:#166534;border:1.5px solid #86efac;border-radius:99px;padding:4px 12px;font-size:11.5px;font-weight:bold;white-space:nowrap;">🌅+🌆 مهام الفترتين (صباحي ومسائي)</span>
-                    <div style="flex:1;height:2px;background:#15803d;"></div>
                 </div>`;
             }
         }
@@ -6539,9 +6566,10 @@ function setTaskStatus(idx, st) {
     const now = Date.now();
     const taskSp = getTaskShiftPeriod(t);
     const taskShiftName = taskSp === 'evening' ? 'Evening Shift' : (taskSp === 'morning' ? 'Morning Shift' : state.company.shift);
+    const isExplicitOt = !!(t.isAfterHours || t.ignoreShiftEndCap);
     const eff = (st.includes('Completed') && oldSt.includes('Not Started'))
         ? getShiftDefaultStartInfo(taskShiftName, state.activeDate)
-        : getEffectiveActionStartTime(taskShiftName);
+        : getEffectiveActionStartTime(taskShiftName, isExplicitOt);
     
     if (st.includes('Progress') && !oldSt.includes('Progress')) {
         const hasPriorStart = oldSt.includes('Blocked') && Array.isArray(t.events) && t.events.some(e => (e.label || '').includes('بدأ') || (e.label || '').includes('▶️'));
@@ -6968,7 +6996,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V16.3: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V16.4: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -7037,8 +7065,9 @@ function openWorkerTimingModal(tIdx, workerName) {
     const taskMins = parseDurationToMins(t.dur) || 60;
     const defEndMs = t.ignoreBreak ? (baseStMs + taskMins * 60000) : addNetWorkMinsSkippingBreak(baseStMs, taskMins, state.activeDate);
 
+    const isProgTask = !!(t.status && t.status.includes('Progress'));
     const fromVal = existing.from || baseStStr;
-    const toVal = existing.to || formatTime24FromMs(defEndMs);
+    const toVal = existing.to || (isProgTask ? '' : formatTime24FromMs(defEndMs));
     const modeVal = existing.mode || 'normal';
     const noteVal = existing.note || '';
 
@@ -7060,7 +7089,7 @@ function openWorkerTimingModal(tIdx, workerName) {
             <span class="chip" onclick="setWtQuickDur(15)">+15 د (تنقيط)</span>
             <span class="chip" onclick="setWtQuickDur(30)">+30 د</span>
             <span class="chip" onclick="setWtQuickDur(60)">+1 ساعة</span>
-            <span class="chip" onclick="document.getElementById('wtFromInp').value='08:00';document.getElementById('wtToInp').value='16:00';">طول اليوم (8–4)</span>
+            <span class="chip" onclick="document.getElementById('wtFromInp').value='08:00';document.getElementById('wtToInp').value='';">طول الشفت (08:00 – نهاية الدوام)</span>
         </div>
         <label class="lbl">نوع المشاركة / التنقل (يُكتب تلقائياً في الملاحظات):</label>
         <select id="wtModeSel" class="inp" style="font-weight:bold;">
@@ -9523,7 +9552,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.3) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.4) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -10127,7 +10156,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.3 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.4 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
