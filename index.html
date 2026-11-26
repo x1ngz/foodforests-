@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V16.5</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V16.6</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -152,12 +152,6 @@
         .task-box.is-done .task-num-badge { background: #16a34a; }
         .task-box.is-prog .task-num-badge { background: #0284c7; }
         .task-box.is-blocked .task-num-badge { background: #dc2626; }
-        .fixed-start-pill { display: inline-flex; align-items: center; gap: 3px; background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; padding: 2px 7px; border-radius: 7px; font-size: 10.5px; font-weight: bold; cursor: pointer; }
-        .fixed-start-pill.is-locked { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
-        .task-box.is-done .fixed-start-pill { background: #dcfce7; border-color: #86efac; color: #166534; }
-        .task-box.is-done .fixed-start-pill.is-locked { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
-        .lock-mini-btn { display: inline-flex; align-items: center; justify-content: center; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 7px; padding: 2px 6px; font-size: 11px; cursor: pointer; font-weight: bold; }
-        .lock-mini-btn.locked { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
         .task-box.is-linked-prev { margin-top: -6px; border-top: 2px dashed var(--purple); border-top-right-radius: 4px; border-top-left-radius: 4px; }
         .zone-pill { background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid #bae6fd; }
         
@@ -260,7 +254,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V16.5 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V16.6 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -339,9 +333,6 @@
                 </div>
             </div>
 
-            <!-- Morning Carry-Over Prompt Banner -->
-            <div id="yesterdayCarryBanner"></div>
-            
             <!-- In-Progress & Upcoming Queue -->
             <div id="tasksQueueContainer"></div>
 
@@ -803,7 +794,7 @@ let state = {
 
 
 
-/* ================= V16.5: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V16.6: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -864,20 +855,6 @@ function renderFuelAndStockStrip(site, log) {
     </div>` : '';
 }
 
-function promptAddFuelStock() {
-    const v = prompt('أدخل كمية الوقود المضافة للخزان (لتر):', '200');
-    if (v === null) return;
-    const num = parseFloat(v);
-    if (!isNaN(num) && num > 0) {
-        const site = getSite();
-        ensureSiteStock(site);
-        site.fuelBalance = Math.round((site.fuelBalance + num) * 10) / 10;
-        saveState();
-        renderReadingsAndTools(getDayLog());
-        showToast(`🛢️ تمت إضافة ${num} لتر — الرصيد الحالي: ${site.fuelBalance} لتر`);
-    }
-}
-
 function openStockManagerModal() {
     const site = getSite();
     ensureSiteStock(site);
@@ -914,15 +891,6 @@ function openStockManagerModal() {
     `);
 }
 
-function setExactFuelBalance() {
-    const site = getSite();
-    const v = prompt('الرصيد الفعلي الحالي لخزان الوقود (لتر):', site.fuelBalance);
-    if (v !== null && !isNaN(parseFloat(v))) {
-        site.fuelBalance = Math.max(0, parseFloat(v));
-        saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
-    }
-}
-
 function adjustStockItemQty(idx) {
     const site = getSite();
     const it = site.stockItems[idx];
@@ -949,7 +917,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V16.5: Task Presets Manager ================= */
+/* ================= V16.6: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1039,7 +1007,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V16.5: DFL Readiness Progress Bar ================= */
+/* ================= V16.6: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1051,7 +1019,7 @@ function renderDflReadinessBar(site, log) {
         { label: 'الحضور', ok: log.attendance.length > 0, act: "switchTab('att')" },
         { label: 'الطقس', ok: Boolean(wx.cond && wx.tMax !== ''), act: "switchTab('tools')" },
         { label: 'العدادات', ok: log.meters.every(m => m.status === 'faulty' || m.curr !== ''), act: "switchTab('tools')" },
-        { label: 'المهام', ok: log.tasks.length > 0 && !log.tasks.some(t => t.status.includes('Progress')), act: "switchTab('tasks')" },
+        { label: 'المهام', ok: log.tasks.length > 0 && !log.tasks.some(t => t.status.includes('Progress') && !t.stoppedForToday && !t.fixedEndTime), act: "switchTab('tasks')" },
         { label: `روابط الصور (${linkedCnt}/${photos.length})`, ok: photos.length === 0 || linkedCnt === photos.length, act: "openTodayPhotosGallery()" },
         { label: 'OAR', ok: Boolean(log.oar && log.oar.obs && log.oar.obs.trim()), act: "document.getElementById('oarObs')?.focus()" }
     ];
@@ -1079,7 +1047,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V16.5: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V16.6: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1102,8 +1070,7 @@ function openDeepAnalyticsModal(subTab = 'zones') {
         (log.tasks || []).forEach(t => {
             const zArr = (t.zones || 'General').split(',').map(z => z.trim()).filter(Boolean);
             const wCnt = (t.workers && t.workers[0] === 'Team') ? Math.max(1, presCnt) : (t.workers && t.workers.length ? t.workers.length : 1);
-            const durMatch = String(t.dur || '').match(/(\d+):(\d+)/);
-            const mins = durMatch ? (parseInt(durMatch[1]) * 60 + parseInt(durMatch[2])) : 0;
+            const mins = parseDurationToMins(getTaskReportDurationStr(t, Date.now(), d));
             const tShort = (t.task.split('/')[1] || t.task).trim();
 
             if (t.status.includes('Completed')) dayDone++;
@@ -1221,8 +1188,7 @@ function exportDeepAnalyticsCSV() {
         (log.tasks || []).forEach(t => {
             const zArr = (t.zones || 'General').split(',').map(z => z.trim()).filter(Boolean);
             const wCnt = (t.workers && t.workers[0] === 'Team') ? Math.max(1, presCnt) : (t.workers && t.workers.length ? t.workers.length : 1);
-            const durMatch = String(t.dur || '').match(/(\d+):(\d+)/);
-            const mins = durMatch ? (parseInt(durMatch[1]) * 60 + parseInt(durMatch[2])) : 0;
+            const mins = parseDurationToMins(getTaskReportDurationStr(t, Date.now(), d));
             const note = String(t.note || '').replace(/"/g, '""');
             zArr.forEach(z => {
                 const zMins = (mins / (zArr.length || 1)).toFixed(1);
@@ -1337,7 +1303,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V16.5: Electronic Touch Signature Pad ================= */
+/* ================= V16.6: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1401,14 +1367,6 @@ function deleteElectronicSignature() {
     saveState();
     showToast('🗑️ تم حذف التوقيع المحفوظ');
     openSettingsModal();
-}
-
-function downloadSignaturePng() {
-    if (!state.company.signatureDataUrl) return;
-    const a = document.createElement('a');
-    a.href = state.company.signatureDataUrl;
-    a.download = 'SIGNATURE.png';
-    a.click();
 }
 
 /* ================= V9: Embedded Clean Template V04 & Separated Photo Store ================= */
@@ -1526,18 +1484,6 @@ function migrateInlinePhotosInState() {
     if (migrated) saveState();
 }
 
-function downloadCleanTemplateV04() {
-    const bin = atob(EMBEDDED_DFL_V04_B64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'Al-Mutahida_DFL_V04_Clean.xlsx';
-    a.click();
-    showToast('📄 تم تنزيل القالب النظيف V04');
-}
-
 /* ================= V9: Weather Auto-Fetch & Full Fields ================= */
 function ensureWeatherObj(log) {
     if (!log.weather || typeof log.weather !== 'object') {
@@ -1550,14 +1496,6 @@ function updateWeatherField(k, v) {
     const wx = ensureWeatherObj(getDayLog());
     wx[k] = v;
     saveState();
-}
-
-function applyWeatherPreset(cond, tMin, tMax, wind, hum, uv, press, precip) {
-    const log = getDayLog();
-    log.weather = { cond, tMin, tMax, wind, hum, uv, press, precip, time: '08:00', notes: 'Hilla Field Observation' };
-    saveState();
-    renderReadingsAndTools(log);
-    showToast('🌤️ تم تعبئة جميع حقول الطقس');
 }
 
 function mapWmoCodeToBilingual(code) {
@@ -1622,14 +1560,6 @@ function getNextDateStr(dateStr = state.activeDate) {
     const d = new Date(dateStr + 'T12:00:00');
     d.setDate(d.getDate() + 1);
     return d.toISOString().split('T')[0];
-}
-
-function togglePassiveIrrFlag(idx) {
-    pushUndo('تبديل وضع التنقيط الآلي');
-    const t = getDayLog().tasks[idx];
-    t.isPassiveIrr = !isTaskPassiveIrrigation(t);
-    saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog());
-    showToast(t.isPassiveIrr ? '🚰 مفعّل: يُحسب للعامل وقت فتح/غلق الصمام (15 د)' : '👷 مفعّل: يُحسب وقت المهمة بالكامل على العامل');
 }
 
 function openCarryTaskToTomorrowModal(idx) {
@@ -1766,11 +1696,6 @@ function getYesterdayPendingItems(log = getDayLog()) {
     return { prevDate, items, uncarriedCount };
 }
 
-function renderYesterdayCarryBanner(log) {
-    const box = document.getElementById('yesterdayCarryBanner');
-    if (box) box.innerHTML = '';
-}
-
 function carryOverUnfinishedTasks() {
     const log = getDayLog();
     const { prevDate, items } = getYesterdayPendingItems(log);
@@ -1782,8 +1707,6 @@ function carryOverUnfinishedTasks() {
         showToast('✅ جميع مهام الأمس كانت مكتملة بالكامل!');
         return;
     }
-
-    const activeIsEvening = (state.company.shift || '').includes('Evening');
 
     openModal(`
         <h3 class="card-title">📋 مهام الأمس غير المكتملة (${prevDate})</h3>
@@ -1923,7 +1846,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V16.5: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V16.6: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -1939,9 +1862,8 @@ async function generateDirectExcelDFL() {
         // Auto-calc irrigation hours if empty
         let totalIrrMins = 0;
         log.tasks.forEach(t => {
-            if (t.task.includes('Irrigation') && t.status.includes('Completed')) {
-                const m = String(t.dur || '').match(/(\d+):(\d+)/);
-                if (m) totalIrrMins += parseInt(m[1]) * 60 + parseInt(m[2]);
+            if (t.task.includes('Irrigation') && (t.status.includes('Completed') || t.status.includes('Progress'))) {
+                totalIrrMins += parseDurationToMins(getTaskReportDurationStr(t));
             }
         });
         if (!log.perf.duration && totalIrrMins > 0) {
@@ -3023,30 +2945,6 @@ function onTaskSearchInput(val) {
     renderTasks(getDayLog());
 }
 
-function getWorkerTransferTraces(log, taskObj, taskIdx) {
-    const transfers = Array.isArray(log.transfers) ? log.transfers : [];
-    if (!transfers.length) return [];
-    const tLabel = `${(taskObj.task.split('/')[1] || taskObj.task).trim()} (${taskObj.zones})`.toLowerCase();
-    const zTokens = (taskObj.zones || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-    const out = [];
-    transfers.forEach((tr, trIdx) => {
-        if (tr.fromTaskId && taskObj.id && tr.fromTaskId === taskObj.id) {
-            out.push({ tr, trIdx });
-            return;
-        }
-        const fStr = (tr.fromTask || '').toLowerCase();
-        if (fStr === tLabel || zTokens.some(z => z && fStr.includes(`(${z})`))) {
-            out.push({ tr, trIdx });
-        }
-    });
-    return out;
-}
-
-function getTaskPostBreakState(t, log) {
-    const sp = getTaskShiftPeriod(t);
-    return sp === 'evening' || sp === 'both';
-}
-
 function checkEndOfShiftReminder() {
     const now = new Date();
     const mins = now.getHours() * 60 + now.getMinutes();
@@ -3149,11 +3047,75 @@ function getTaskShiftEndCapMs(t, dateStr = state.activeDate) {
 }
 
 function isTaskCappedByShiftEnd(t, nowMs = Date.now(), dateStr = state.activeDate) {
-    if (!t || !t.status || !t.status.includes('Progress') || t.pausedAtMs || t.fixedEndTime || t.timerFrozen) {
+    if (!t || !t.status || !t.status.includes('Progress') || t.pausedAtMs || t.fixedEndTime || t.stoppedForToday || t.timerFrozen) {
         return false;
     }
     const capMs = getTaskShiftEndCapMs(t, dateStr);
     return !!(capMs && nowMs >= capMs);
+}
+
+function toggleTaskStoppedForToday(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t || !t.status || !t.status.includes('Progress')) return;
+    pushUndo('إيقاف/استكمال مهمة جارية لنهاية الدوام');
+    const now = Date.now();
+    const todayStr = new Date(now).toISOString().split('T')[0];
+
+    if (t.stoppedForToday) {
+        // Resume live work today
+        t.stoppedForToday = false;
+        t.timerFrozen = false;
+        t.frozenAtMs = null;
+        t.fixedEndTime = '';
+        t.pausedAtMs = null;
+        if (!t.fixedStartTime) t.fixedStartTime = '08:00';
+        t.startTimeMs = hhmmToDateMs(t.fixedStartTime, state.activeDate) || now;
+        logSectionHistory('tasks', 'status', `استكمال العمل بالمهمة الجارية: ${t.zones}`, { taskId: t.id });
+        showToast(`▶️ تم استكمال العمل بالمهمة الجارية (${t.zones})`);
+    } else {
+        // Stop for end of workday while keeping status = In Progress / جاري
+        const capMs = getTaskShiftEndCapMs(t, state.activeDate);
+        let endMs = t.fixedEndTime ? hhmmToDateMs(t.fixedEndTime, state.activeDate) : null;
+        if (!endMs) {
+            if (state.activeDate === todayStr) {
+                endMs = capMs ? Math.min(now, capMs) : now;
+            } else {
+                endMs = capMs || now;
+            }
+        }
+        let sMs = t.fixedStartTime ? hhmmToDateMs(t.fixedStartTime, state.activeDate) : (t.startTimeMs || null);
+        // If task was just clicked In-Progress at/near end of shift (<= 5 min span), anchor start to 08:00 and end to shift cap
+        if (!sMs || (endMs - sMs) <= 5 * 60000) {
+            const morningStart = hhmmToDateMs('08:00', state.activeDate);
+            const targetEnd = capMs || hhmmToDateMs('16:00', state.activeDate);
+            if (morningStart && targetEnd && targetEnd > morningStart) {
+                sMs = morningStart;
+                endMs = targetEnd;
+                t.fixedStartTime = '08:00';
+            }
+        }
+        if (t.pausedAtMs) {
+            const pGap = Math.max(0, endMs - t.pausedAtMs);
+            const brkOv = t.ignoreBreak ? 0 : getBreakOverlapMs(t.pausedAtMs, endMs, state.activeDate);
+            t.pausedTotalMs = (t.pausedTotalMs || 0) + Math.max(0, pGap - brkOv);
+            t.pausedAtMs = null;
+        }
+        t.fixedEndTime = formatTime24FromMs(endMs);
+        t.stoppedForToday = true;
+        t.timerFrozen = true;
+        t.frozenAtMs = endMs;
+        const netMs = getTaskNetElapsedMs(t, endMs);
+        if (netMs > 0) t.dur = formatMsAsHrMin(netMs);
+        logSectionHistory('tasks', 'status', `انتهى وقت العمل (تبقى جاري): ${t.zones} (${t.fixedStartTime || '08:00'}–${t.fixedEndTime} | ${t.dur})`, { taskId: t.id });
+        showToast(`⏹️ توقف العمل لنهاية الدوام (${t.fixedStartTime || '08:00'}–${t.fixedEndTime} | ${t.dur}) — تبقى جاري واحتُسبت للعمال`);
+    }
+
+    syncIrrigatedZonesFromTasks(false);
+    saveState();
+    renderTasks(log);
+    renderAttendance(log);
+    checkTaskTimers();
 }
 
 function subtractIntervalRange(parts, cutStart, cutEnd) {
@@ -3298,201 +3260,39 @@ function formatTime24FromMs(ms) {
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-function openRetroStartTimeModal(tIdx) {
-    openTaskTimeControlModal(tIdx);
-}
-function _legacyOpenRetroStartTimeModal(tIdx) {
-    const t = getDayLog().tasks[tIdx];
-    const currentHHMM = formatTime24FromMs(t.startTimeMs || Date.now());
-    const netMs = getTaskNetElapsedMs(t);
-    const totalMins = Math.floor(netMs / 60000);
-    const elapH = Math.floor(totalMins / 60);
-    const elapM = totalMins % 60;
-    const bw = getBreakWindowMs(state.activeDate);
-
-    openModal(`
-        <h3 class="card-title">🕒 تعديل وقت المهمة الجارية (${esc(t.zones)})</h3>
-        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:9px;padding:9px;margin-bottom:10px;">
-            <label class="lbl" style="color:#0369a1;">1️⃣ تعديل المدة المحسوبة حتى الآن (تُعدّل العداد مباشرة):</label>
-            <div class="grid-2">
-                <div><label class="lbl">الساعات:</label><input type="number" id="retroElapHrs" class="inp" min="0" max="23" value="${elapH}" style="font-weight:bold;text-align:center;"></div>
-                <div><label class="lbl">الدقائق:</label><input type="number" id="retroElapMins" class="inp" min="0" max="59" step="5" value="${elapM}" style="font-weight:bold;text-align:center;"></div>
-            </div>
-            <div style="margin-bottom:6px;">
-                <span class="chip" onclick="document.getElementById('retroElapHrs').value=0;document.getElementById('retroElapMins').value=30;">0:30 س</span>
-                <span class="chip" onclick="document.getElementById('retroElapHrs').value=1;document.getElementById('retroElapMins').value=0;">1:00 س</span>
-                <span class="chip" onclick="document.getElementById('retroElapHrs').value=1;document.getElementById('retroElapMins').value=30;">1:30 س</span>
-                <span class="chip" onclick="document.getElementById('retroElapHrs').value=2;document.getElementById('retroElapMins').value=0;">2:00 س</span>
-                <span class="chip" onclick="document.getElementById('retroElapHrs').value=3;document.getElementById('retroElapMins').value=0;">3:00 س</span>
-            </div>
-            <button class="btn btn-blue btn-full" style="margin:0;padding:8px;" onclick="saveRetroElapsedDuration(${tIdx})">⏱️ اعتماد المدة المحسوبة الجديدة</button>
-        </div>
-
-        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:9px;margin-bottom:10px;">
-            <label class="lbl">2️⃣ أو تحديد ساعة البداية الفعلية:</label>
-            <input type="time" id="retroTimeInp" class="inp" style="font-size:15px;font-weight:bold;text-align:center;" value="${currentHHMM}">
-            <div style="margin-bottom:6px;">
-                <span class="chip" style="background:#dcfce7;color:#166534;border-color:#86efac;" onclick="document.getElementById('retroTimeInp').value='08:00';saveRetroStartTime(${tIdx});">🌅 من بداية الدوام (08:00)</span>
-                <span class="chip" style="background:#ede9fe;color:#5b21b6;border-color:#c4b5fd;" onclick="document.getElementById('retroTimeInp').value='${esc((state.company && state.company.breakEnd) || '13:00')}';saveRetroStartTime(${tIdx});">🌆 من بداية المسائي (${esc((state.company && state.company.breakEnd) || '13:00')})</span>
-                <span class="chip" onclick="shiftRetroMins(-30)">-30 د</span>
-                <span class="chip" onclick="shiftRetroMins(-60)">-1 س</span>
-            </div>
-            <button class="btn btn-green btn-full" style="margin:0;padding:8px;" onclick="saveRetroStartTime(${tIdx})">🕒 اعتماد ساعة البداية</button>
-        </div>
-
-        <div style="margin-bottom:6px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center;background:#fef3c7;padding:7px 9px;border-radius:8px;">
-            <span>☕ خصم استراحة الظهر (${bw.startStr} - ${bw.endStr}): <b>${t.ignoreBreak ? 'مستثناة' : 'مفعّلة تلقائياً'}</b></span>
-            <button class="btn btn-outline btn-sm" onclick="toggleTaskIgnoreBreak(${tIdx});closeModal();openRetroStartTimeModal(${tIdx})">${t.ignoreBreak ? 'تفعيل الخصم' : 'استثناء'}</button>
-        </div>
-        <div style="margin-bottom:6px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center;background:#f0fdf4;padding:7px 9px;border-radius:8px;">
-            <span>⏹️ إيقاف تلقائي عند انتهاء المدة المخططة (${esc(t.dur || '1:00 hr')}) مع بقائها جاري: <b>${t.autoStopAtPlanned ? 'مفعّل' : 'غير مفعّل'}</b></span>
-            <button class="btn btn-outline btn-sm" onclick="toggleTaskAutoStopAtPlanned(${tIdx});closeModal();openRetroStartTimeModal(${tIdx})">${t.autoStopAtPlanned ? 'إلغاء' : 'تفعيل'}</button>
-        </div>
-        <div style="margin-bottom:8px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center;background:#f0f9ff;padding:7px 9px;border-radius:8px;">
-            <span>🌙 عمل بعد الدوام / أوفرتايم (${t.isAfterHours || t.ignoreShiftEndCap ? 'مفعّل — مفتوح بعد 16:00' : 'مقفل عند 16:00'}):</span>
-            <button class="btn btn-outline btn-sm" onclick="toggleTaskIgnoreShiftEndCap(${tIdx});closeModal();openRetroStartTimeModal(${tIdx})">${t.isAfterHours || t.ignoreShiftEndCap ? 'إلغاء OT' : 'تفعيل بعد الدوام'}</button>
-        </div>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
-    `);
-}
-
-function toggleTaskAutoStopAtPlanned(tIdx) {
-    pushUndo('تبديل الإيقاف التلقائي عند انتهاء المدة المخططة');
-    const t = getDayLog().tasks[tIdx];
-    if (!t) return;
-    t.autoStopAtPlanned = !t.autoStopAtPlanned;
-    saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog()); checkTaskTimers();
-}
-
-function toggleTaskTimerFreeze(tIdx) {
-    pushUndo('إيقاف/استكمال عداد مهمة جارية');
+function toggleTaskIgnoreBreak(tIdx) {
+    pushUndo('تبديل استراحة الظهر للمهمة');
     const log = getDayLog();
     const t = log.tasks[tIdx];
     if (!t) return;
-    const now = Date.now();
-    if (!t.startTimeMs) {
-        t.startTimeMs = hhmmToDateMs(getTaskFixedStartTimeStr(t), state.activeDate) || now;
-    }
-    if (t.timerFrozen) {
-        const frozenGap = t.frozenAtMs ? Math.max(0, now - t.frozenAtMs) : 0;
-        t.pausedTotalMs = (t.pausedTotalMs || 0) + frozenGap;
-        t.timerFrozen = false;
-        t.frozenAtMs = null;
-        addTaskEventLog(t, '▶️ استكمال العداد');
-        showToast('▶️ تم استكمال عداد المهمة الجارية');
-    } else {
-        let stopPt = now;
-        if (!t.ignoreShiftEndCap && !t.isAfterHours) {
-            const capMs = getTaskShiftEndCapMs(t, state.activeDate);
-            if (capMs && stopPt > capMs) stopPt = capMs;
-        }
-        t.timerFrozen = true;
-        t.frozenAtMs = stopPt;
-        t.pausedAtMs = null;
-        addTaskEventLog(t, '⏹️ انتهى وقت اليوم (تبقى جاري)', formatTime24FromMs(stopPt));
-        const netStr = formatMsAsHrMin(getTaskNetElapsedMs(t, stopPt));
-        showToast(`⏹️ توقف العداد عند ${netStr} — تبقى المهمة «جاري» ويُحسب وقتها للعمال`);
-    }
-    saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
-}
-
-function toggleTaskIgnoreShiftEndCap(tIdx) {
-    pushUndo('تبديل وضع بعد الدوام للمهمة');
-    const t = getDayLog().tasks[tIdx];
-    if (!t) return;
-    const nextVal = !(t.ignoreShiftEndCap || t.isAfterHours);
-    t.ignoreShiftEndCap = nextVal;
-    t.isAfterHours = nextVal;
-    if (nextVal) t.shiftPeriod = 'evening';
-    saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog()); checkTaskTimers();
-}
-
-function saveRetroElapsedDuration(tIdx) {
-    const h = Math.max(0, parseInt(document.getElementById('retroElapHrs').value) || 0);
-    const m = Math.max(0, Math.min(59, parseInt(document.getElementById('retroElapMins').value) || 0));
-    const safeTotalMins = Math.max(5, h * 60 + m);
-    const targetNetMs = safeTotalMins * 60000;
-    pushUndo('تعديل المدة المحسوبة لمهمة جارية');
-    const t = getDayLog().tasks[tIdx];
-    const now = Date.now();
-    let endPoint = t.pausedAtMs ? t.pausedAtMs : now;
-    if (!t.pausedAtMs && !t.ignoreShiftEndCap && !t.isAfterHours) {
-        const capMs = getTaskShiftEndCapMs(t);
-        if (capMs && endPoint > capMs) endPoint = capMs;
-    }
-    const pausedMs = t.pausedTotalMs || 0;
-
-    let candidateStart = endPoint - targetNetMs - pausedMs;
-    if (!t.ignoreBreak) {
-        const ov1 = getBreakOverlapMs(candidateStart, endPoint, state.activeDate);
-        candidateStart = endPoint - targetNetMs - pausedMs - ov1;
-        const ov2 = getBreakOverlapMs(candidateStart, endPoint, state.activeDate);
-        candidateStart = endPoint - targetNetMs - pausedMs - ov2;
-    }
-    t.startTimeMs = candidateStart;
-    t.fixedStartTime = formatTime24FromMs(candidateStart);
-    if (Array.isArray(t.events) && t.events.length > 0 && ((t.events[0].label || '').includes('بدأ') || (t.events[0].label || '').includes('▶️'))) {
-        t.events[0].time = t.fixedStartTime;
-    }
-    if (!t.status.includes('Progress')) t.status = 'In Progress / جاري';
-    const formatted = formatMsAsHrMin(targetNetMs);
-    logSectionHistory('tasks', 'edit', `ضبط الوقت المنقضي لـ ${t.zones}: ${formatted}`, { taskId: t.id });
-    closeModal(); saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog()); checkTaskTimers();
-    showToast(`⏱️ تم تعديل الوقت المحسوب للمهمة إلى ${formatted}`);
-}
-
-function toggleTaskIgnoreBreak(tIdx) {
-    pushUndo('تبديل استراحة الظهر للمهمة');
-    const t = getDayLog().tasks[tIdx];
     t.ignoreBreak = !t.ignoreBreak;
-    saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog());
-}
-
-function shiftRetroMins(deltaMins) {
-    const inp = document.getElementById('retroTimeInp');
-    if (!inp || !inp.value) return;
-    const [hh, mm] = inp.value.split(':').map(Number);
-    const d = new Date();
-    d.setHours(hh, mm + deltaMins, 0, 0);
-    inp.value = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-}
-
-function saveRetroStartTime(tIdx) {
-    const val = document.getElementById('retroTimeInp').value;
-    if (!val) return;
-    const [hh, mm] = val.split(':').map(Number);
-    const baseDate = new Date(state.activeDate + 'T00:00:00');
-    baseDate.setHours(hh, mm, 0, 0);
-    pushUndo('تعديل وقت بداية مهمة');
-    const t = getDayLog().tasks[tIdx];
-    t.fixedStartTime = val;
-    t.startTimeMs = baseDate.getTime();
-    t.pausedTotalMs = 0;
-    t.pausedAtMs = null;
-    if (!t.status.includes('Progress')) t.status = 'In Progress / جاري';
-    if (!Array.isArray(t.events) || t.events.length === 0) addTaskEventLog(t, '▶️ بدأ العمل', val);
-    else t.events[0] = { time: val, label: '▶️ بدأ العمل' };
-    logSectionHistory('tasks', 'edit', `ضبط بداية ${t.zones} على ${val}`, { taskId: t.id });
-    closeModal(); saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog()); checkTaskTimers();
-    showToast(`🕒 تم ضبط وقت البداية على ${val}`);
+    if (t.fixedEndTime) {
+        const netMs = getTaskNetElapsedMs(t);
+        if (netMs > 0) t.dur = formatMsAsHrMin(netMs);
+    }
+    syncIrrigatedZonesFromTasks(false);
+    saveState(); renderTasks(log); renderAttendance(log);
+    showToast(t.ignoreBreak ? '⏸️ تم إيقاف خصم الاستراحة (يدوي) لهذه المهمة' : '☕ تم تفعيل الخصم التلقائي للاستراحة لهذه المهمة');
 }
 
 function toggleTaskPause(tIdx) {
     pushUndo('إيقاف/استئناف مؤقت مهمة');
-    const t = getDayLog().tasks[tIdx];
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t) return;
     const now = Date.now();
-    if (!t.startTimeMs) t.startTimeMs = now;
+    if (!t.startTimeMs) t.startTimeMs = hhmmToDateMs(t.fixedStartTime || '08:00', state.activeDate) || now;
     if (t.pausedAtMs) {
-        t.pausedTotalMs = (t.pausedTotalMs || 0) + (now - t.pausedAtMs);
+        const rawGap = Math.max(0, now - t.pausedAtMs);
+        const brkOv = t.ignoreBreak ? 0 : getBreakOverlapMs(t.pausedAtMs, now, state.activeDate);
+        t.pausedTotalMs = (t.pausedTotalMs || 0) + Math.max(0, rawGap - brkOv);
         t.pausedAtMs = null;
-        addTaskEventLog(t, '▶️ رجع اشتغل');
         showToast('▶️ تم استئناف العمل والمؤقت');
     } else {
         t.pausedAtMs = now;
-        addTaskEventLog(t, '⏸️ توقف مؤقت');
-        showToast('⏸️ تم إيقاف المؤقت مؤقتاً (توقف/استراحة)');
+        showToast('⏸️ تم إيقاف المؤقت مؤقتاً');
     }
-    saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog());
+    saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
 }
 
 function toggleSectionCollapse(bodyId, icoId) {
@@ -3536,284 +3336,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V16.5: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
-function openTaskTimelineEditorModal(tIdx) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t) return;
-    if (!Array.isArray(t.events)) t.events = [];
-    const now = new Date();
-    const nowStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-    openModal(`
-        <h3 class="card-title">🕒 تعديل السجل الزمني للمهمة (${esc(t.zones)})</h3>
-        <p style="font-size:11.5px;color:var(--muted);">أي تعديل أو إضافة أو حذف هنا ينعكس تلقائياً على حساب وقت المهمة وساعات العمل:</p>
-        <div id="tlEventsListBox" style="max-height:240px;overflow-y:auto;margin-bottom:10px;">
-            ${t.events.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:12px;">لا توجد فقرات مسجلة بعد</div>' :
-            t.events.map((ev, eIdx) => `
-                <div style="display:flex;gap:5px;align-items:center;margin-bottom:6px;background:#f8fafc;padding:6px;border-radius:8px;border:1px solid var(--border);">
-                    <input type="time" id="tlEvTime_${eIdx}" class="inp" style="width:96px;margin:0;padding:5px;font-weight:bold;" value="${esc(ev.time || nowStr)}">
-                    <input type="text" id="tlEvLabel_${eIdx}" class="inp" style="flex:1;margin:0;padding:5px;font-size:12px;" value="${esc(ev.label || '')}">
-                    <button class="btn btn-outline btn-sm" style="color:var(--red);padding:4px 7px;" onclick="deleteTaskTimelineEvent(${tIdx}, ${eIdx})" title="حذف">🗑️</button>
-                </div>
-            `).join('')}
-        </div>
-
-        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:9px;padding:8px;margin-bottom:10px;">
-            <label class="lbl" style="color:#0369a1;">+ إضافة حدث جديد للسجل الزمني:</label>
-            <div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;">
-                <input type="time" id="newTlEvTime" class="inp" style="width:96px;margin:0;padding:5px;" value="${nowStr}">
-                <input type="text" id="newTlEvLabel" class="inp" style="flex:1;margin:0;padding:5px;" placeholder="مثلاً: ⏸️ توقف مؤقت (إصلاح أنبوب)">
-            </div>
-            <div style="margin-bottom:6px;">
-                <span class="chip" onclick="document.getElementById('newTlEvLabel').value='▶️ بدأ العمل'">▶️ بدأ</span>
-                <span class="chip" onclick="document.getElementById('newTlEvLabel').value='⏸️ توقف مؤقت (عطل)'">⏸️ توقف مؤقت</span>
-                <span class="chip" onclick="document.getElementById('newTlEvLabel').value='▶️ رجع اشتغل'">▶️ رجع اشتغل</span>
-                <span class="chip" onclick="document.getElementById('newTlEvLabel').value='✅ اكتمل'">✅ اكتمل</span>
-            </div>
-            <button class="btn btn-blue btn-sm" style="width:100%;" onclick="addNewTaskTimelineEvent(${tIdx})">+ إضافة الفقرة الزمنية</button>
-        </div>
-
-        <div class="grid-2">
-            <button class="btn btn-green" onclick="saveTaskTimelineEdits(${tIdx})">💾 حفظ وإعادة الحساب</button>
-            <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
-        </div>
-    `);
-}
-
-function recalcTaskTimingFromTimeline(t) {
-    if (!Array.isArray(t.events) || t.events.length === 0) return;
-    t.events.sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
-
-    const toMs = hhmm => {
-        const m = String(hhmm || '').match(/(\d{1,2}):(\d{2})/);
-        if (!m) return null;
-        const d = new Date(state.activeDate + 'T00:00:00');
-        d.setHours(parseInt(m[1], 10), parseInt(m[2], 10), 0, 0);
-        return d.getTime();
-    };
-
-    const firstStart = t.events.find(e => (e.label || '').includes('بدأ') || (e.label || '').includes('▶️'));
-    if (firstStart && firstStart.time) {
-        t.fixedStartTime = firstStart.time;
-        const sMs = toMs(firstStart.time);
-        if (sMs) t.startTimeMs = sMs;
-    }
-
-    // Sum all pause intervals (⏸️ / 🛑 -> ▶️)
-    let pausedTotal = 0;
-    let pauseStart = null;
-    t.events.forEach(ev => {
-        const ms = toMs(ev.time);
-        if (!ms) return;
-        const lbl = ev.label || '';
-        if (lbl.includes('توقف') || lbl.includes('⏸') || lbl.includes('🛑')) {
-            if (pauseStart === null) pauseStart = ms;
-        } else if ((lbl.includes('رجع') || lbl.includes('استئناف') || lbl.includes('▶️')) && pauseStart !== null) {
-            if (ms > pauseStart) pausedTotal += (ms - pauseStart);
-            pauseStart = null;
-        }
-    });
-    t.pausedTotalMs = pausedTotal;
-    t.pausedAtMs = pauseStart;
-
-    // If task is Completed and has both start and end events, update net duration using active intervals
-    const endEv = [...t.events].reverse().find(e => (e.label || '').includes('اكتمل') || (e.label || '').includes('✅'));
-    if (t.status && t.status.includes('Completed') && t.startTimeMs && endEv) {
-        const eMs = toMs(endEv.time);
-        if (eMs && eMs > t.startTimeMs) {
-            let segs = [[t.startTimeMs, eMs]];
-            if (!t.ignoreBreak) {
-                const bw = getBreakWindowMs(state.activeDate);
-                segs = subtractIntervalRange(segs, bw.startMs, bw.endMs);
-            }
-            let ps = null;
-            t.events.forEach(ev => {
-                const ms = toMs(ev.time);
-                if (!ms) return;
-                const lbl = ev.label || '';
-                if (lbl.includes('توقف') || lbl.includes('⏸') || lbl.includes('🛑')) {
-                    if (ps === null) ps = ms;
-                } else if ((lbl.includes('رجع') || lbl.includes('استئناف') || lbl.includes('▶️')) && ps !== null) {
-                    if (ms > ps) segs = subtractIntervalRange(segs, ps, ms);
-                    ps = null;
-                }
-            });
-            const net = Math.max(0, segs.reduce((acc, [a, b]) => acc + (b - a), 0));
-            t.dur = formatMsAsHrMin(net);
-        }
-    }
-}
-
-function saveTaskTimelineEdits(tIdx) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t) return;
-    pushUndo('تعديل السجل الزمني لمهمة');
-    t.events = t.events.map((ev, eIdx) => {
-        const tm = document.getElementById(`tlEvTime_${eIdx}`)?.value || ev.time;
-        const lb = document.getElementById(`tlEvLabel_${eIdx}`)?.value.trim() || ev.label;
-        return { time: tm, label: lb };
-    });
-    recalcTaskTimingFromTimeline(t);
-    logSectionHistory('tasks', 'edit', `تعديل السجل الزمني لـ ${t.zones}`, { taskId: t.id });
-    closeModal(); saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
-    showToast('✅ تم تحديث السجل الزمني وإعادة حساب الوقت');
-}
-
-function addNewTaskTimelineEvent(tIdx) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    const tm = document.getElementById('newTlEvTime')?.value;
-    const lb = document.getElementById('newTlEvLabel')?.value.trim();
-    if (!t || !tm || !lb) { showToast('⚠️ أدخل الوقت ووصف الحدث'); return; }
-    pushUndo('إضافة حدث للسجل الزمني');
-    if (!Array.isArray(t.events)) t.events = [];
-    t.events.push({ time: tm, label: lb });
-    recalcTaskTimingFromTimeline(t);
-    saveState(); openTaskTimelineEditorModal(tIdx); renderTasks(log); renderAttendance(log);
-}
-
-function deleteTaskTimelineEvent(tIdx, eIdx) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t || !Array.isArray(t.events)) return;
-    pushUndo('حذف فقرة من السجل الزمني');
-    t.events.splice(eIdx, 1);
-    recalcTaskTimingFromTimeline(t);
-    saveState(); openTaskTimelineEditorModal(tIdx); renderTasks(log); renderAttendance(log);
-}
-
-function getShiftDefaultStartInfo(shiftName = state.company.shift, dateStr = state.activeDate) {
-    const isEvening = (shiftName || '').includes('Evening');
-    const bEndStr = (state.company && state.company.breakEnd) || '13:00';
-    const hhmm = isEvening ? bEndStr : '08:00';
-    const [hh, mm] = hhmm.split(':').map(Number);
-    const d = new Date(dateStr + 'T00:00:00');
-    d.setHours(hh || (isEvening ? 13 : 8), mm || 0, 0, 0);
-    return {
-        isEvening,
-        periodKey: isEvening ? 'evening' : 'morning',
-        hhmm,
-        ms: d.getTime()
-    };
-}
-
-function getEffectiveActionStartTime(shiftName = state.company.shift, explicitAfterHours = false) {
-    const def = getShiftDefaultStartInfo(shiftName, state.activeDate);
-    const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
-    if (state.activeDate === todayStr) {
-        const mins = now.getHours() * 60 + now.getMinutes();
-        const bStartStr = (state.company && state.company.breakStart) || '12:00';
-        const bEndStr = (state.company && state.company.breakEnd) || '13:00';
-        const [bsh, bsm] = bStartStr.split(':').map(Number);
-        const [beh, bem] = bEndStr.split(':').map(Number);
-        const mEnd = (bsh || 12) * 60 + (bsm || 0);
-        const eStart = (beh || 13) * 60 + (bem || 0);
-        if (explicitAfterHours && mins >= 16 * 60) {
-            return { ms: now.getTime(), hhmm: formatTime24FromMs(now.getTime()), periodKey: 'evening', isAfterHours: true };
-        }
-        if (!def.isEvening && mins >= 8 * 60 && mins < mEnd) {
-            return { ms: now.getTime(), hhmm: formatTime24FromMs(now.getTime()), periodKey: 'morning', isAfterHours: false };
-        }
-        if (def.isEvening && mins >= eStart && mins < 16 * 60) {
-            return { ms: now.getTime(), hhmm: formatTime24FromMs(now.getTime()), periodKey: 'evening', isAfterHours: false };
-        }
-    }
-    return { ms: def.ms, hhmm: def.hhmm, periodKey: def.periodKey, isAfterHours: !!explicitAfterHours };
-}
-
-function getTaskShiftPeriod(t) {
-    if (t.shiftPeriod === 'both' || t.shiftPeriod === 'morning' || t.shiftPeriod === 'evening') {
-        return t.shiftPeriod;
-    }
-    if (t.shiftLabel) {
-        if (t.shiftLabel.includes('صباحي') && t.shiftLabel.includes('مسائي')) return 'both';
-        if (t.shiftLabel.includes('مسائي')) return 'evening';
-        if (t.shiftLabel.includes('صباحي')) return 'morning';
-    }
-    return 'morning';
-}
-
-function normalizeTaskSequenceOrder(log = getDayLog()) {
-    // V16.5: Preserve user's exact task ordering without automatic morning/evening reordering
-}
-
-function cycleTaskShiftPeriod(idx) {
-    const log = getDayLog();
-    const t = log.tasks[idx];
-    if (!t) return;
-    pushUndo('تبديل فترة الشفت للمهمة');
-    const cur = getTaskShiftPeriod(t);
-    const next = cur === 'morning' ? 'evening' : (cur === 'evening' ? 'both' : 'morning');
-    t.shiftPeriod = next;
-
-    const bEndStr = (state.company && state.company.breakEnd) || '13:00';
-    if (next === 'evening') {
-        t.fixedStartTime = bEndStr;
-        if (!Array.isArray(t.events) || t.events.length === 0) {
-            addTaskEventLog(t, '🌆 بدأ المسائي', bEndStr);
-        } else {
-            t.events[0].time = bEndStr;
-        }
-        if (t.status.includes('Progress')) {
-            const info = getShiftDefaultStartInfo('Evening Shift', state.activeDate);
-            t.startTimeMs = info.ms;
-        }
-        normalizeTaskSequenceOrder(log);
-        showToast(`🌆 نُقلت المهمة إلى الشفت المسائي (${bEndStr})`);
-    } else if (next === 'both') {
-        t.fixedStartTime = '08:00';
-        if (!Array.isArray(t.events)) t.events = [];
-        const hasMorn = t.events.some(e => (e.label || '').includes('صباحية') || (e.time || '').startsWith('08'));
-        const hasEve = t.events.some(e => (e.label || '').includes('مسائي'));
-        if (!hasMorn) t.events.unshift({ time: '08:00', label: '🌅 فترة صباحية' });
-        if (!hasEve) t.events.push({ time: bEndStr, label: '🌆 استكمال مسائي' });
-        if (t.status.includes('Progress')) {
-            const info = getShiftDefaultStartInfo('Morning Shift', state.activeDate);
-            t.startTimeMs = info.ms;
-        }
-        const [movedTask] = log.tasks.splice(idx, 1);
-        let insertAt = 0;
-        for (let i = 0; i < log.tasks.length; i++) {
-            if (getTaskShiftPeriod(log.tasks[i]) !== 'evening') insertAt = i + 1;
-        }
-        log.tasks.splice(insertAt, 0, movedTask);
-        normalizeTaskSequenceOrder(log);
-        showToast('🌅+🌆 تم ضبط المهمة على الفترتين (صباحي + مسائي) في نفس القائمة');
-    } else {
-        t.fixedStartTime = '08:00';
-        if (Array.isArray(t.events)) {
-            t.events = t.events.filter(e => !(e.label || '').includes('مسائي') && !(e.label || '').includes('فترة صباحية'));
-            if (t.events.length > 0) t.events[0].time = '08:00';
-        }
-        if (t.status.includes('Progress')) {
-            const info = getShiftDefaultStartInfo('Morning Shift', state.activeDate);
-            t.startTimeMs = info.ms;
-        }
-        const [movedTask] = log.tasks.splice(idx, 1);
-        let insertAt = 0;
-        for (let i = 0; i < log.tasks.length; i++) {
-            if (getTaskShiftPeriod(log.tasks[i]) === 'morning') insertAt = i + 1;
-        }
-        log.tasks.splice(insertAt, 0, movedTask);
-        normalizeTaskSequenceOrder(log);
-        showToast('🌅 أُعيدت المهمة إلى نهاية قائمة الصباحي (08:00)');
-    }
-    saveState(); renderTasks(log); renderAttendance(log);
-    const newIdx = log.tasks.indexOf(t);
-    if (newIdx !== -1) setTimeout(() => scrollToTaskCard(newIdx), 60);
-}
-
-function onShiftSelectChange(val) {
-    state.company.shift = val || 'Morning Shift';
-    saveState();
-    renderAll();
-    const isEve = (state.company.shift || '').includes('Evening');
-    showToast(isEve ? '🌆 الشفت المسائي نشط — وقت البداية الافتراضي 13:00' : '🌅 الشفت الصباحي نشط — وقت البداية الافتراضي 08:00');
-}
-
+/* ================= V16.6: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function addTaskEventLog(t, iconAndLabel, customTimeStr = null) {
     if (!Array.isArray(t.events)) t.events = [];
     const now = new Date();
@@ -3830,11 +3353,12 @@ function isTaskPassiveIrrigation(t) {
 
 function formatTaskLiveTimerLabel(t, now = Date.now()) {
     const netStr = formatMsAsHrMin(getTaskNetElapsedMs(t, now));
+    if (t.stoppedForToday) return `⏹️ توقف بنهاية الدوام — تبقى جاري (${t.fixedStartTime || '08:00'} – ${t.fixedEndTime || ''} | ${netStr})`;
     if (t.fixedEndTime) return `⏱️ مثبت: ${netStr} (${t.fixedStartTime || '08:00'} – ${t.fixedEndTime})`;
     if (t.pausedAtMs) return `⏸️ متوقف مؤقتاً (${netStr})`;
     if (isTaskCappedByShiftEnd(t, now)) return `⏱️ محسوب لغاية نهاية الدوام (${netStr})`;
     if (isNowInDailyBreak(now) && !t.ignoreBreak) return `☕ استراحة الظهر (${netStr})`;
-    return `⏱️ مستمر: ${netStr}`;
+    return `⏱️ مستمر الآن: ${netStr}`;
 }
 
 function updateLiveTimersDomOnly() {
@@ -3859,16 +3383,6 @@ function parseDurationToMins(durStr) {
     if (hm) return parseInt(hm[1], 10) * 60 + parseInt(hm[2], 10);
     const dec = parseFloat(s);
     if (!isNaN(dec)) return Math.round(dec * 60);
-    return 0;
-}
-
-function getTaskEffectiveMins(t, nowMs = Date.now()) {
-    if (t.status && t.status.includes('Progress') && t.startTimeMs) {
-        return Math.round(getTaskNetElapsedMs(t, nowMs) / 60000);
-    }
-    if (t.status && (t.status.includes('Completed') || t.status.includes('Blocked'))) {
-        return parseDurationToMins(t.dur);
-    }
     return 0;
 }
 
@@ -3928,23 +3442,16 @@ function clampIntervalsToAttendanceWindow(parts, shortName, extraTaskOtHrs = 0) 
     let attOutMs = hhmmToDateMs(wRec.tOut, state.activeDate);
     if (!attInMs || !attOutMs || attOutMs <= attInMs) return parts;
     const wOtHrs = parseFloat(wRec.ot) || 0;
-    const effOtHrs = Math.max(wOtHrs, parseFloat(extraTaskOtHrs) || 0);
-    attOutMs += Math.round(effOtHrs * 3600000);
+    const manualTaskOt = parseFloat(extraTaskOtHrs) || 0;
     const eodMs = hhmmToDateMs('23:59', state.activeDate);
-    if (eodMs && attOutMs > eodMs) attOutMs = eodMs;
+    if (manualTaskOt > 0) {
+        // Explicit manual OT on this task allows evening/after-gap work up to 23:59 without clipping
+        attOutMs = eodMs || (attOutMs + Math.round(manualTaskOt * 3600000));
+    } else if (wOtHrs > 0) {
+        attOutMs += Math.round(wOtHrs * 3600000);
+        if (eodMs && attOutMs > eodMs) attOutMs = eodMs;
+    }
     return parts.map(([a, b]) => [Math.max(a, attInMs), Math.min(b, attOutMs)]).filter(([a, b]) => b > a);
-}
-
-function intersectIntervalLists(listA, listB) {
-    const out = [];
-    listA.forEach(([a1, b1]) => {
-        listB.forEach(([a2, b2]) => {
-            const s = Math.max(a1, a2);
-            const e = Math.min(b1, b2);
-            if (e > s) out.push([s, e]);
-        });
-    });
-    return out;
 }
 
 function subtractIntervalLists(baseList, cutList) {
@@ -3976,40 +3483,46 @@ function deductPausedMsFromIntervals(parts, pausedMs) {
 
 function getWorkerIntervalsForTask(t, shortName, nowMs = Date.now()) {
     const wt = (t.workerTimings && t.workerTimings[shortName]) || null;
+    const taskParts = getTaskActiveIntervals(t, nowMs, state.activeDate);
+    // Bug 3 Fix: Never credit hours if the task itself is Not Started / Carried Over (no active intervals)
+    if (!taskParts.length) return { intervals: [], mins: 0, rawMins: 0, labelRange: '', wt };
+
     let wtPausedMs = (wt && wt.pausedTotalMs) || 0;
     if (wt && wt.pausedAtMs) wtPausedMs += Math.max(0, nowMs - wt.pausedAtMs);
 
-    const taskParts = getTaskActiveIntervals(t, nowMs, state.activeDate);
     const taskOtHrs = parseFloat(t.manualOt) || 0;
     const isPassive = isTaskPassiveIrrigation(t);
 
     if (wt && (wt.from || wt.to || (wt.awayFrom && wt.awayTo))) {
-        const sMs = wt.from ? hhmmToDateMs(wt.from, state.activeDate) : (taskParts[0] ? taskParts[0][0] : null);
-        const eMs = wt.to ? hhmmToDateMs(wt.to, state.activeDate) : (taskParts[taskParts.length - 1] ? taskParts[taskParts.length - 1][1] : null);
-        if (sMs && eMs && eMs > sMs) {
-            let cleanParts = t.ignoreBreak ? [[sMs, eMs]] : subtractBreakFromInterval(sMs, eMs, state.activeDate);
-            if (t.manualPauseFrom && t.manualPauseTo) {
-                const mpS = hhmmToDateMs(t.manualPauseFrom, state.activeDate);
-                const mpE = hhmmToDateMs(t.manualPauseTo, state.activeDate);
-                if (mpS && mpE && mpE > mpS) cleanParts = subtractIntervalRange(cleanParts, mpS, mpE);
-            }
-            if (wt.awayFrom && wt.awayTo) {
-                const awS = hhmmToDateMs(wt.awayFrom, state.activeDate);
-                const awE = hhmmToDateMs(wt.awayTo, state.activeDate);
-                if (awS && awE && awE > awS) cleanParts = subtractIntervalRange(cleanParts, awS, awE);
-            }
-            cleanParts = clampIntervalsToAttendanceWindow(cleanParts, shortName, taskOtHrs);
-            cleanParts = deductPausedMsFromIntervals(cleanParts, wtPausedMs);
-            const rawMins = Math.round(cleanParts.reduce((s, [a, b]) => s + (b - a), 0) / 60000);
-            const mins = isPassive ? Math.min(15, rawMins) : rawMins;
-            const rangeLbl = cleanParts.length > 0
-                ? cleanParts.map(([a, b]) => `${formatTime24FromMs(a)}–${formatTime24FromMs(b)}`).join(' ، ')
-                : `${wt.from || formatTime24FromMs(sMs)}–${wt.to || formatTime24FromMs(eMs)}`;
-            return { intervals: cleanParts, mins, rawMins, labelRange: rangeLbl, wt };
+        const sMs = wt.from ? hhmmToDateMs(wt.from, state.activeDate) : taskParts[0][0];
+        const eMs = wt.to ? hhmmToDateMs(wt.to, state.activeDate) : taskParts[taskParts.length - 1][1];
+        // Bug 2 Fix: If explicit worker range is invalid (eMs <= sMs), return 0 instead of falling through to full task
+        if (!sMs || !eMs || eMs <= sMs) {
+            return { intervals: [], mins: 0, rawMins: 0, labelRange: '', wt };
         }
+        let cleanParts = t.ignoreBreak ? [[sMs, eMs]] : subtractBreakFromInterval(sMs, eMs, state.activeDate);
+        if (t.manualPauseFrom && t.manualPauseTo) {
+            const mpS = hhmmToDateMs(t.manualPauseFrom, state.activeDate);
+            const mpE = hhmmToDateMs(t.manualPauseTo, state.activeDate);
+            if (mpS && mpE && mpE > mpS) cleanParts = subtractIntervalRange(cleanParts, mpS, mpE);
+        }
+        if (wt.awayFrom && wt.awayTo) {
+            const awS = hhmmToDateMs(wt.awayFrom, state.activeDate);
+            const awE = hhmmToDateMs(wt.awayTo, state.activeDate);
+            if (awS && awE && awE > awS) cleanParts = subtractIntervalRange(cleanParts, awS, awE);
+        }
+        if (t.pausedTotalMs && t.pausedTotalMs > 0) {
+            cleanParts = deductPausedMsFromIntervals(cleanParts, t.pausedTotalMs);
+        }
+        cleanParts = clampIntervalsToAttendanceWindow(cleanParts, shortName, taskOtHrs);
+        cleanParts = deductPausedMsFromIntervals(cleanParts, wtPausedMs);
+        const rawMins = Math.round(cleanParts.reduce((s, [a, b]) => s + (b - a), 0) / 60000);
+        const mins = isPassive ? Math.min(15, rawMins) : rawMins;
+        const rangeLbl = cleanParts.length > 0
+            ? cleanParts.map(([a, b]) => `${formatTime24FromMs(a)}–${formatTime24FromMs(b)}`).join(' ، ')
+            : '';
+        return { intervals: cleanParts, mins, rawMins, labelRange: rangeLbl, wt };
     }
-
-    if (!taskParts.length) return { intervals: [], mins: 0, rawMins: 0, labelRange: '', wt };
 
     let cleanParts = clampIntervalsToAttendanceWindow(taskParts, shortName, taskOtHrs);
     cleanParts = deductPausedMsFromIntervals(cleanParts, wtPausedMs);
@@ -4067,7 +3580,6 @@ function computeWorkerTaskHours(log = getDayLog()) {
 
         const activeIntervals = [];
         const passiveIntervals = [];
-        const afterHoursIntervals = [];
         const breakdown = [];
         const activeTasksList = [];
 
@@ -4078,11 +3590,16 @@ function computeWorkerTaskHours(log = getDayLog()) {
 
             const isPassive = isTaskPassiveIrrigation(t);
             const isProg = !!(t.status && t.status.includes('Progress'));
-            if (isProg) {
+            const info = getWorkerIntervalsForTask(t, shortName, nowMs);
+
+            const workerStillRunning = isProg
+                && !t.stoppedForToday
+                && !t.fixedEndTime
+                && !(info.wt && (info.wt.mode === 'moved' || info.wt.to));
+            if (workerStillRunning) {
                 activeTasksList.push({ taskIdx: tIdx, zones: t.zones, desc: t.desc });
             }
 
-            const info = getWorkerIntervalsForTask(t, shortName, nowMs);
             if (isPassive) {
                 info.intervals.forEach(iv => passiveIntervals.push(iv));
             } else {
@@ -4093,14 +3610,18 @@ function computeWorkerTaskHours(log = getDayLog()) {
                 : (info.wt && info.wt.mode === 'moved' ? ' • انتقل' : '');
             const otTag = (parseFloat(t.manualOt) > 0) ? ` • OT +${t.manualOt}h` : '';
             const tLabel = `${(t.task.split('/')[1] || t.task).trim()} [${t.zones}]${info.labelRange ? ` (${info.labelRange}${modeTag}${otTag})` : ''}`;
+            const statusText = (isProg && t.stoppedForToday)
+                ? 'جاري — توقف بنهاية الدوام'
+                : (t.status.split('/')[1] || t.status).trim();
 
             breakdown.push({
                 taskIdx: tIdx,
                 taskId: t.id,
                 zones: t.zones,
                 label: tLabel,
-                status: (t.status.split('/')[1] || t.status).trim(),
+                status: statusText,
                 isInProgress: isProg,
+                isStoppedForToday: !!(isProg && t.stoppedForToday),
                 isPassive,
                 mins: info.mins,
                 isTransfer: !!(info.wt && (info.wt.mode === 'roundtrip' || info.wt.mode === 'moved'))
@@ -4117,9 +3638,6 @@ function computeWorkerTaskHours(log = getDayLog()) {
             workedMins += Math.min(15, rawPassiveMins);
         }
 
-        const mergedAfterHours = mergeTimeIntervals(afterHoursIntervals);
-        const afterHoursMins = Math.round(mergedAfterHours.reduce((sum, [a, b]) => sum + (b - a), 0) / 60000);
-
         const diffMins = workedMins - shiftMins;
         resultMap[w.id] = {
             id: w.id,
@@ -4133,7 +3651,6 @@ function computeWorkerTaskHours(log = getDayLog()) {
             shiftMins,
             shiftFormatted: formatMsAsHrMin(shiftMins * 60000),
             shiftHrs: +(shiftMins / 60).toFixed(2),
-            afterHoursMins,
             diffMins,
             diffFormatted: formatMsAsHrMin(Math.abs(diffMins) * 60000),
             diffHrs: +(diffMins / 60).toFixed(2),
@@ -4465,88 +3982,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V16.5: Shift Time Distribution & Custom Rebalancing Engine ================= */
-function openShiftTimeDistributorModal() {
-    const log = getDayLog();
-    const mornTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'morning');
-    const eveTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'evening');
-    const bothTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'both');
-    const activeIsEve = (state.company.shift || '').includes('Evening');
-
-    openModal(`
-        <h3 class="card-title">⚖️ توزيع وموازنة أوقات مهام الشفت</h3>
-        <p style="font-size:12px;color:var(--muted);margin-top:0;">
-            يوزع البرنامج صافي ساعات الشفت بالتساوي وبالتسلسل الزمني، ويحترم أي <b>وقت بداية مقفول (🔒 بدأ)</b> أو <b>مدة مقفولة (🔒)</b> دون تداخل:
-        </p>
-        <div class="grid-2" style="margin-bottom:8px;">
-            <button class="btn ${!activeIsEve ? 'btn-blue' : 'btn-outline'}" style="flex-direction:column;padding:10px;" onclick="closeModal();rebalanceShiftTasks('morning', true)">
-                <span>🌅 توزيع الصباحي (4:00 hr)</span>
-                <span style="font-size:10.5px;opacity:0.85;">08:00 – 12:00 (${mornTasks.length} مهام)</span>
-            </button>
-            <button class="btn ${activeIsEve ? 'btn-purple' : 'btn-outline'}" style="flex-direction:column;padding:10px;" onclick="closeModal();rebalanceShiftTasks('evening', true)">
-                <span>🌆 توزيع المسائي (3:00 hr)</span>
-                <span style="font-size:10.5px;opacity:0.85;">13:00 – 16:00 (${eveTasks.length} مهام)</span>
-            </button>
-        </div>
-        ${bothTasks.length > 0 ? `
-        <button class="btn btn-green btn-full" style="margin-bottom:8px;padding:9px;font-size:12.5px;" onclick="closeModal();rebalanceShiftTasks('both', true)">
-            🌅+🌆 توزيع مهام الفترتين (08:00 – 16:00 | ${bothTasks.length} مهام)
-        </button>` : ''}
-        <button class="btn btn-outline btn-full" style="margin-bottom:8px;" onclick="closeModal();unlockAllShiftTasks()">🔓 فك قفل (🔒) جميع المهام وإعادة التوزيع</button>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
-    `);
-}
-
-function toggleTaskStartLock(tIdx) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t) return;
-    pushUndo('تبديل قفل وقت بداية مهمة');
-    t.startLocked = !t.startLocked;
-    if (t.startLocked && !t.fixedStartTime) {
-        t.fixedStartTime = getTaskFixedStartTimeStr(t);
-    }
-    const sp = getTaskShiftPeriod(t);
-    if (log.shiftBalanced && log.shiftBalanced[sp]) {
-        rebalanceShiftTasks(sp, false);
-    }
-    saveState(); renderTasks(log); renderAttendance(log);
-    showToast(t.startLocked ? `📌 تم قفل وقت بداية المهمة (${getTaskFixedStartTimeStr(t)})` : '🔓 تم فك قفل وقت بداية المهمة');
-}
-
-function toggleTaskDurLock(tIdx) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t) return;
-    pushUndo('تبديل قفل مدة مهمة');
-    t.durLocked = !t.durLocked;
-    const sp = getTaskShiftPeriod(t);
-    if (log.shiftBalanced && log.shiftBalanced[sp]) {
-        rebalanceShiftTasks(sp, false);
-    }
-    saveState(); renderTasks(log); renderAttendance(log);
-    showToast(t.durLocked ? `📌 تم قفل مدة المهمة (${t.dur}) وحمايتها من التغيير` : '🔓 تم فك قفل مدة المهمة');
-}
-
-function unlockAllShiftTasks() {
-    const log = getDayLog();
-    pushUndo('فك تثبيت أوقات المهام');
-    log.tasks.forEach(t => { t.durLocked = false; t.startLocked = false; });
-    rebalanceShiftTasks('morning', false);
-    rebalanceShiftTasks('evening', false);
-    if (log.tasks.some(t => getTaskShiftPeriod(t) === 'both')) {
-        rebalanceShiftTasks('both', false);
-    }
-    saveState(); renderTasks(log); renderAttendance(log);
-    showToast('🔓 تم فك قفل البداية والمدة وإعادة توزيع أوقات الشفت بالتساوي');
-}
-
-function getNetWindowMins(sMs, eMs, dateStr = state.activeDate) {
-    if (!sMs || !eMs || eMs <= sMs) return 0;
-    const brk = getBreakOverlapMs(sMs, eMs, dateStr);
-    return Math.max(0, Math.round((eMs - sMs - brk) / 60000));
-}
-
+/* ================= V16.6: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function syncTaskCompletionAndLiveClockOnDurChange(t, newMins) {
     if (!t || !newMins || newMins <= 0) return;
     const targetNetMs = newMins * 60000;
@@ -4598,113 +4034,6 @@ function syncTaskCompletionAndLiveClockOnDurChange(t, newMins) {
     }
 }
 
-function rebalanceShiftTasks(periodKey = 'morning', notify = true) {
-    const log = getDayLog();
-    const bEndStr = (state.company && state.company.breakEnd) || '13:00';
-    const bStartStr = (state.company && state.company.breakStart) || '12:00';
-
-    const shiftTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === periodKey && !t.isAfterHours);
-    if (!shiftTasks.length) {
-        if (notify) showToast(periodKey === 'evening' ? '⚠️ لا توجد مهام في الشفت المسائي' : '⚠️ لا توجد مهام في الشفت الصباحي');
-        return;
-    }
-
-    const startBaseStr = periodKey === 'evening' ? bEndStr : '08:00';
-    const endCapStr = periodKey === 'morning' ? bStartStr : '16:00';
-    const startBaseMs = hhmmToDateMs(startBaseStr, state.activeDate);
-    const endCapMs = hhmmToDateMs(endCapStr, state.activeDate);
-    const totalShiftMins = Math.max(30, getNetWindowMins(startBaseMs, endCapMs, state.activeDate));
-
-    // Split shift tasks into chronological segments separated by any task with startLocked === true
-    const segments = [];
-    let curSeg = { startMs: startBaseMs, endMs: endCapMs, tasks: [] };
-    let tightWarning = false;
-    shiftTasks.forEach(t => {
-        const rawLockedMs = (t.startLocked && t.fixedStartTime) ? hhmmToDateMs(t.fixedStartTime, state.activeDate) : null;
-        const lockedMs = rawLockedMs ? Math.max(startBaseMs, Math.min(endCapMs - 5 * 60000, rawLockedMs)) : null;
-        if (lockedMs && lockedMs > curSeg.startMs && lockedMs < endCapMs) {
-            if (curSeg.tasks.length > 0) {
-                curSeg.endMs = lockedMs;
-                segments.push(curSeg);
-            }
-            curSeg = { startMs: lockedMs, endMs: endCapMs, tasks: [t] };
-        } else {
-            curSeg.tasks.push(t);
-        }
-    });
-    if (curSeg.tasks.length > 0) segments.push(curSeg);
-
-    segments.forEach(seg => {
-        const segMins = Math.max(5, getNetWindowMins(seg.startMs, seg.endMs, state.activeDate));
-        const activeTasks = seg.tasks.filter(t => !isTaskPassiveIrrigation(t));
-        const poolTasks = activeTasks.length > 0 ? activeTasks : seg.tasks;
-
-        const lockedTasks = poolTasks.filter(t => t.durLocked);
-        const unlockedTasks = poolTasks.filter(t => !t.durLocked);
-
-        let lockedMins = 0;
-        lockedTasks.forEach(t => { lockedMins += parseDurationToMins(t.dur); });
-
-        const remainingMins = Math.max(0, segMins - lockedMins);
-        if (unlockedTasks.length > 0) {
-            if (remainingMins < unlockedTasks.length * 5) tightWarning = true;
-            const baseEach = Math.floor(remainingMins / unlockedTasks.length);
-            let remExtra = remainingMins - baseEach * unlockedTasks.length;
-            unlockedTasks.forEach(t => {
-                const addOne = remExtra > 0 ? 1 : 0;
-                if (remExtra > 0) remExtra--;
-                const mins = Math.max(5, baseEach + addOne);
-                t.dur = formatMsAsHrMin(mins * 60000);
-            });
-        } else if (lockedMins > segMins) {
-            tightWarning = true;
-        }
-
-        let cursorMs = seg.startMs;
-        seg.tasks.forEach(t => {
-            const tMins = parseDurationToMins(t.dur) || 30;
-            let taskStartMs = cursorMs;
-            if (t.startLocked && t.fixedStartTime) {
-                const lockedMs = hhmmToDateMs(t.fixedStartTime, state.activeDate);
-                if (lockedMs) taskStartMs = lockedMs;
-            }
-            const stStr = formatTime24FromMs(taskStartMs);
-            t.fixedStartTime = stStr;
-            const endMs = t.ignoreBreak ? (taskStartMs + tMins * 60000) : addNetWorkMinsSkippingBreak(taskStartMs, tMins, state.activeDate);
-            const enStr = formatTime24FromMs(endMs);
-
-            const hasRecordedPauses = Array.isArray(t.events) && t.events.some(e => (e.label || '').includes('توقف') || (e.label || '').includes('⏸') || (e.label || '').includes('🛑'));
-            if (t.status.includes('Progress') && !hasRecordedPauses) {
-                t.startTimeMs = taskStartMs;
-                t.pausedTotalMs = 0;
-                t.pausedAtMs = null;
-            }
-            if (!hasRecordedPauses) {
-                t.events = [{ time: stStr, label: periodKey === 'evening' ? '🌆 بدأ المسائي' : '▶️ بدأ العمل' }];
-                if (t.status.includes('Completed')) {
-                    t.events.push({ time: enStr, label: '✅ اكتمل' });
-                }
-            }
-            if (!isTaskPassiveIrrigation(t)) {
-                cursorMs = endMs;
-            }
-        });
-    });
-
-    log.shiftBalanced = log.shiftBalanced || {};
-    log.shiftBalanced[periodKey] = true;
-
-    if (notify) {
-        saveState(); renderTasks(log); renderAttendance(log);
-        const lbl = periodKey === 'evening' ? 'المسائي' : (periodKey === 'both' ? 'الفترتين' : 'الصباحي');
-        if (tightWarning) {
-            showToast(`⚠️ تم التوزيع (${lbl}) مع تنبيه: بعض الفترات المحصورة بين الأقفال ضيقة`);
-        } else {
-            showToast(`⚖️ تم توزيع ${formatMsAsHrMin(totalShiftMins * 60000)} على ${shiftTasks.length} مهام (${lbl})`);
-        }
-    }
-}
-
 function openTaskTimeControlModal(tIdx) {
     const log = getDayLog();
     const t = log.tasks[tIdx];
@@ -4725,6 +4054,7 @@ function openTaskTimeControlModal(tIdx) {
         }
     }
     const nowStr = formatTime24FromMs(Date.now());
+    const livePausedMins = Math.round((t.pausedTotalMs || 0) / 60000);
 
     openModal(`
         <h3 class="card-title">⏱️ التحكم بوقت المهمة والعمال (${esc(t.zones)})</h3>
@@ -4754,6 +4084,10 @@ function openTaskTimeControlModal(tIdx) {
                 <span class="chip" style="margin:0;background:#e0f2fe;color:#0369a1;" onclick="document.getElementById('tmcEnd').value='${nowStr}';updateTaskTimeControlPreview(${tIdx})">🕒 الآن (${nowStr})</span>
                 ${isProg ? `<span class="chip" style="margin:0;background:#dcfce7;color:#166534;" onclick="document.getElementById('tmcEnd').value='';updateTaskTimeControlPreview(${tIdx})">🔓 عداد حي</span>` : ''}
             </div>
+            ${isProg ? `
+            <label style="display:block;font-size:11.5px;font-weight:bold;color:#9a3412;background:#fff7ed;border:1px solid #fdba74;border-radius:7px;padding:5px 8px;margin-bottom:6px;">
+                <input type="checkbox" id="tmcStoppedForTodayChk" ${t.stoppedForToday ? 'checked' : ''} onchange="updateTaskTimeControlPreview(${tIdx})"> ⏹️ توقف العمل لنهاية الدوام (تبقى جاري وتختفي من «شغال الآن» بالحضور)
+            </label>` : ''}
             <div id="tmcNetPreview" style="background:white;border:1px solid #7dd3fc;border-radius:7px;padding:6px 8px;font-size:12px;font-weight:bold;color:#0369a1;text-align:center;"></div>
         </div>
 
@@ -4775,9 +4109,14 @@ function openTaskTimeControlModal(tIdx) {
                     <input type="time" id="tmcPauseTo" class="inp" style="margin:0;padding:5px;text-align:center;" value="${esc(t.manualPauseTo || '')}" oninput="updateTaskTimeControlPreview(${tIdx})">
                 </div>
             </div>
+            ${livePausedMins > 0 ? `
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#92400e;background:white;border:1px dashed #fcd34d;border-radius:7px;padding:4px 8px;margin-bottom:6px;">
+                <span>⏸️ توقف مؤقت سابق مسجّل: <b>${livePausedMins} دقيقة</b></span>
+                <label style="font-weight:bold;"><input type="checkbox" id="tmcClearLivePauseChk" onchange="updateTaskTimeControlPreview(${tIdx})"> تصفير</label>
+            </div>` : ''}
             <div style="display:flex;align-items:center;gap:8px;margin-top:6px;background:white;border:1px solid #fcd34d;border-radius:7px;padding:6px 8px;">
                 <label class="lbl" style="margin:0;flex:1;color:#78350f;">⏰ أوفرتايم يدوي للمهمة (ساعات OT):</label>
-                <input type="number" id="tmcOtHrs" class="inp" step="0.5" min="0" max="12" style="width:74px;margin:0;padding:4px;text-align:center;font-weight:bold;" value="${parseFloat(t.manualOt) || 0}">
+                <input type="number" id="tmcOtHrs" class="inp" step="0.5" min="0" max="12" style="width:74px;margin:0;padding:4px;text-align:center;font-weight:bold;" value="${parseFloat(t.manualOt) || 0}" oninput="updateTaskTimeControlPreview(${tIdx})">
             </div>
             <label style="display:block;font-size:11px;font-weight:bold;color:#78350f;margin-top:5px;">
                 <input type="checkbox" id="tmcSyncOtToAtt"> إضافة ساعات الأوفرتايم أعلاه لخانة OT بالحضور للعمال المحددين
@@ -4799,9 +4138,12 @@ function openTaskTimeControlModal(tIdx) {
                     const checked = (t.workers || []).includes(shortName) || (t.workers || []).includes('Team');
                     const wt = (t.workerTimings && t.workerTimings[shortName]) || {};
                     const wFrom = wt.from || '';
-                    const wTo = wt.to || '';
-                    const wAwayFrom = wt.awayFrom || '';
+                    const wTo = wt.to || (wt.mode === 'roundtrip' ? (wt.awayFrom || '') : '');
                     const wAwayTo = wt.awayTo || '';
+                    const destEntry = wt.destTaskId ? otherTasks.find(x => x.ot.id === wt.destTaskId) : null;
+                    const selDestIdx = destEntry ? String(destEntry.oi) : '';
+                    const hasCustomWt = !!(wt.from || wt.to || wt.awayFrom || wt.destTaskId || (wt.mode && wt.mode !== 'normal'));
+                    const isRtMode = wt.mode === 'roundtrip';
                     return `
                     <div id="tmcWkBox_${wI}" style="background:${checked ? '#f0fdf4' : 'white'};border:1px solid ${checked ? '#86efac' : '#e2e8f0'};border-radius:8px;padding:7px;margin-bottom:6px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;">
@@ -4809,7 +4151,10 @@ function openTaskTimeControlModal(tIdx) {
                                 <input type="checkbox" class="tmc-wk-chk" data-widx="${wI}" id="tmcWkChk_${wI}" value="${esc(shortName)}" ${checked ? 'checked' : ''} onchange="toggleTmcWorkerRow(this)">
                                 <span>${esc(shortName)}</span>
                             </label>
-                            <span style="font-size:10.5px;color:var(--muted);">دوامه: ${esc(w.tIn || '08:00')}–${esc(w.tOut || '16:00')}</span>
+                            <div style="display:flex;align-items:center;gap:5px;">
+                                <span style="font-size:10.5px;color:var(--muted);">دوامه: ${esc(w.tIn || '08:00')}–${esc(w.tOut || '16:00')}</span>
+                                ${hasCustomWt ? `<button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="resetTmcWorkerInputs(${wI})" title="إلغاء التوقيت/الانتقال المخصص">✕</button>` : ''}
+                            </div>
                         </div>
                         <div id="tmcWkFields_${wI}" style="display:${checked ? 'block' : 'none'};margin-top:6px;">
                             <div style="display:flex;gap:5px;align-items:center;font-size:11px;margin-bottom:5px;">
@@ -4822,20 +4167,19 @@ function openTaskTimeControlModal(tIdx) {
                             <div style="display:flex;gap:5px;align-items:center;font-size:11px;">
                                 <select id="tmcWkDest_${wI}" class="inp" style="margin:0;padding:3px 5px;flex:1;font-size:11px;" onchange="document.getElementById('tmcWkTrOpts_${wI}').style.display=(this.value!==''?'flex':'none')">
                                     <option value="">— مستمر هنا (بدون انتقال) —</option>
-                                    ${otherTasks.map(x => `<option value="${x.oi}">انتقل إلى #${x.oi + 1}: ${esc((x.ot.task.split('/')[1] || x.ot.task).trim())} [${esc(x.ot.zones)}]</option>`).join('')}
+                                    ${otherTasks.map(x => `<option value="${x.oi}" ${selDestIdx === String(x.oi) ? 'selected' : ''}>انتقل إلى #${x.oi + 1}: ${esc((x.ot.task.split('/')[1] || x.ot.task).trim())} [${esc(x.ot.zones)}]</option>`).join('')}
                                 </select>
                             </div>
-                            <div id="tmcWkTrOpts_${wI}" style="display:none;gap:5px;align-items:center;margin-top:5px;font-size:11px;">
+                            <div id="tmcWkTrOpts_${wI}" style="display:${selDestIdx !== '' ? 'flex' : 'none'};gap:5px;align-items:center;margin-top:5px;font-size:11px;">
                                 <select id="tmcWkTrMode_${wI}" class="inp" style="margin:0;padding:3px;flex:1;font-size:10.5px;" onchange="document.getElementById('tmcWkRetWrap_${wI}').style.display=(this.value==='roundtrip'?'flex':'none')">
-                                    <option value="moved">انتقال كامل من ساعة الترك</option>
-                                    <option value="roundtrip">انتقال مؤقت وعودة</option>
+                                    <option value="moved" ${!isRtMode ? 'selected' : ''}>انتقال كامل من ساعة الترك</option>
+                                    <option value="roundtrip" ${isRtMode ? 'selected' : ''}>انتقال مؤقت وعودة</option>
                                 </select>
-                                <div id="tmcWkRetWrap_${wI}" style="display:none;align-items:center;gap:3px;">
+                                <div id="tmcWkRetWrap_${wI}" style="display:${isRtMode ? 'flex' : 'none'};align-items:center;gap:3px;">
                                     <span>رجع:</span>
                                     <input type="time" id="tmcWkRet_${wI}" class="inp" style="margin:0;padding:3px;width:88px;" value="${esc(wAwayTo)}">
                                 </div>
                             </div>` : ''}
-                            ${(wAwayFrom && wAwayTo) ? `<div style="font-size:10.5px;color:#92400e;margin-top:4px;">انتقال مؤقت مسجّل: ${esc(wAwayFrom)} – ${esc(wAwayTo)}</div>` : ''}
                         </div>
                     </div>`;
                 }).join('')}
@@ -4848,6 +4192,20 @@ function openTaskTimeControlModal(tIdx) {
         </div>
     `);
     updateTaskTimeControlPreview(tIdx);
+}
+
+function resetTmcWorkerInputs(wI) {
+    const f = document.getElementById(`tmcWkFrom_${wI}`);
+    const to = document.getElementById(`tmcWkTo_${wI}`);
+    const dest = document.getElementById(`tmcWkDest_${wI}`);
+    const opts = document.getElementById(`tmcWkTrOpts_${wI}`);
+    const ret = document.getElementById(`tmcWkRet_${wI}`);
+    if (f) f.value = '';
+    if (to) to.value = '';
+    if (dest) dest.value = '';
+    if (opts) opts.style.display = 'none';
+    if (ret) ret.value = '';
+    showToast('🧹 تم مسح التوقيت/الانتقال المخصص لهذا العامل — اضغط حفظ للاعتماد');
 }
 
 function toggleTmcWorkerRow(chk) {
@@ -4900,6 +4258,8 @@ function updateTaskTimeControlPreview(tIdx) {
     const ignBrk = document.getElementById('tmcIgnoreBreakVal')?.value === '1';
     const pFrom = document.getElementById('tmcPauseFrom')?.value || '';
     const pTo = document.getElementById('tmcPauseTo')?.value || '';
+    const liveOt = Math.max(0, parseFloat(document.getElementById('tmcOtHrs')?.value) || 0);
+    const clearLivePause = !!document.getElementById('tmcClearLivePauseChk')?.checked;
     const t = getDayLog().tasks[tIdx] || {};
 
     const sMs = hhmmToDateMs(sStr, state.activeDate);
@@ -4907,7 +4267,7 @@ function updateTaskTimeControlPreview(tIdx) {
     let liveMode = false;
     if (!eMs) {
         liveMode = true;
-        const capMs = getTaskShiftEndCapMs(t, state.activeDate);
+        const capMs = getTaskShiftEndCapMs({ ...t, manualOt: liveOt, fixedEndTime: '' }, state.activeDate);
         const nowMs = Date.now();
         const todayStr = new Date(nowMs).toISOString().split('T')[0];
         eMs = (state.activeDate === todayStr) ? Math.min(nowMs, capMs || nowMs) : (capMs || nowMs);
@@ -4926,8 +4286,12 @@ function updateTaskTimeControlPreview(tIdx) {
         const mpE = hhmmToDateMs(pTo, state.activeDate);
         if (mpS && mpE && mpE > mpS) parts = subtractIntervalRange(parts, mpS, mpE);
     }
+    if (!clearLivePause && t.pausedTotalMs && t.pausedTotalMs > 0) {
+        parts = deductPausedMsFromIntervals(parts, t.pausedTotalMs);
+    }
     const netMins = Math.round(parts.reduce((acc, [a, b]) => acc + (b - a), 0) / 60000);
-    box.textContent = `${liveMode ? '🔵 عداد حي حتى الآن/نهاية الدوام' : '✅ الصافي المحسوب'}: ${formatMsAsHrMin(netMins * 60000)} (${netMins} دقيقة)${ignBrk ? ' — بدون خصم استراحة' : ' — بعد خصم الاستراحة'}`;
+    const otTxt = liveOt > 0 ? ` | OT +${liveOt}h` : '';
+    box.textContent = `${liveMode ? '🔵 عداد حي حتى الآن/نهاية الدوام' : '✅ الصافي المحسوب'}: ${formatMsAsHrMin(netMins * 60000)} (${netMins} دقيقة)${ignBrk ? ' — بدون استراحة' : ' — بعد الاستراحة'}${otTxt}`;
 }
 
 function saveTaskTimeControl(tIdx) {
@@ -4937,54 +4301,51 @@ function saveTaskTimeControl(tIdx) {
     pushUndo('تعديل وقت المهمة والعمال');
 
     const sStr = document.getElementById('tmcStart')?.value || '08:00';
-    const eStr = document.getElementById('tmcEnd')?.value || '';
+    let eStr = document.getElementById('tmcEnd')?.value || '';
     const ignBrk = document.getElementById('tmcIgnoreBreakVal')?.value === '1';
     const pFrom = document.getElementById('tmcPauseFrom')?.value || '';
     const pTo = document.getElementById('tmcPauseTo')?.value || '';
     const manualOt = Math.max(0, parseFloat(document.getElementById('tmcOtHrs')?.value) || 0);
     const syncOtToAtt = !!document.getElementById('tmcSyncOtToAtt')?.checked;
+    const clearLivePause = !!document.getElementById('tmcClearLivePauseChk')?.checked;
+    const stoppedChk = document.getElementById('tmcStoppedForTodayChk');
 
     t.fixedStartTime = sStr;
-    t.fixedEndTime = eStr;
     t.ignoreBreak = ignBrk;
     t.manualPauseFrom = (pFrom && pTo && pTo > pFrom) ? pFrom : '';
     t.manualPauseTo = (pFrom && pTo && pTo > pFrom) ? pTo : '';
     t.manualOt = manualOt;
+    if (clearLivePause) t.pausedTotalMs = 0;
 
-    const sMs = hhmmToDateMs(sStr, state.activeDate);
-    if (t.status && t.status.includes('Progress')) {
-        t.startTimeMs = sMs || Date.now();
-        t.pausedAtMs = null;
-        t.pausedTotalMs = 0;
-        if (eStr) {
-            t.timerFrozen = true;
-            t.frozenAtMs = hhmmToDateMs(eStr, state.activeDate);
-        } else {
-            t.timerFrozen = false;
-            t.frozenAtMs = null;
+    const isProg = !!(t.status && t.status.includes('Progress'));
+    if (isProg) {
+        const wantStopped = stoppedChk ? stoppedChk.checked : !!eStr;
+        if (wantStopped && !eStr) {
+            const capMs = getTaskShiftEndCapMs({ ...t, fixedEndTime: '', manualOt }, state.activeDate);
+            eStr = formatTime24FromMs(capMs || Date.now());
         }
+        t.stoppedForToday = wantStopped;
+        t.fixedEndTime = eStr;
+        t.startTimeMs = hhmmToDateMs(sStr, state.activeDate) || Date.now();
+        t.pausedAtMs = null;
+        t.timerFrozen = !!(wantStopped || eStr);
+        t.frozenAtMs = eStr ? hhmmToDateMs(eStr, state.activeDate) : null;
+    } else {
+        t.fixedEndTime = eStr;
+        t.stoppedForToday = false;
     }
 
     // Recalculate exact net duration if end time is given
+    const sMs = hhmmToDateMs(sStr, state.activeDate);
     if (sMs && eStr) {
         const eMs = hhmmToDateMs(eStr, state.activeDate);
         if (eMs && eMs > sMs) {
-            let parts = [[sMs, eMs]];
-            if (!ignBrk) {
-                const bw = getBreakWindowMs(state.activeDate);
-                parts = subtractIntervalRange(parts, bw.startMs, bw.endMs);
-            }
-            if (t.manualPauseFrom && t.manualPauseTo) {
-                const mpS = hhmmToDateMs(t.manualPauseFrom, state.activeDate);
-                const mpE = hhmmToDateMs(t.manualPauseTo, state.activeDate);
-                if (mpS && mpE && mpE > mpS) parts = subtractIntervalRange(parts, mpS, mpE);
-            }
-            const netMins = Math.max(5, Math.round(parts.reduce((acc, [a, b]) => acc + (b - a), 0) / 60000));
-            t.dur = formatMsAsHrMin(netMins * 60000);
+            const netMs = getTaskNetElapsedMs(t, eMs);
+            if (netMs > 0) t.dur = formatMsAsHrMin(netMs);
         }
     }
 
-    // Process workers & transfers
+    // Process workers & transfers cleanly (supports editing & canceling previous transfers!)
     const presentWorkers = (log.attendance || []).filter(w => !String(w.status || '').includes('Absent'));
     if (!t.workerTimings) t.workerTimings = {};
     const selectedNames = [];
@@ -4992,6 +4353,8 @@ function saveTaskTimeControl(tIdx) {
     presentWorkers.forEach((w, wI) => {
         const shortName = (w.name.split('/')[1] || w.name).trim();
         const chk = document.getElementById(`tmcWkChk_${wI}`);
+        const prevWt = t.workerTimings[shortName] || {};
+
         if (!chk || !chk.checked) {
             delete t.workerTimings[shortName];
             return;
@@ -5005,7 +4368,6 @@ function saveTaskTimeControl(tIdx) {
         const fVal = document.getElementById(`tmcWkFrom_${wI}`)?.value || '';
         const tVal = document.getElementById(`tmcWkTo_${wI}`)?.value || '';
         const destVal = document.getElementById(`tmcWkDest_${wI}`)?.value;
-        const prevWt = t.workerTimings[shortName] || {};
 
         if (destVal !== undefined && destVal !== '' && log.tasks[parseInt(destVal, 10)]) {
             const destTask = log.tasks[parseInt(destVal, 10)];
@@ -5020,6 +4382,7 @@ function saveTaskTimeControl(tIdx) {
                     awayFrom: trTime,
                     awayTo: retTime,
                     mode: 'roundtrip',
+                    destTaskId: destTask.id,
                     note: `إلى (${destTask.zones})`
                 };
             } else {
@@ -5027,6 +4390,7 @@ function saveTaskTimeControl(tIdx) {
                     from: fVal || sStr,
                     to: trTime,
                     mode: 'moved',
+                    destTaskId: destTask.id,
                     note: `إلى (${destTask.zones})`
                 };
             }
@@ -5042,12 +4406,13 @@ function saveTaskTimeControl(tIdx) {
                 note: `من (${t.zones})`
             };
             syncWorkerTimingNotesOnTask(destTask);
-        } else if (fVal || tVal || prevWt.awayFrom) {
+        } else if (fVal || tVal) {
+            // Normal custom arrival/departure (clears any canceled transfer/roundtrip cleanly!)
             t.workerTimings[shortName] = {
-                ...prevWt,
                 from: fVal,
                 to: tVal,
-                mode: prevWt.mode || 'normal'
+                mode: 'normal',
+                note: prevWt.mode === 'normal' ? (prevWt.note || '') : ''
             };
         } else {
             delete t.workerTimings[shortName];
@@ -5325,6 +4690,14 @@ function saveEditedTaskHistory(tIdx, hid) {
     t.dur = document.getElementById('ehDur').value.trim() || t.dur;
     t.status = document.getElementById('ehSt').value;
     t.note = document.getElementById('ehNote').value.trim();
+    const newM = parseDurationToMins(t.dur);
+    if (newM > 0 && t.fixedStartTime) {
+        const sMs = hhmmToDateMs(t.fixedStartTime, state.activeDate);
+        if (sMs) {
+            const eMs = t.ignoreBreak ? (sMs + newM * 60000) : addNetWorkMinsSkippingBreak(sMs, newM, state.activeDate);
+            if (!t.status.includes('Progress') || t.fixedEndTime) t.fixedEndTime = formatTime24FromMs(eMs);
+        }
+    }
     const hItem = log.secHistory.tasks.find(x => x.hid === hid);
     if (hItem) hItem.summary = `${t.status.split('/')[1] || t.status}: ${t.zones} (${t.desc})`;
     syncIrrigatedZonesFromTasks(false);
@@ -5392,22 +4765,16 @@ function checkTaskTimers() {
     const nowMs = Date.now();
 
     log.tasks.forEach((t, idx) => {
-        if (t.status.includes('Progress') && t.startTimeMs && !t.pausedAtMs && !t.timerFrozen && !t.autoStopAtPlanned && !isTaskCappedByShiftEnd(t, nowMs) && !(isNowInDailyBreak(nowMs) && !t.ignoreBreak)) {
+        const isIrr = (t.task || '').includes('Irrigation');
+        if (isIrr && t.status.includes('Progress') && t.startTimeMs && !t.pausedAtMs && !t.stoppedForToday && !t.fixedEndTime && !t.timerFrozen && !isTaskCappedByShiftEnd(t, nowMs) && !(isNowInDailyBreak(nowMs) && !t.ignoreBreak)) {
             const elapMins = getTaskNetElapsedMs(t, nowMs) / 60000;
-            let targetMins = 60;
-            const m = String(t.dur || '').match(/(\d+):(\d+)/);
-            if (m) targetMins = parseInt(m[1]) * 60 + parseInt(m[2]);
-            
+            const targetMins = parseDurationToMins(t.dur) || 60;
             if (elapMins >= targetMins) {
-                const isIrr = (t.task || '').includes('Irrigation');
-                const tShort = (t.task.split('/')[1] || t.task).trim();
                 const overMins = Math.floor(elapMins - targetMins);
                 expiredList.push({
                     idx,
-                    isIrr,
-                    text: isIrr
-                        ? `🚰 انتهى وقت ري (${t.zones}) منذ ${overMins} دقيقة — أغلق الصمام!`
-                        : `⏰ انتهى وقت (${tShort} - ${t.zones}) منذ ${overMins} دقيقة!`
+                    isIrr: true,
+                    text: `🚰 انتهى وقت ري (${t.zones}) منذ ${overMins} دقيقة — أغلق الصمام!`
                 });
             }
         }
@@ -5484,8 +4851,6 @@ function renderAll() {
     document.getElementById('dayBadge').textContent = dayEn;
     document.getElementById('planDayLabel').textContent = dayEn;
     document.getElementById('dflNumInput').value = log.dflNum;
-    const shSel = document.getElementById('activeShiftSelect');
-    if (shSel) shSel.value = state.company.shift || 'Morning Shift';
 
     document.getElementById('globalZonesList').innerHTML = site.zones.map(z => `<option value="${esc(z)}">`).join('');
     document.getElementById('globalTasksList').innerHTML = state.company.customTasks.map(t => `<option value="${esc(t)}">`).join('');
@@ -5645,16 +5010,6 @@ function renderAttendance(log) {
             })() : ''}
         </div>`;
     }).join('');
-}
-
-function applyWorkerAfterHoursOt(idx, ahMins) {
-    pushUndo('اعتماد أوفرتايم بعد الدوام');
-    const log = getDayLog();
-    const w = log.attendance[idx];
-    if (!w) return;
-    w.ot = +(ahMins / 60).toFixed(2);
-    saveState(); renderAttendance(log);
-    showToast(`🌙 تم اعتماد ${w.ot} ساعة أوفرتايم لـ ${(w.name.split('/')[1] || w.name).trim()}`);
 }
 
 function openLateArrivalModal(idx) {
@@ -5901,7 +5256,7 @@ function copyWorkersFromPrevTask(idx) {
     pushUndo('نسخ عمال المهمة السابقة');
     tasks[idx].workers = [...prev.workers];
     logSectionHistory('tasks', 'workers', `نسخ عمال (${prev.workers.join(' / ')}) إلى ${tasks[idx].zones}`, { taskId: tasks[idx].id });
-    saveState(); renderTasks(getDayLog());
+    saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog());
     showToast(`👥 تم تعيين (${prev.workers.join(' / ')}) للمهمة`);
 }
 
@@ -5940,7 +5295,10 @@ function quickAddTaskPresetChip(taskName, desc, dur, isTk = false, isPassive = f
         zones: isIrr ? 'B1' : 'عام / General',
         dur,
         status: 'Not Started / لم يبدأ',
-        shiftPeriod: (state.company.shift || '').includes('Evening') ? 'evening' : 'morning',
+        fixedStartTime: '08:00',
+        fixedEndTime: '',
+        stoppedForToday: false,
+        manualOt: 0,
         workers: [],
         note: '',
         isTanker: isTk,
@@ -6007,91 +5365,7 @@ function toggleCardMoreMenu(tid) {
 function getTaskFixedStartTimeStr(t) {
     if (t.fixedStartTime) return t.fixedStartTime;
     if (t.startTimeMs) return formatTime24FromMs(t.startTimeMs);
-    if (Array.isArray(t.events) && t.events.length > 0) {
-        const stEv = t.events.find(e =>
-            (e.label || '').includes('بدأ') ||
-            (e.label || '').includes('▶️') ||
-            (e.label || '').includes('صباحية') ||
-            (e.label || '').includes('مسائي')
-        ) || t.events[0];
-        if (stEv && stEv.time) return stEv.time;
-    }
-    const sp = getTaskShiftPeriod(t);
-    const bEndStr = (state.company && state.company.breakEnd) || '13:00';
-    return sp === 'evening' ? bEndStr : '08:00';
-}
-
-function openTaskFixedStartModal(tIdx) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t) return;
-    const curStart = getTaskFixedStartTimeStr(t);
-    const bEndStr = (state.company && state.company.breakEnd) || '13:00';
-    openModal(`
-        <h3 class="card-title">🕒 وقت بداية المهمة #${tIdx + 1} (${esc(t.zones)})</h3>
-        <p style="font-size:12px;color:var(--muted);margin-top:0;">${esc((t.task.split('/')[1] || t.task).trim())} — ${esc(t.desc)}</p>
-        <label class="lbl">ساعة البدء الثابتة للمهمة:</label>
-        <input type="time" id="fixedStartTimeInp" class="inp" style="font-size:16px;font-weight:bold;text-align:center;" value="${esc(curStart)}">
-        <div style="margin-bottom:8px;">
-            <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='08:00'">🌅 08:00</span>
-            <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='09:00'">09:00</span>
-            <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='10:00'">10:00</span>
-            <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='${esc(bEndStr)}'">🌆 ${esc(bEndStr)}</span>
-            <span class="chip" onclick="document.getElementById('fixedStartTimeInp').value='14:00'">14:00</span>
-        </div>
-        <label style="display:block;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:7px 9px;margin-bottom:9px;font-size:12px;font-weight:bold;color:#92400e;">
-            <input type="checkbox" id="fixedStartLockChk" checked> 📌 قفل وقت البداية (عدم تغييره عند إعادة توزيع الشفت)
-        </label>
-        <div class="grid-2">
-            <button class="btn btn-green" onclick="saveTaskFixedStart(${tIdx})">💾 حفظ وتثبيت البداية</button>
-            <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
-        </div>
-    `);
-}
-
-function saveTaskFixedStart(tIdx) {
-    const val = document.getElementById('fixedStartTimeInp')?.value;
-    if (!val) return;
-    const lockChecked = !!document.getElementById('fixedStartLockChk')?.checked;
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t) return;
-    pushUndo('تعديل وقت بداية مهمة');
-    t.fixedStartTime = val;
-    t.startLocked = lockChecked;
-    const [hh, mm] = val.split(':').map(Number);
-    const baseDate = new Date(state.activeDate + 'T00:00:00');
-    baseDate.setHours(hh || 8, mm || 0, 0, 0);
-    if (t.status.includes('Progress')) {
-        t.startTimeMs = baseDate.getTime();
-        t.pausedTotalMs = 0;
-        t.pausedAtMs = null;
-    }
-    if (!Array.isArray(t.events)) t.events = [];
-    if (t.events.length === 0) {
-        addTaskEventLog(t, '▶️ بدأ العمل', val);
-    } else {
-        t.events[0].time = val;
-    }
-    if (t.status && t.status.includes('Completed')) {
-        const durMins = parseDurationToMins(t.dur) || 60;
-        const endMs = t.ignoreBreak ? (baseDate.getTime() + durMins * 60000) : addNetWorkMinsSkippingBreak(baseDate.getTime(), durMins, state.activeDate);
-        const endStr = formatTime24FromMs(endMs);
-        const doneEv = t.events.find(e => (e.label || '').includes('اكتمل') || (e.label || '').includes('✅'));
-        if (doneEv) doneEv.time = endStr;
-        else addTaskEventLog(t, '✅ اكتمل', endStr);
-    }
-    const sp = getTaskShiftPeriod(t);
-    if (lockChecked && log.shiftBalanced && log.shiftBalanced[sp]) {
-        rebalanceShiftTasks(sp, false);
-    }
-    logSectionHistory('tasks', 'edit', `تثبيت بداية #${tIdx + 1} (${t.zones}) على ${val}`, { taskId: t.id });
-    closeModal();
-    saveState();
-    renderTasks(log);
-    renderAttendance(log);
-    checkTaskTimers();
-    showToast(`🕒 تم تثبيت وقت البداية على ${val}`);
+    return '08:00';
 }
 
 function renderTasksQueue(log) {
@@ -6127,13 +5401,13 @@ function renderTasksQueue(log) {
                     <div style="font-size:12px;flex:1;min-width:170px;cursor:pointer;" onclick="scrollToTaskCard(${x.i})" title="الانتقال إلى بطاقة المهمة">
                         <div><span class="task-num-badge" style="background:#0284c7;">#${x.i + 1}</span> <b style="color:var(--blue);text-decoration:underline;">📍 ${esc(x.t.zones)}</b> — <b>${esc(shortTitle)}</b></div>
                         <div style="font-size:11px;color:#334155;margin-top:2px;">${esc(x.t.desc)} • 👷 ${esc(wTxt)}</div>
-                        <span class="live-timer-pill ${x.t.fixedEndTime || x.t.pausedAtMs || isTaskCappedByShiftEnd(x.t) ? 'is-paused' : ''}" onclick="event.stopPropagation();openTaskTimeControlModal(${x.i})">
+                        <span class="live-timer-pill ${x.t.stoppedForToday || x.t.fixedEndTime || x.t.pausedAtMs || isTaskCappedByShiftEnd(x.t) ? 'is-paused' : ''}" onclick="event.stopPropagation();openTaskTimeControlModal(${x.i})">
                             <span data-live-task-id="${x.t.id}">${formatTaskLiveTimerLabel(x.t)}</span> ✏️
                         </span>
                     </div>
                     <div style="display:flex;gap:4px;align-items:center;">
+                        <button class="btn ${x.t.stoppedForToday ? 'btn-blue' : 'btn-orange'} btn-sm" onclick="toggleTaskStoppedForToday(${x.i})" title="${x.t.stoppedForToday ? 'استكمال العمل' : 'انتهى وقت العمل (تبقى جاري)'}">${x.t.stoppedForToday ? '▶️' : '⏹️'}</button>
                         <button class="btn btn-outline btn-sm" onclick="openTaskTimeControlModal(${x.i})" title="ضبط الوقت والعمال">⏱️</button>
-                        <button class="btn btn-outline btn-sm" onclick="toggleTaskPause(${x.i})" title="توقف مؤقت / استئناف">${x.t.pausedAtMs ? '▶️' : '⏸️'}</button>
                         <button class="btn btn-green btn-sm" onclick="setTaskStatus(${x.i}, 'Completed / مكتمل')">✓ إكمال</button>
                         <button class="btn btn-outline btn-sm" style="color:var(--red);padding:4px 6px;" onclick="event.stopPropagation();deleteTask(${x.i})" title="حذف المهمة">🗑️</button>
                     </div>
@@ -6171,10 +5445,8 @@ function renderTasksQueue(log) {
 }
 
 function renderTasks(log) {
-    normalizeTaskSequenceOrder(log);
     renderStickySectionHistory('tasks', 'stickyHist-tasks', 'المهام');
     updateLiveShiftClockDom();
-    renderYesterdayCarryBanner(log);
     renderTasksQueue(log);
     renderZoneThirstRadar();
 
@@ -6344,14 +5616,19 @@ function renderTasks(log) {
                     ☕ ${t.ignoreBreak ? 'بدون استراحة (يدوي)' : 'استراحة تلقائية'}
                 </span>
                 ${manualOtNum > 0 ? `<span class="badge" style="background:#ede9fe;color:#5b21b6;">OT +${manualOtNum}h</span>` : ''}
-                ${isProg ? `<span class="chip" style="margin:0;background:#e0f2fe;color:#0369a1;border-color:#7dd3fc;" onclick="toggleTaskPause(${idx})">${t.pausedAtMs ? '▶️ استئناف' : '⏸️ توقف مؤقت'}</span>` : ''}
             </div>
 
             ${isProg ? `
-            <div style="margin-bottom:6px;">
-                <span class="live-timer-pill ${t.fixedEndTime || t.pausedAtMs || isTaskCappedByShiftEnd(t) ? 'is-paused' : ''}" onclick="openTaskTimeControlModal(${idx})">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:6px;">
+                <span class="live-timer-pill ${t.stoppedForToday || t.fixedEndTime || t.pausedAtMs || isTaskCappedByShiftEnd(t) ? 'is-paused' : ''}" onclick="openTaskTimeControlModal(${idx})">
                     <span data-live-task-id="${t.id}">${formatTaskLiveTimerLabel(t)}</span>
                 </span>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button type="button" class="btn ${t.stoppedForToday ? 'btn-blue' : 'btn-orange'} btn-sm" style="padding:3px 8px;font-size:11px;" onclick="toggleTaskStoppedForToday(${idx})" title="إيقاف العمل لنهاية الدوام مع بقاء المهمة جاري وحساب ساعات العمال">
+                        ${t.stoppedForToday ? '▶️ استكمال العمل' : '⏹️ انتهى وقت العمل (تبقى جاري)'}
+                    </button>
+                    ${!t.stoppedForToday ? `<button type="button" class="btn btn-outline btn-sm" style="padding:3px 7px;font-size:11px;" onclick="toggleTaskPause(${idx})">${t.pausedAtMs ? '▶️ استئناف' : '⏸️ توقف مؤقت'}</button>` : ''}
+                </div>
             </div>` : ''}
 
             <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:4px;">
@@ -6461,48 +5738,6 @@ function renderTasks(log) {
     setTimeout(triggerAllAutoGrows, 15);
 }
 
-function toggleTaskAfterHoursMode(idx) {
-    pushUndo('تبديل مهمة بعد الدوام (OT)');
-    const log = getDayLog();
-    const t = log.tasks[idx];
-    if (!t) return;
-    const nextVal = !(t.isAfterHours || t.ignoreShiftEndCap);
-    t.isAfterHours = nextVal;
-    t.ignoreShiftEndCap = nextVal;
-    if (nextVal) {
-        t.shiftPeriod = 'evening';
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
-        const defOtStart = (state.activeDate === todayStr && now.getHours() >= 16)
-            ? formatTime24FromMs(now.getTime())
-            : '16:00';
-        if (!t.fixedStartTime || t.fixedStartTime === '08:00' || t.fixedStartTime === '13:00') {
-            t.fixedStartTime = defOtStart;
-            if (t.status.includes('Progress')) {
-                t.startTimeMs = hhmmToDateMs(defOtStart, state.activeDate) || now.getTime();
-            }
-            if (Array.isArray(t.events) && t.events.length > 0) {
-                t.events[0].time = defOtStart;
-            }
-        }
-        showToast(`🌙 تم تفعيل وضع بعد الدوام (OT) من الساعة ${t.fixedStartTime}`);
-    } else {
-        showToast('☀️ تم إرجاع المهمة إلى ساعات الدوام الاعتيادية');
-    }
-    saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
-}
-
-function updateTaskDurationSelect(idx, val) {
-    pushUndo('تعديل مدة مهمة');
-    const log = getDayLog();
-    const t = log.tasks[idx];
-    t.dur = val;
-    const newMins = parseDurationToMins(val);
-    if (newMins > 0) syncTaskCompletionAndLiveClockOnDurChange(t, newMins);
-    logSectionHistory('tasks', 'edit', `مدة ${t.zones}: ${val}`, { taskId: t.id });
-    saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
-}
-
 function updateTaskDesc(idx, val) {
     pushUndo('تعديل وصف مهمة');
     const t = getDayLog().tasks[idx];
@@ -6560,20 +5795,28 @@ function splitTaskZones(idx) {
     });
     log.tasks.splice(idx, 1, ...expanded);
     logSectionHistory('tasks', 'split', `تفريق ${t.zones} إلى ${zones.length} بطاقات مستقلة`, {});
-    saveState(); renderTasks(log); showToast(`✂️ تم تفريق المهمة إلى ${zones.length} مناطق`);
+    saveState(); renderTasks(log); renderAttendance(log); showToast(`✂️ تم تفريق المهمة إلى ${zones.length} مناطق`);
 }
 function duplicateTask(idx) {
     pushUndo('نسخ مهمة');
     const log = getDayLog();
     const copy = JSON.parse(JSON.stringify(log.tasks[idx]));
     copy.id = 't_' + Date.now();
+    copy.status = 'Not Started / لم يبدأ';
     copy.photos = [];
     copy.startTimeMs = null;
     copy.pausedTotalMs = 0;
     copy.pausedAtMs = null;
-    copy.durLocked = false;
-    copy.startLocked = false;
-    copy.fixedStartTime = '';
+    copy.fixedStartTime = '08:00';
+    copy.fixedEndTime = '';
+    copy.stoppedForToday = false;
+    copy.timerFrozen = false;
+    copy.frozenAtMs = null;
+    copy.manualPauseFrom = '';
+    copy.manualPauseTo = '';
+    copy.manualOt = 0;
+    copy.workerTimings = {};
+    copy.autoNoteSuffix = '';
     if (copy.isTanker) {
         copy.tankerCapacity = getLatestTankerRemaining() || TANKER_FULL_CAPACITY;
         copy.tankerLiters = '';
@@ -6584,7 +5827,7 @@ function duplicateTask(idx) {
     }
     log.tasks.splice(idx + 1, 0, copy);
     logSectionHistory('tasks', 'add', `نسخ مهمة: ${copy.zones} (${copy.desc})`, { taskId: copy.id });
-    saveState(); renderTasks(log); showToast('📋 تم نسخ المهمة');
+    saveState(); renderTasks(log); renderAttendance(log); showToast('📋 تم نسخ المهمة كبطاقة جديدة');
 }
 function createReplacementTankerTask(idx) {
     pushUndo('إنشاء مهمة تنكر بديلة');
@@ -6717,7 +5960,8 @@ function savePickedZones(tIdx) {
 
 function setTaskStatus(idx, st) {
     pushUndo('تغيير حالة مهمة');
-    const t = getDayLog().tasks[idx];
+    const log = getDayLog();
+    const t = log.tasks[idx];
     const oldSt = t.status;
     t.status = st;
     const now = Date.now();
@@ -6726,20 +5970,30 @@ function setTaskStatus(idx, st) {
     const nowMins = nowDate.getHours() * 60 + nowDate.getMinutes();
 
     if (st.includes('Progress') && !oldSt.includes('Progress')) {
+        // Bug 4 Fix: Clear old completion/frozen end time so live timer resumes cleanly
+        t.fixedEndTime = '';
+        t.stoppedForToday = false;
+        t.timerFrozen = false;
+        t.frozenAtMs = null;
+        t.pausedAtMs = null;
+
         if (!t.fixedStartTime) {
-            // If logging during daytime work hours (08:00..16:59), use current time; otherwise anchor to 08:00 so hours never become 0
-            if (state.activeDate === todayStr && nowMins >= 8 * 60 && nowMins < 17 * 60) {
+            // Bug 5 Fix: Determine effective shift end for assigned workers (16:00 for outside/unassigned, 17:00 if permanent-only)
+            let cutoffMins = 16 * 60;
+            const wList = t.workers || [];
+            if (wList.length > 0 && !wList.includes('Team')) {
+                const assignedRecs = (log.attendance || []).filter(w => wList.includes((w.name.split('/')[1] || w.name).trim()));
+                if (assignedRecs.length > 0 && assignedRecs.every(w => (w.tOut || '16:00') >= '17:00')) {
+                    cutoffMins = 17 * 60;
+                }
+            }
+            if (state.activeDate === todayStr && nowMins >= 8 * 60 && nowMins < cutoffMins) {
                 t.fixedStartTime = formatTime24FromMs(now);
             } else {
                 t.fixedStartTime = '08:00';
             }
         }
         t.startTimeMs = hhmmToDateMs(t.fixedStartTime, state.activeDate) || now;
-        t.pausedAtMs = null;
-        if (!t.fixedEndTime) {
-            t.timerFrozen = false;
-            t.frozenAtMs = null;
-        }
         showToast(`▶️ المهمة قيد التنفيذ (بدأت ${t.fixedStartTime})`);
     } else if (st.includes('Completed')) {
         if (!t.fixedStartTime) {
@@ -6761,6 +6015,7 @@ function setTaskStatus(idx, st) {
                 t.fixedEndTime = formatTime24FromMs(eMs);
             }
         }
+        t.stoppedForToday = false;
         t.startTimeMs = null;
         t.pausedAtMs = null;
         t.timerFrozen = false;
@@ -6771,11 +6026,14 @@ function setTaskStatus(idx, st) {
             const netMs = getTaskNetElapsedMs(t, now);
             if (netMs > 0) t.dur = formatMsAsHrMin(netMs);
         }
+        t.stoppedForToday = false;
         t.startTimeMs = null;
         t.pausedAtMs = null;
         t.timerFrozen = false;
         t.frozenAtMs = null;
     } else {
+        t.stoppedForToday = false;
+        t.fixedEndTime = '';
         t.startTimeMs = null;
         t.pausedAtMs = null;
         t.timerFrozen = false;
@@ -6784,7 +6042,7 @@ function setTaskStatus(idx, st) {
 
     logSectionHistory('tasks', 'status', `${st.split('/')[1] || st}: ${t.zones} (${t.desc})`, { taskId: t.id });
     syncIrrigatedZonesFromTasks(false);
-    saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog());
+    saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
 }
 
 function updateTaskNote(idx, v) {
@@ -6801,7 +6059,7 @@ function deleteTask(idx) {
     getDayLog().tasks.splice(idx, 1);
     logSectionHistory('tasks', 'delete', `حذف مهمة: ${t.zones} (${t.desc})`, {});
     syncIrrigatedZonesFromTasks(false);
-    saveState(); renderTasks(getDayLog());
+    saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog());
 }
 function escalateTaskToIssue(idx) {
     const t = getDayLog().tasks[idx];
@@ -6879,95 +6137,6 @@ function removeTransferFromTasksTimings(log, tr) {
             syncWorkerTimingNotesOnTask(t);
         }
     });
-}
-
-function openTaskTransferModal(preFromIdx = null) {
-    const log = getDayLog();
-    if (log.tasks.length < 2) {
-        showToast('⚠️ يجب وجود مهمتين على الأقل لنقل عامل بينهما');
-        return;
-    }
-    const fromIdx = (preFromIdx !== null && preFromIdx !== undefined && log.tasks[preFromIdx]) ? preFromIdx : 0;
-    const toIdxDefault = log.tasks.findIndex((_, i) => i !== fromIdx);
-    const srcTask = log.tasks[fromIdx];
-
-    const presentWorkers = log.attendance.filter(w => !w.status.includes('Absent')).map(w => (w.name.split('/')[1] || w.name).trim());
-    const preferredWorker = (srcTask.workers || []).find(w => w !== 'Team' && presentWorkers.includes(w)) || presentWorkers[0] || '';
-    const now = new Date();
-    const nowStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-    openModal(`
-        <h3 class="card-title">🔄 انتقال عامل من مهمة إلى مهمة ثانية</h3>
-        <label class="lbl">اختر العامل (من الحضور):</label>
-        <select id="trWorker" class="inp">
-            ${presentWorkers.map(w => `<option value="${esc(w)}" ${w === preferredWorker ? 'selected' : ''}>${esc(w)}</option>`).join('')}
-        </select>
-        <div class="grid-2">
-            <div><label class="lbl">المهمة الأولى (الأساسية):</label><select id="trFrom" class="inp">
-                ${log.tasks.map((t, i) => `<option value="${i}" ${i === fromIdx ? 'selected' : ''}>#${i + 1} ${esc((t.task.split('/')[1] || t.task).trim())} [${esc(t.zones)}]</option>`).join('')}
-            </select></div>
-            <div><label class="lbl">المهمة الثانية (انتقل إليها):</label><select id="trTo" class="inp">
-                ${log.tasks.map((t, i) => `<option value="${i}" ${i === toIdxDefault ? 'selected' : ''}>#${i + 1} ${esc((t.task.split('/')[1] || t.task).trim())} [${esc(t.zones)}]</option>`).join('')}
-            </select></div>
-        </div>
-        <label class="lbl">نوع الانتقال:</label>
-        <select id="trMode" class="inp" style="font-weight:bold;" onchange="document.getElementById('trReturnWrap').style.display=(this.value==='roundtrip'?'block':'none')">
-            <option value="moved">🚚 انتقال كامل (يُحسب وقته في الأولى ثم في الثانية)</option>
-            <option value="roundtrip">🔄 انتقال مؤقت للإسناد ثم العودة للمهمة الأولى</option>
-        </select>
-        <div class="grid-2">
-            <div><label class="lbl">ساعة الانتقال:</label><input type="time" id="trTime" class="inp" value="${nowStr}"></div>
-            <div id="trReturnWrap" style="display:none;"><label class="lbl">ساعة العودة للأولى:</label><input type="time" id="trReturnTime" class="inp" value="${nowStr}"></div>
-        </div>
-        <label class="lbl">ملاحظة رسمية (تُكتب بدون إيموجي في التقرير):</label>
-        <input id="trNote" class="inp" placeholder="مثلاً: انتقل لإسناد الفريق في الري...">
-        <div class="grid-2"><button class="btn btn-green" onclick="saveTaskTransfer()">💾 حفظ الانتقال</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
-    `);
-}
-
-function saveTaskTransfer() {
-    const log = getDayLog();
-    const w = document.getElementById('trWorker').value;
-    const fIdx = parseInt(document.getElementById('trFrom').value);
-    const tIdx = parseInt(document.getElementById('trTo').value);
-    if (!w || isNaN(fIdx) || isNaN(tIdx) || fIdx === tIdx) {
-        showToast('⚠️ اختر مهمتين مختلفتين');
-        return;
-    }
-    pushUndo('نقل عامل بين المهام');
-    const fTask = log.tasks[fIdx];
-    const tTask = log.tasks[tIdx];
-    const mode = document.getElementById('trMode')?.value || 'moved';
-    const trTime = document.getElementById('trTime').value || '10:00';
-    const returnTime = mode === 'roundtrip' ? (document.getElementById('trReturnTime')?.value || trTime) : '';
-    const note = document.getElementById('trNote').value.trim();
-
-    const fStartMs = hhmmToDateMs(getTaskFixedStartTimeStr(fTask), state.activeDate);
-    const trMs = hhmmToDateMs(trTime, state.activeDate);
-    const durInFirst = (fStartMs && trMs && trMs > fStartMs)
-        ? formatMsAsHrMin(Math.max(0, trMs - fStartMs - (fTask.ignoreBreak ? 0 : getBreakOverlapMs(fStartMs, trMs, state.activeDate))))
-        : '';
-
-    if (!Array.isArray(log.transfers)) log.transfers = [];
-    const trObj = {
-        id: 'tr_' + Date.now(),
-        worker: w,
-        mode,
-        fromTaskId: fTask.id,
-        toTaskId: tTask.id,
-        fromTask: `${(fTask.task.split('/')[1] || fTask.task).trim()} (${fTask.zones})`,
-        toTask: `${(tTask.task.split('/')[1] || tTask.task).trim()} (${tTask.zones})`,
-        time: trTime,
-        returnTime,
-        dur: durInFirst,
-        note
-    };
-    log.transfers.push(trObj);
-    applyTransferToTasksTimings(log, trObj);
-
-    logSectionHistory('tasks', 'transfer', `انتقال ${w} (${trTime}) إلى ${tTask.zones}`, {});
-    closeModal(); saveState(); renderTasks(log); renderAttendance(log);
-    showToast(`✅ تم تسجيل انتقال ${w} وحفظ ساعاته في المهمتين`);
 }
 
 function openEditTaskTransferModal(trIdx) {
@@ -7111,7 +6280,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V16.5: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V16.6: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -7131,295 +6300,36 @@ function syncWorkerTimingNotesOnTask(t) {
     });
 
     let baseNote = String(t.note || '');
-    // Strip legacy emoji-prefixed or plain auto-generated worker transfer suffixes cleanly
+    // 1. Strip the exact previously appended autoNoteSuffix if present
+    if (t.autoNoteSuffix) {
+        if (baseNote === t.autoNoteSuffix) {
+            baseNote = '';
+        } else if (baseNote.endsWith(' | ' + t.autoNoteSuffix)) {
+            baseNote = baseNote.slice(0, -(' | ' + t.autoNoteSuffix).length).trim();
+        } else if (baseNote.includes(t.autoNoteSuffix)) {
+            baseNote = baseNote.replace(t.autoNoteSuffix, '').replace(/^\s*\|\s*|\s*\|\s*$/g, '').trim();
+        }
+    }
+    // 2. Strip legacy auto-generated worker timing/transfer segments cleanly
     baseNote = baseNote.replace(/\s*\|\s*👥\s*[\s\S]*$/g, '').replace(/^👥\s*[\s\S]*$/g, '').trim();
     const segments = baseNote.split(/\s*\|\s*/).filter(seg => {
         if (!seg) return false;
-        return !seg.includes('انتقال مؤقت للإسناد ثم العودة لاستكمال المهمة') &&
-               !seg.includes('انتقل من المنطقة إلى مهمة أخرى') &&
-               !seg.includes('منقول من (');
+        if (seg.includes('انتقال مؤقت للإسناد ثم العودة لاستكمال المهمة')) return false;
+        if (seg.includes('انتقل من المنطقة إلى مهمة أخرى')) return false;
+        if (seg.includes('منقول من (')) return false;
+        if (/\(\d{1,2}:\d{2}(?:-\d{1,2}:\d{2})?(?:\s*-\s*من\s*\([^)]+\))?\)$/.test(seg.trim())) return false;
+        return true;
     });
     const cleanBase = segments.join(' | ').trim();
 
     if (autoParts.length > 0) {
         const autoStr = autoParts.join(' ؛ ');
+        t.autoNoteSuffix = autoStr;
         t.note = cleanBase ? `${cleanBase} | ${autoStr}` : autoStr;
     } else {
+        t.autoNoteSuffix = '';
         t.note = cleanBase;
     }
-}
-
-function openTeamWorkerTimingPicker(tIdx) {
-    const log = getDayLog();
-    const presentWorkers = log.attendance.filter(w => !w.status.includes('Absent')).map(w => (w.name.split('/')[1] || w.name).trim());
-    if (!presentWorkers.length) { showToast('⚠️ لا يوجد عمال حاضرون'); return; }
-    openModal(`
-        <h3 class="card-title">⏱️ اختر عاملاً لضبط وقته أو تسجيل (انتقال مؤقت)</h3>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
-            ${presentWorkers.map(wn => `
-                <button class="btn btn-outline" style="justify-content:space-between;" onclick="closeModal();openWorkerTimingModal(${tIdx}, '${esc(wn)}')">
-                    <span>👷 ${esc(wn)}</span><span style="color:var(--blue);">تعديل الوقت ✏️</span>
-                </button>
-            `).join('')}
-        </div>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إلغاء</button>
-    `);
-}
-
-function openWorkerTimingModal(tIdx, workerName) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t) return;
-    if (!t.workerTimings) t.workerTimings = {};
-    const existing = t.workerTimings[workerName] || {};
-
-    const sp = getTaskShiftPeriod(t);
-    const defStart = getShiftDefaultStartInfo(sp === 'evening' ? 'Evening Shift' : 'Morning Shift', state.activeDate);
-    const baseStStr = t.fixedStartTime || defStart.hhmm;
-    const baseStMs = hhmmToDateMs(baseStStr, state.activeDate) || defStart.ms;
-    const taskMins = parseDurationToMins(t.dur) || 60;
-    const defEndMs = t.ignoreBreak ? (baseStMs + taskMins * 60000) : addNetWorkMinsSkippingBreak(baseStMs, taskMins, state.activeDate);
-
-    const isProgTask = !!(t.status && t.status.includes('Progress'));
-    const fromVal = existing.from || baseStStr;
-    const toVal = existing.to || (isProgTask ? '' : formatTime24FromMs(defEndMs));
-    const modeVal = existing.mode || 'normal';
-    const noteVal = existing.note || '';
-
-    openModal(`
-        <h3 class="card-title">⏱️ توقيت العامل: ${esc(workerName)}</h3>
-        <p style="font-size:11.5px;color:var(--muted);margin-top:0;">المهمة: <b>${esc((t.task.split('/')[1] || t.task).trim())}</b> (${esc(t.zones)})</p>
-        <div class="grid-2">
-            <div>
-                <label class="lbl">من الساعة (البدء):</label>
-                <input type="time" id="wtFromInp" class="inp" style="font-weight:bold;text-align:center;" value="${esc(fromVal)}">
-            </div>
-            <div>
-                <label class="lbl">إلى الساعة (الانتهاء):</label>
-                <input type="time" id="wtToInp" class="inp" style="font-weight:bold;text-align:center;" value="${esc(toVal)}">
-            </div>
-        </div>
-        <div style="margin-bottom:8px;">
-            <span class="chip" onclick="setWtQuickDur(10)">+10 د (مرشات)</span>
-            <span class="chip" onclick="setWtQuickDur(15)">+15 د (تنقيط)</span>
-            <span class="chip" onclick="setWtQuickDur(30)">+30 د</span>
-            <span class="chip" onclick="setWtQuickDur(60)">+1 ساعة</span>
-            <span class="chip" onclick="document.getElementById('wtFromInp').value='08:00';document.getElementById('wtToInp').value='';">طول الشفت (08:00 – نهاية الدوام)</span>
-        </div>
-        <label class="lbl">نوع المشاركة / التنقل (يُكتب تلقائياً في الملاحظات):</label>
-        <select id="wtModeSel" class="inp" style="font-weight:bold;">
-            <option value="normal" ${modeVal === 'normal' ? 'selected' : ''}>👷 مستمر / عمل اعتيادي بالمهمة</option>
-            <option value="roundtrip" ${modeVal === 'roundtrip' ? 'selected' : ''}>🔄 انتقال مؤقت للإسناد والعودة للمهمة الأساسية</option>
-            <option value="moved" ${modeVal === 'moved' ? 'selected' : ''}>🚚 انتقل من هذه المنطقة إلى مهمة أخرى</option>
-        </select>
-        <label class="lbl">توضيح إضافي بالملاحظات (اختياري):</label>
-        <input id="wtNoteInp" class="inp" value="${esc(noteVal)}" placeholder="مثلاً: شغّل المرشات ورجع يكمل شغله...">
-        <div class="grid-2">
-            <button class="btn btn-green" onclick="saveWorkerTiming(${tIdx}, '${esc(workerName)}')">💾 حفظ الوقت والملاحظة</button>
-            <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
-        </div>
-        ${existing.from || existing.to || existing.mode ? `<button class="btn btn-outline btn-full" style="margin-top:6px;color:var(--red);" onclick="clearWorkerTiming(${tIdx}, '${esc(workerName)}')">🗑️ مسح التوقيت المخصص لهذا العامل</button>` : ''}
-    `);
-}
-
-function setWtQuickDur(addMins) {
-    const fInp = document.getElementById('wtFromInp');
-    const tInp = document.getElementById('wtToInp');
-    if (!fInp || !tInp || !fInp.value) return;
-    const [hh, mm] = fInp.value.split(':').map(Number);
-    const d = new Date();
-    d.setHours(hh || 8, (mm || 0) + addMins, 0, 0);
-    tInp.value = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-}
-
-function saveWorkerTiming(tIdx, workerName) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t) return;
-    pushUndo('تعديل وقت عامل في مهمة');
-    if (!t.workerTimings) t.workerTimings = {};
-    const from = document.getElementById('wtFromInp').value;
-    const to = document.getElementById('wtToInp').value;
-    const mode = document.getElementById('wtModeSel').value;
-    const note = document.getElementById('wtNoteInp').value.trim();
-
-    const prevWt = t.workerTimings[workerName] || {};
-    t.workerTimings[workerName] = { ...prevWt, from, to, mode, note };
-    syncWorkerTimingNotesOnTask(t);
-
-    // Worker timing is kept cleanly on worker badges & formal notes without polluting task timeline events
-
-    logSectionHistory('tasks', 'workers', `توقيت ${workerName} في ${t.zones}: ${from}–${to}`, { taskId: t.id });
-    closeModal(); saveState(); renderTasks(log); renderAttendance(log);
-    showToast(`✅ تم حفظ وقت ${workerName} وتحديث الملاحظات وساعات العمل`);
-}
-
-function clearWorkerTiming(tIdx, workerName) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t || !t.workerTimings) return;
-    pushUndo('مسح توقيت عامل');
-    delete t.workerTimings[workerName];
-    syncWorkerTimingNotesOnTask(t);
-    closeModal(); saveState(); renderTasks(log); renderAttendance(log);
-    showToast(`🗑️ تم مسح التوقيت المخصص لـ ${workerName}`);
-}
-
-function getWorkerNetMinsInTask(t, shortName, nowMs = Date.now()) {
-    const info = getWorkerIntervalsForTask(t, shortName, nowMs);
-    const wt = (t.workerTimings && t.workerTimings[shortName]) || null;
-    let pausedMs = (wt && wt.pausedTotalMs) || 0;
-    if (wt && wt.pausedAtMs) pausedMs += Math.max(0, nowMs - wt.pausedAtMs);
-    return Math.max(0, info.mins - Math.round(pausedMs / 60000));
-}
-
-function toggleWorkerPauseInTask(tIdx, shortName) {
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    if (!t) return;
-    if (!t.workerTimings) t.workerTimings = {};
-    const sp = getTaskShiftPeriod(t);
-    const defStart = getShiftDefaultStartInfo(sp === 'evening' ? 'Evening Shift' : 'Morning Shift', state.activeDate);
-    const taskMins = parseDurationToMins(t.dur) || 60;
-    const defEndMs = addNetWorkMinsSkippingBreak(defStart.ms, taskMins, state.activeDate);
-
-    if (!t.workerTimings[shortName]) {
-        t.workerTimings[shortName] = {
-            from: t.fixedStartTime || defStart.hhmm,
-            to: formatTime24FromMs(defEndMs),
-            mode: 'normal',
-            note: '',
-            pausedTotalMs: 0,
-            pausedAtMs: null
-        };
-    }
-    const wt = t.workerTimings[shortName];
-    const now = Date.now();
-    if (wt.pausedAtMs) {
-        wt.pausedTotalMs = (wt.pausedTotalMs || 0) + Math.max(0, now - wt.pausedAtMs);
-        wt.pausedAtMs = null;
-        showToast(`▶️ تم استئناف وقت العامل (${shortName})`);
-    } else {
-        wt.pausedAtMs = now;
-        showToast(`⏸️ تم إيقاف وقت العامل (${shortName}) مؤقتاً`);
-    }
-    saveState();
-    openAssignWorkersModal(tIdx);
-}
-
-function openAssignWorkersModal(tIdx) {
-    const log = getDayLog();
-    const task = log.tasks[tIdx];
-    const presentWorkers = log.attendance.filter(w => !w.status.includes('Absent'));
-    const sp = getTaskShiftPeriod(task);
-    const defStart = getShiftDefaultStartInfo(sp === 'evening' ? 'Evening Shift' : 'Morning Shift', state.activeDate);
-    const baseStartStr = task.fixedStartTime || defStart.hhmm;
-    const baseStartMs = hhmmToDateMs(baseStartStr, state.activeDate) || defStart.ms;
-    const taskMins = parseDurationToMins(task.dur) || 60;
-    const isProgTask = !!(task.status && task.status.includes('Progress'));
-    const baseEndStr = isProgTask ? '' : formatTime24FromMs(addNetWorkMinsSkippingBreak(baseStartMs, taskMins, state.activeDate));
-
-    openModal(`
-        <h3 class="card-title">👷 العمال المنفذون وأوقاتهم (${esc(task.zones)})</h3>
-        <div style="display:flex;gap:6px;margin-bottom:8px;">
-            <button class="btn btn-blue btn-sm" style="flex:1;" onclick="document.querySelectorAll('.wk-chk').forEach(c=>c.checked=true)">👥 تحديد الفريق بالكامل (Team)</button>
-            <button class="btn btn-outline btn-sm" onclick="document.querySelectorAll('.wk-chk').forEach(c=>c.checked=false)">✕ إلغاء الكل</button>
-        </div>
-        <div style="max-height:330px;overflow-y:auto;margin-bottom:10px;">
-            ${presentWorkers.map((w, wI) => {
-                const shortName = (w.name.split('/')[1] || w.name).trim();
-                const checked = task.workers.includes(shortName) || task.workers.includes('Team');
-                const wt = (task.workerTimings && task.workerTimings[shortName]) || {};
-                const effectiveDefaultStart = (w.tIn && w.tIn > baseStartStr) ? w.tIn : baseStartStr;
-                const fromVal = wt.from || effectiveDefaultStart;
-                const toVal = wt.to || baseEndStr;
-                const isPaused = !!wt.pausedAtMs;
-                const netMins = getWorkerNetMinsInTask(task, shortName);
-                return `
-                <div style="background:${checked ? '#f0fdf4' : '#f8fafc'};border:1px solid ${checked ? '#86efac' : '#e2e8f0'};border-radius:9px;padding:7px 8px;margin-bottom:6px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;">
-                        <label style="font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;gap:5px;">
-                            <input type="checkbox" class="wk-chk" data-wname="${esc(shortName)}" id="wkChk_${wI}" value="${esc(shortName)}" ${checked ? 'checked' : ''}>
-                            <span>${esc(shortName)}</span>
-                        </label>
-                        <div style="display:flex;gap:4px;align-items:center;">
-                            <span class="badge" style="background:${isPaused ? '#fef3c7' : '#e0f2fe'};color:${isPaused ? '#92400e' : '#0369a1'};font-size:10.5px;">
-                                ${isPaused ? '⏸️ متوقف' : `⏱️ ${formatMsAsHrMin(netMins * 60000)}`}
-                            </span>
-                            <button type="button" class="btn btn-outline btn-sm" style="padding:2px 6px;font-size:10.5px;" onclick="toggleWorkerPauseInTask(${tIdx}, '${esc(shortName)}')" title="إيقاف أو استئناف وقت هذا العامل">
-                                ${isPaused ? '▶️' : '⏸️'}
-                            </button>
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:5px;align-items:center;margin-top:5px;font-size:11px;">
-                        <span>من:</span>
-                        <input type="time" id="wkFrom_${wI}" class="inp" style="margin:0;padding:3px 5px;width:92px;font-weight:bold;" value="${esc(fromVal)}">
-                        <span>إلى:</span>
-                        <input type="time" id="wkTo_${wI}" class="inp" style="margin:0;padding:3px 5px;width:92px;font-weight:bold;" value="${esc(toVal)}" placeholder="جاري">
-                        <select id="wkMode_${wI}" class="inp" style="margin:0;padding:3px 4px;flex:1;font-size:10.5px;">
-                            <option value="normal" ${(wt.mode || 'normal') === 'normal' ? 'selected' : ''}>مستمر</option>
-                            <option value="roundtrip" ${wt.mode === 'roundtrip' ? 'selected' : ''}>انتقال مؤقت وعودة</option>
-                            <option value="moved" ${wt.mode === 'moved' ? 'selected' : ''}>انتقل لمهمة أخرى</option>
-                        </select>
-                    </div>
-                </div>`;
-            }).join('')}
-        </div>
-        <div class="grid-2"><button class="btn btn-green" onclick="saveAssignedWorkers(${tIdx})">💾 حفظ العمال والأوقات</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
-    `);
-}
-function saveAssignedWorkers(tIdx) {
-    pushUndo('تعيين عمال وأوقاتهم لمهمة');
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    const presentWorkers = log.attendance.filter(w => !w.status.includes('Absent'));
-    const sp = getTaskShiftPeriod(t);
-    const defStart = getShiftDefaultStartInfo(sp === 'evening' ? 'Evening Shift' : 'Morning Shift', state.activeDate);
-    const baseStartStr = t.fixedStartTime || defStart.hhmm;
-    const baseStartMs = hhmmToDateMs(baseStartStr, state.activeDate) || defStart.ms;
-    const taskMins = parseDurationToMins(t.dur) || 60;
-    const isProgTask = !!(t.status && t.status.includes('Progress'));
-    const baseEndStr = isProgTask ? '' : formatTime24FromMs(addNetWorkMinsSkippingBreak(baseStartMs, taskMins, state.activeDate));
-
-    if (!t.workerTimings) t.workerTimings = {};
-    const selectedNames = [];
-
-    presentWorkers.forEach((w, wI) => {
-        const shortName = (w.name.split('/')[1] || w.name).trim();
-        const chk = document.getElementById(`wkChk_${wI}`);
-        if (chk && chk.checked) {
-            selectedNames.push(shortName);
-            const effectiveDefaultStart = (w.tIn && w.tIn > baseStartStr) ? w.tIn : baseStartStr;
-            const fVal = document.getElementById(`wkFrom_${wI}`)?.value || effectiveDefaultStart;
-            const tVal = document.getElementById(`wkTo_${wI}`)?.value || '';
-            const mVal = document.getElementById(`wkMode_${wI}`)?.value || 'normal';
-            const prevWt = t.workerTimings[shortName] || {};
-            const startChanged = fVal !== effectiveDefaultStart && fVal !== baseStartStr;
-            const endChanged = isProgTask ? Boolean(tVal) : (Boolean(tVal) && tVal !== baseEndStr);
-            const isCustom = startChanged || endChanged || mVal !== 'normal' || prevWt.pausedTotalMs || prevWt.pausedAtMs || prevWt.awayFrom;
-            if (isCustom) {
-                t.workerTimings[shortName] = {
-                    ...prevWt,
-                    from: fVal,
-                    to: isProgTask ? tVal : (tVal || baseEndStr),
-                    mode: mVal
-                };
-            } else {
-                delete t.workerTimings[shortName];
-            }
-        } else {
-            delete t.workerTimings[shortName];
-        }
-    });
-
-    if (selectedNames.length === presentWorkers.length && presentWorkers.length > 1) {
-        t.workers = ['Team'];
-    } else {
-        t.workers = selectedNames;
-    }
-    syncWorkerTimingNotesOnTask(t);
-    logSectionHistory('tasks', 'workers', `عمال ${t.zones}: ${t.workers.join(' / ')}`, { taskId: t.id });
-    closeModal(); saveState(); renderTasks(log); renderAttendance(log);
 }
 
 /* ================= Tanker Pre-Start (24,000 L Capacity) & Finish Dispensed Modals ================= */
@@ -7647,7 +6557,7 @@ function jumpToMeters() { switchTab('tools'); window.scrollTo(0, 0); }
 function renderReadingsAndTools(log) {
     renderStickySectionHistory('tools', 'stickyHist-tools', 'القراءات والأدوات');
     const wx = ensureWeatherObj(log);
-    if (document.getElementById('wxCond')) {{
+    if (document.getElementById('wxCond')) {
         document.getElementById('wxCond').value = wx.cond || '';
         document.getElementById('wxTime').value = wx.time || '';
         document.getElementById('wxTMin').value = wx.tMin !== '' ? wx.tMin : '';
@@ -7658,7 +6568,7 @@ function renderReadingsAndTools(log) {
         document.getElementById('wxPress').value = wx.press !== '' ? wx.press : '';
         document.getElementById('wxPrecip').value = wx.precip !== '' ? wx.precip : '';
         document.getElementById('wxNotes').value = wx.notes || '';
-    }}
+    }
     document.getElementById('moistureContainer').innerHTML = log.moisture.map((mo, idx) => `
         <div style="display:flex;gap:5px;margin-bottom:5px;">
             <input list="globalZonesList" class="inp" style="margin:0;padding:6px;flex:1;" value="${esc(mo.zone)}" placeholder="المنطقة ${mo.id}" onchange="updateMoisture(${idx},'zone',this.value)">
@@ -9266,7 +8176,7 @@ function runPreExportCheck(mode = 'gemini_json') {
     if (unlinkedCnt > 0) warnings.push(`• توجد <b>${unlinkedCnt}</b> صور ملتقطة اليوم بدون رابط Google Drive بعد.`);
     if (log.tasks.some(t => t.status.includes('Blocked') && !t.note.trim())) warnings.push('• توجد مهمة متوقفة بدون كتابة سبب التوقف.');
     if (log.tasks.some(t => t.status.includes('Blocked')) && !log.oar.obs) warnings.push('• توجد مهام متوقفة ولم يُملأ تقرير OAR بعد.');
-    if (log.tasks.some(t => t.status.includes('Progress'))) warnings.push('• توجد مهام جارية لم تُكتمل بعد.');
+    if (log.tasks.some(t => t.status.includes('Progress') && !t.stoppedForToday && !t.fixedEndTime)) warnings.push('• توجد مهام جارية لا يزال عدادها مفتوحاً — اضغط «⏹️ انتهى وقت العمل» أو «✓ مكتمل» لتثبيت ساعات اليوم.');
     const totalZoneRows = log.tasks.reduce((sum, t) => sum + Math.max(1, (t.zones || '').split(',').map(s => s.trim()).filter(Boolean).length), 0);
     if (totalZoneRows > 33) warnings.push(`• عدد أسطر المناطق بالمهام (${totalZoneRows} سطر) يتجاوز سعة القالب (33 سطر) — يُفضّل دمج المناطق المتشابهة.`);
 
@@ -9355,9 +8265,8 @@ async function exportLightweightDFL() {
 
     let autoIrrMins = 0;
     log.tasks.forEach(t => {
-        if (t.task.includes('Irrigation') && t.status.includes('Completed')) {
-            const m = String(t.dur || '').match(/(\d+):(\d+)/);
-            if (m) autoIrrMins += parseInt(m[1]) * 60 + parseInt(m[2]);
+        if (t.task.includes('Irrigation') && (t.status.includes('Completed') || t.status.includes('Progress'))) {
+            autoIrrMins += parseDurationToMins(getTaskReportDurationStr(t));
         }
     });
     if (!log.perf.duration && autoIrrMins > 0) {
@@ -9612,7 +8521,7 @@ async function exportLightweightDFL() {
   * **B95** (مدمجة B95:H95): الملاحظة (obs) | **B97** (مدمجة B97:H97): التحليل (ana) | **B99** (مدمجة B99:H99): التوصية (rec)
   * **B104** (مدمجة B104:C104): 'Name  /  الاسم: ${state.company.teamLead}' | **B106** (مدمجة B106:C106): 'Date  /  التاريخ: ${state.activeDate}'
 
-### القاعدة 9: تعبئة ورقة 'Site Deviation Log' بالكامل (إذا كانت siteDeviationLogSheet غير فارغة — عدد السجلات: ${log.sdls.length})
+### القاعدة 10: تعبئة ورقة 'Site Deviation Log' بالكامل (إذا كانت siteDeviationLogSheet غير فارغة — عدد السجلات: ${log.sdls.length})
 - املأ ورقة **'Site Deviation Log'** في نفس الملف:
   * **G5**: رقم السجل (code) | **D6**: 'The Food Forests (TFF)' | **G6**: "${site.name}" | **D7**: "${state.activeDate}" | **G7**: وقت الرفع (time) | **D8**: "${state.company.teamLead}" | **G8**: 'Team Lead  /  قائد الفريق' | **G9**: "${state.company.supervisor || 'Maitham Ibrahim'}"
   * **D11**: الحالة (status مثل 'Open / مفتوح' أو 'Resolved / محلول') | **G11**: الخطورة (severity)
@@ -9663,7 +8572,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.5) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.6) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -10267,7 +9176,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.5 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.6 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
