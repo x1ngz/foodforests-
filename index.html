@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V16.0</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V16.1</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -260,7 +260,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V16.0 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V16.1 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -355,9 +355,10 @@
                 <button class="btn btn-blue" style="margin:0;" onclick="loadSiteIrrigationPlan()">⚡ خطة ري <span id="planDayLabel"></span></button>
                 <button class="btn btn-purple" style="margin:0;" onclick="openShiftTimeDistributorModal()">⚖️ توزيع وقت الشفت</button>
             </div>
-            <div class="grid-2" style="margin-bottom:8px;">
-                <button class="btn btn-outline" style="margin:0;padding:7px;font-size:12px;" onclick="openPlanEditorModal()">🗓️ تعديل خطة الري</button>
-                <button class="btn btn-outline" style="margin:0;padding:7px;font-size:12px;" onclick="openTaskPresetsModal()">📌 قوالب مهام جاهزة</button>
+            <div class="grid-3" style="margin-bottom:8px;">
+                <button class="btn btn-outline" style="margin:0;padding:7px 4px;font-size:11.5px;" onclick="openPlanEditorModal()">🗓️ خطة الري</button>
+                <button class="btn btn-outline" style="margin:0;padding:7px 4px;font-size:11.5px;" onclick="openTaskPresetsModal()">📌 قوالب جاهزة</button>
+                <button class="btn btn-outline" style="margin:0;padding:7px 4px;font-size:11.5px;border-color:#fdba74;color:#9a3412;background:#fff7ed;" onclick="carryOverUnfinishedTasks()">📥 مهام الأمس</button>
             </div>
             <!-- End-of-Shift (15:45) Reminder Banner -->
             <div id="endOfShiftBanner" style="display:none;background:#fef2f2;border:1.5px solid #f87171;border-radius:10px;padding:8px 10px;margin-bottom:9px;font-size:12px;color:#991b1b;font-weight:bold;">
@@ -806,7 +807,7 @@ let state = {
 
 
 
-/* ================= V16.0: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V16.1: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -952,7 +953,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V16.0: Task Presets Manager ================= */
+/* ================= V16.1: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1042,7 +1043,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V16.0: DFL Readiness Progress Bar ================= */
+/* ================= V16.1: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1082,7 +1083,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V16.0: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V16.1: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1340,7 +1341,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V16.0: Electronic Touch Signature Pad ================= */
+/* ================= V16.1: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1771,17 +1772,7 @@ function getYesterdayPendingItems(log = getDayLog()) {
 
 function renderYesterdayCarryBanner(log) {
     const box = document.getElementById('yesterdayCarryBanner');
-    if (!box) return;
-    const { prevDate, items, uncarriedCount } = getYesterdayPendingItems(log);
-    if (!prevDate || items.length === 0 || uncarriedCount === 0) {
-        box.innerHTML = '';
-        return;
-    }
-    box.innerHTML = `
-    <div style="background:#fff7ed;border:1.5px solid #fdba74;border-radius:10px;padding:8px 10px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;">
-        <span style="color:#9a3412;font-weight:bold;">📋 توجد ${uncarriedCount} مهام غير مكتملة من أمس (${prevDate})</span>
-        <button class="btn btn-orange btn-sm" onclick="carryOverUnfinishedTasks()">👁️ عرض واختيار المهام</button>
-    </div>`;
+    if (box) box.innerHTML = '';
 }
 
 function carryOverUnfinishedTasks() {
@@ -1811,7 +1802,9 @@ function carryOverUnfinishedTasks() {
             ${items.map(({ t, origIdx, alreadyInToday }) => {
                 const isBlk = t.status.includes('Blocked');
                 const isPrg = t.status.includes('Progress');
-                const stAr = isBlk ? '🛑 متوقف' : (isPrg ? '🔵 جاري' : (t.status.includes('Carried Over') ? '⏭️ مرحّل' : '⏳ لم يبدأ'));
+                const yestWorkedMs = (isPrg && t.startTimeMs) ? getTaskNetElapsedMs(t, Date.now(), prevDate) : 0;
+                const yestWorkedStr = yestWorkedMs > 0 ? formatMsAsHrMin(yestWorkedMs) : '';
+                const stAr = isBlk ? '🛑 متوقف' : (isPrg ? `🔵 جاري${yestWorkedStr ? ' (اشتُغل: ' + yestWorkedStr + ')' : ''}` : (t.status.includes('Carried Over') ? '⏭️ مرحّل' : '⏳ لم يبدأ'));
                 const stBg = isBlk ? '#fee2e2' : (isPrg ? '#e0f2fe' : '#f1f5f9');
                 const stCol = isBlk ? '#b91c1c' : (isPrg ? '#0369a1' : '#475569');
                 return `
@@ -1822,7 +1815,7 @@ function carryOverUnfinishedTasks() {
                             <b>${esc((t.task.split('/')[1] || t.task).trim())}</b>
                             <span class="badge" style="background:#e0f2fe;color:#0369a1;">📍 ${esc(t.zones)}</span>
                         </div>
-                        <div style="color:#334155;font-size:11.5px;margin-top:2px;">${esc(t.desc)} <span style="color:var(--muted);">(${esc(t.dur || '1:00 hr')})</span></div>
+                        <div style="color:#334155;font-size:11.5px;margin-top:2px;">${esc(t.desc)} <span style="color:var(--muted);">(المخطط: ${esc(t.dur || '1:00 hr')})</span></div>
                         <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
                             <span class="badge" style="background:${stBg};color:${stCol};font-size:10px;">حالة الأمس: ${stAr}</span>
                             ${alreadyInToday ? '<span class="badge" style="background:#dcfce7;color:#166534;font-size:10px;">✅ مُرحّلة لليوم مسبقاً</span>' : ''}
@@ -1906,7 +1899,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V16.0: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V16.1: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -2070,12 +2063,13 @@ async function generateDirectExcelDFL() {
             const wCount = isTeam ? presentCount : (wList.length > 0 ? wList.length : 1);
             const wStr = isTeam ? 'Team' : wList.join(' / ');
             const stTime = getTaskFixedStartTimeStr(t);
+            const repDur = getTaskReportDurationStr(t);
             zones.forEach((z, zIdx) => {
                 expandedRows.push({
                     task: t.task,
                     desc: t.desc,
                     zone: z,
-                    dur: t.dur,
+                    dur: repDur,
                     startTime: stTime,
                     wCount,
                     status: t.status.includes('Carried Over') ? 'Not Started / لم يبدأ' : t.status,
@@ -3102,12 +3096,57 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 
-function getTaskNetElapsedMs(t, nowMs = Date.now()) {
-    if (!t.startTimeMs) return 0;
-    const endPoint = t.pausedAtMs ? t.pausedAtMs : nowMs;
+function getTaskShiftEndCapMs(t, dateStr = state.activeDate) {
+    const defaultEndMs = hhmmToDateMs('16:00', dateStr);
+    if (!defaultEndMs) return null;
+    const log = getDayLog(dateStr);
+    const wList = (t && Array.isArray(t.workers)) ? t.workers : [];
+    if (wList.length > 0 && !wList.includes('Team')) {
+        let maxWorkerEndMs = 0;
+        wList.forEach(wn => {
+            const wRec = (log.attendance || []).find(w => (w.name.split('/')[1] || w.name).trim() === wn);
+            if (wRec && !String(wRec.status || '').includes('Absent') && wRec.tOut) {
+                const baseOut = hhmmToDateMs(wRec.tOut, dateStr);
+                const otMs = Math.round((parseFloat(wRec.ot) || 0) * 3600000);
+                if (baseOut && (baseOut + otMs) > maxWorkerEndMs) {
+                    maxWorkerEndMs = baseOut + otMs;
+                }
+            }
+        });
+        if (maxWorkerEndMs > defaultEndMs) {
+            const eodMax = hhmmToDateMs('23:59', dateStr) || maxWorkerEndMs;
+            return Math.min(maxWorkerEndMs, eodMax);
+        }
+    }
+    return defaultEndMs;
+}
+
+function isTaskCappedByShiftEnd(t, nowMs = Date.now(), dateStr = state.activeDate) {
+    if (!t || !t.status || !t.status.includes('Progress') || !t.startTimeMs || t.pausedAtMs || t.ignoreShiftEndCap) {
+        return false;
+    }
+    const capMs = getTaskShiftEndCapMs(t, dateStr);
+    return !!(capMs && nowMs >= capMs);
+}
+
+function getTaskNetElapsedMs(t, nowMs = Date.now(), dateStr = state.activeDate) {
+    if (!t || !t.startTimeMs) return 0;
+    let endPoint = t.pausedAtMs ? t.pausedAtMs : nowMs;
+    if (!t.pausedAtMs && !t.ignoreShiftEndCap) {
+        const capMs = getTaskShiftEndCapMs(t, dateStr);
+        if (capMs && endPoint > capMs) endPoint = capMs;
+    }
     const pausedMs = t.pausedTotalMs || 0;
-    const breakMs = t.ignoreBreak ? 0 : getBreakOverlapMs(t.startTimeMs, endPoint, state.activeDate);
+    const breakMs = t.ignoreBreak ? 0 : getBreakOverlapMs(t.startTimeMs, endPoint, dateStr);
     return Math.max(0, endPoint - t.startTimeMs - pausedMs - breakMs);
+}
+
+function getTaskReportDurationStr(t, nowMs = Date.now(), dateStr = state.activeDate) {
+    if (t && t.status && t.status.includes('Progress') && t.startTimeMs) {
+        const netMs = getTaskNetElapsedMs(t, nowMs, dateStr);
+        if (netMs > 0) return formatMsAsHrMin(netMs);
+    }
+    return (t && t.dur) || '1:00 hr';
 }
 
 function formatMsAsHrMin(ms) {
@@ -3161,12 +3200,24 @@ function openRetroStartTimeModal(tIdx) {
             <button class="btn btn-green btn-full" style="margin:0;padding:8px;" onclick="saveRetroStartTime(${tIdx})">🕒 اعتماد ساعة البداية</button>
         </div>
 
-        <div style="margin-bottom:8px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center;background:#fef3c7;padding:7px 9px;border-radius:8px;">
+        <div style="margin-bottom:6px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center;background:#fef3c7;padding:7px 9px;border-radius:8px;">
             <span>☕ خصم استراحة الظهر (${bw.startStr} - ${bw.endStr}): <b>${t.ignoreBreak ? 'مستثناة' : 'مفعّلة تلقائياً'}</b></span>
             <button class="btn btn-outline btn-sm" onclick="toggleTaskIgnoreBreak(${tIdx});closeModal();openRetroStartTimeModal(${tIdx})">${t.ignoreBreak ? 'تفعيل الخصم' : 'استثناء'}</button>
         </div>
+        <div style="margin-bottom:8px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center;background:#f0f9ff;padding:7px 9px;border-radius:8px;">
+            <span>🌇 إيقاف العداد بنهاية الدوام (${formatTime24FromMs(getTaskShiftEndCapMs(t)) || '16:00'}): <b>${t.ignoreShiftEndCap ? 'مستثناة (أوفرتايم)' : 'مفعّلة تلقائياً'}</b></span>
+            <button class="btn btn-outline btn-sm" onclick="toggleTaskIgnoreShiftEndCap(${tIdx});closeModal();openRetroStartTimeModal(${tIdx})">${t.ignoreShiftEndCap ? 'تفعيل القفل' : 'استثناء'}</button>
+        </div>
         <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
     `);
+}
+
+function toggleTaskIgnoreShiftEndCap(tIdx) {
+    pushUndo('تبديل قفل نهاية الدوام للمهمة');
+    const t = getDayLog().tasks[tIdx];
+    if (!t) return;
+    t.ignoreShiftEndCap = !t.ignoreShiftEndCap;
+    saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog()); checkTaskTimers();
 }
 
 function saveRetroElapsedDuration(tIdx) {
@@ -3176,7 +3227,11 @@ function saveRetroElapsedDuration(tIdx) {
     pushUndo('تعديل المدة المحسوبة لمهمة جارية');
     const t = getDayLog().tasks[tIdx];
     const now = Date.now();
-    const endPoint = t.pausedAtMs ? t.pausedAtMs : now;
+    let endPoint = t.pausedAtMs ? t.pausedAtMs : now;
+    if (!t.pausedAtMs && !t.ignoreShiftEndCap) {
+        const capMs = getTaskShiftEndCapMs(t);
+        if (capMs && endPoint > capMs) endPoint = capMs;
+    }
     const pausedMs = t.pausedTotalMs || 0;
 
     let candidateStart = endPoint - targetNetMs - pausedMs;
@@ -3292,7 +3347,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V16.0: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V16.1: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function openTaskTimelineEditorModal(tIdx) {
     const log = getDayLog();
     const t = log.tasks[tIdx];
@@ -3571,6 +3626,8 @@ function updateLiveTimersDomOnly() {
             const netStr = formatMsAsHrMin(getTaskNetElapsedMs(t, now));
             if (t.pausedAtMs) {
                 el.textContent = `⏸️ متوقف (${netStr})`;
+            } else if (isTaskCappedByShiftEnd(t, now)) {
+                el.textContent = `⏹️ توقف بنهاية الدوام (${netStr})`;
             } else if (inBreak && !t.ignoreBreak) {
                 el.textContent = `☕ استراحة الظهر (${netStr})`;
             } else {
@@ -4156,7 +4213,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V16.0: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V16.1: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function openShiftTimeDistributorModal() {
     const log = getDayLog();
     const mornTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'morning');
@@ -4690,7 +4747,7 @@ function checkTaskTimers() {
     const nowMs = Date.now();
 
     log.tasks.forEach((t, idx) => {
-        if (t.status.includes('Progress') && t.startTimeMs && !t.pausedAtMs && !(isNowInDailyBreak(nowMs) && !t.ignoreBreak)) {
+        if (t.status.includes('Progress') && t.startTimeMs && !t.pausedAtMs && !isTaskCappedByShiftEnd(t, nowMs) && !(isNowInDailyBreak(nowMs) && !t.ignoreBreak)) {
             const elapMins = getTaskNetElapsedMs(t, nowMs) / 60000;
             let targetMins = 60;
             const m = String(t.dur || '').match(/(\d+):(\d+)/);
@@ -5279,8 +5336,8 @@ function renderTasksQueue(log) {
                     <div style="font-size:12px;flex:1;min-width:170px;cursor:pointer;" onclick="scrollToTaskCard(${x.i})" title="الانتقال إلى بطاقة المهمة">
                         <div><span class="task-num-badge" style="background:#0284c7;">#${x.i + 1}</span> <b style="color:var(--blue);text-decoration:underline;">📍 ${esc(x.t.zones)}</b> — <b>${esc(shortTitle)}</b></div>
                         <div style="font-size:11px;color:#334155;margin-top:2px;">${esc(x.t.desc)} • 👷 ${esc(wTxt)}</div>
-                        <span class="live-timer-pill ${x.t.pausedAtMs ? 'is-paused' : ''}" onclick="event.stopPropagation();openRetroStartTimeModal(${x.i})">
-                            🕒 بدأ: ${startStr} ✏️ | <span data-live-task-id="${x.t.id}">${x.t.pausedAtMs ? `⏸️ استراحة (${netStr})` : `⏱️ مستمر ${netStr}`}</span> (المخطط: ${esc(x.t.dur || '1:00 hr')})
+                        <span class="live-timer-pill ${x.t.pausedAtMs || isTaskCappedByShiftEnd(x.t) ? 'is-paused' : ''}" onclick="event.stopPropagation();openRetroStartTimeModal(${x.i})">
+                            🕒 بدأ: ${startStr} ✏️ | <span data-live-task-id="${x.t.id}">${x.t.pausedAtMs ? `⏸️ استراحة (${netStr})` : (isTaskCappedByShiftEnd(x.t) ? `⏹️ توقف بنهاية الدوام (${netStr})` : `⏱️ مستمر ${netStr}`)}</span> (المخطط: ${esc(x.t.dur || '1:00 hr')})
                         </span>
                     </div>
                     <div style="display:flex;gap:4px;align-items:center;">
@@ -5525,8 +5582,8 @@ function renderTasks(log) {
 
             ${isProg ? `
             <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:7px;flex-wrap:wrap;">
-                <span class="live-timer-pill ${t.pausedAtMs || (isNowInDailyBreak() && !t.ignoreBreak) ? 'is-paused' : ''}" onclick="openRetroStartTimeModal(${idx})" title="اضغط لتعديل المدة المنقضية أو وقت البداية">
-                    ▶️ بدأ: ${formatTime24FromMs(t.startTimeMs || Date.now())} | <span data-live-task-id="${t.id}">${t.pausedAtMs ? `⏸️ متوقف للاستراحة (${formatMsAsHrMin(getTaskNetElapsedMs(t))})` : (isNowInDailyBreak() && !t.ignoreBreak ? `☕ استراحة الظهر (${formatMsAsHrMin(getTaskNetElapsedMs(t))})` : `⏱️ مستمر منذ ${formatMsAsHrMin(getTaskNetElapsedMs(t))}`)}</span> ✏️
+                <span class="live-timer-pill ${t.pausedAtMs || isTaskCappedByShiftEnd(t) || (isNowInDailyBreak() && !t.ignoreBreak) ? 'is-paused' : ''}" onclick="openRetroStartTimeModal(${idx})" title="اضغط لتعديل المدة المنقضية أو وقت البداية">
+                    ▶️ بدأ: ${formatTime24FromMs(t.startTimeMs || Date.now())} | <span data-live-task-id="${t.id}">${t.pausedAtMs ? `⏸️ متوقف للاستراحة (${formatMsAsHrMin(getTaskNetElapsedMs(t))})` : (isTaskCappedByShiftEnd(t) ? `⏹️ توقف بنهاية الدوام (${formatMsAsHrMin(getTaskNetElapsedMs(t))})` : (isNowInDailyBreak() && !t.ignoreBreak ? `☕ استراحة الظهر (${formatMsAsHrMin(getTaskNetElapsedMs(t))})` : `⏱️ مستمر منذ ${formatMsAsHrMin(getTaskNetElapsedMs(t))}`))}</span> ✏️
                 </span>
                 <div style="display:flex;gap:3px;">
                     <button class="btn btn-outline btn-sm" style="padding:2px 7px;" onclick="toggleTaskPause(${idx})">${t.pausedAtMs ? '▶️ استئناف' : '⏸️ استراحة'}</button>
@@ -6191,7 +6248,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V16.0: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V16.1: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -7829,12 +7886,13 @@ function openTablePreviewModal() {
                         const zones = (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean);
                         const wStr = (t.workers && t.workers.includes('Team')) ? 'Team' : ((t.workers || []).join(' / ') || '-');
                         const stTime = getTaskFixedStartTimeStr(t);
+                        const repDur = getTaskReportDurationStr(t);
                         const noteOut = (getTaskShiftPeriod(t) === 'both' && !(t.note || '').includes('Morning & Afternoon'))
                             ? [t.note, '(Morning & Afternoon / صباحي ومسائي)'].filter(Boolean).join(' ')
                             : (t.note || '-');
                         zones.forEach((z, zIdx) => {
                             rows.push({
-                                task: t.task, desc: t.desc, zone: z, dur: t.dur, startTime: stTime,
+                                task: t.task, desc: t.desc, zone: z, dur: repDur, startTime: stTime,
                                 wStr, status: (t.status.split('/')[1] || t.status).trim(), note: noteOut,
                                 pRef: zIdx === 0 ? (taskPhotoRefs[i] || '-') : '-',
                                 groupWithPrev: zIdx > 0 || (zIdx === 0 && !!t.syncWithPrev && i > 0)
@@ -8490,7 +8548,7 @@ async function exportLightweightDFL() {
                 briefDescription: t.desc,
                 zonesList: (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean),
                 startTime: getTaskFixedStartTimeStr(t),
-                time: t.dur,
+                time: getTaskReportDurationStr(t),
                 workersCount: wCount,
                 status: t.status.includes('Carried Over') ? 'Not Started / لم يبدأ' : t.status,
                 notes: (getTaskShiftPeriod(t) === 'both' && !(t.note || '').includes('Morning & Afternoon'))
@@ -8725,7 +8783,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.0) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.1) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -9325,7 +9383,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.0 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.1 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
