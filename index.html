@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V15.9</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V16.0</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -182,7 +182,15 @@
             position: absolute; top: -5px; right: -5px; width: 18px; height: 18px;
             border-radius: 50%; background: var(--red); color: white; border: none;
             font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
+        .photo-dl-badge {
+            position: absolute; bottom: -4px; left: -4px; width: 20px; height: 20px;
+            border-radius: 50%; background: var(--primary); color: white; border: 1.5px solid white;
+            font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.35); padding: 0;
+        }
+        .photo-dl-badge:active { transform: scale(0.9); }
 
         /* Sort Controls */
         .sort-controls { display: flex; flex-direction: column; gap: 2px; }
@@ -252,7 +260,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V15.9 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V16.0 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -798,7 +806,7 @@ let state = {
 
 
 
-/* ================= V15.9: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V16.0: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -944,7 +952,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V15.9: Task Presets Manager ================= */
+/* ================= V16.0: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1034,7 +1042,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V15.9: DFL Readiness Progress Bar ================= */
+/* ================= V16.0: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1074,7 +1082,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V15.9: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V16.0: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1332,7 +1340,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V15.9: Electronic Touch Signature Pad ================= */
+/* ================= V16.0: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1898,7 +1906,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V15.9: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V16.0: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -3284,7 +3292,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V15.9: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V16.0: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function openTaskTimelineEditorModal(tIdx) {
     const log = getDayLog();
     const t = log.tasks[tIdx];
@@ -4148,7 +4156,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V15.9: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V16.0: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function openShiftTimeDistributorModal() {
     const log = getDayLog();
     const mornTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'morning');
@@ -5581,15 +5589,17 @@ function renderTasks(log) {
                 ${idx > 0 ? `<span class="chip ${t.syncWithPrev ? 'active' : ''}" style="margin:0;" onclick="toggleTaskSyncWithPrev(${idx})">${t.syncWithPrev ? '🔗 مرتبطة بالسابقة' : '🔗 دمج مع السابقة'}</span>` : ''}
             </div>` : ''}
 
-            <!-- Multi-Photo Thumbnails Strip -->
+            <!-- Multi-Photo Thumbnails Strip (with Direct Save to Phone) -->
             ${photos.length > 0 ? `
             <div class="photo-strip">
                 ${photos.map((pUrl, pI) => `
                     <div class="photo-item-wrap">
-                        <img src="${getPhotoUrl(pUrl)}" class="photo-thumb" onclick="previewSinglePhoto('${pUrl}')">
-                        <button class="photo-del-badge" onclick="removePhotoFromItem('task', ${idx}, ${pI})">✕</button>
+                        <img src="${getPhotoUrl(pUrl)}" class="photo-thumb" onclick="previewSinglePhoto('${pUrl}', '${esc(t.zones)}_${pI + 1}')">
+                        <button class="photo-del-badge" onclick="event.stopPropagation();removePhotoFromItem('task', ${idx}, ${pI})" title="حذف الصورة">✕</button>
+                        <button class="photo-dl-badge" onclick="event.stopPropagation();downloadTaskPhotoDirect(${idx}, ${pI})" title="حفظ الصورة بالتلفون مباشرة">📥</button>
                     </div>
                 `).join('')}
+                ${photos.length > 1 ? `<button class="btn btn-green btn-sm" style="padding:4px 8px;font-size:11px;" onclick="downloadAllTaskPhotosDirect(${idx})" title="حفظ جميع صور هذه المهمة">📥 حفظ الكل (${photos.length})</button>` : ''}
             </div>` : ''}
 
             <!-- Tanker Pre-Start Capacity & Post-Finish Dispensed Amount -->
@@ -6181,7 +6191,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V15.9: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V16.0: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -8118,11 +8128,94 @@ function openTodayPhotosGallery() {
     `);
 }
 
-function previewSinglePhoto(urlOrId) {
+function sanitizePhotoFilePart(str) {
+    return String(str || '')
+        .replace(/[\/\\:*?"<>|,]+/g, '-')
+        .replace(/\s+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^[-_]+|[-_]+$/g, '')
+        .slice(0, 40);
+}
+
+function triggerDataUrlDownload(dataUrl, fileName) {
+    if (!dataUrl) {
+        showToast('⚠️ تعذر العثور على بيانات الصورة');
+        return false;
+    }
+    try {
+        const parts = dataUrl.split(',');
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const binStr = atob(parts[1]);
+        const len = binStr.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) bytes[i] = binStr.charCodeAt(i);
+        const blob = new Blob([bytes], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+        return true;
+    } catch {
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = fileName;
+        a.click();
+        return true;
+    }
+}
+
+function downloadSinglePhotoById(urlOrId, labelHint = '') {
+    const dataUrl = getPhotoUrl(urlOrId);
+    const log = getDayLog();
+    const safeHint = sanitizePhotoFilePart(labelHint);
+    const fname = safeHint
+        ? `DFL${log.dflNum}_${safeHint}_${state.activeDate}.jpg`
+        : `DFL${log.dflNum}_Photo_${state.activeDate}_${Date.now().toString().slice(-4)}.jpg`;
+    if (triggerDataUrlDownload(dataUrl, fname)) {
+        showToast(`📥 تم حفظ الصورة: ${fname}`);
+    }
+}
+
+function downloadTaskPhotoDirect(tIdx, photoIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t) return;
+    const photos = ensurePhotosArr(t);
+    const pid = photos[photoIdx];
+    if (!pid) return;
+    const zPart = sanitizePhotoFilePart(t.zones || `Task${tIdx + 1}`);
+    const fname = `DFL${log.dflNum}_${zPart}_${state.activeDate}_${photoIdx + 1}.jpg`;
+    if (triggerDataUrlDownload(getPhotoUrl(pid), fname)) {
+        showToast(`📥 تم حفظ صورة (${t.zones}) بالتلفون!`);
+    }
+}
+
+function downloadAllTaskPhotosDirect(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t) return;
+    const photos = ensurePhotosArr(t);
+    if (!photos.length) return;
+    const zPart = sanitizePhotoFilePart(t.zones || `Task${tIdx + 1}`);
+    photos.forEach((pid, pI) => {
+        setTimeout(() => {
+            const fname = `DFL${log.dflNum}_${zPart}_${state.activeDate}_${pI + 1}.jpg`;
+            triggerDataUrlDownload(getPhotoUrl(pid), fname);
+        }, pI * 300);
+    });
+    showToast(`📥 جاري حفظ ${photos.length} صور لمنطقة (${t.zones})...`);
+}
+
+function previewSinglePhoto(urlOrId, labelHint = '') {
     const resolved = getPhotoUrl(urlOrId);
     window._markupActive = false;
     openModal(`
-        <h3 class="card-title">🖼️ معاينة وتأشير الصورة</h3>
+        <h3 class="card-title">🖼️ معاينة وتأشير وحفظ الصورة</h3>
         <div style="position:relative;margin-bottom:10px;background:#0f172a;border-radius:10px;overflow:hidden;">
             <img id="previewImg" src="${resolved}" style="width:100%;display:block;">
             <canvas id="markupCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;pointer-events:none;"></canvas>
@@ -8132,7 +8225,10 @@ function previewSinglePhoto(urlOrId) {
             <button class="btn btn-orange btn-sm" onclick="enableMarkupMode('#facc15')">🟡 قلم أصفر</button>
             <button class="btn btn-green btn-sm" onclick="saveMarkupToPhoto('${esc(urlOrId)}')">💾 حفظ التأشير</button>
         </div>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق المعاينة</button>
+        <div class="grid-2">
+            <button class="btn btn-green" onclick="downloadSinglePhotoById('${esc(urlOrId)}', '${esc(labelHint)}')">📥 حفظ الصورة بالتلفون</button>
+            <button class="btn btn-outline" onclick="closeModal()">إغلاق المعاينة</button>
+        </div>
     `);
 }
 
@@ -8629,7 +8725,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V15.9) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.0) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -9025,6 +9121,99 @@ function downloadFullBackup(customPrefix = 'TFF_FullBackup') {
     a.click();
 }
 function triggerBackupRestore() { const i = document.getElementById('backupFileInput'); i.value = ''; i.click(); }
+function isDayLogSubstantive(dl) {
+    if (!dl || typeof dl !== 'object') return false;
+    if (Array.isArray(dl.tasks) && dl.tasks.length > 0) return true;
+    if (Array.isArray(dl.meters) && dl.meters.some(m => m.curr !== '' && m.curr != null)) return true;
+    if (Array.isArray(dl.incidents) && dl.incidents.length > 0) return true;
+    if (Array.isArray(dl.sdls) && dl.sdls.length > 0) return true;
+    if (dl.oar && (dl.oar.obs || dl.oar.ana || dl.oar.rec)) return true;
+    return false;
+}
+
+function executeBackupSmartMerge() {
+    const incoming = window._pendingBackupData;
+    if (!incoming || !incoming.sites) return;
+    pushUndo('دمج ذكي لنسخة احتياطية');
+    let addedDays = 0;
+    let keptLocalDays = 0;
+
+    Object.entries(incoming.sites).forEach(([sid, incSite]) => {
+        if (!state.sites[sid]) {
+            state.sites[sid] = JSON.parse(JSON.stringify(incSite));
+            addedDays += Object.keys(incSite.logs || {}).length;
+            return;
+        }
+        const curSite = state.sites[sid];
+        if (!curSite.logs) curSite.logs = {};
+        Object.entries(incSite.logs || {}).forEach(([dStr, incLog]) => {
+            if (!curSite.logs[dStr] || !isDayLogSubstantive(curSite.logs[dStr])) {
+                curSite.logs[dStr] = JSON.parse(JSON.stringify(incLog));
+                addedDays++;
+            } else {
+                keptLocalDays++;
+            }
+        });
+        if (incSite.nextDfl && (!curSite.nextDfl || incSite.nextDfl > curSite.nextDfl)) {
+            curSite.nextDfl = incSite.nextDfl;
+        }
+        // Merge inventory zones/plants without duplicating existing entries
+        if (!Array.isArray(curSite.inventory)) curSite.inventory = [];
+        (incSite.inventory || []).forEach(incZ => {
+            let curZ = curSite.inventory.find(z => z.name === incZ.name);
+            if (!curZ) {
+                curSite.inventory.push(JSON.parse(JSON.stringify(incZ)));
+            } else {
+                (incZ.plants || []).forEach(incP => {
+                    let curP = curZ.plants.find(p => p.name === incP.name);
+                    if (!curP) {
+                        curZ.plants.push(JSON.parse(JSON.stringify(incP)));
+                    } else {
+                        const existingIds = new Set((curP.entries || []).map(x => x.id));
+                        (incP.entries || []).forEach(ent => {
+                            if (!existingIds.has(ent.id)) {
+                                curP.entries.push(JSON.parse(JSON.stringify(ent)));
+                                curP.counts[ent.condId] = (curP.counts[ent.condId] || 0) + 1;
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        // Merge issues by id/code
+        if (!Array.isArray(curSite.issues)) curSite.issues = [];
+        const existingIssKeys = new Set(curSite.issues.map(x => x.id || x.code));
+        (incSite.issues || []).forEach(iss => {
+            const k = iss.id || iss.code;
+            if (!existingIssKeys.has(k)) {
+                curSite.issues.push(JSON.parse(JSON.stringify(iss)));
+            }
+        });
+    });
+
+    window._pendingBackupData = null;
+    normalizeState();
+    migrateInlinePhotosInState();
+    closeModal();
+    saveState();
+    renderAll();
+    showToast(`✅ تم الدمج الذكي: أُضيف ${addedDays} أيام وحُفظت ${keptLocalDays} أيام حالية بأمان`);
+}
+
+function executeBackupFullReplace() {
+    const incoming = window._pendingBackupData;
+    if (!incoming || !incoming.sites) return;
+    pushUndo('استبدال كامل من نسخة احتياطية');
+    state = incoming;
+    window._pendingBackupData = null;
+    normalizeState();
+    migrateInlinePhotosInState();
+    closeModal();
+    saveState();
+    renderAll();
+    showToast('✓ تم استبدال البيانات بالكامل ونقل الصور للمخزن الكبير');
+}
+
 function onBackupFileLoaded(e) {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
@@ -9032,7 +9221,27 @@ function onBackupFileLoaded(e) {
     r.onload = ev => {
         try {
             const parsed = JSON.parse(ev.target.result);
-            if (parsed && parsed.sites) { state = parsed; normalizeState(); migrateInlinePhotosInState(); saveState(); renderAll(); showToast('✓ تم استيراد النسخة الاحتياطية ونقل الصور للمخزن الكبير'); }
+            if (!parsed || !parsed.sites) { showToast('⚠️ ملف غير صالح'); return; }
+            window._pendingBackupData = parsed;
+            const incDates = [];
+            Object.values(parsed.sites).forEach(s => Object.keys(s.logs || {}).forEach(d => { if (!incDates.includes(d)) incDates.push(d); }));
+            incDates.sort();
+            openModal(`
+                <h3 class="card-title">📂 استيراد / دمج النسخة الاحتياطية</h3>
+                <p style="font-size:12px;color:var(--muted);line-height:1.6;">
+                    يحتوي الملف على سجلات <b>${incDates.length} أيام</b> (${esc(incDates.slice(-4).join('، '))}).<br>
+                    اختر طريقة الاستيراد المناسبة:
+                </p>
+                <button class="btn btn-green btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="executeBackupSmartMerge()">
+                    <span>🔀 دمج ذكي (موصى به — يحافظ على شغل اليوم)</span>
+                    <span style="font-size:10.5px;opacity:0.9;">يضيف الأيام الناقصة والجرد بدون حذف مهام اليوم الموجودة بالتلفون</span>
+                </button>
+                <button class="btn btn-orange btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="executeBackupFullReplace()">
+                    <span>🔄 استبدال كامل (Replace All)</span>
+                    <span style="font-size:10.5px;opacity:0.9;">يمسح جميع بيانات الجهاز الحالية ويستبدلها بالملف المستورد</span>
+                </button>
+                <button class="btn btn-outline btn-full" onclick="window._pendingBackupData=null;closeModal()">إلغاء</button>
+            `);
         } catch { showToast('⚠️ ملف غير صالح'); }
     };
     r.readAsText(f);
@@ -9116,7 +9325,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V15.9 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.0 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
