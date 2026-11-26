@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V15.8</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V15.9</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -252,7 +252,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V15.8 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V15.9 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -798,7 +798,7 @@ let state = {
 
 
 
-/* ================= V15.8: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V15.9: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -944,7 +944,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V15.8: Task Presets Manager ================= */
+/* ================= V15.9: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1034,7 +1034,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V15.8: DFL Readiness Progress Bar ================= */
+/* ================= V15.9: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1074,7 +1074,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V15.8: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V15.9: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1332,7 +1332,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V15.8: Electronic Touch Signature Pad ================= */
+/* ================= V15.9: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1898,7 +1898,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V15.8: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V15.9: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -3284,7 +3284,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V15.8: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V15.9: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function openTaskTimelineEditorModal(tIdx) {
     const log = getDayLog();
     const t = log.tasks[tIdx];
@@ -4148,7 +4148,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V15.8: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V15.9: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function openShiftTimeDistributorModal() {
     const log = getDayLog();
     const mornTasks = log.tasks.filter(t => getTaskShiftPeriod(t) === 'morning');
@@ -6181,7 +6181,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V15.8: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V15.9: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -7528,7 +7528,7 @@ function openIncidentModal(editIdx = null) {
             <button class="btn btn-green btn-sm" onclick="triggerInlineModalPhoto('galFileInput')">🖼️ استوديو</button>
         </div>
         <div id="inlineModalPhotoStrip" class="photo-strip" style="margin-bottom:8px;">
-            ${tempModalPhotos.map((u, pI) => `<div class="photo-item-wrap"><img src="${getPhotoUrl(u)}" class="photo-thumb"><button class="photo-del-badge" onclick="tempModalPhotos.splice(${pI},1);this.parentElement.remove()">✕</button></div>`).join('')}
+            ${tempModalPhotos.map(u => `<div class="photo-item-wrap"><img src="${getPhotoUrl(u)}" class="photo-thumb" onclick="previewSinglePhoto('${esc(u)}')"><button class="photo-del-badge" onclick="removeInlineModalPhoto('${esc(u)}')">✕</button></div>`).join('')}
         </div>
         <div class="grid-2">
             <button class="btn btn-orange" onclick="saveIncident(${isEdit ? editIdx : 'null'})">${isEdit ? '💾 حفظ التعديلات' : 'حفظ تقرير الحادث'}</button>
@@ -7625,7 +7625,7 @@ function openSdlModal(editIdx = null) {
             <button class="btn btn-green btn-sm" onclick="triggerInlineModalPhoto('galFileInput')">🖼️ استوديو</button>
         </div>
         <div id="inlineModalPhotoStrip" class="photo-strip" style="margin-bottom:8px;">
-            ${tempModalPhotos.map((u, pI) => `<div class="photo-item-wrap"><img src="${getPhotoUrl(u)}" class="photo-thumb"><button class="photo-del-badge" onclick="tempModalPhotos.splice(${pI},1);this.parentElement.remove()">✕</button></div>`).join('')}
+            ${tempModalPhotos.map(u => `<div class="photo-item-wrap"><img src="${getPhotoUrl(u)}" class="photo-thumb" onclick="previewSinglePhoto('${esc(u)}')"><button class="photo-del-badge" onclick="removeInlineModalPhoto('${esc(u)}')">✕</button></div>`).join('')}
         </div>
         <div class="grid-2">
             <button class="btn btn-purple" onclick="saveSdl(${isEdit ? editIdx : 'null'})">${isEdit ? '💾 حفظ التعديلات' : 'حفظ'}</button>
@@ -8629,11 +8629,93 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V15.9) & Voice Dictation ================= */
+function resolvePhotoStampLocation(photoCtx) {
+    if (!photoCtx) return '';
+    const { type, ctx, selectedZone } = photoCtx;
+    if (selectedZone && String(selectedZone).trim()) {
+        return `Zone: ${String(selectedZone).trim()}`;
+    }
+    const log = getDayLog();
+    const site = getSite();
+    if (type === 'task' && log.tasks && log.tasks[ctx]) {
+        const z = (log.tasks[ctx].zones || '').trim();
+        return z ? `Zone: ${z}` : '';
+    }
+    if (type === 'meter' && log.meters && log.meters[ctx]) {
+        const mName = (log.meters[ctx].name || '').trim();
+        return mName ? `Meter: ${mName}` : '';
+    }
+    if (type === 'plant' && ctx) {
+        const zObj = (site.inventory || []).find(x => x.id === activeInvZoneId);
+        const pObj = zObj && zObj.plants ? zObj.plants[ctx.pIdx] : null;
+        if (zObj) {
+            const pShort = pObj && pObj.name ? ` (${pObj.name.split('/')[0].trim()})` : '';
+            return `Zone: ${zObj.name.trim()}${pShort}`;
+        }
+    }
+    if (type === 'issue' && site.issues && site.issues[ctx]) {
+        const z = (site.issues[ctx].zone || '').trim();
+        return z ? `Zone: ${z}` : '';
+    }
+    if (type === 'ir' && log.incidents && log.incidents[ctx]) {
+        const z = (log.incidents[ctx].zone || '').trim();
+        return z ? `Zone: ${z}` : '';
+    }
+    if (type === 'sdl' && log.sdls && log.sdls[ctx]) {
+        const z = (log.sdls[ctx].zone || '').trim();
+        return z ? `Zone: ${z}` : '';
+    }
+    return '';
+}
+
+function setPendingPhotoZone(zVal, chipEl) {
+    if (pendingPhotoCtx) {
+        pendingPhotoCtx.selectedZone = zVal || '';
+    }
+    document.querySelectorAll('.photo-zone-chip').forEach(c => c.classList.remove('active'));
+    if (chipEl) chipEl.classList.add('active');
+    const prevEl = document.getElementById('photoStampPreviewText');
+    if (prevEl && pendingPhotoCtx) {
+        const loc = resolvePhotoStampLocation(pendingPhotoCtx);
+        const now = new Date();
+        const tm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const parts = [getSite().name.split('/')[0].trim()];
+        if (loc) parts.push(loc);
+        parts.push(`${state.activeDate} ${tm}`);
+        parts.push(`DFL-${getDayLog().dflNum}`);
+        prevEl.textContent = parts.join(' | ');
+    }
+}
+
 function openPhotoSourceChoice(type, ctx) {
-    pendingPhotoCtx = { type, ctx };
+    pendingPhotoCtx = { type, ctx, selectedZone: '' };
+    const log = getDayLog();
+    let multiZones = [];
+    if (type === 'task' && log.tasks && log.tasks[ctx]) {
+        multiZones = (log.tasks[ctx].zones || '').split(',').map(s => s.trim()).filter(Boolean);
+    }
+    const initLoc = resolvePhotoStampLocation(pendingPhotoCtx);
+    const now = new Date();
+    const tm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const previewParts = [getSite().name.split('/')[0].trim()];
+    if (initLoc) previewParts.push(initLoc);
+    previewParts.push(`${state.activeDate} ${tm}`);
+    previewParts.push(`DFL-${log.dflNum}`);
+
     openModal(`
         <h3 class="card-title">📸 إرفاق صورة أو أكثر</h3>
+        ${multiZones.length > 1 ? `
+        <div style="margin-bottom:8px;">
+            <label class="lbl">📍 حدد المنطقة الظاهرة في الصورة (اختياري):</label>
+            <div>
+                <span class="chip photo-zone-chip active" onclick="setPendingPhotoZone('', this)">الكل (${esc(multiZones.join(', '))})</span>
+                ${multiZones.map(z => `<span class="chip photo-zone-chip" onclick="setPendingPhotoZone('${esc(z)}', this)">📍 ${esc(z)}</span>`).join('')}
+            </div>
+        </div>` : ''}
+        <div style="background:#0f172a;color:#fde047;border-radius:8px;padding:7px 9px;font-size:11px;font-weight:bold;margin-bottom:9px;direction:ltr;text-align:left;border-top:3px solid #22c55e;">
+            🏷️ <span id="photoStampPreviewText">${esc(previewParts.join(' | '))}</span>
+        </div>
         <div class="grid-2">
             <button class="btn btn-blue" onclick="closeModal();triggerFileInp('camFileInput')">📸 التقاط بالكاميرا</button>
             <button class="btn btn-green" onclick="closeModal();triggerFileInp('galFileInput')">🖼️ اختيار من الاستوديو</button>
@@ -8642,12 +8724,25 @@ function openPhotoSourceChoice(type, ctx) {
     `);
 }
 function triggerInlineModalPhoto(inpId) {
-    pendingPhotoCtx = { type: 'inline_modal', ctx: 0 };
+    const zVal = (document.getElementById('irZone')?.value || document.getElementById('sdlZone')?.value || '').trim();
+    pendingPhotoCtx = { type: 'inline_modal', ctx: 0, selectedZone: zVal };
     triggerFileInp(inpId);
+}
+function renderInlineModalPhotoStrip() {
+    const strip = document.getElementById('inlineModalPhotoStrip');
+    if (strip) {
+        strip.innerHTML = tempModalPhotos.map(u => `<div class="photo-item-wrap"><img src="${getPhotoUrl(u)}" class="photo-thumb" onclick="previewSinglePhoto('${esc(u)}')"><button class="photo-del-badge" onclick="removeInlineModalPhoto('${esc(u)}')">✕</button></div>`).join('');
+    }
+}
+function removeInlineModalPhoto(pid) {
+    const idx = tempModalPhotos.indexOf(pid);
+    if (idx !== -1) tempModalPhotos.splice(idx, 1);
+    deletePhotoFromStore(pid);
+    renderInlineModalPhotoStrip();
 }
 function triggerFileInp(id) { const el = document.getElementById(id); el.value = ''; el.click(); }
 
-function stampSingleFile(file) {
+function stampSingleFile(file, locationTag = '') {
     return new Promise(resolve => {
         const reader = new FileReader();
         reader.onload = ev => {
@@ -8664,15 +8759,30 @@ function stampSingleFile(file) {
                 const g = c.getContext('2d');
                 g.drawImage(img, 0, 0, w, h);
 
-                const fs = Math.max(26, Math.round(Math.max(w, h * 0.7) * 0.032));
+                const now = new Date();
+                const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                const parts = [getSite().name.split('/')[0].trim()];
+                if (locationTag) parts.push(locationTag);
+                parts.push(`${state.activeDate} ${timeStr}`);
+                parts.push(`DFL-${getDayLog().dflNum}`);
+                const stampText = parts.join(' | ');
+
+                let fs = Math.max(24, Math.round(Math.max(w, h * 0.7) * 0.030));
+                g.font = `bold ${fs}px sans-serif`;
+                const maxTextWidth = w - 40;
+                const measured = g.measureText(stampText).width;
+                if (measured > maxTextWidth && measured > 0) {
+                    fs = Math.max(15, Math.floor(fs * (maxTextWidth / measured)));
+                    g.font = `bold ${fs}px sans-serif`;
+                }
+
                 const barH = Math.round(fs * 2.4);
                 g.fillStyle = 'rgba(15,23,42,0.86)';
                 g.fillRect(0, h - barH, w, barH);
                 g.fillStyle = '#22c55e';
                 g.fillRect(0, h - barH, w, 5);
                 g.fillStyle = '#fde047';
-                g.font = `bold ${fs}px sans-serif`;
-                g.fillText(`${getSite().name.split('/')[0].trim()} | ${state.activeDate} | DFL-${getDayLog().dflNum}`, 20, h - Math.round(barH * 0.35));
+                g.fillText(stampText, 20, h - Math.round(barH * 0.35));
 
                 resolve(c.toDataURL('image/jpeg', 0.88));
             };
@@ -8685,20 +8795,21 @@ function stampSingleFile(file) {
 async function onPhotoSelected(e) {
     const files = Array.from(e.target.files || []);
     if (!files.length || !pendingPhotoCtx) return;
-    const { type, ctx } = pendingPhotoCtx;
+    const currentCtx = pendingPhotoCtx;
+    const { type, ctx } = currentCtx;
+    const locationTag = resolvePhotoStampLocation(currentCtx);
     pendingPhotoCtx = null;
 
     showToast(`⏳ جاري معالجة وختم ${files.length} صورة...`);
     const stampedUrls = [];
     for (const f of files) {
-        const b64 = await stampSingleFile(f);
+        const b64 = await stampSingleFile(f, locationTag);
         stampedUrls.push(savePhotoToStore(b64));
     }
 
     if (type === 'inline_modal') {
         tempModalPhotos.push(...stampedUrls);
-        const strip = document.getElementById('inlineModalPhotoStrip');
-        if (strip) strip.innerHTML = tempModalPhotos.map((u, pI) => `<div class="photo-item-wrap"><img src="${getPhotoUrl(u)}" class="photo-thumb"><button class="photo-del-badge" onclick="tempModalPhotos.splice(${pI},1);this.parentElement.remove()">✕</button></div>`).join('');
+        renderInlineModalPhotoStrip();
         showToast(`📸 تم إرفاق ${stampedUrls.length} صورة للنموذج`);
         return;
     }
@@ -9005,7 +9116,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V15.8 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V15.9 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
