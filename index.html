@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V17.5</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V17.6</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,7 +42,7 @@
         .dfl-box { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; }
         .dfl-num { background: white; color: var(--primary-dark); border: none; border-radius: 5px; width: 48px; padding: 3px 4px; font-weight: bold; text-align: center; font-size: 13px; }
 
-        /* V17.5: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
+        /* V17.6: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
         .note-item-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-right: 3px solid var(--blue); border-radius: 7px; padding: 5px 8px; margin-bottom: 4px; font-size: 12px; line-height: 1.45; }
         .note-item-card.is-blocked-note { background: #fff5f5; border-color: #fecaca; border-right-color: var(--red); color: #7f1d1d; font-weight: 600; }
         .note-item-card.is-zone-note { background: #f5f3ff; border-color: #ddd6fe; border-right-color: var(--purple); }
@@ -60,7 +60,7 @@
         .att-pill.st-half { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
         .att-pill.st-ot { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
 
-        /* V17.5: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
+        /* V17.6: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
         .slim-act-bar {
             display: flex; align-items: center; justify-content: space-between; gap: 6px;
             background: #ffffff; border: 1px solid #cbd5e1; border-right: 4px solid var(--blue);
@@ -81,7 +81,7 @@
         .export-stamp.st-none { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
         .export-stamp.st-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
         .export-stamp.st-stale { background: #fef3c7; color: #92400e; border: 1.5px solid #f59e0b; }
-        /* V17.5: Worker Weekly Attendance Matrix & Payment Settlement UI */
+        /* V17.6: Worker Weekly Attendance Matrix & Payment Settlement UI */
         .wk-dot-row { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
         .wk-dot { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 34px; padding: 2px 4px; border-radius: 6px; font-size: 9.5px; font-weight: bold; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; line-height: 1.25; }
         .wk-dot.d-pres { background: #dcfce7; color: #166534; border-color: #86efac; }
@@ -92,6 +92,17 @@
         .pay-card { background: white; border: 1px solid #cbd5e1; border-right: 4px solid var(--primary); border-radius: 9px; padding: 8px 9px; margin-bottom: 7px; font-size: 12px; }
         .pay-card.is-emp { border-right-color: var(--blue); }
         .pay-card.has-due { border-right-color: var(--orange); }
+        /* V17.6: Isolated Old-DFL Correction Workshop Banner & Audit Cards */
+        .workshop-banner {
+            background: linear-gradient(135deg, #7c2d12, #c2410c);
+            color: white; border-radius: 10px; padding: 9px 11px; margin-bottom: 9px;
+            box-shadow: 0 3px 10px rgba(154,52,18,0.22); font-size: 11.5px;
+        }
+        .audit-item { background: #fffbeb; border: 1px solid #fde68a; border-right: 4px solid var(--orange); border-radius: 8px; padding: 8px 9px; margin-bottom: 6px; font-size: 11.5px; }
+        .audit-item.crit { background: #fef2f2; border-color: #fecaca; border-right-color: var(--red); }
+        .shift-pill { display: inline-flex; align-items: center; gap: 2px; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 99px; cursor: pointer; border: 1px solid transparent; }
+        .shift-pill.am { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+        .shift-pill.pm { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
 
         /* Timer Alert Bar */
         .timer-alert-bar { background: #fef2f2; border-bottom: 2px solid #ef4444; color: #991b1b; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 78px; z-index: 950; }
@@ -296,7 +307,7 @@
                 <button class="icon-btn" onclick="openActivityLogModal('all')" title="سجل آخر الحركات والحماية من الأخطاء">📜</button>
                 <button class="icon-btn" onclick="openAnalyticsCenterModal('blind','7d')" title="مركز الإحصائيات والتحليل الذكي">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V17.5 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V17.6 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -332,6 +343,7 @@
     <datalist id="globalToolsList"></datalist>
 
     <main class="main-wrap">
+        <div id="workshopModeBanner"></div>
         <div id="slimActivityBarWrap"></div>
         <!-- TAB 1: Attendance -->
         <div id="tab-att" class="tab-pane active">
@@ -617,7 +629,7 @@
                 </div>
             </div>
 
-            <!-- V17.5: Clean 3-Step Day-Closing & Export Hub -->
+            <!-- V17.6: Clean 3-Step Day-Closing & Export Hub -->
             <div class="card" style="border-top:4px solid var(--primary);">
                 <div class="card-head" style="margin-bottom:8px;">
                     <h3 class="card-title">📤 مركز إقفال وتصدير اليوم</h3>
@@ -666,7 +678,7 @@
                 </div>
             </div>
 
-            <!-- V17.5: Direct WhatsApp Merge Sync & Database Backup Card -->
+            <!-- V17.6: Direct WhatsApp Merge Sync & Database Backup Card -->
             <div class="card" style="padding:11px 13px;border-top:3px solid var(--blue);">
                 <div class="card-head" style="margin-bottom:7px;padding-bottom:6px;">
                     <h3 class="card-title" style="font-size:13.5px;">🔀 المزامنة والدمج والنسخ الاحتياطي</h3>
@@ -941,7 +953,7 @@ let state = {
 
 
 
-/* ================= V17.5: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V17.6: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -1063,7 +1075,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V17.5: Task Presets Manager ================= */
+/* ================= V17.6: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1153,7 +1165,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V17.5: DFL Readiness Progress Bar ================= */
+/* ================= V17.6: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1193,7 +1205,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V17.5: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
+/* ================= V17.6: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
 let _anState = { tab: 'blind', period: '7d', fromDate: '', toDate: '' };
 
 function getAnalyticsDateRange(site, period, customFrom = '', customTo = '') {
@@ -2415,7 +2427,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V17.5: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
+/* ================= V17.6: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
 function computeLogExportSignature(log, site = getSite(), dateStr = state.activeDate) {
     if (!log) return '';
     try {
@@ -2690,17 +2702,20 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
         };
 
         // Pre-build expanded tasks, moisture, and sec7 lists so every section resizes to exact data rows!
+        const isTwoShiftExport = (state.company && state.company.dflReportMode === 'two_shift');
         const expandedRows = [];
-        log.tasks.forEach((t, tIdx) => {
+        const pushTaskToExpanded = (t, tIdx, refDateStr, dayLabelStr, blockKey, pRefMap, pLinkMap, presCnt) => {
             const zones = (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean);
             const wList = t.workers || [];
             const isTeam = wList.includes('Team');
-            const wCount = isTeam ? presentCount : (wList.length > 0 ? wList.length : 1);
+            const wCount = isTeam ? presCnt : (wList.length > 0 ? wList.length : 1);
             const wStr = isTeam ? 'Team' : wList.join(' / ');
             const stTime = getTaskFixedStartTimeStr(t);
-            const repDur = getTaskReportDurationStr(t, Date.now(), targetDate);
+            const repDur = getTaskReportDurationStr(t, Date.now(), refDateStr);
             zones.forEach((z, zIdx) => {
                 expandedRows.push({
+                    dayBlock: dayLabelStr,
+                    blockKey,
                     task: t.task,
                     desc: t.desc,
                     zone: z,
@@ -2710,12 +2725,39 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
                     status: t.status.includes('Carried Over') ? 'Not Started / لم يبدأ' : t.status,
                     note: getTaskNoteForZone(t, z),
                     wStr,
-                    pRef: zIdx === 0 ? (taskPhotoRefs[tIdx] || '') : '',
-                    pLinks: zIdx === 0 ? (taskPhotoLinks[tIdx] || []) : [],
+                    pRef: zIdx === 0 ? ((pRefMap && pRefMap[tIdx]) || '') : '',
+                    pLinks: zIdx === 0 ? ((pLinkMap && pLinkMap[tIdx]) || []) : [],
                     groupWithPrev: zIdx > 0 || (zIdx === 0 && !!t.syncWithPrev && tIdx > 0)
                 });
             });
-        });
+        };
+
+        if (isTwoShiftExport) {
+            const prevDateStr = getPrevDateStr(targetDate);
+            const prevDayEn = getDayNameEn(prevDateStr);
+            const prevLog = site.logs && site.logs[prevDateStr];
+            if (prevLog && Array.isArray(prevLog.tasks)) {
+                const prevPres = (prevLog.attendance || []).filter(w => !w.status.includes('Absent')).length;
+                prevLog.tasks.forEach((t, tIdx) => {
+                    if (getTaskShiftBlock(t) === 'pm') {
+                        pushTaskToExpanded(t, tIdx, prevDateStr, prevDayEn, 'prev_pm', null, null, prevPres);
+                    }
+                });
+            }
+            log.tasks.forEach((t, tIdx) => {
+                if (getTaskShiftBlock(t) !== 'pm') {
+                    pushTaskToExpanded(t, tIdx, targetDate, dayEn, 'today_am', taskPhotoRefs, taskPhotoLinks, presentCount);
+                }
+            });
+            // Fallback if all tasks were marked PM and morning was empty
+            if (expandedRows.length === 0) {
+                log.tasks.forEach((t, tIdx) => pushTaskToExpanded(t, tIdx, targetDate, dayEn, 'today_am', taskPhotoRefs, taskPhotoLinks, presentCount));
+            }
+        } else {
+            log.tasks.forEach((t, tIdx) => {
+                pushTaskToExpanded(t, tIdx, targetDate, dayEn, 'single', taskPhotoRefs, taskPhotoLinks, presentCount);
+            });
+        }
 
         const groups = [];
         expandedRows.forEach((item, idx) => {
@@ -2723,8 +2765,9 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
                 groups.push({ start: 0, end: 0 });
             } else {
                 const prev = expandedRows[idx - 1];
-                const sameSignature = prev.startTime === item.startTime && prev.task === item.task && prev.desc === item.desc && prev.dur === item.dur && prev.wStr === item.wStr && prev.wCount === item.wCount;
-                if (item.groupWithPrev || sameSignature) {
+                const sameBlock = prev.blockKey === item.blockKey;
+                const sameSignature = sameBlock && prev.startTime === item.startTime && prev.task === item.task && prev.desc === item.desc && prev.dur === item.dur && prev.wStr === item.wStr && prev.wCount === item.wCount;
+                if (sameBlock && (item.groupWithPrev || sameSignature)) {
                     groups[groups.length - 1].end = idx;
                 } else {
                     groups.push({ start: idx, end: idx });
@@ -2839,28 +2882,50 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
             }
         }
         // Apply vertical merges for grouped task rows preserving EXACT ExcelJS fill.type + borders + fonts!
+        const mergeColsVertical = (colL, r1, r2) => {
+            if (r2 <= r1) return;
+            const srcCell = ws.getCell(`${colL}${r1}`);
+            const savedFill = (srcCell.fill && srcCell.fill.type) ? JSON.parse(JSON.stringify(srcCell.fill)) : null;
+            const savedFont = (srcCell.font && Object.keys(srcCell.font).length) ? JSON.parse(JSON.stringify(srcCell.font)) : null;
+            const savedBorder = (srcCell.border && Object.keys(srcCell.border).length) ? JSON.parse(JSON.stringify(srcCell.border)) : null;
+            try { ws.mergeCells(`${colL}${r1}:${colL}${r2}`); } catch {}
+            for (let rr = r1; rr <= r2; rr++) {
+                const cObj = ws.getCell(`${colL}${rr}`);
+                isolateCellStyle(cObj);
+                if (savedFill) cObj.fill = JSON.parse(JSON.stringify(savedFill));
+                if (savedFont) cObj.font = JSON.parse(JSON.stringify(savedFont));
+                if (savedBorder) cObj.border = JSON.parse(JSON.stringify(savedBorder));
+            }
+            setCellAlignSafe(ws.getCell(`${colL}${r1}`), { horizontal: 'center', vertical: 'middle', wrapText: true });
+        };
+
         groups.forEach((g, gIdx) => {
             const r1 = taskStartRow + g.start;
             const r2 = taskStartRow + g.end;
-            ws.getCell(`A${r1}`).value = gIdx + 1;
+            if (!isTwoShiftExport) ws.getCell(`A${r1}`).value = gIdx + 1;
             if (r2 > r1) {
-                for (const colL of ['A', 'B', 'C', 'E', 'F', 'K']) {
-                    const srcCell = ws.getCell(`${colL}${r1}`);
-                    const savedFill = (srcCell.fill && srcCell.fill.type) ? JSON.parse(JSON.stringify(srcCell.fill)) : null;
-                    const savedFont = (srcCell.font && Object.keys(srcCell.font).length) ? JSON.parse(JSON.stringify(srcCell.font)) : null;
-                    const savedBorder = (srcCell.border && Object.keys(srcCell.border).length) ? JSON.parse(JSON.stringify(srcCell.border)) : null;
-                    try { ws.mergeCells(`${colL}${r1}:${colL}${r2}`); } catch {}
-                    for (let rr = r1; rr <= r2; rr++) {
-                        const cObj = ws.getCell(`${colL}${rr}`);
-                        isolateCellStyle(cObj);
-                        if (savedFill) cObj.fill = JSON.parse(JSON.stringify(savedFill));
-                        if (savedFont) cObj.font = JSON.parse(JSON.stringify(savedFont));
-                        if (savedBorder) cObj.border = JSON.parse(JSON.stringify(savedBorder));
-                    }
-                    setCellAlignSafe(ws.getCell(`${colL}${r1}`), { horizontal: 'center', vertical: 'middle', wrapText: true });
-                }
+                const colsToMerge = isTwoShiftExport ? ['B', 'C', 'E', 'F', 'K'] : ['A', 'B', 'C', 'E', 'F', 'K'];
+                for (const colL of colsToMerge) mergeColsVertical(colL, r1, r2);
             }
         });
+
+        // In optional two-shift mode (12->12), merge Col A by Day Name block (Prev Afternoon / Today Morning)
+        if (isTwoShiftExport && expandedRows.length > 0) {
+            const daySpans = [];
+            expandedRows.forEach((item, idx) => {
+                if (daySpans.length === 0 || daySpans[daySpans.length - 1].blockKey !== item.blockKey) {
+                    daySpans.push({ blockKey: item.blockKey, label: item.dayBlock, start: idx, end: idx });
+                } else {
+                    daySpans[daySpans.length - 1].end = idx;
+                }
+            });
+            daySpans.forEach(sp => {
+                const r1 = taskStartRow + sp.start;
+                const r2 = taskStartRow + sp.end;
+                ws.getCell(`A${r1}`).value = sp.label;
+                mergeColsVertical('A', r1, r2);
+            });
+        }
 
         // 4. Section 4: Equipment / Tools / Materials (base 64..66, 3 slots) — expands cleanly for ALL items!
         const toolsStart = 64 + off;
@@ -3094,7 +3159,7 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
         if (ws.rowCount > finalLastRow) {
             ws.spliceRows(finalLastRow + 1, ws.rowCount - finalLastRow);
         }
-        // V17.5: Center ALL text horizontally & vertically (middle) across Daily Field Log safely (preserving colors/fills/borders!)
+        // V17.6: Center ALL text horizontally & vertically (middle) across Daily Field Log safely (preserving colors/fills/borders!)
         for (let rr = 1; rr <= finalLastRow; rr++) {
             const rowObj = ws.getRow(rr);
             for (let cc = 1; cc <= 12; cc++) {
@@ -3488,6 +3553,7 @@ function normalizeState() {
     if (typeof state.company.textSignature !== 'string') state.company.textSignature = '';
     if (!state.company.breakStart) state.company.breakStart = '12:00';
     if (!state.company.breakEnd) state.company.breakEnd = '13:00';
+    if (!state.company.dflReportMode) state.company.dflReportMode = 'single_day';
     if (!Array.isArray(state.company.supervisors) || !state.company.supervisors.length) state.company.supervisors = ['Maitham Ibrahim'];
 
     if (!state.sites || typeof state.sites !== 'object' || !Object.keys(state.sites).length) {
@@ -3526,7 +3592,7 @@ function normalizeState() {
         if (!Array.isArray(s.workerPayments)) s.workerPayments = [];
         if (!s.logs || typeof s.logs !== 'object') s.logs = {};
         if (!s.nextDfl) s.nextDfl = 187;
-        // V17.5: Backwards-compatibility normalizer for logs imported from older versions (V8..V17.2)
+        // V17.6: Backwards-compatibility normalizer for logs imported from older versions (V8..V17.2)
         s.issues.forEach(iss => ensurePhotosArr(iss));
         s.inventory.forEach(z => {
             if (!Array.isArray(z.plants)) z.plants = [];
@@ -4915,7 +4981,7 @@ function confirmRadarTask(zoneName, desc, dur) {
     closeModal(); saveState(); renderTasks(getDayLog()); showToast(`✓ أُضيفت مهمة ري ${zoneName}`);
 }
 
-/* ================= V17.5: Worker Weekly/Period Attendance Tracker & Payment Settlement Center ================= */
+/* ================= V17.6: Worker Weekly/Period Attendance Tracker & Payment Settlement Center ================= */
 let _payUiState = { preset: 'this_week', fromDate: '', toDate: '', typeFilter: 'all', search: '' };
 
 function getIraqWeekBounds(refDateStr = state.activeDate, weekOffset = 0) {
@@ -6006,7 +6072,7 @@ function applyCustomTime(targetType, targetIdx, targetInputId) {
     showToast('⏱️ تم ضبط الوقت: ' + formatted);
 }
 
-/* ================= V17.5: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
+/* ================= V17.6: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
 function pushUndo(actionLabel) {
     try {
         const snap = JSON.stringify(state);
@@ -6475,6 +6541,7 @@ function renderAll() {
 
     document.body.classList.toggle('alpha-pad', state.activeTab === 'inv' && activeInvZoneId !== null);
 
+    renderWorkshopBanner();
     renderSlimActivityBar();
     renderAttendance(log);
     renderTasks(log);
@@ -6575,7 +6642,8 @@ function openFullArchiveModal() {
                 </div>`;
             }).join('')}
         </div>
-        <button class="btn btn-blue btn-full" style="margin-bottom:7px;padding:9px;font-size:12.5px;" onclick="closeModal();triggerDflExcelImport()">📊 استيراد ملفات DFL إكسيل للأرشيف (.xlsx)</button>
+        <button class="btn btn-blue btn-full" style="margin-bottom:7px;padding:9px;font-size:12.5px;" onclick="closeModal();triggerDflExcelImport()">📊 استيراد ملفات DFL إكسيل (.xlsx)</button>
+        <button class="btn btn-purple btn-full" style="margin-bottom:7px;padding:9px;font-size:12.5px;" onclick="openDflAuditModal()">🔍 فحص وتصليح أخطاء تقارير الأرشيف</button>
         <button class="btn btn-orange btn-full" style="margin-bottom:7px;padding:9px;font-size:12.5px;" onclick="promptRenumberArchiveDfl()">🔢 إعادة ترقيم تسلسل DFL للأرشيف</button>
         <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
     `);
@@ -7263,6 +7331,10 @@ function renderTasks(log) {
                     </div>
                 </div>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+                    ${state.company.dflReportMode === 'two_shift' ? (() => {
+                        const isPm = getTaskShiftBlock(t) === 'pm';
+                        return `<span class="shift-pill ${isPm ? 'pm' : 'am'}" onclick="toggleTaskShiftBlock(${idx})" title="اضغط للتبديل بين شفت صباحي وبعد الظهر">${isPm ? '🌇 بعد الظهر' : '☀️ صباحي'}</span>`;
+                    })() : ''}
                     <span class="zone-pill" onclick="openZonePickerModal(${idx})">📍 ${esc(t.zones)} ✏️</span>
                     ${!isDone && !isCarried ? `<button class="btn btn-orange btn-sm" style="padding:2px 6px;font-size:10.5px;" onclick="openCarryTaskToTomorrowModal(${idx})" title="ترحيل المتبقي لغداً">⏭️ للغد</button>` : ''}
                 </div>
@@ -7830,7 +7902,7 @@ function setTaskStatus(idx, st) {
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
 }
 
-/* ================= V17.5: Advanced Multi-Notes & Saved Custom Notes Library ================= */
+/* ================= V17.6: Advanced Multi-Notes & Saved Custom Notes Library ================= */
 function stripAutoSuffixFromNote(rawStr, suffix) {
     let base = String(rawStr || '');
     if (suffix) {
@@ -8201,7 +8273,7 @@ function escalateTaskToIssue(idx) {
     saveState(); renderExportAndIssues(site, getDayLog()); showToast(`🚨 تم تصعيد العطل إلى متتبع المشاكل (${code})`);
 }
 
-/* ================= V17.5: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
+/* ================= V17.6: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
 function onNewTaskTypeChange(val) {
     const v = String(val || '');
     const irrBox = document.getElementById('mTaskIrrPresetsBox');
@@ -8350,7 +8422,7 @@ function saveNewTask(startImmediately = false) {
 }
 
 
-/* ================= V17.5: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V17.6: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -9863,7 +9935,7 @@ function autoGenerateOAR() {
     saveState(); renderExportAndIssues(site, log); triggerAllAutoGrows(); showToast('🔄 تم توليد مسودة OAR تلقائياً');
 }
 
-/* ================= V17.5: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
+/* ================= V17.6: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
 function buildShiftWhatsAppText(level = 'quick') {
     const site = getSite();
     const log = getDayLog();
@@ -10998,7 +11070,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.5) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.6) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -11298,6 +11370,14 @@ function openSettingsModal() {
             <button class="clr-btn top-align" onclick="quickClearField('stSiteZones')">✕</button>
         </div>
 
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:8px;margin-bottom:8px;">
+            <label class="lbl" style="color:#166534;">🗂️ نظام التقرير اليومي (DFL Report Mode):</label>
+            <select id="stDflMode" class="inp" style="margin:0;background:white;font-weight:bold;">
+                <option value="single_day" ${(state.company.dflReportMode || 'single_day') === 'single_day' ? 'selected' : ''}>☀️ يوم واحد كامل (V04 — الافتراضي)</option>
+                <option value="two_shift" ${state.company.dflReportMode === 'two_shift' ? 'selected' : ''}>🌗 نظام الشفتين القديم (12 الظهر ⬅️ 12 الظهر)</option>
+            </select>
+            <div style="font-size:10.5px;color:#15803d;margin-top:4px;line-height:1.4;">يبقى البرنامج على نظام اليوم الواحد (V04)؛ ولا يظهر تقسيم الشفتين إلا إذا فعّلته من هنا.</div>
+        </div>
         <label style="display:flex;align-items:center;gap:6px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:8px;margin-bottom:9px;font-size:12px;font-weight:bold;color:#0369a1;cursor:pointer;">
             <input type="checkbox" id="stShowActBar" ${state.company.showActivityBar !== false ? 'checked' : ''}> 📜 إظهار شريط «آخر حركة والتراجع السريع» أعلى الشاشة
         </label>
@@ -11321,6 +11401,8 @@ function saveSettings() {
     state.company.breakEnd = document.getElementById('stBrkEnd').value || '13:00';
     const actChk = document.getElementById('stShowActBar');
     if (actChk) state.company.showActivityBar = actChk.checked;
+    const modeSel = document.getElementById('stDflMode');
+    if (modeSel) state.company.dflReportMode = modeSel.value || 'single_day';
     const zArr = document.getElementById('stSiteZones').value.split(',').map(s => s.trim()).filter(Boolean);
     if (zArr.length) getSite().zones = zArr;
     closeModal(); saveState(); renderAll(); showToast('✓ تم حفظ الإعدادات');
@@ -11435,7 +11517,7 @@ function buildBackupExportPayload(scope = 'light') {
         (cleanLog.sdls || []).forEach(sd => sd.photos = []);
         const todayIssues = (site.issues || []).filter(i => i.status === 'Open' || i.date === state.activeDate).map(i => ({ ...JSON.parse(JSON.stringify(i)), photos: [] }));
         const payload = {
-            schemaVersion: 'V17.5',
+            schemaVersion: 'V17.6',
             exportScope: 'single_day',
             exportDate: state.activeDate,
             activeSiteId: site.id,
@@ -11466,7 +11548,7 @@ function buildBackupExportPayload(scope = 'light') {
     }
 
     const cloneState = JSON.parse(JSON.stringify(state));
-    cloneState.schemaVersion = 'V17.5';
+    cloneState.schemaVersion = 'V17.6';
     cloneState.exportScope = includePhotos ? 'full_with_photos' : 'full_light';
     Object.values(cloneState.sites || {}).forEach(s => {
         (s.issues || []).forEach(iss => iss.photos = resArr(iss.photos));
@@ -11938,7 +12020,119 @@ function handleParsedBackupText(rawText) {
 
 
 
-/* ================= V17.5: Universal Offline DFL Excel Importer (V03 Old & V04 New, Single & Batch) ================= */
+/* ================= V17.6: Smart Universal DFL Importer (V03 Two-Shift + V04 Single), Correction Workshop & Error Auditor ================= */
+function getPrevDateStr(dateStr = state.activeDate) {
+    const d = new Date(dateStr + 'T12:00:00');
+    d.setDate(d.getDate() - 1);
+    return getLocalDateStr(d);
+}
+
+function getTaskShiftBlock(t) {
+    if (!t) return 'am';
+    if (t.shiftBlock === 'pm' || t.shiftBlock === 'am') return t.shiftBlock;
+    const st = getTaskFixedStartTimeStr(t) || '08:00';
+    const hr = parseInt(String(st).split(':')[0], 10);
+    return (!isNaN(hr) && hr >= 12) ? 'pm' : 'am';
+}
+
+function toggleTaskShiftBlock(idx) {
+    const log = getDayLog();
+    const t = log.tasks[idx];
+    if (!t) return;
+    pushUndo('تبديل شفت المهمة (صباحي/بعد الظهر)');
+    const nextBlock = getTaskShiftBlock(t) === 'pm' ? 'am' : 'pm';
+    t.shiftBlock = nextBlock;
+    if (nextBlock === 'pm' && (!t.fixedStartTime || parseInt(t.fixedStartTime.split(':')[0], 10) < 12)) {
+        t.fixedStartTime = '13:00';
+    } else if (nextBlock === 'am' && (!t.fixedStartTime || parseInt(t.fixedStartTime.split(':')[0], 10) >= 12)) {
+        t.fixedStartTime = '08:00';
+    }
+    saveState();
+    renderTasks(log);
+    showToast(nextBlock === 'pm' ? '🌇 تم تعيين المهمة إلى شفت بعد الظهر (13:00)' : '☀️ تم تعيين المهمة إلى الشفت الصباحي (08:00)');
+}
+
+function ensureWorkshopSite() {
+    const mainSite = Object.values(state.sites).find(s => !s.isWorkshop) || getSite();
+    if (!state.sites.dfl_workshop) {
+        state.sites.dfl_workshop = {
+            id: 'dfl_workshop',
+            name: '🛠️ ورشة تصحيح DFL قديم (معزولة)',
+            isWorkshop: true,
+            sourceSiteId: mainSite.id,
+            nextDfl: 1,
+            zones: [...(mainSite.zones || MASTER_ZONES)],
+            meters: (mainSite.meters || [{ id: 'm1', name: 'Serious of B1 Tank 2', lastReading: 0 }]).map(m => ({ ...m, lastReading: 0 })),
+            gauges: (mainSite.gauges || []).map(g => ({ ...g })),
+            plan: JSON.parse(JSON.stringify(mainSite.plan || AL_MUTAHIDA_PLAN)),
+            inventory: [],
+            issues: [],
+            workerPayments: [],
+            stopMarker: null,
+            logs: {}
+        };
+    }
+    return state.sites.dfl_workshop;
+}
+
+function renderWorkshopBanner() {
+    const wrap = document.getElementById('workshopModeBanner');
+    if (!wrap) return;
+    const site = getSite();
+    if (!site || !site.isWorkshop) {
+        wrap.innerHTML = '';
+        return;
+    }
+    const dayCnt = Object.keys(site.logs || {}).length;
+    const auditRes = runDflSiteAudit(site);
+    wrap.innerHTML = `
+    <div class="workshop-banner">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+            <b>🛠️ ورشة تصحيح DFL قديم (${dayCnt} يوم) — موقعك الأساسي معزول ومحمي</b>
+            <span class="badge" style="background:rgba(255,255,255,0.22);color:white;font-size:10px;">${auditRes.items.length ? `⚠️ ${auditRes.items.length} ملاحظة للمراجعة` : '✅ سليم'}</span>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="btn btn-sm" style="background:white;color:#9a3412;" onclick="openDflAuditModal()">🔍 فحص الأخطاء (${auditRes.items.length})</button>
+            <button class="btn btn-sm" style="background:#16a34a;color:white;" onclick="openBatchExportModal()">📦 تصدير المصحّح (ZIP)</button>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;" onclick="returnFromWorkshopToMainSite()">↩️ رجوع لموقعي</button>
+            <button class="btn btn-sm" style="background:rgba(220,38,38,0.85);color:white;" onclick="deleteWorkshopSite()">🗑️ حذف الورشة</button>
+        </div>
+    </div>`;
+}
+
+function returnFromWorkshopToMainSite() {
+    const site = getSite();
+    const targetId = (site && site.sourceSiteId && state.sites[site.sourceSiteId])
+        ? site.sourceSiteId
+        : (Object.keys(state.sites).find(id => !state.sites[id].isWorkshop) || Object.keys(state.sites)[0]);
+    if (!targetId) return;
+    state.activeSiteId = targetId;
+    const mainDates = Object.keys(state.sites[targetId].logs || {}).sort();
+    state.activeDate = mainDates[mainDates.length - 1] || getLocalDateStr();
+    activeInvZoneId = null;
+    saveState();
+    renderAll();
+    showToast('↩️ تم الرجوع إلى موقعك الأساسي: ' + state.sites[targetId].name);
+}
+
+function deleteWorkshopSite() {
+    if (!state.sites.dfl_workshop) return;
+    if (!confirm('حذف «ورشة تصحيح DFL قديم» بالكامل؟\n(لن يتأثر موقعك الأساسي إطلاقاً)')) return;
+    const fallbackId = state.sites.dfl_workshop.sourceSiteId && state.sites[state.sites.dfl_workshop.sourceSiteId]
+        ? state.sites.dfl_workshop.sourceSiteId
+        : Object.keys(state.sites).find(id => id !== 'dfl_workshop');
+    delete state.sites.dfl_workshop;
+    if (fallbackId) {
+        state.activeSiteId = fallbackId;
+        const mainDates = Object.keys(state.sites[fallbackId].logs || {}).sort();
+        state.activeDate = mainDates[mainDates.length - 1] || getLocalDateStr();
+    }
+    activeInvZoneId = null;
+    saveState();
+    renderAll();
+    showToast('🗑️ تم حذف ورشة التصحيح والعودة لموقعك الأساسي');
+}
+
 function triggerDflExcelImport() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة');
@@ -12018,25 +12212,25 @@ function xlParseTimeHHMM(cell, fallback = '') {
 
 function xlParseDurationStr(cell) {
     const v = xlCellRaw(cell);
-    if (v === null || v === undefined || v === '') return '1:00 hr';
+    if (v === null || v === undefined || v === '') return { dur: '1:00 hr', missing: true };
     if (v instanceof Date && !isNaN(v.getTime())) {
         const h = v.getUTCHours();
         const m = v.getUTCMinutes();
-        return (h === 0 && m === 0) ? '1:00 hr' : `${h}:${String(m).padStart(2, '0')} hr`;
+        return (h === 0 && m === 0) ? { dur: '1:00 hr', missing: true } : { dur: `${h}:${String(m).padStart(2, '0')} hr`, missing: false };
     }
     if (typeof v === 'number' && v > 0 && v < 1) {
         const totalM = Math.round(v * 1440);
-        return `${Math.floor(totalM / 60)}:${String(totalM % 60).padStart(2, '0')} hr`;
+        return { dur: `${Math.floor(totalM / 60)}:${String(totalM % 60).padStart(2, '0')} hr`, missing: false };
     }
     const s = String(v).trim();
     const hm = s.match(/(\d+)\s*:\s*(\d+)/);
-    if (hm) return `${parseInt(hm[1], 10)}:${String(parseInt(hm[2], 10)).padStart(2, '0')} hr`;
+    if (hm) return { dur: `${parseInt(hm[1], 10)}:${String(parseInt(hm[2], 10)).padStart(2, '0')} hr`, missing: false };
     const num = parseFloat(s);
     if (!isNaN(num) && num > 0) {
         const totalM = Math.round(num * 60);
-        return `${Math.floor(totalM / 60)}:${String(totalM % 60).padStart(2, '0')} hr`;
+        return { dur: `${Math.floor(totalM / 60)}:${String(totalM % 60).padStart(2, '0')} hr`, missing: false };
     }
-    return '1:00 hr';
+    return { dur: '1:00 hr', missing: true };
 }
 
 function xlNormalizeWeekdayName(raw) {
@@ -12109,11 +12303,11 @@ function xlNormalizeAttStatus(raw) {
 
 function xlNormalizeTaskStatus(raw, hasWorkSignal) {
     const s = String(raw || '').toLowerCase();
-    if (s.includes('complet') || s.includes('مكتمل')) return 'Completed / مكتمل';
-    if (s.includes('progress') || s.includes('جاري')) return 'In Progress / جاري';
-    if (s.includes('block') || s.includes('متوقف')) return 'Blocked / متوقف';
-    if (s.includes('not start') || s.includes('لم يبدأ')) return 'Not Started / لم يبدأ';
-    return hasWorkSignal ? 'Completed / مكتمل' : 'Not Started / لم يبدأ';
+    if (s.includes('complet') || s.includes('مكتمل')) return { status: 'Completed / مكتمل', missing: false };
+    if (s.includes('progress') || s.includes('جاري')) return { status: 'In Progress / جاري', missing: false };
+    if (s.includes('block') || s.includes('متوقف')) return { status: 'Blocked / متوقف', missing: false };
+    if (s.includes('not start') || s.includes('لم يبدأ')) return { status: 'Not Started / لم يبدأ', missing: false };
+    return { status: hasWorkSignal ? 'Completed / مكتمل' : 'Not Started / لم يبدأ', missing: true };
 }
 
 function xlExtractNumsAvg(raw, roundInt = false) {
@@ -12147,6 +12341,12 @@ function xlSplitWorkersString(raw, attendanceList) {
     return out;
 }
 
+function xlIsWeekendPlaceholderRow(rw) {
+    if (!rw) return false;
+    const joined = `${rw.task || ''} ${rw.desc || ''} ${rw.note || ''}`.toLowerCase();
+    return joined.includes('no field tasks') || joined.includes('weekend') || (String(rw.task || '').includes('Other') && !(rw.workers && rw.workers.length) && String(rw.status || '').includes('Not Started') && joined.includes('عطلة'));
+}
+
 function parseDflExcelWorkbook(wb, fileName = '') {
     const site = getSite();
     let ws = wb.getWorksheet('Daily Field Log');
@@ -12157,6 +12357,8 @@ function parseDflExcelWorkbook(wb, fileName = '') {
     }
     if (!ws) throw new Error('لم يتم العثور على ورقة Daily Field Log في الملف');
 
+    const autoFixes = [];
+    const reviewWarnings = [];
     const maxR = Math.min(ws.rowCount || 200, 350);
     const findSecRow = (regex, fromR = 1) => {
         for (let r = fromR; r <= maxR; r++) {
@@ -12166,12 +12368,18 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         return null;
     };
 
-    // 1. Metadata
+    // 1. Metadata & Format Fingerprint
+    const titleBanner = xlCellText(ws.getCell('A3'));
     const f5Txt = xlCellText(ws.getCell('F5'));
     const dflMatch = f5Txt.match(/\d+/) || String(fileName || '').match(/DFL[_-]?V?0*(\d+)/i);
     const dflNum = dflMatch ? parseInt(dflMatch[0], 10) : (site.nextDfl || 1);
     const dateStr = xlParseDateStr(ws.getCell('B7'), fileName);
-    const expectedDayEn = getDayNameEn(dateStr) || xlNormalizeWeekdayName(xlCellText(ws.getCell('F7'))) || 'Monday';
+    const prevDateStr = getPrevDateStr(dateStr);
+    const rawDayTxt = xlCellText(ws.getCell('F7'));
+    const expectedDayEn = getDayNameEn(dateStr) || xlNormalizeWeekdayName(rawDayTxt) || 'Monday';
+    if (rawDayTxt && rawDayTxt.trim().toLowerCase() !== expectedDayEn.toLowerCase()) {
+        autoFixes.push(`تصحيح اسم اليوم (${rawDayTxt} ⬅️ ${expectedDayEn})`);
+    }
     const siteNameExcel = xlCellText(ws.getCell('F6'));
     const teamLeadExcel = xlCellText(ws.getCell('B8'));
     const shiftExcel = xlCellText(ws.getCell('B9'));
@@ -12204,11 +12412,16 @@ function parseDflExcelWorkbook(wb, fileName = '') {
     }
     let tMin = xlExtractNumsAvg(xlCellRaw(ws.getCell(wxRow, 3)), false);
     let tMax = xlExtractNumsAvg(xlCellRaw(ws.getCell(wxRow, 4)), false);
-    if (tMin !== '' && tMax !== '' && tMin > tMax) { const tmp = tMin; tMin = tMax; tMax = tmp; }
+    if (tMin !== '' && tMax !== '' && tMin > tMax) {
+        const tmp = tMin; tMin = tMax; tMax = tmp;
+        autoFixes.push(`عكس الحرارة الصغرى والعظمى (${tMin}°C–${tMax}°C)`);
+    }
     const windRawTxt = xlCellText(ws.getCell(wxRow, 5));
     const windNum = xlExtractNumsAvg(windRawTxt, false);
     const humRaw = xlCellRaw(ws.getCell(wxRow, 6));
-    const humVal = (typeof humRaw === 'number' && humRaw > 0 && humRaw <= 1) ? Math.round(humRaw * 100) : xlExtractNumsAvg(humRaw, true);
+    const humIsDec = (typeof humRaw === 'number' && humRaw > 0 && humRaw <= 1);
+    const humVal = humIsDec ? Math.round(humRaw * 100) : xlExtractNumsAvg(humRaw, true);
+    if (humIsDec) autoFixes.push(`تحويل الرطوبة إلى نسبة مئوية (${humVal}%)`);
     const uvVal = xlExtractNumsAvg(xlCellRaw(ws.getCell(wxRow, 7)), false);
     const pressVal = xlExtractNumsAvg(xlCellRaw(ws.getCell(wxRow, 8)), true);
     const precipTxt = xlCellText(ws.getCell(wxRow, 9));
@@ -12250,7 +12463,7 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         });
     }
 
-    // 5. Section 3: Tasks (Handles V03 Two-Day Split + V04 Vertical Multi-Zone Merges + Per-Zone Notes!)
+    // 5. Section 3: Tasks (Auto-detects V03 Two-Shift 12->12 vs V04 Single-Day + Vertical Multi-Zone Merges!)
     let taskHeaderRow = s3 + 2;
     for (let r = s3 + 1; r < s4; r++) {
         if (/task\s*\/|المهمة/i.test(xlCellText(ws.getCell(r, 2)))) { taskHeaderRow = r; break; }
@@ -12284,10 +12497,11 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         const eMasterRow = (cE.isMerged && cE.master) ? cE.master.row : r;
         const isVertMergedWithPrev = (bMasterRow < r && eMasterRow < r);
 
-        const dur = xlParseDurationStr(cE);
-        const workers = xlSplitWorkersString(xlCellText(cK), attendance);
+        const durInfo = xlParseDurationStr(cE);
+        const rawWorkersTxt = xlCellText(cK);
+        const workers = xlSplitWorkersString(rawWorkersTxt, attendance);
         const hasSignal = Boolean(xlCellText(cE) || workers.length > 0);
-        const status = xlNormalizeTaskStatus(xlCellText(cG), hasSignal);
+        const stInfo = xlNormalizeTaskStatus(xlCellText(cG), hasSignal);
         const note = xlCellText(cH);
         const photoRef = xlCellText(cL);
         const photoLink = xlCellLink(cL);
@@ -12299,19 +12513,22 @@ function parseDflExcelWorkbook(wb, fileName = '') {
             task: xlMatchTaskName(taskRaw),
             desc: descRaw,
             zone: zoneRaw || 'عام / General',
-            dur,
-            status,
+            dur: durInfo.dur,
+            durMissing: durInfo.missing,
+            status: stInfo.status,
+            statusMissing: stInfo.missing,
             workers,
+            rawWorkersTxt,
             note,
             photoRef,
             photoLink
         });
     }
 
-    const isV03TwoDayLayout = seenDayBlocks.length >= 2;
-    const buildTaskCardsFromRows = rowsList => {
+    const isV03TwoDayLayout = seenDayBlocks.length >= 2 || /V03\s+DFL/i.test(titleBanner);
+    const buildTaskCardsFromRows = (rowsList, targetDateTag, defaultStartHHMM, shiftBlockTag) => {
         const cards = [];
-        rowsList.forEach((rw, idx) => {
+        rowsList.forEach(rw => {
             if (rw.isVertMergedWithPrev && cards.length > 0) {
                 const prev = cards[cards.length - 1];
                 if (!prev._zonesArr.includes(rw.zone)) prev._zonesArr.push(rw.zone);
@@ -12325,8 +12542,11 @@ function parseDflExcelWorkbook(wb, fileName = '') {
                     task: rw.task,
                     desc: rw.desc,
                     dur: rw.dur,
+                    durMissing: rw.durMissing,
                     status: rw.status,
-                    workers: rw.workers
+                    statusMissing: rw.statusMissing,
+                    workers: rw.workers,
+                    rawWorkersTxt: rw.rawWorkersTxt
                 });
             }
         });
@@ -12337,30 +12557,33 @@ function parseDflExcelWorkbook(wb, fileName = '') {
             let genNotesList = [];
             const zoneNotes = {};
             if (c._zonesArr.length > 1 && uniqueNotes.length > 1) {
-                // Distinct per-zone notes -> store cleanly inside V17.2 zoneNotes!
                 c._rowNotes.forEach(rn => {
                     if (rn.note) {
                         if (!zoneNotes[rn.zone]) zoneNotes[rn.zone] = [];
                         if (!zoneNotes[rn.zone].some(x => x.text === rn.note)) {
-                            zoneNotes[rn.zone].push({ id: `zn_xl_${dateStr}_${idx}_${rn.zone}`, text: rn.note });
+                            zoneNotes[rn.zone].push({ id: `zn_xl_${targetDateTag}_${idx}_${rn.zone}`, text: rn.note });
                         }
                     }
                 });
             } else if (uniqueNotes.length === 1) {
                 genNotesList = uniqueNotes[0].split('\n').map(s => s.trim()).filter(Boolean)
-                    .map((txt, nI) => ({ id: `n_xl_${dateStr}_${idx}_${nI}`, text: txt }));
+                    .map((txt, nI) => ({ id: `n_xl_${targetDateTag}_${idx}_${nI}`, text: txt }));
             }
             const isTanker = /tanker|حوضية|تنكر/i.test(`${c.desc} ${uniqueNotes.join(' ')}`);
-            const baseTask = {
-                id: `t_xl_${dateStr}_${idx}_${Math.random().toString(36).slice(2, 5)}`,
+            return {
+                id: `t_xl_${targetDateTag}_${shiftBlockTag}_${idx}_${Math.random().toString(36).slice(2, 5)}`,
                 task: c.task,
                 desc: c.desc,
                 zones: zonesStr,
                 dur: c.dur,
-                fixedStartTime: '08:00',
+                fixedStartTime: defaultStartHHMM,
                 fixedEndTime: '',
+                shiftBlock: shiftBlockTag,
                 status: c.status,
                 workers: c.workers,
+                _rawWorkersTxt: c.rawWorkersTxt || '',
+                _durMissing: !!c.durMissing,
+                _statusMissing: !!c.statusMissing,
                 note: genNotesList.map(x => x.text).join('\n'),
                 notesList: genNotesList,
                 zoneNotes,
@@ -12380,19 +12603,29 @@ function parseDflExcelWorkbook(wb, fileName = '') {
                 pausedAtMs: null,
                 syncWithPrev: false
             };
-            return baseTask;
         });
     };
 
-    let todayRows = parsedTaskRows;
-    let skippedYesterdayCount = 0;
-    if (isV03TwoDayLayout) {
-        const matched = parsedTaskRows.filter(rw => rw.dayBlock === expectedDayEn);
-        todayRows = matched.length > 0 ? matched : parsedTaskRows.filter(rw => rw.dayBlock === seenDayBlocks[seenDayBlocks.length - 1]);
-        skippedYesterdayCount = parsedTaskRows.length - todayRows.length;
+    let morningRows = parsedTaskRows;
+    let prevAfternoonRows = [];
+    if (seenDayBlocks.length >= 2) {
+        const bottomDay = seenDayBlocks.includes(expectedDayEn) ? expectedDayEn : seenDayBlocks[seenDayBlocks.length - 1];
+        morningRows = parsedTaskRows.filter(rw => rw.dayBlock === bottomDay);
+        prevAfternoonRows = parsedTaskRows.filter(rw => rw.dayBlock !== bottomDay && !xlIsWeekendPlaceholderRow(rw));
     }
-    const tasksTodayOnly = buildTaskCardsFromRows(todayRows);
-    const tasksAllBlocks = buildTaskCardsFromRows(parsedTaskRows);
+
+    const tasksMorning = buildTaskCardsFromRows(morningRows, dateStr, '08:00', 'am');
+    const tasksPrevAfternoon = buildTaskCardsFromRows(prevAfternoonRows, prevDateStr, '13:00', 'pm');
+    const tasksAllInSameDay = [
+        ...buildTaskCardsFromRows(prevAfternoonRows, dateStr, '13:00', 'pm'),
+        ...tasksMorning
+    ];
+
+    const allChecks = [...tasksMorning, ...tasksPrevAfternoon];
+    const missDurCnt = allChecks.filter(t => t._durMissing && !xlIsWeekendPlaceholderRow(t)).length;
+    const missStCnt = allChecks.filter(t => t._statusMissing && !xlIsWeekendPlaceholderRow(t)).length;
+    if (missDurCnt > 0) reviewWarnings.push(`${missDurCnt} مهام بدون مدة محددة`);
+    if (missStCnt > 0) reviewWarnings.push(`${missStCnt} مهام بدون حالة محددة`);
 
     // 6. Section 4: Equipment / Tools / Materials
     const tools = [];
@@ -12417,7 +12650,7 @@ function parseDflExcelWorkbook(wb, fileName = '') {
     }
     while (moisture.length < 5) moisture.push({ id: moisture.length + 1, zone: '', pct: '', note: '' });
 
-    // 8. Section 5B: Water Meters (Handles blank meter name on old V03 row 1 -> maps to primary site meter!)
+    // 8. Section 5B: Water Meters
     const meters = [];
     const primaryMeter = (site.meters && site.meters[0]) || { id: 'm1', name: 'Serious of B1 Tank 2', lastReading: 0 };
     for (let r = s5B + 1; r < s5C; r++) {
@@ -12429,6 +12662,8 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         const note = xlCellText(ws.getCell(r, 9));
         if (!mNameRaw && prevTxt === '' && currTxt === '' && !note) continue;
         const isFirst = meters.length === 0;
+        if (!mNameRaw && isFirst) autoFixes.push(`ربط العداد 1 بالعداد الرئيسي (${primaryMeter.name})`);
+        if (prevTxt !== '' && currTxt === '') reviewWarnings.push('قراءة العداد الحالية ناقصة');
         const matchedSiteM = (site.meters || []).find(sm => mNameRaw && sm.name.toLowerCase() === mNameRaw.toLowerCase()) || (isFirst ? primaryMeter : null);
         const mId = matchedSiteM ? matchedSiteM.id : `m_xl_${meters.length + 1}`;
         const mName = mNameRaw || (matchedSiteM ? matchedSiteM.name : `Water Meter ${meters.length + 1}`);
@@ -12447,7 +12682,7 @@ function parseDflExcelWorkbook(wb, fileName = '') {
     }
     if (meters.length === 0) {
         (site.meters || [primaryMeter]).forEach(sm => {
-            meters.push({ id: sm.id, name: sm.name, status: 'working', prev: sm.lastReading || 0, curr: '', visual: 'Clear / صافية', note: '', photos: [] });
+            meters.push({ id: sm.id, name: sm.name, status: 'working', prev: 0, curr: '', visual: 'Clear / صافية', note: '', photos: [] });
         });
     }
 
@@ -12492,11 +12727,11 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         (site.gauges || []).forEach(sg => gauges.push({ id: sg.id, name: sg.name, normal: sg.normal, val: '', note: '' }));
     }
 
-    // 11. Section 6: Plants Health (optional import into inventory)
+    // 11. Section 6: Plants Health
     const plantsHealth = [];
     for (let r = s6 + 1; r < s7; r++) {
         const pName = xlCellText(ws.getCell(r, 2));
-        if (!pName || /النبات|plant/i.test(pName) && /scientific|العلمي/i.test(xlCellText(ws.getCell(r, 4)))) continue;
+        if (!pName || (/النبات|plant/i.test(pName) && /scientific|العلمي/i.test(xlCellText(ws.getCell(r, 4))))) continue;
         const sci = xlCellText(ws.getCell(r, 4));
         const hSt = xlCellText(ws.getCell(r, 5));
         const signs = xlCellText(ws.getCell(r, 6));
@@ -12527,7 +12762,7 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         });
     }
 
-    // 14. Section 9: OAR (Dynamic OBS/ANA/REC label search)
+    // 14. Section 9: OAR
     const oar = { obs: '', ana: '', rec: '' };
     const isOarPlaceholder = txt => !txt || /^(complete at end|if supervisor|describe |what caused|what must|obs|ana|rec)/i.test(txt);
     for (let r = s9 + 1; r < s10; r++) {
@@ -12544,7 +12779,7 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         }
     }
 
-    // 15. Optional Incident Report & Site Deviation Log sheets (skip untouched blank templates!)
+    // 15. Optional Incident Report & Site Deviation Log sheets
     const incidents = [];
     const sdls = [];
     wb.worksheets.forEach(sh => {
@@ -12599,7 +12834,10 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         fileName,
         dflNum,
         dateStr,
+        prevDateStr,
         dayEn: expectedDayEn,
+        formatType: isV03TwoDayLayout ? 'v03_two_shift' : 'v04_single',
+        formatLabel: isV03TwoDayLayout ? '🌗 V03 شفتين (12⬅️12)' : '☀️ V04 يوم واحد',
         siteNameExcel,
         teamLeadExcel,
         shiftExcel,
@@ -12607,11 +12845,11 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         outsideRateExcel,
         driveFolderLink,
         isV03TwoDayLayout,
-        skippedYesterdayCount,
         weather,
         attendance,
-        tasksTodayOnly,
-        tasksAllBlocks,
+        tasksMorning,
+        tasksPrevAfternoon,
+        tasksAllInSameDay,
         tools,
         moisture,
         meters,
@@ -12622,7 +12860,9 @@ function parseDflExcelWorkbook(wb, fileName = '') {
         photoRefs,
         oar,
         incidents,
-        sdls
+        sdls,
+        autoFixes,
+        reviewWarnings
     };
 }
 
@@ -12633,7 +12873,7 @@ async function onDflExcelFilesSelected(e) {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة');
         return;
     }
-    showToast(`⏳ جاري قراءة وتحليل ${files.length} ملف DFL إكسيل...`);
+    showToast(`⏳ جاري فحص وتحليل ${files.length} ملف DFL إكسيل...`);
     const parsedList = [];
     const errors = [];
 
@@ -12663,52 +12903,79 @@ async function onDflExcelFilesSelected(e) {
 function openDflExcelImportPreviewModal(list, errors = []) {
     const site = getSite();
     const hasV03 = list.some(x => x.isV03TwoDayLayout);
-    const hasExisting = list.some(x => site.logs[x.dateStr] && isDayLogSubstantive(site.logs[x.dateStr]));
+    const totalPrevPm = list.reduce((s, x) => s + x.tasksPrevAfternoon.length, 0);
+    const totalFixes = list.reduce((s, x) => s + (x.autoFixes ? x.autoFixes.length : 0), 0);
     const totalExtras = list.reduce((s, x) => s + x.plantsHealth.length + x.sec7Issues.length, 0);
+    const defaultToWorkshop = hasV03 || !!site.isWorkshop;
 
     openModal(`
-        <h3 class="card-title">📊 معاينة استيراد ملفات DFL (${list.length} ملف)</h3>
+        <h3 class="card-title">📊 معاينة استيراد DFL الذكي (${list.length} ملف)</h3>
         ${errors.length ? `<div style="background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;padding:7px;border-radius:7px;font-size:11px;margin-bottom:7px;">⚠️ تعذر قراءة ${errors.length} ملف: ${esc(errors.join(' | '))}</div>` : ''}
-        <p style="font-size:11.5px;color:var(--muted);margin-top:0;">تم التعرف على القالب والأقسام تلقائياً — راجع السجلات ثم اضغط اعتماد لتحويلها إلى البرنامج:</p>
-        <div style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:9px;padding:6px;margin-bottom:9px;background:#f8fafc;">
+        ${totalFixes > 0 ? `<div style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:6px 8px;border-radius:7px;font-size:11px;margin-bottom:7px;">✨ تم إصلاح <b>${totalFixes}</b> خطأ صيغة تلقائياً (أيام، حرارة معكوسة، رطوبة، وعدادات)</div>` : ''}
+
+        <div style="max-height:210px;overflow-y:auto;border:1px solid var(--border);border-radius:9px;padding:6px;margin-bottom:8px;background:#f8fafc;">
             ${list.map((rec, idx) => {
-                const exists = !!(site.logs[rec.dateStr] && isDayLogSubstantive(site.logs[rec.dateStr]));
                 const mTxt = rec.meters.filter(m => m.curr !== '' || m.prev).map(m => `${m.prev}→${m.curr !== '' ? m.curr : '?'}`).join(' | ');
                 return `
-                <label style="display:flex;align-items:flex-start;gap:7px;background:white;border:1px solid ${exists ? '#fcd34d' : '#e2e8f0'};border-radius:8px;padding:7px;margin-bottom:5px;cursor:pointer;">
+                <label style="display:flex;align-items:flex-start;gap:7px;background:white;border:1px solid #e2e8f0;border-radius:8px;padding:7px;margin-bottom:5px;cursor:pointer;">
                     <input type="checkbox" class="xl-imp-chk" value="${idx}" checked style="margin-top:3px;width:15px;height:15px;">
                     <div style="flex:1;font-size:11.5px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;flex-wrap:wrap;">
                             <b>📅 ${esc(rec.dateStr)} — DFL-${rec.dflNum}</b>
-                            <span class="badge" style="font-size:10px;background:${exists ? '#fef3c7' : '#dcfce7'};color:${exists ? '#92400e' : '#166534'};">${exists ? '⚠️ موجود مسبقاً' : '🆕 يوم جديد'}</span>
+                            <span class="badge" style="font-size:9.5px;background:${rec.isV03TwoDayLayout ? '#ede9fe' : '#dcfce7'};color:${rec.isV03TwoDayLayout ? '#5b21b6' : '#166534'};">${rec.formatLabel}</span>
                         </div>
                         <div style="color:#334155;font-size:11px;margin-top:2px;">
-                            👷 حضور: <b>${rec.attendance.length}</b> | 📋 مهام: <b>${rec.tasksTodayOnly.length}</b>${rec.skippedYesterdayCount ? ` <span style="color:var(--blue);">(تجاهل ${rec.skippedYesterdayCount} مهام أمس)</span>` : ''} | 🧰 معدات: <b>${rec.tools.length}</b>
+                            👷 حضور: <b>${rec.attendance.length}</b> | ☀️ صباحي: <b>${rec.tasksMorning.length}</b>${rec.tasksPrevAfternoon.length ? ` | 🌇 عصر الأمس (${rec.prevDateStr.slice(5)}): <b style="color:var(--purple);">${rec.tasksPrevAfternoon.length}</b>` : ''} | 🧰 معدات: <b>${rec.tools.length}</b>
                         </div>
                         <div style="color:var(--muted);font-size:10.5px;">
-                            ${mTxt ? `💧 العداد: ${esc(mTxt)}` : '💧 بدون قراءة عداد'}${rec.weather.tMax !== '' ? ` | 🌤️ ${rec.weather.tMin}–${rec.weather.tMax}°C` : ''}${rec.sec7Issues.length ? ` | ⚠️ مشاكل: ${rec.sec7Issues.length}` : ''}${rec.plantsHealth.length ? ` | 🌿 نباتات: ${rec.plantsHealth.length}` : ''}
+                            ${mTxt ? `💧 العداد: ${esc(mTxt)}` : '💧 بدون قراءة عداد'}${rec.weather.tMax !== '' ? ` | 🌤️ ${rec.weather.tMin}–${rec.weather.tMax}°C` : ''}${rec.reviewWarnings.length ? ` | <span style="color:var(--orange);">⚠️ ${esc(rec.reviewWarnings.join('، '))}</span>` : ''}
                         </div>
                     </div>
                 </label>`;
             }).join('')}
         </div>
-        ${hasV03 ? `
-        <label style="display:block;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:7px 9px;margin-bottom:6px;font-size:11.5px;font-weight:bold;color:#0369a1;">
-            <input type="checkbox" id="chkXlTodayOnly" checked> ✂️ تجاهل مهام الأمس المكررة بقالب V03 القديم (استيراد مهام اليوم فقط — موصى به)
-        </label>` : ''}
-        ${hasExisting ? `
-        <label style="display:block;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 9px;margin-bottom:6px;font-size:11.5px;font-weight:bold;color:#92400e;">
-            <input type="checkbox" id="chkXlOverwrite"> 🔄 استبدال الأيام الموجودة مسبقاً ببيانات ملف الإكسيل (إذا لم يُحدد: يتم الدمج الذكي)
-        </label>` : ''}
+
+        <!-- Destination Choice: Isolated Correction Workshop vs Protected Main Site -->
+        <div style="background:#fff7ed;border:1.5px solid #fdba74;border-radius:9px;padding:8px;margin-bottom:7px;">
+            <label class="lbl" style="color:#9a3412;margin-bottom:5px;">🎯 وجهة الاستيراد (لحماية تقاريرك الجديدة):</label>
+            <label style="display:flex;align-items:flex-start;gap:6px;background:white;border:1px solid #fed7aa;border-radius:7px;padding:6px 8px;margin-bottom:5px;font-size:11.5px;cursor:pointer;">
+                <input type="radio" name="xlDestMode" value="workshop" ${defaultToWorkshop ? 'checked' : ''} style="margin-top:2px;">
+                <span><b>🛠️ ورشة تصحيح DFL قديم (معزولة تماماً)</b><br><span style="font-size:10.5px;color:var(--muted);">تصلّح وتصدّر القديمات بحرية بدون لمس أرقام أو عدادات موقعك الأساسي</span></span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:6px;background:white;border:1px solid #e2e8f0;border-radius:7px;padding:6px 8px;font-size:11.5px;cursor:pointer;">
+                <input type="radio" name="xlDestMode" value="current_site" ${!defaultToWorkshop ? 'checked' : ''} style="margin-top:2px;">
+                <span><b>📥 أرشيف الموقع الحالي (بقفل حماية)</b><br><span style="font-size:10.5px;color:var(--muted);">يدمجها بأرشيفك لكشف العمال والإحصائيات بدون تخريب يومك أو أرقامك الحديثة</span></span>
+            </label>
+        </div>
+
+        ${hasV03 && totalPrevPm > 0 ? `
+        <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:9px;padding:8px;margin-bottom:7px;">
+            <label class="lbl" style="color:#5b21b6;margin-bottom:4px;">🌗 توزيع مهام نظام الشفتين القديم (12 الظهر ⬅️ 12 الظهر):</label>
+            <label style="display:block;font-size:11.5px;font-weight:bold;color:#4c1d95;margin-bottom:4px;cursor:pointer;">
+                <input type="radio" name="xlShiftSplitMode" value="reassemble_real_day" checked> 🔀 تجميع يوم كامل حقيقي (موصى به): يرحّل مهام بعد الظهر لليوم السابق (13:00) ويبقّي الصباحي ليوم الملف (08:00)
+            </label>
+            <label style="display:block;font-size:11px;color:#5b21b6;cursor:pointer;">
+                <input type="radio" name="xlShiftSplitMode" value="keep_same_day"> 📄 إبقاء الشفتين داخل نفس يوم الملف كما هنّ بالإكسيل
+            </label>
+        </div>` : ''}
+
+        <label style="display:block;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:6px 9px;margin-bottom:6px;font-size:11px;font-weight:bold;color:#334155;">
+            <input type="checkbox" id="chkXlOverwrite"> 🔄 استبدال الأيام الموجودة مسبقاً (إذا لم يُحدد: يتم الدمج الذكي الآمن)
+        </label>
         ${totalExtras > 0 ? `
-        <label style="display:block;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:7px 9px;margin-bottom:8px;font-size:11.5px;font-weight:bold;color:#166534;">
+        <label style="display:block;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:6px 9px;margin-bottom:8px;font-size:11px;font-weight:bold;color:#166534;">
             <input type="checkbox" id="chkXlImportExtras" checked> 🌿 استيراد ملاحظات صحة النباتات والمشاكل (الأقسام 6 و 7)
         </label>` : ''}
+
         <div class="grid-2">
-            <button class="btn btn-green" onclick="confirmDflExcelImport()">📥 استيراد للبرنامج الآن</button>
+            <button class="btn btn-green" onclick="confirmDflExcelImport()">📥 استيراد وفتح الفحص</button>
             <button class="btn btn-outline" onclick="window._pendingExcelImports=null;closeModal()">إلغاء</button>
         </div>
     `);
+}
+
+function xlTaskSignature(t) {
+    return `${(t.task || '').toLowerCase()}|${(t.desc || '').toLowerCase()}|${(t.zones || '').toLowerCase()}|${t.shiftBlock || ''}`;
 }
 
 function confirmDflExcelImport() {
@@ -12717,26 +12984,52 @@ function confirmDflExcelImport() {
     const selectedIdxs = Array.from(document.querySelectorAll('.xl-imp-chk:checked')).map(c => parseInt(c.value, 10)).filter(n => !isNaN(n) && list[n]);
     if (!selectedIdxs.length) { showToast('⚠️ حدد ملفاً واحداً على الأقل'); return; }
 
-    const todayOnlyV03 = document.getElementById('chkXlTodayOnly') ? document.getElementById('chkXlTodayOnly').checked : true;
+    const destMode = document.querySelector('input[name="xlDestMode"]:checked')?.value || 'workshop';
+    const shiftMode = document.querySelector('input[name="xlShiftSplitMode"]:checked')?.value || 'reassemble_real_day';
     const overwriteExisting = document.getElementById('chkXlOverwrite') ? document.getElementById('chkXlOverwrite').checked : false;
     const importExtras = document.getElementById('chkXlImportExtras') ? document.getElementById('chkXlImportExtras').checked : true;
 
     pushUndo(`استيراد ${selectedIdxs.length} ملفات DFL إكسيل`);
-    const site = getSite();
-    let addedCnt = 0, mergedCnt = 0, totalTasksImported = 0;
-    let lastDateImported = '';
-    let maxDflSeen = site.nextDfl || 1;
 
+    const prevActiveDate = state.activeDate;
+    let targetSite;
+    if (destMode === 'workshop') {
+        targetSite = ensureWorkshopSite();
+        state.activeSiteId = targetSite.id;
+    } else {
+        targetSite = getSite();
+    }
+
+    const existingDatesBefore = Object.keys(targetSite.logs || {}).sort();
+    const newestExistingBefore = existingDatesBefore[existingDatesBefore.length - 1] || '';
+    const savedNextDflBefore = targetSite.nextDfl || 1;
+
+    let addedCnt = 0, mergedCnt = 0, totalTasksImported = 0, routedPmCount = 0;
+    let lastDateImported = '';
+    const pendingPmRouting = [];
+
+    // Pass 1: Create/merge each file's primary day log (Morning tasks + Attendance + Weather + Tools + Meters)
     selectedIdxs.forEach(idx => {
         const rec = list[idx];
-        const chosenTasks = JSON.parse(JSON.stringify(todayOnlyV03 ? rec.tasksTodayOnly : rec.tasksAllBlocks));
-        totalTasksImported += chosenTasks.length;
+        const useReassemble = rec.isV03TwoDayLayout && shiftMode === 'reassemble_real_day';
+        const primaryTasks = JSON.parse(JSON.stringify(useReassemble ? rec.tasksMorning : rec.tasksAllInSameDay));
+        totalTasksImported += primaryTasks.length;
+
+        if (useReassemble && rec.tasksPrevAfternoon.length > 0) {
+            pendingPmRouting.push({
+                targetPrevDate: rec.prevDateStr,
+                sourceDflNum: rec.dflNum,
+                sourceFileName: rec.fileName,
+                tasks: JSON.parse(JSON.stringify(rec.tasksPrevAfternoon))
+            });
+        }
 
         const newDayLog = {
             dflNum: rec.dflNum,
+            importedFormat: rec.formatType,
             weather: JSON.parse(JSON.stringify(rec.weather)),
             attendance: JSON.parse(JSON.stringify(rec.attendance)),
-            tasks: chosenTasks,
+            tasks: primaryTasks,
             meters: JSON.parse(JSON.stringify(rec.meters)),
             gauges: JSON.parse(JSON.stringify(rec.gauges)),
             machinery: { pumpHrs: '', genHrs: '' },
@@ -12753,9 +13046,9 @@ function confirmDflExcelImport() {
                 ts: Date.now(),
                 time: formatTime24FromMs(Date.now()),
                 sec: 'export',
-                label: `استيراد من ملف Excel (${rec.fileName})`,
+                label: `استيراد ${rec.formatLabel} (${rec.fileName})`,
                 before: '',
-                after: `DFL-${rec.dflNum} (${chosenTasks.length} مهام)`,
+                after: `DFL-${rec.dflNum} (${primaryTasks.length} مهام)`,
                 flag: '',
                 jump: null,
                 revert: null,
@@ -12764,34 +13057,20 @@ function confirmDflExcelImport() {
             oar: JSON.parse(JSON.stringify(rec.oar))
         };
 
-        // Ensure irrigated zones auto-fill if empty in old Excel
-        if (!newDayLog.perf.zonesIrrigated) {
-            const irrZones = [];
-            chosenTasks.forEach(t => {
-                if (t.task.includes('Irrigation') && t.status.includes('Completed')) {
-                    (t.zones || '').split(',').map(z => z.trim()).filter(Boolean).forEach(z => {
-                        if (!irrZones.includes(z)) irrZones.push(z);
-                    });
-                }
-            });
-            if (irrZones.length) newDayLog.perf.zonesIrrigated = irrZones.join(', ');
-        }
-
-        const existing = site.logs[rec.dateStr];
+        const existing = targetSite.logs[rec.dateStr];
         if (!existing || !isDayLogSubstantive(existing) || overwriteExisting) {
-            site.logs[rec.dateStr] = newDayLog;
+            targetSite.logs[rec.dateStr] = newDayLog;
             addedCnt++;
         } else {
             mergeTwoDayLogsSafely(existing, newDayLog);
             mergedCnt++;
         }
 
-        // Import Section 7 Issues & Section 6 Plants Health cleanly without duplicates
         if (importExtras) {
             (rec.sec7Issues || []).forEach((iss, iI) => {
-                const existsIss = (site.issues || []).some(x => x.date === rec.dateStr && x.desc === iss.desc);
+                const existsIss = (targetSite.issues || []).some(x => x.date === rec.dateStr && x.desc === iss.desc);
                 if (!existsIss) {
-                    site.issues.unshift({
+                    targetSite.issues.unshift({
                         id: `iss_xl_${rec.dateStr}_${iI}`,
                         code: iss.refCode || `ISS-${rec.dflNum}-${iI + 1}`,
                         date: rec.dateStr,
@@ -12804,10 +13083,10 @@ function confirmDflExcelImport() {
                 }
             });
             (rec.plantsHealth || []).forEach((ph, pI) => {
-                let zObj = (site.inventory || []).find(z => z.name.toLowerCase() === ph.zone.toLowerCase());
+                let zObj = (targetSite.inventory || []).find(z => z.name.toLowerCase() === ph.zone.toLowerCase());
                 if (!zObj) {
                     zObj = { id: 'z_xl_' + Date.now() + '_' + pI, name: ph.zone, plants: [] };
-                    site.inventory.push(zObj);
+                    targetSite.inventory.push(zObj);
                 }
                 const pDisplayName = ph.scientificName ? `${ph.plantName} (${ph.scientificName})` : ph.plantName;
                 let pObj = (zObj.plants || []).find(p => p.name === pDisplayName);
@@ -12826,21 +13105,283 @@ function confirmDflExcelImport() {
                 }
             });
         }
-
-        if (rec.dflNum >= maxDflSeen) maxDflSeen = rec.dflNum + 1;
         lastDateImported = rec.dateStr;
     });
 
-    if (maxDflSeen > (site.nextDfl || 0)) site.nextDfl = maxDflSeen;
-    if (lastDateImported) state.activeDate = lastDateImported;
+    // Pass 2: Route V03 Afternoon Shift (12:00->16:00) blocks to their REAL previous day (date - 1) and match against that day's crew!
+    pendingPmRouting.forEach(item => {
+        const pDate = item.targetPrevDate;
+        let prevLog = targetSite.logs[pDate];
+        if (!prevLog) {
+            prevLog = {
+                dflNum: Math.max(1, item.sourceDflNum - 1),
+                importedFormat: 'v03_two_shift_pm_only',
+                weather: { cond: '', tMin: '', tMax: '', wind: '', hum: '', uv: '', press: '', precip: '', time: '08:00', notes: '' },
+                attendance: [],
+                tasks: [],
+                meters: (targetSite.meters || []).map(sm => ({ id: sm.id, name: sm.name, status: 'working', prev: 0, curr: '', visual: 'Clear / صافية', note: '', photos: [] })),
+                gauges: (targetSite.gauges || []).map(sg => ({ id: sg.id, name: sg.name, normal: sg.normal, val: '', note: '' })),
+                machinery: { pumpHrs: '', genHrs: '' },
+                moisture: [1, 2, 3, 4, 5].map(n => ({ id: n, zone: '', pct: '', note: '' })),
+                perf: { status: 'جيد', duration: '', zonesIrrigated: '', zonesManualEdit: false, pressureNotes: '', notes: '' },
+                tools: [],
+                incidents: [],
+                sdls: [],
+                driveFolderLink: '',
+                photoLinks: {},
+                secHistory: { att: [], tasks: [], tools: [], inv: [], issues: [] },
+                activityLog: [],
+                oar: { obs: '', ana: '', rec: '' }
+            };
+            targetSite.logs[pDate] = prevLog;
+        }
+        const existingSigs = new Set((prevLog.tasks || []).map(xlTaskSignature));
+        item.tasks.forEach(pmT => {
+            if (pmT._rawWorkersTxt && prevLog.attendance && prevLog.attendance.length > 0) {
+                pmT.workers = xlSplitWorkersString(pmT._rawWorkersTxt, prevLog.attendance);
+            }
+            const sig = xlTaskSignature(pmT);
+            if (!existingSigs.has(sig)) {
+                prevLog.tasks.push(pmT);
+                existingSigs.add(sig);
+                routedPmCount++;
+                totalTasksImported++;
+            }
+        });
+        if (!Array.isArray(prevLog.activityLog)) prevLog.activityLog = [];
+        prevLog.activityLog.unshift({
+            id: 'act_xl_pm_' + Date.now() + '_' + pDate,
+            ts: Date.now(),
+            time: formatTime24FromMs(Date.now()),
+            sec: 'tasks',
+            label: `دمج شفت بعد الظهر من ${item.sourceFileName} (+${item.tasks.length} مهام)`,
+            before: '',
+            after: '13:00',
+            flag: '',
+            jump: { tab: 'tasks' },
+            revert: null,
+            reverted: false
+        });
+    });
+
+    // Pass 3: Auto-fill irrigated zones (5C) on all touched days & protect nextDfl + activeDate!
+    Object.values(targetSite.logs || {}).forEach(dl => {
+        if (!dl || !dl.perf || dl.perf.zonesIrrigated) return;
+        const irrZones = [];
+        (dl.tasks || []).forEach(t => {
+            if (t.task.includes('Irrigation') && t.status.includes('Completed')) {
+                (t.zones || '').split(',').map(z => z.trim()).filter(Boolean).forEach(z => {
+                    if (!irrZones.includes(z)) irrZones.push(z);
+                });
+            }
+        });
+        if (irrZones.length) dl.perf.zonesIrrigated = irrZones.join(', ');
+    });
+
+    // Protection Lock: NEVER regress nextDfl or disrupt activeDate when importing older files into the main site!
+    if (destMode === 'workshop') {
+        const maxDflWs = Math.max(0, ...Object.values(targetSite.logs || {}).map(x => parseInt(x.dflNum, 10) || 0));
+        targetSite.nextDfl = maxDflWs + 1;
+        if (lastDateImported) state.activeDate = lastDateImported;
+    } else {
+        const maxImportedDfl = Math.max(0, ...selectedIdxs.map(i => list[i].dflNum || 0));
+        if (!newestExistingBefore || lastDateImported >= newestExistingBefore) {
+            targetSite.nextDfl = Math.max(savedNextDflBefore, maxImportedDfl + 1);
+            if (lastDateImported) state.activeDate = lastDateImported;
+        } else {
+            targetSite.nextDfl = savedNextDflBefore;
+            state.activeDate = prevActiveDate;
+        }
+    }
 
     window._pendingExcelImports = null;
     normalizeState();
-    (site.meters || []).forEach(sm => syncSiteMeterLastReading(site, sm.id, sm.name));
+    (targetSite.meters || []).forEach(sm => syncSiteMeterLastReading(targetSite, sm.id, sm.name));
     closeModal();
     saveState();
     renderAll();
-    showToast(`✅ تم تحويل واستيراد ${addedCnt + mergedCnt} تقارير DFL (${totalTasksImported} مهام) — فتح سجل يوم ${state.activeDate}`);
+
+    const auditSummary = runDflSiteAudit(targetSite);
+    const pmMsg = routedPmCount > 0 ? ` (وتجميع ${routedPmCount} مهام عصر لأيامها الحقيقية)` : '';
+    showToast(`✅ تم استيراد ${addedCnt + mergedCnt} تقارير DFL (${totalTasksImported} مهام)${pmMsg}`);
+    if (auditSummary.items.length > 0 || destMode === 'workshop') {
+        openDflAuditModal();
+    }
+}
+
+/* ================= V17.6: Smart Old-DFL Error Auditor & 1-Tap Fix Jumper ================= */
+function runDflSiteAudit(site = getSite()) {
+    const items = [];
+    const dates = Object.keys(site.logs || {}).sort();
+    const knownZonesUpper = new Set((site.zones || MASTER_ZONES).filter(z => !z.includes('عام') && z.length >= 2).map(z => z.toUpperCase()));
+    let prevMeterSig = '';
+    let prevMeterDate = '';
+
+    dates.forEach(dStr => {
+        const dl = site.logs[dStr];
+        if (!dl) return;
+
+        // 1. Water Meter checks (duplicate across consecutive days OR missing curr)
+        (dl.meters || []).forEach(m => {
+            if (m.status === 'faulty') return;
+            const hasPrev = m.prev !== '' && m.prev !== null && m.prev !== undefined && Number(m.prev) > 0;
+            const hasCurr = m.curr !== '' && m.curr !== null && m.curr !== undefined;
+            if (hasPrev && !hasCurr) {
+                items.push({
+                    sev: 'warn', date: dStr, dflNum: dl.dflNum, tab: 'tools',
+                    title: `💧 قراءة العداد الحالية ناقصة (${m.prev} → ؟)`,
+                    detail: `العداد (${m.name}) فيه قراءة سابقة ${m.prev} بدون قراءة حالية.`,
+                    jump: { date: dStr, tab: 'tools' }
+                });
+            }
+            if (hasPrev && hasCurr) {
+                const sig = `${m.name}|${m.prev}|${m.curr}`;
+                if (sig === prevMeterSig && prevMeterDate) {
+                    items.push({
+                        sev: 'crit', date: dStr, dflNum: dl.dflNum, tab: 'tools',
+                        title: `💧 قراءة عداد مكررة مطابقة ليوم ${prevMeterDate}`,
+                        detail: `نفس القراءة (${m.prev} → ${m.curr}) مكررة بدون تغيير — راجعها للتأكد.`,
+                        jump: { date: dStr, tab: 'tools' }
+                    });
+                }
+                prevMeterSig = sig;
+                prevMeterDate = dStr;
+            }
+        });
+
+        // 2. Task checks: Zone vs Description conflict, missing duration/status, unassigned workers
+        (dl.tasks || []).forEach((t, tIdx) => {
+            if (xlIsWeekendPlaceholderRow(t)) return;
+            const zArr = (t.zones || '').split(',').map(z => z.trim().toUpperCase()).filter(Boolean);
+            const descTokens = String(t.desc || '').toUpperCase().match(/\b([A-Z]{1,2}\d|ADMIN|NURSERY)\b/g) || [];
+            const conflicting = descTokens.filter(tok => knownZonesUpper.has(tok) && !zArr.includes(tok));
+            if (conflicting.length > 0 && zArr.length > 0) {
+                items.push({
+                    sev: 'crit', date: dStr, dflNum: dl.dflNum, tab: 'tasks', taskIdx: tIdx,
+                    title: `📍 تعارض بين الوصف والمنطقة (${t.zones} ≠ ${conflicting[0]})`,
+                    detail: `الوصف يذكر «${conflicting[0]}» بينما خانة المنطقة هي «${t.zones}»: ${String(t.desc || '').slice(0, 60)}`,
+                    jump: { date: dStr, tab: 'tasks', taskIdx: tIdx }
+                });
+            }
+            if (t._durMissing) {
+                items.push({
+                    sev: 'warn', date: dStr, dflNum: dl.dflNum, tab: 'tasks', taskIdx: tIdx,
+                    title: `⏱️ مهمة بدون مدة أصلية (${t.zones})`,
+                    detail: `تم وضع مدة افتراضية (${t.dur}) لمهمة «${(t.task.split('/')[1] || t.task).trim()}» — راجع وقتها الفعلي.`,
+                    jump: { date: dStr, tab: 'tasks', taskIdx: tIdx }
+                });
+            }
+            if (t._statusMissing) {
+                items.push({
+                    sev: 'warn', date: dStr, dflNum: dl.dflNum, tab: 'tasks', taskIdx: tIdx,
+                    title: `📋 مهمة بدون حالة بالإكسيل (${t.zones})`,
+                    detail: `تم ضبط حالتها تلقائياً إلى «${(t.status.split('/')[1] || t.status).trim()}» — راجعها للتأكيد.`,
+                    jump: { date: dStr, tab: 'tasks', taskIdx: tIdx }
+                });
+            }
+            if ((!t.workers || t.workers.length === 0) && !t.status.includes('Not Started')) {
+                items.push({
+                    sev: 'warn', date: dStr, dflNum: dl.dflNum, tab: 'tasks', taskIdx: tIdx,
+                    title: `👷 مهمة بدون أسماء عمال (${t.zones})`,
+                    detail: `مهمة «${(t.task.split('/')[1] || t.task).trim()}» منفّذة بدون تحديد الكادر المنفّذ.`,
+                    jump: { date: dStr, tab: 'tasks', taskIdx: tIdx }
+                });
+            }
+        });
+
+        // 3. Missing OAR OBS check
+        if ((dl.tasks || []).length > 0 && (!dl.oar || !String(dl.oar.obs || '').trim())) {
+            items.push({
+                sev: 'warn', date: dStr, dflNum: dl.dflNum, tab: 'export',
+                title: `📝 خلاصة قائد الفريق (OAR) فارغة`,
+                detail: `يمكنك توليدها تلقائياً بضغطة زر «🔄 توليد ذكي» في تبويب الخلاصة.`,
+                jump: { date: dStr, tab: 'export' }
+            });
+        }
+    });
+
+    items.sort((a, b) => (a.sev === 'crit' ? 0 : 1) - (b.sev === 'crit' ? 0 : 1) || a.date.localeCompare(b.date));
+    return { items, daysScanned: dates.length };
+}
+
+function jumpToAuditFinding(dateStr, tabName, taskIdx = -1) {
+    closeModal();
+    state.activeDate = dateStr;
+    saveState();
+    renderAll();
+    switchTab(tabName || 'tasks');
+    if (tabName === 'tasks' && taskIdx >= 0) {
+        const t = getDayLog().tasks[taskIdx];
+        if (t && t.status && t.status.includes('Completed')) expandedDoneTaskIds.add(t.id);
+        renderTasks(getDayLog());
+        setTimeout(() => scrollToTaskCard(taskIdx), 90);
+    }
+}
+
+function autoFillMissingOarsInSite() {
+    const site = getSite();
+    const dates = Object.keys(site.logs || {}).sort();
+    const prevDate = state.activeDate;
+    let filled = 0;
+    pushUndo('توليد خلاصات OAR المفقودة');
+    dates.forEach(dStr => {
+        const dl = site.logs[dStr];
+        if (!dl || !dl.tasks || !dl.tasks.length) return;
+        if (dl.oar && String(dl.oar.obs || '').trim()) return;
+        state.activeDate = dStr;
+        const done = dl.tasks.filter(t => t.status.includes('Completed')).length;
+        const blocked = dl.tasks.filter(t => t.status.includes('Blocked'));
+        const pres = (dl.attendance || []).filter(w => !w.status.includes('Absent')).length;
+        dl.oar = {
+            obs: `Attendance: ${pres}/${(dl.attendance || []).length} workers. Completed ${done}/${dl.tasks.length} tasks. ${dl.perf && dl.perf.zonesIrrigated ? 'Irrigated zones: ' + dl.perf.zonesIrrigated + '.' : ''}`.trim(),
+            ana: blocked.length ? `${blocked.length} task(s) blocked: ${blocked.map(b => `${b.zones} (${b.note || 'needs review'})`).join('; ')}.` : 'Field operations proceeded smoothly with no major interruptions.',
+            rec: blocked.length ? 'Prioritize resolving blocked zones and follow up in the next shift.' : 'Maintain regular irrigation schedule and routine field monitoring.'
+        };
+        filled++;
+    });
+    state.activeDate = prevDate;
+    saveState();
+    renderAll();
+    openDflAuditModal();
+    showToast(`✨ تم توليد خلاصة OAR تلقائياً لـ ${filled} يوم!`);
+}
+
+function openDflAuditModal() {
+    const site = getSite();
+    const { items, daysScanned } = runDflSiteAudit(site);
+    const critCnt = items.filter(x => x.sev === 'crit').length;
+    const missingOarCnt = items.filter(x => x.tab === 'export').length;
+
+    openModal(`
+        <h3 class="card-title">🔍 مدقّق أخطاء تقارير DFL (${daysScanned} يوم)</h3>
+        <div class="grid-3" style="margin-bottom:8px;">
+            <div class="kpi-box"><div class="kpi-val">${daysScanned}</div><div class="kpi-sub">أيام مفحوصة</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="color:var(--red);">${critCnt}</div><div class="kpi-sub">تعارض / تكرار</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="color:var(--orange);">${items.length - critCnt}</div><div class="kpi-sub">حقول ناقصة</div></div>
+        </div>
+        ${missingOarCnt > 0 ? `<button class="btn btn-blue btn-full" style="padding:8px;font-size:12px;margin-bottom:8px;" onclick="autoFillMissingOarsInSite()">✨ توليد خلاصات OAR الفارغة تلقائياً (${missingOarCnt} يوم)</button>` : ''}
+        <div style="max-height:280px;overflow-y:auto;margin-bottom:9px;">
+            ${items.length === 0 ? `
+                <div class="blind-alert good">✅ <b>ممتاز! جميع التقارير (${daysScanned} يوم) نظيفة وخالية من الأخطاء والتكرارات</b> — جاهزة للتصدير الجماعي!</div>
+            ` : items.map(it => `
+                <div class="audit-item ${it.sev === 'crit' ? 'crit' : ''}">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+                        <div style="flex:1;">
+                            <div style="font-size:10.5px;color:var(--muted);font-weight:bold;">📅 ${esc(it.date)} — DFL-${it.dflNum}</div>
+                            <b style="color:var(--text);">${esc(it.title)}</b>
+                            <div style="color:#475569;margin-top:2px;">${esc(it.detail)}</div>
+                        </div>
+                        <button class="btn btn-blue btn-sm" style="flex-shrink:0;" onclick="jumpToAuditFinding('${esc(it.date)}','${esc(it.tab)}',${it.taskIdx !== undefined ? it.taskIdx : -1})">تصليح ↗️</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <div class="grid-2" style="margin-bottom:6px;">
+            <button class="btn btn-green" onclick="closeModal();openBatchExportModal()">📦 تصدير كل المصحّح (ZIP)</button>
+            <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
+        </div>
+        ${site.isWorkshop ? `<button class="btn btn-outline btn-full" style="margin:0;color:#9a3412;border-color:#fdba74;" onclick="closeModal();returnFromWorkshopToMainSite()">↩️ الرجوع إلى موقعي الأساسي</button>` : ''}
+    `);
 }
 
 function onBackupFileLoaded(e) {
@@ -12905,7 +13446,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.5 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.6 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
