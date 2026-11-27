@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tff-fos-offline-v16.8';
+const CACHE_NAME = 'tff-fos-offline-v16.9';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -35,8 +35,7 @@ self.addEventListener('fetch', event => {
         .then(res => {
           if (res && res.ok) {
             const clone = res.clone();
-            caches.open(CACHE_NAME).then(c => c.put('./index.html',
-  './manifest.json', clone)).catch(() => {});
+            caches.open(CACHE_NAME).then(c => c.put('./index.html', clone)).catch(() => {});
           }
           return res;
         })
