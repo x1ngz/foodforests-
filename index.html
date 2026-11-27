@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V16.8</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V16.9</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -258,7 +258,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V16.8 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V16.9 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -804,7 +804,7 @@ let state = {
 
 
 
-/* ================= V16.8: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V16.9: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -927,7 +927,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V16.8: Task Presets Manager ================= */
+/* ================= V16.9: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1017,7 +1017,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V16.8: DFL Readiness Progress Bar ================= */
+/* ================= V16.9: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1057,7 +1057,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V16.8: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V16.9: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1313,7 +1313,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V16.8: Electronic Touch Signature Pad ================= */
+/* ================= V16.9: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1856,7 +1856,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V16.8: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V16.9: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -1890,105 +1890,153 @@ async function generateDirectExcelDFL() {
         await wb.xlsx.load(buf.buffer);
         const ws = wb.getWorksheet('Daily Field Log');
 
-        const extraWorkers = Math.max(0, log.attendance.length - 5);
         const presentCount = log.attendance.filter(w => !w.status.includes('Absent')).length;
 
         const cloneStyle = (srcCell, dstCell) => {
-            if (srcCell.fill) dstCell.fill = JSON.parse(JSON.stringify(srcCell.fill));
-            if (srcCell.font) dstCell.font = JSON.parse(JSON.stringify(srcCell.font));
-            if (srcCell.border) dstCell.border = JSON.parse(JSON.stringify(srcCell.border));
-            if (srcCell.alignment) dstCell.alignment = JSON.parse(JSON.stringify(srcCell.alignment));
+            if (srcCell.fill && srcCell.fill.type) dstCell.fill = JSON.parse(JSON.stringify(srcCell.fill));
+            if (srcCell.font && Object.keys(srcCell.font).length) dstCell.font = JSON.parse(JSON.stringify(srcCell.font));
+            if (srcCell.border && Object.keys(srcCell.border).length) dstCell.border = JSON.parse(JSON.stringify(srcCell.border));
+            if (srcCell.alignment && Object.keys(srcCell.alignment).length) dstCell.alignment = JSON.parse(JSON.stringify(srcCell.alignment));
+            if (srcCell.numFmt) dstCell.numFmt = srcCell.numFmt;
         };
 
-        // 1. Insert extra worker rows at row 23 if needed
-        if (extraWorkers > 0) {
-            const existingMerges = [];
-            ws.model.merges.forEach(mStr => {
+        const calcAutoRowHeight = (pairs, minH) => {
+            let maxLines = 1;
+            pairs.forEach(([txt, colChars]) => {
+                const s = String(txt || '').trim();
+                if (!s) return;
+                let lines = 0;
+                s.split(/\r?\n/).forEach(line => {
+                    lines += Math.max(1, Math.ceil(line.length / Math.max(8, colChars)));
+                });
+                if (lines > maxLines) maxLines = lines;
+            });
+            return Math.max(minH, Math.min(220, maxLines * 15 + 10));
+        };
+
+        const shiftExcelJsDataValidations = (atRow, delta, tplRow = null) => {
+            if (!ws.dataValidations || !ws.dataValidations.model) return;
+            const oldModel = ws.dataValidations.model;
+            const newModel = {};
+            Object.entries(oldModel).forEach(([addr, dv]) => {
+                const m = addr.match(/^([A-Z]+)(\d+)$/);
+                if (!m) { newModel[addr] = dv; return; }
+                const col = m[1];
+                const r = parseInt(m[2], 10);
+                if (delta > 0) {
+                    if (r >= atRow) {
+                        newModel[`${col}${r + delta}`] = dv;
+                    } else {
+                        newModel[addr] = dv;
+                        if (tplRow !== null && r === tplRow) {
+                            for (let k = 0; k < delta; k++) {
+                                newModel[`${col}${atRow + k}`] = JSON.parse(JSON.stringify(dv));
+                            }
+                        }
+                    }
+                } else if (delta < 0) {
+                    const delCnt = -delta;
+                    const delEnd = atRow + delCnt - 1;
+                    if (r < atRow) newModel[addr] = dv;
+                    else if (r > delEnd) newModel[`${col}${r - delCnt}`] = dv;
+                }
+            });
+            ws.dataValidations.model = newModel;
+        };
+
+        const resizeSectionRowsClean = (startRow, baseCount, targetCount, rowMergesSpec, defaultHeight, maxCol = 12) => {
+            const safeTarget = Math.max(1, targetCount);
+            const delta = safeTarget - baseCount;
+            if (delta === 0) return 0;
+
+            const parseMerge = mStr => {
                 const [tl, br] = mStr.split(':');
                 const m1 = tl.match(/^([A-Z]+)(\d+)$/);
                 const m2 = br.match(/^([A-Z]+)(\d+)$/);
-                if (m1 && m2) {
-                    existingMerges.push({ c1: m1[1], r1: parseInt(m1[2]), c2: m2[1], r2: parseInt(m2[2]), orig: mStr });
+                return (m1 && m2) ? { c1: m1[1], r1: parseInt(m1[2], 10), c2: m2[1], r2: parseInt(m2[2], 10), orig: mStr } : null;
+            };
+
+            if (delta > 0) {
+                const insertAt = startRow + baseCount;
+                const tplRow = insertAt - 1;
+                const allMerges = (ws.model.merges || []).map(parseMerge).filter(Boolean);
+                const affectedMerges = allMerges.filter(m => m.r1 >= insertAt || m.r2 >= insertAt);
+                affectedMerges.forEach(m => { try { ws.unMergeCells(m.orig); } catch {} });
+
+                const maxRBefore = ws.rowCount;
+                const savedHeights = {};
+                const savedHidden = {};
+                for (let r = insertAt; r <= maxRBefore; r++) {
+                    const rObj = ws.getRow(r);
+                    savedHeights[r] = rObj.height;
+                    savedHidden[r] = !!rObj.hidden;
                 }
-            });
-            existingMerges.forEach(m => {
-                if (m.r1 >= 23 || m.r2 >= 23) {
-                    try { ws.unMergeCells(m.orig); } catch {}
+
+                const emptyRows = Array.from({ length: delta }, () => []);
+                ws.spliceRows(insertAt, 0, ...emptyRows);
+
+                for (let r = maxRBefore; r >= insertAt; r--) {
+                    const nr = r + delta;
+                    const nrObj = ws.getRow(nr);
+                    if (savedHeights[r] !== undefined) nrObj.height = savedHeights[r];
+                    nrObj.hidden = savedHidden[r];
                 }
-            });
 
-            const emptyRows = Array.from({ length: extraWorkers }, () => []);
-            ws.spliceRows(23, 0, ...emptyRows);
-
-            for (let k = 0; k < extraWorkers; k++) {
-                const r = 23 + k;
-                ws.getRow(r).height = 42.75;
-                for (let c = 1; c <= 11; c++) {
-                    cloneStyle(ws.getCell(22, c), ws.getCell(r, c));
+                for (let k = 0; k < delta; k++) {
+                    const nr = insertAt + k;
+                    const nrObj = ws.getRow(nr);
+                    nrObj.height = defaultHeight;
+                    nrObj.hidden = false;
+                    for (let c = 1; c <= maxCol; c++) {
+                        cloneStyle(ws.getCell(tplRow, c), ws.getCell(nr, c));
+                    }
+                    rowMergesSpec.forEach(([c1, c2]) => {
+                        try { ws.mergeCells(`${c1}${nr}:${c2}${nr}`); } catch {}
+                    });
                 }
-                ws.mergeCells(`H${r}:K${r}`);
-            }
 
-            existingMerges.forEach(m => {
-                if (m.r1 >= 23) {
-                    try { ws.mergeCells(`${m.c1}${m.r1 + extraWorkers}:${m.c2}${m.r2 + extraWorkers}`); } catch {}
-                }
-            });
-
-            for (const baseR of [79, 80]) {
-                const nr = baseR + extraWorkers;
-                ws.getCell(`H${nr}`).value = { formula: `IF(OR(F${nr}="",G${nr}=""),"",G${nr}-F${nr})` };
-            }
-        }
-
-        const off = extraWorkers;
-
-        // 2. Metadata
-        ws.getCell('F5').value = log.dflNum;
-        ws.getCell('F6').value = site.name;
-        ws.getCell('B7').value = state.activeDate;
-        ws.getCell('F7').value = dayEn;
-        ws.getCell('B8').value = state.company.teamLead;
-        ws.getCell('B9').value = state.company.shift;
-        ws.getCell('F9').value = state.company.supervisor || 'Maitham Ibrahim';
-        ws.getCell('B10').value = state.company.outsideRate;
-        if (driveFolderLink) {
-            ws.getCell('F10').value = { text: 'Google Drive Photos Folder', hyperlink: driveFolderLink };
-            ws.getCell('F10').font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
-        }
-
-        // 3. Weather (ALL 10 fields in Row 13)
-        const wx = ensureWeatherObj(log);
-        ws.getCell('B13').value = wx.cond || 'Clear / صافي';
-        ws.getCell('C13').value = wx.tMin !== '' ? Number(wx.tMin) : null;
-        ws.getCell('D13').value = wx.tMax !== '' ? Number(wx.tMax) : null;
-        ws.getCell('E13').value = wx.wind !== '' ? `${wx.wind} km/h` : null;
-        ws.getCell('F13').value = wx.hum !== '' ? Number(wx.hum) : null;
-        ws.getCell('G13').value = wx.uv !== '' ? Number(wx.uv) : null;
-        ws.getCell('H13').value = wx.press !== '' ? Number(wx.press) : null;
-        ws.getCell('I13').value = wx.precip !== '' ? Number(wx.precip) : 0;
-        ws.getCell('J13').value = wx.time || '08:00';
-        ws.getCell('K13').value = wx.notes || '';
-
-        // 4. Section 2: Attendance (Rows 18 .. 22 + off)
-        const maxAttSlots = 5 + off;
-        for (let i = 0; i < maxAttSlots; i++) {
-            const r = 18 + i;
-            const w = log.attendance[i];
-            if (w) {
-                ws.getRow(r).hidden = false;
-                ws.getCell(`A${r}`).value = i + 1;
-                ws.getCell(`B${r}`).value = w.name;
-                ws.getCell(`C${r}`).value = w.type;
-                ws.getCell(`D${r}`).value = w.status;
-                ws.getCell(`E${r}`).value = w.status.includes('Absent') ? '' : w.tIn;
-                ws.getCell(`F${r}`).value = w.status.includes('Absent') ? '' : w.tOut;
-                ws.getCell(`G${r}`).value = parseFloat(w.ot) || 0;
-                ws.getCell(`H${r}`).value = w.note || '';
+                affectedMerges.forEach(m => {
+                    if (m.r1 >= insertAt) {
+                        try { ws.mergeCells(`${m.c1}${m.r1 + delta}:${m.c2}${m.r2 + delta}`); } catch {}
+                    }
+                });
+                shiftExcelJsDataValidations(insertAt, delta, tplRow);
             } else {
-                ws.getRow(r).hidden = true;
+                const delCnt = -delta;
+                const delStart = startRow + safeTarget;
+                const delEnd = delStart + delCnt - 1;
+                const allMerges = (ws.model.merges || []).map(parseMerge).filter(Boolean);
+                const toUnmerge = allMerges.filter(m => m.r1 >= delStart || m.r2 >= delStart);
+                const toRestore = toUnmerge.filter(m => !(m.r1 >= delStart && m.r2 <= delEnd));
+                toUnmerge.forEach(m => { try { ws.unMergeCells(m.orig); } catch {} });
+
+                const maxRBefore = ws.rowCount;
+                const savedHeights = {};
+                const savedHidden = {};
+                for (let r = delEnd + 1; r <= maxRBefore; r++) {
+                    const rObj = ws.getRow(r);
+                    savedHeights[r] = rObj.height;
+                    savedHidden[r] = !!rObj.hidden;
+                }
+
+                ws.spliceRows(delStart, delCnt);
+
+                for (let r = delEnd + 1; r <= maxRBefore; r++) {
+                    const nr = r - delCnt;
+                    const nrObj = ws.getRow(nr);
+                    if (savedHeights[r] !== undefined) nrObj.height = savedHeights[r];
+                    nrObj.hidden = savedHidden[r];
+                }
+
+                toRestore.forEach(m => {
+                    if (m.r1 > delEnd) {
+                        try { ws.mergeCells(`${m.c1}${m.r1 - delCnt}:${m.c2}${m.r2 - delCnt}`); } catch {}
+                    }
+                });
+                shiftExcelJsDataValidations(delStart, delta);
             }
-        }
+            return delta;
+        };
 
         // Helper to set clean photo ref + clickable Google Drive hyperlink if available
         const applyPhotoRefCell = (cell, refText, linksArr) => {
@@ -2008,9 +2056,7 @@ async function generateDirectExcelDFL() {
             }
         };
 
-        // 5. Section 3: Tasks (Rows 27+off .. 59+off)
-        const taskStartRow = 27 + off;
-        const taskEndRow = 59 + off;
+        // Pre-build expanded tasks, moisture, and sec7 lists so every section resizes to exact data rows!
         const expandedRows = [];
         log.tasks.forEach((t, tIdx) => {
             const zones = (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean);
@@ -2053,208 +2099,7 @@ async function generateDirectExcelDFL() {
             }
         });
 
-        const extraTaskRows = Math.max(0, expandedRows.length - 33);
-        if (extraTaskRows > 0) {
-            const insertAtRow = taskEndRow + 1;
-            const taskMerges = [];
-            ws.model.merges.forEach(mStr => {
-                const [tl, br] = mStr.split(':');
-                const m1 = tl.match(/^([A-Z]+)(\d+)$/);
-                const m2 = br.match(/^([A-Z]+)(\d+)$/);
-                if (m1 && m2 && (parseInt(m1[2]) >= insertAtRow || parseInt(m2[2]) >= insertAtRow)) {
-                    taskMerges.push({ c1: m1[1], r1: parseInt(m1[2]), c2: m2[1], r2: parseInt(m2[2]), orig: mStr });
-                }
-            });
-            taskMerges.forEach(m => { try { ws.unMergeCells(m.orig); } catch {} });
-
-            const emptyTRows = Array.from({ length: extraTaskRows }, () => []);
-            ws.spliceRows(insertAtRow, 0, ...emptyTRows);
-            for (let k = 0; k < extraTaskRows; k++) {
-                const r = insertAtRow + k;
-                ws.getRow(r).height = ws.getRow(taskEndRow).height || 26;
-                for (let c = 1; c <= 12; c++) {
-                    cloneStyle(ws.getCell(taskEndRow, c), ws.getCell(r, c));
-                }
-                ws.mergeCells(`H${r}:J${r}`);
-            }
-            taskMerges.forEach(m => {
-                if (m.r1 >= insertAtRow) {
-                    try { ws.mergeCells(`${m.c1}${m.r1 + extraTaskRows}:${m.c2}${m.r2 + extraTaskRows}`); } catch {}
-                }
-            });
-            for (const baseR of [79, 80]) {
-                const nr = baseR + off + extraTaskRows;
-                ws.getCell(`H${nr}`).value = { formula: `IF(OR(F${nr}="",G${nr}=""),"",G${nr}-F${nr})` };
-            }
-        }
-
-        const maxTaskSlots = 33 + extraTaskRows;
-        for (let i = 0; i < maxTaskSlots; i++) {
-            const r = taskStartRow + i;
-            const rowObj = ws.getRow(r);
-            if (i < expandedRows.length) {
-                rowObj.hidden = false;
-                const item = expandedRows[i];
-                ws.getCell(`B${r}`).value = item.task;
-                ws.getCell(`C${r}`).value = item.desc;
-                ws.getCell(`D${r}`).value = item.zone;
-                ws.getCell(`E${r}`).value = item.dur;
-                ws.getCell(`F${r}`).value = item.wCount;
-                ws.getCell(`G${r}`).value = item.status;
-                ws.getCell(`H${r}`).value = item.note;
-                ws.getCell(`K${r}`).value = item.wStr;
-                applyPhotoRefCell(ws.getCell(`L${r}`), item.pRef, item.pLinks);
-            } else {
-                rowObj.hidden = true;
-            }
-        }
-
-        groups.forEach((g, gIdx) => {
-            const r1 = taskStartRow + g.start;
-            const r2 = taskStartRow + g.end;
-            ws.getCell(`A${r1}`).value = gIdx + 1;
-            if (r2 > r1) {
-                for (const colL of ['A', 'B', 'C', 'E', 'F', 'K']) {
-                    const savedFill = JSON.parse(JSON.stringify(ws.getCell(`${colL}${r1}`).fill || {}));
-                    const savedFont = JSON.parse(JSON.stringify(ws.getCell(`${colL}${r1}`).font || {}));
-                    const savedBorder = JSON.parse(JSON.stringify(ws.getCell(`${colL}${r1}`).border || {}));
-                    try { ws.mergeCells(`${colL}${r1}:${colL}${r2}`); } catch {}
-                    for (let rr = r1; rr <= r2; rr++) {
-                        const cObj = ws.getCell(`${colL}${rr}`);
-                        if (savedFill.fill_type) cObj.fill = savedFill;
-                        if (savedFont.name) cObj.font = savedFont;
-                        if (savedBorder.top) cObj.border = savedBorder;
-                    }
-                    ws.getCell(`${colL}${r1}`).alignment = { horizontal: 'center', vertical: 'center', wrapText: true };
-                }
-            }
-        });
-
-        const offAfterTasks = off + extraTaskRows;
-        // 6. Section 4: Equipment (Rows 64+offAfterTasks .. 66+offAfterTasks; summarize any >3 items into row 3 note so nothing is lost)
-        for (let i = 0; i < 3; i++) {
-            const r = 64 + offAfterTasks + i;
-            const tl = log.tools[i];
-            if (tl) {
-                ws.getRow(r).hidden = false;
-                ws.getCell(`A${r}`).value = i + 1;
-                ws.getCell(`B${r}`).value = tl.name;
-                ws.getCell(`C${r}`).value = tl.cat;
-                ws.getCell(`D${r}`).value = tl.qty;
-                ws.getCell(`E${r}`).value = tl.cond;
-                let noteVal = tl.note || '';
-                if (i === 2 && log.tools.length > 3) {
-                    const extraStr = log.tools.slice(3).map(x => `${x.name} (×${x.qty})`).join('، ');
-                    noteVal = [noteVal, `إضافي: ${extraStr}`].filter(Boolean).join(' | ');
-                }
-                ws.getCell(`F${r}`).value = noteVal;
-            } else {
-                ws.getRow(r).hidden = true;
-            }
-        }
-
-        // 7. Section 5A: Moisture (Rows 71+off .. 75+off)
-        for (let i = 0; i < 5; i++) {
-            const r = 71 + offAfterTasks + i;
-            const mo = log.moisture[i];
-            if (mo && (mo.zone || mo.pct !== '')) {
-                ws.getRow(r).hidden = false;
-                ws.getCell(`A${r}`).value = i + 1;
-                ws.getCell(`B${r}`).value = mo.zone;
-                ws.getCell(`D${r}`).value = mo.pct !== '' ? Number(mo.pct) : null;
-                ws.getCell(`E${r}`).value = mo.note || '';
-            } else {
-                ws.getRow(r).hidden = true;
-            }
-        }
-
-        // 8. Section 5B: Water Meters (Rows 79+off .. 80+off)
-        for (let i = 0; i < 2; i++) {
-            const r = 79 + offAfterTasks + i;
-            const m = log.meters[i];
-            if (m) {
-                ws.getRow(r).hidden = false;
-                ws.getCell(`A${r}`).value = i + 1;
-                ws.getCell(`B${r}`).value = m.name;
-                ws.getCell(`E${r}`).value = m.visual || 'Clear / صافية';
-                ws.getCell(`F${r}`).value = m.status === 'working' ? (parseFloat(m.prev) || 0) : null;
-                ws.getCell(`G${r}`).value = (m.status === 'working' && m.curr !== '') ? parseFloat(m.curr) : null;
-                const mRef = meterPhotoRefs[i] || '';
-                const mLinks = (meterPhotoLinks[i] || []).filter(Boolean);
-                const noteParts = [];
-                if (m.status === 'faulty') noteParts.push(`Faulty: ${m.note || 'عاطل'}`);
-                else if (m.note) noteParts.push(m.note);
-                if (mRef) noteParts.push(mRef);
-                const txt = noteParts.join(' | ');
-                if (mLinks.length > 0) {
-                    ws.getCell(`I${r}`).value = { text: txt, hyperlink: mLinks[0] };
-                    ws.getCell(`I${r}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
-                } else {
-                    ws.getCell(`I${r}`).value = txt;
-                }
-            } else {
-                ws.getRow(r).hidden = true;
-            }
-        }
-
-        // 9. Section 5C: Irrigation Performance (Rows 83+off .. 85+off)
-        let totalTankerL = 0, totalTrips = 0;
-        log.tasks.forEach(t => { const tkTot = getTaskTotalTankerLiters(t); if (tkTot > 0) { totalTankerL += tkTot; totalTrips += (t.tankerTrips || 1); } });
-        const perfParts = [];
-        if (log.perf.notes) perfParts.push(log.perf.notes);
-        if (totalTankerL > 0) perfParts.push(`Tanker Total: ${totalTankerL.toLocaleString()} L (${totalTrips} Trips)`);
-        if (log.machinery.pumpHrs || log.machinery.genHrs) {
-            perfParts.push(`Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h`);
-        }
-        if (Array.isArray(log.transfers) && log.transfers.length > 0) {
-            const trStr = log.transfers.map(tr => `${tr.worker} (${tr.fromTask} -> ${tr.toTask} @ ${tr.time || ''}${tr.dur ? ', ' + tr.dur : ''})`).join('; ');
-            perfParts.push(`Transfers: ${trStr}`);
-        }
-
-        ws.getCell(`B${83 + offAfterTasks}`).value = log.perf.status || 'جيد';
-        ws.getCell(`E${83 + offAfterTasks}`).value = log.perf.duration ? `${log.perf.duration} hrs` : '';
-        ws.getCell(`B${84 + offAfterTasks}`).value = log.perf.zonesIrrigated || '';
-        ws.getCell(`E${84 + offAfterTasks}`).value = log.perf.pressureNotes || '';
-        ws.getCell(`B${85 + offAfterTasks}`).value = perfParts.join(' | ');
-
-        // 10. Section 5D: Bar Gauges (Rows 89+off .. 94+off)
-        for (let i = 0; i < 6; i++) {
-            const r = 89 + offAfterTasks + i;
-            const g = log.gauges[i];
-            if (g) {
-                ws.getRow(r).hidden = false;
-                const valNum = g.val !== '' ? parseFloat(g.val) : null;
-                ws.getCell(`A${r}`).value = i + 1;
-                ws.getCell(`B${r}`).value = g.name;
-                ws.getCell(`C${r}`).value = valNum;
-                ws.getCell(`D${r}`).value = 'bar';
-                ws.getCell(`E${r}`).value = `${g.normal} bar`;
-                ws.getCell(`F${r}`).value = valNum !== null ? (valNum < g.normal ? 'Low / منخفض' : 'Normal / طبيعي') : '';
-                ws.getCell(`G${r}`).value = g.note || '';
-            } else {
-                ws.getRow(r).hidden = true;
-            }
-        }
-
-        // 11. Section 6: Plants Health (Rows 98+off .. 102+off)
-        for (let i = 0; i < 5; i++) {
-            const r = 98 + offAfterTasks + i;
-            const sp = sickPlants[i];
-            if (sp) {
-                ws.getRow(r).hidden = false;
-                ws.getCell(`A${r}`).value = i + 1;
-                ws.getCell(`B${r}`).value = sp.plantName;
-                ws.getCell(`D${r}`).value = sp.scientificName;
-                ws.getCell(`E${r}`).value = sp.healthStatusDFL;
-                ws.getCell(`F${r}`).value = sp.visibleSigns;
-                ws.getCell(`H${r}`).value = sp.zone;
-                applyPhotoRefCell(ws.getCell(`I${r}`), sp.imageRef, sp.driveLinks);
-            } else {
-                ws.getRow(r).hidden = true;
-            }
-        }
-
-        // 12. Section 7: Incidents, SDLs & Issues (Rows 106+off .. 109+off)
+        const filledMoisture = (log.moisture || []).filter(mo => mo && (mo.zone || mo.pct !== ''));
         const sec7Combined = [
             ...(log.incidents || []).map((ir, idx) => ({
                 desc: `[${ir.zone}] ${ir.type}: ${ir.timeline || ir.action}`,
@@ -2278,11 +2123,268 @@ async function generateDirectExcelDFL() {
                 pLinks: issuePhotoLinks[idx] || []
             }))
         ];
-        for (let i = 0; i < 4; i++) {
-            const r = 106 + offAfterTasks + i;
+
+        // 1. Metadata & Weather (fixed rows 1..15) + hide unused Row 14 (Site Weather Station)
+        ws.getCell('F5').value = log.dflNum;
+        ws.getCell('F6').value = site.name;
+        ws.getCell('B7').value = state.activeDate;
+        ws.getCell('F7').value = dayEn;
+        ws.getCell('B8').value = state.company.teamLead;
+        ws.getCell('B9').value = state.company.shift;
+        ws.getCell('F9').value = state.company.supervisor || 'Maitham Ibrahim';
+        ws.getCell('B10').value = state.company.outsideRate;
+        if (driveFolderLink) {
+            ws.getCell('F10').value = { text: 'Google Drive Photos Folder', hyperlink: driveFolderLink };
+            ws.getCell('F10').font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+        }
+
+        const wx = ensureWeatherObj(log);
+        ws.getCell('B13').value = wx.cond || 'Clear / صافي';
+        ws.getCell('C13').value = wx.tMin !== '' ? Number(wx.tMin) : null;
+        ws.getCell('D13').value = wx.tMax !== '' ? Number(wx.tMax) : null;
+        ws.getCell('E13').value = wx.wind !== '' ? `${wx.wind} km/h` : null;
+        ws.getCell('F13').value = wx.hum !== '' ? Number(wx.hum) : null;
+        ws.getCell('G13').value = wx.uv !== '' ? Number(wx.uv) : null;
+        ws.getCell('H13').value = wx.press !== '' ? Number(wx.press) : null;
+        ws.getCell('I13').value = wx.precip !== '' ? Number(wx.precip) : 0;
+        ws.getCell('J13').value = wx.time || '08:00';
+        ws.getCell('K13').value = wx.notes || '';
+        ws.getRow(14).hidden = true;
+
+        // Running cumulative offset as every repeatable section expands or contracts cleanly!
+        let off = 0;
+
+        // 2. Section 2: Attendance (base 18..22, 5 slots)
+        const attStart = 18 + off;
+        off += resizeSectionRowsClean(attStart, 5, log.attendance.length, [['H', 'K']], 36.0, 11);
+        for (let i = 0; i < Math.max(1, log.attendance.length); i++) {
+            const r = attStart + i;
+            const w = log.attendance[i];
+            const rowObj = ws.getRow(r);
+            rowObj.hidden = false;
+            if (w) {
+                ws.getCell(`A${r}`).value = i + 1;
+                ws.getCell(`B${r}`).value = w.name;
+                ws.getCell(`C${r}`).value = w.type;
+                ws.getCell(`D${r}`).value = w.status;
+                ws.getCell(`E${r}`).value = w.status.includes('Absent') ? '' : w.tIn;
+                ws.getCell(`F${r}`).value = w.status.includes('Absent') ? '' : w.tOut;
+                ws.getCell(`G${r}`).value = parseFloat(w.ot) || 0;
+                ws.getCell(`H${r}`).value = w.note || '';
+                rowObj.height = calcAutoRowHeight([[w.name, 26], [w.note, 34]], 34);
+            } else {
+                ws.getCell(`A${r}`).value = '';
+                rowObj.height = 22;
+            }
+        }
+        // Shrink separator row (originally R23, height 42.75 -> 10) to remove ugly white gap!
+        ws.getRow(23 + off).height = 10;
+
+        // 3. Section 3: Tasks (base 27..59, 33 slots) — expands >33 OR deletes unused blank rows <33!
+        const taskStartRow = 27 + off;
+        off += resizeSectionRowsClean(taskStartRow, 33, expandedRows.length, [['H', 'J']], 27.75, 12);
+        for (let i = 0; i < Math.max(1, expandedRows.length); i++) {
+            const r = taskStartRow + i;
+            const rowObj = ws.getRow(r);
+            rowObj.hidden = false;
+            if (i < expandedRows.length) {
+                const item = expandedRows[i];
+                ws.getCell(`B${r}`).value = item.task;
+                ws.getCell(`C${r}`).value = item.desc;
+                ws.getCell(`D${r}`).value = item.zone;
+                ws.getCell(`E${r}`).value = item.dur;
+                ws.getCell(`F${r}`).value = item.wCount;
+                ws.getCell(`G${r}`).value = item.status;
+                ws.getCell(`H${r}`).value = item.note;
+                ws.getCell(`K${r}`).value = item.wStr;
+                applyPhotoRefCell(ws.getCell(`L${r}`), item.pRef, item.pLinks);
+                rowObj.height = calcAutoRowHeight([[item.desc, 26], [item.note, 38], [item.wStr, 18]], 28);
+            } else {
+                ws.getCell(`A${r}`).value = '';
+                rowObj.height = 22;
+            }
+        }
+        // Apply vertical merges for grouped task rows preserving EXACT ExcelJS fill.type + borders + fonts!
+        groups.forEach((g, gIdx) => {
+            const r1 = taskStartRow + g.start;
+            const r2 = taskStartRow + g.end;
+            ws.getCell(`A${r1}`).value = gIdx + 1;
+            if (r2 > r1) {
+                for (const colL of ['A', 'B', 'C', 'E', 'F', 'K']) {
+                    const srcCell = ws.getCell(`${colL}${r1}`);
+                    const savedFill = (srcCell.fill && srcCell.fill.type) ? JSON.parse(JSON.stringify(srcCell.fill)) : null;
+                    const savedFont = (srcCell.font && Object.keys(srcCell.font).length) ? JSON.parse(JSON.stringify(srcCell.font)) : null;
+                    const savedBorder = (srcCell.border && Object.keys(srcCell.border).length) ? JSON.parse(JSON.stringify(srcCell.border)) : null;
+                    try { ws.mergeCells(`${colL}${r1}:${colL}${r2}`); } catch {}
+                    for (let rr = r1; rr <= r2; rr++) {
+                        const cObj = ws.getCell(`${colL}${rr}`);
+                        if (savedFill) cObj.fill = JSON.parse(JSON.stringify(savedFill));
+                        if (savedFont) cObj.font = JSON.parse(JSON.stringify(savedFont));
+                        if (savedBorder) cObj.border = JSON.parse(JSON.stringify(savedBorder));
+                    }
+                    ws.getCell(`${colL}${r1}`).alignment = { horizontal: 'center', vertical: 'center', wrapText: true };
+                }
+            }
+        });
+
+        // 4. Section 4: Equipment / Tools / Materials (base 64..66, 3 slots) — expands cleanly for ALL items!
+        const toolsStart = 64 + off;
+        off += resizeSectionRowsClean(toolsStart, 3, log.tools.length, [['F', 'K']], 26.0, 11);
+        for (let i = 0; i < Math.max(1, log.tools.length); i++) {
+            const r = toolsStart + i;
+            const tl = log.tools[i];
+            const rowObj = ws.getRow(r);
+            rowObj.hidden = false;
+            if (tl) {
+                ws.getCell(`A${r}`).value = i + 1;
+                ws.getCell(`B${r}`).value = tl.name;
+                ws.getCell(`C${r}`).value = tl.cat;
+                ws.getCell(`D${r}`).value = tl.qty;
+                ws.getCell(`E${r}`).value = tl.cond;
+                ws.getCell(`F${r}`).value = tl.note || '';
+                rowObj.height = calcAutoRowHeight([[tl.name, 24], [tl.note, 45]], 26);
+            } else {
+                ws.getCell(`A${r}`).value = '';
+                rowObj.height = 20;
+            }
+        }
+
+        // 5. Section 5A: Moisture Readings (base 71..75, 5 slots)
+        const moistStart = 71 + off;
+        off += resizeSectionRowsClean(moistStart, 5, filledMoisture.length, [['B', 'C'], ['E', 'K']], 24.0, 11);
+        for (let i = 0; i < Math.max(1, filledMoisture.length); i++) {
+            const r = moistStart + i;
+            const mo = filledMoisture[i];
+            const rowObj = ws.getRow(r);
+            rowObj.hidden = false;
+            if (mo) {
+                ws.getCell(`A${r}`).value = i + 1;
+                ws.getCell(`B${r}`).value = mo.zone;
+                ws.getCell(`D${r}`).value = mo.pct !== '' ? Number(mo.pct) : null;
+                ws.getCell(`E${r}`).value = mo.note || '';
+                rowObj.height = 24;
+            } else {
+                ws.getCell(`A${r}`).value = '';
+                ws.getCell(`B${r}`).value = '';
+                ws.getCell(`D${r}`).value = null;
+                ws.getCell(`E${r}`).value = '';
+                rowObj.height = 18;
+            }
+        }
+
+        // 6. Section 5B: Water Meters (base 79..80, 2 slots) — expands cleanly for >2 meters & sets exact formulas!
+        const metersStart = 79 + off;
+        off += resizeSectionRowsClean(metersStart, 2, log.meters.length, [['B', 'D'], ['I', 'K']], 26.0, 11);
+        for (let i = 0; i < Math.max(1, log.meters.length); i++) {
+            const r = metersStart + i;
+            const m = log.meters[i];
+            const rowObj = ws.getRow(r);
+            rowObj.hidden = false;
+            ws.getCell(`H${r}`).value = { formula: `IF(OR(F${r}="",G${r}=""),"",G${r}-F${r})` };
+            if (m) {
+                ws.getCell(`A${r}`).value = i + 1;
+                ws.getCell(`B${r}`).value = m.name;
+                ws.getCell(`E${r}`).value = m.visual || 'Clear / صافية';
+                ws.getCell(`F${r}`).value = m.status === 'working' ? (parseFloat(m.prev) || 0) : null;
+                ws.getCell(`G${r}`).value = (m.status === 'working' && m.curr !== '') ? parseFloat(m.curr) : null;
+                const mRef = meterPhotoRefs[i] || '';
+                const mLinks = (meterPhotoLinks[i] || []).filter(Boolean);
+                const noteParts = [];
+                if (m.status === 'faulty') noteParts.push(`Faulty: ${m.note || 'عاطل'}`);
+                else if (m.note) noteParts.push(m.note);
+                if (mRef) noteParts.push(mRef);
+                const txt = noteParts.join(' | ');
+                if (mLinks.length > 0) {
+                    ws.getCell(`I${r}`).value = { text: txt, hyperlink: mLinks[0] };
+                    ws.getCell(`I${r}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                } else {
+                    ws.getCell(`I${r}`).value = txt;
+                }
+                rowObj.height = calcAutoRowHeight([[m.name, 22], [txt, 32]], 26);
+            } else {
+                ws.getCell(`A${r}`).value = '';
+                rowObj.height = 20;
+            }
+        }
+
+        // 7. Section 5C: Irrigation Performance (rows 83+off .. 85+off)
+        let totalTankerL = 0, totalTrips = 0;
+        log.tasks.forEach(t => { const tkTot = getTaskTotalTankerLiters(t); if (tkTot > 0) { totalTankerL += tkTot; totalTrips += (t.tankerTrips || 1); } });
+        const perfParts = [];
+        if (log.perf.notes) perfParts.push(log.perf.notes);
+        if (totalTankerL > 0) perfParts.push(`Tanker Total: ${totalTankerL.toLocaleString()} L (${totalTrips} Trips)`);
+        if (log.machinery.pumpHrs || log.machinery.genHrs) {
+            perfParts.push(`Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h`);
+        }
+        if (Array.isArray(log.transfers) && log.transfers.length > 0) {
+            const trStr = log.transfers.map(tr => `${tr.worker} (${tr.fromTask} -> ${tr.toTask} @ ${tr.time || ''}${tr.dur ? ', ' + tr.dur : ''})`).join('; ');
+            perfParts.push(`Transfers: ${trStr}`);
+        }
+        const perfText = perfParts.join(' | ');
+        ws.getCell(`B${83 + off}`).value = log.perf.status || 'جيد';
+        ws.getCell(`E${83 + off}`).value = log.perf.duration ? `${log.perf.duration} hrs` : '';
+        ws.getCell(`B${84 + off}`).value = log.perf.zonesIrrigated || '';
+        ws.getCell(`E${84 + off}`).value = log.perf.pressureNotes || '';
+        ws.getCell(`B${85 + off}`).value = perfText;
+        ws.getRow(84 + off).height = calcAutoRowHeight([[log.perf.zonesIrrigated, 24], [log.perf.pressureNotes, 45]], 26);
+        ws.getRow(85 + off).height = calcAutoRowHeight([[perfText, 85]], 34);
+
+        // 8. Section 5D: Bar Gauges (base 89..94, 6 slots)
+        const gaugesStart = 89 + off;
+        off += resizeSectionRowsClean(gaugesStart, 6, log.gauges.length, [['G', 'K']], 24.0, 11);
+        for (let i = 0; i < Math.max(1, log.gauges.length); i++) {
+            const r = gaugesStart + i;
+            const g = log.gauges[i];
+            const rowObj = ws.getRow(r);
+            rowObj.hidden = false;
+            if (g) {
+                const valNum = g.val !== '' ? parseFloat(g.val) : null;
+                ws.getCell(`A${r}`).value = i + 1;
+                ws.getCell(`B${r}`).value = g.name;
+                ws.getCell(`C${r}`).value = valNum;
+                ws.getCell(`D${r}`).value = 'bar';
+                ws.getCell(`E${r}`).value = `${g.normal} bar`;
+                ws.getCell(`F${r}`).value = valNum !== null ? (valNum < g.normal ? 'Low / منخفض' : 'Normal / طبيعي') : '';
+                ws.getCell(`G${r}`).value = g.note || '';
+                rowObj.height = 24;
+            } else {
+                ws.getCell(`A${r}`).value = '';
+                rowObj.height = 18;
+            }
+        }
+
+        // 9. Section 6: Plants Health (base 98..102, 5 slots) — expands cleanly >5!
+        const plantsStart = 98 + off;
+        off += resizeSectionRowsClean(plantsStart, 5, sickPlants.length, [['B', 'C'], ['F', 'G'], ['I', 'K']], 26.0, 11);
+        for (let i = 0; i < Math.max(1, sickPlants.length); i++) {
+            const r = plantsStart + i;
+            const sp = sickPlants[i];
+            const rowObj = ws.getRow(r);
+            rowObj.hidden = false;
+            if (sp) {
+                ws.getCell(`A${r}`).value = i + 1;
+                ws.getCell(`B${r}`).value = sp.plantName;
+                ws.getCell(`D${r}`).value = sp.scientificName;
+                ws.getCell(`E${r}`).value = sp.healthStatusDFL;
+                ws.getCell(`F${r}`).value = sp.visibleSigns;
+                ws.getCell(`H${r}`).value = sp.zone;
+                applyPhotoRefCell(ws.getCell(`I${r}`), sp.imageRef, sp.driveLinks);
+                rowObj.height = calcAutoRowHeight([[sp.visibleSigns, 24], [sp.plantName, 20]], 26);
+            } else {
+                ws.getCell(`A${r}`).value = '';
+                rowObj.height = 18;
+            }
+        }
+
+        // 10. Section 7: Incidents, SDLs & Issues (base 106..109, 4 slots) — expands cleanly >4!
+        const sec7Start = 106 + off;
+        off += resizeSectionRowsClean(sec7Start, 4, sec7Combined.length, [['B', 'E'], ['G', 'K']], 24.0, 11);
+        for (let i = 0; i < Math.max(1, sec7Combined.length); i++) {
+            const r = sec7Start + i;
             const item = sec7Combined[i];
+            const rowObj = ws.getRow(r);
+            rowObj.hidden = false;
             if (item) {
-                ws.getRow(r).hidden = false;
                 ws.getCell(`A${r}`).value = i + 1;
                 ws.getCell(`B${r}`).value = item.desc;
                 ws.getCell(`F${r}`).value = item.sev;
@@ -2294,48 +2396,22 @@ async function generateDirectExcelDFL() {
                 } else {
                     ws.getCell(`G${r}`).value = labelTxt;
                 }
+                rowObj.height = calcAutoRowHeight([[item.desc, 42]], 26);
             } else {
-                ws.getRow(r).hidden = true;
+                ws.getCell(`A${r}`).value = '';
+                rowObj.height = 18;
             }
         }
 
-        // 13. Section 8: Photo References & Google Drive Links (Rows 113+off .. 118+off, expanding if > 6 photos!)
-        const extraPhotoRows = Math.max(0, photos.length - 6);
-        if (extraPhotoRows > 0) {
-            const sec8Merges = [];
-            ws.model.merges.forEach(mStr => {
-                const [tl, br] = mStr.split(':');
-                const m1 = tl.match(/^([A-Z]+)(\d+)$/);
-                const m2 = br.match(/^([A-Z]+)(\d+)$/);
-                if (m1 && m2 && parseInt(m1[2]) >= 119 + offAfterTasks) {
-                    sec8Merges.push({ c1: m1[1], r1: parseInt(m1[2]), c2: m2[1], r2: parseInt(m2[2]), orig: mStr });
-                }
-            });
-            sec8Merges.forEach(m => { try { ws.unMergeCells(m.orig); } catch {} });
-
-            const emptyPRows = Array.from({ length: extraPhotoRows }, () => []);
-            ws.spliceRows(119 + offAfterTasks, 0, ...emptyPRows);
-            for (let k = 0; k < extraPhotoRows; k++) {
-                const r = 119 + offAfterTasks + k;
-                ws.getRow(r).height = 24.0;
-                for (let c = 1; c <= 11; c++) {
-                    cloneStyle(ws.getCell(118 + offAfterTasks, c), ws.getCell(r, c));
-                }
-                ws.mergeCells(`B${r}:D${r}`);
-                ws.mergeCells(`E${r}:G${r}`);
-                ws.mergeCells(`H${r}:K${r}`);
-            }
-            sec8Merges.forEach(m => {
-                try { ws.mergeCells(`${m.c1}${m.r1 + extraPhotoRows}:${m.c2}${m.r2 + extraPhotoRows}`); } catch {}
-            });
-        }
-
-        const totalPhotoSlots = 6 + extraPhotoRows;
-        for (let i = 0; i < totalPhotoSlots; i++) {
-            const r = 113 + offAfterTasks + i;
+        // 11. Section 8: Photo References & Google Drive Links (base 113..118, 6 slots)
+        const photosStart = 113 + off;
+        off += resizeSectionRowsClean(photosStart, 6, photos.length, [['B', 'D'], ['E', 'G'], ['H', 'K']], 24.0, 11);
+        for (let i = 0; i < Math.max(1, photos.length); i++) {
+            const r = photosStart + i;
             const pr = photos[i];
+            const rowObj = ws.getRow(r);
+            rowObj.hidden = false;
             if (pr) {
-                ws.getRow(r).hidden = false;
                 ws.getCell(`A${r}`).value = i + 1;
                 if (pr.driveLink) {
                     ws.getCell(`B${r}`).value = { text: pr.fileName, hyperlink: pr.driveLink };
@@ -2346,25 +2422,29 @@ async function generateDirectExcelDFL() {
                     ws.getCell(`H${r}`).value = pr.description;
                 }
                 ws.getCell(`E${r}`).value = pr.section;
+                rowObj.height = calcAutoRowHeight([[pr.description, 45]], 24);
             } else {
-                ws.getRow(r).hidden = true;
+                ws.getCell(`A${r}`).value = '';
+                rowObj.height = 18;
             }
         }
 
-        const pOff = offAfterTasks + extraPhotoRows;
+        // 12. Section 9: OAR (Rows 123+off, 125+off, 127+off) with auto-expanded heights!
+        const obsVal = log.oar.obs || '';
+        const anaVal = log.oar.ana || '';
+        const recVal = log.oar.rec || '';
+        ws.getCell(`A${123 + off}`).value = obsVal;
+        ws.getCell(`A${125 + off}`).value = anaVal;
+        ws.getCell(`A${127 + off}`).value = recVal;
+        ws.getRow(123 + off).height = calcAutoRowHeight([[obsVal, 90]], 38);
+        ws.getRow(125 + off).height = calcAutoRowHeight([[anaVal, 90]], 36);
+        ws.getRow(127 + off).height = calcAutoRowHeight([[recVal, 90]], 36);
 
-        // 14. Section 9: OAR (Rows 123+pOff, 125+pOff, 127+pOff) + Section 7 overflow (>4 items)
-        const sec7Overflow = sec7Combined.slice(4).map(x => `${x.refCode}: ${x.desc} (${x.sev})`).join(' | ');
-        const fullObsText = [log.oar.obs || '', sec7Overflow ? `Additional Issues/Events: ${sec7Overflow}` : ''].filter(Boolean).join('\n');
-        ws.getCell(`A${123 + pOff}`).value = fullObsText;
-        ws.getCell(`A${125 + pOff}`).value = log.oar.ana || '';
-        ws.getCell(`A${127 + pOff}`).value = log.oar.rec || '';
-
-        // 15. Section 10: Sign-Off (Row 131+pOff) + Electronic Signature
-        ws.getCell(`A${131 + pOff}`).value = `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`;
-        ws.getCell(`H${131 + pOff}`).value = `Date & Time  /  التاريخ والوقت: ${state.activeDate}`;
+        // 13. Section 10: Sign-Off (Row 131+off) + Electronic Signature
+        ws.getCell(`A${131 + off}`).value = `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`;
+        ws.getCell(`H${131 + off}`).value = `Date & Time  /  التاريخ والوقت: ${state.activeDate}`;
         if (state.company.textSignature) {
-            const dSigCell = ws.getCell(`E${131 + pOff}`);
+            const dSigCell = ws.getCell(`E${131 + off}`);
             dSigCell.value = state.company.textSignature;
             dSigCell.font = { name: 'Georgia', size: 12, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
             dSigCell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -2373,12 +2453,27 @@ async function generateDirectExcelDFL() {
         if (state.company.signatureDataUrl) {
             try {
                 sigImgId = wb.addImage({ base64: state.company.signatureDataUrl, extension: 'png' });
-                ws.getRow(131 + pOff).height = 36;
-                ws.addImage(sigImgId, { tl: { col: 4.9, row: 130 + pOff + 0.08 }, ext: { width: 105, height: 30 } });
+                ws.getRow(131 + off).height = 36;
+                ws.addImage(sigImgId, { tl: { col: 4.9, row: 130 + off + 0.08 }, ext: { width: 105, height: 30 } });
             } catch {}
         }
 
-        ws.pageSetup.printArea = `A1:L${140 + pOff}`;
+        // Remove trailing empty rows after Row 140+off and lock exact printArea
+        const finalLastRow = 140 + off;
+        if (ws.rowCount > finalLastRow) {
+            ws.spliceRows(finalLastRow + 1, ws.rowCount - finalLastRow);
+        }
+        ws.pageSetup.printArea = `A1:L${finalLastRow}`;
+
+        // Hide empty optional IR / SDL sheets so workbook stays super clean
+        if (!log.incidents || log.incidents.length === 0) {
+            const irSheet = wb.getWorksheet('Incident Report');
+            if (irSheet) irSheet.state = 'hidden';
+        }
+        if (!log.sdls || log.sdls.length === 0) {
+            const sdlSheet = wb.getWorksheet('Site Deviation Log');
+            if (sdlSheet) sdlSheet.state = 'hidden';
+        }
 
         // 16. Fill ALL Incident Report & Site Deviation Log sheets (cloning sheets if >1 report)
         const cloneSheetModel = (srcSheet, newName) => {
@@ -3491,7 +3586,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V16.8: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V16.9: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function addTaskEventLog(t, iconAndLabel, customTimeStr = null) {
     if (!Array.isArray(t.events)) t.events = [];
     const now = new Date();
@@ -4220,7 +4315,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V16.8: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V16.9: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function syncTaskCompletionAndLiveClockOnDurChange(t, newMins) {
     if (!t || !newMins || newMins <= 0) return;
     const targetNetMs = newMins * 60000;
@@ -6629,7 +6724,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V16.8: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V16.9: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -8637,8 +8732,6 @@ function runPreExportCheck(mode = 'gemini_json') {
     if (log.tasks.some(t => t.status.includes('Blocked') && !t.note.trim())) warnings.push('• توجد مهمة متوقفة بدون كتابة سبب التوقف.');
     if (log.tasks.some(t => t.status.includes('Blocked')) && !log.oar.obs) warnings.push('• توجد مهام متوقفة ولم يُملأ تقرير OAR بعد.');
     if (log.tasks.some(t => t.status.includes('Progress') && !t.stoppedForToday && !t.fixedEndTime)) warnings.push('• توجد مهام جارية لا يزال عدادها مفتوحاً — اضغط «⏹️ انتهى وقت العمل» أو «✓ مكتمل» لتثبيت ساعات اليوم.');
-    const totalZoneRows = log.tasks.reduce((sum, t) => sum + Math.max(1, (t.zones || '').split(',').map(s => s.trim()).filter(Boolean).length), 0);
-    if (totalZoneRows > 33) warnings.push(`• عدد أسطر المناطق بالمهام (${totalZoneRows} سطر) يتجاوز سعة القالب (33 سطر) — يُفضّل دمج المناطق المتشابهة.`);
 
     const execFn = mode === 'gemini_json' ? 'exportLightweightDFL()' : 'generateDirectExcelDFL()';
     if (warnings.length > 0) {
@@ -8886,12 +8979,61 @@ async function exportLightweightDFL() {
 
     const jsonFname = `TFF_Light_DFL${log.dflNum}_${state.activeDate}.json`;
     const totalTaskZoneRows = log.tasks.reduce((sum, t) => sum + Math.max(1, (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean).length), 0);
-    const extraTaskRows = Math.max(0, totalTaskZoneRows - 33);
-    const offAfterTasks = rowOffset + extraTaskRows;
-    const extraPhotoRows = Math.max(0, photos.length - 6);
-    const pOff = offAfterTasks + extraPhotoRows;
-    lightPayload.totalTaskZoneRows = totalTaskZoneRows;
-    lightPayload.extraTaskRowsOver33 = extraTaskRows;
+    const filledMoistCnt = (log.moisture || []).filter(m => m && (m.zone || m.pct !== '')).length;
+    const sec7TotalCnt = (log.incidents || []).length + (log.sdls || []).length + activeIssues.length;
+
+    // Pre-calculate exact dynamic row coordinates matching the clean resize engine (expanding OR deleting blank surplus rows!)
+    let dynOff = 0;
+    const dAtt = Math.max(1, log.attendance.length) - 5;
+    const rAttStart = 18; dynOff += dAtt;
+    const rSep23 = 23 + dynOff;
+
+    const rTasksStart = 27 + dynOff;
+    const dTasks = Math.max(1, totalTaskZoneRows) - 33; dynOff += dTasks;
+    const rTasksEnd = 59 + dynOff;
+
+    const rToolsStart = 64 + dynOff;
+    const dTools = Math.max(1, log.tools.length) - 3; dynOff += dTools;
+
+    const rMoistStart = 71 + dynOff;
+    const dMoist = Math.max(1, filledMoistCnt) - 5; dynOff += dMoist;
+
+    const rMetersStart = 79 + dynOff;
+    const dMeters = Math.max(1, log.meters.length) - 2; dynOff += dMeters;
+
+    const rPerfStart = 83 + dynOff;
+
+    const rGaugesStart = 89 + dynOff;
+    const dGauges = Math.max(1, log.gauges.length) - 6; dynOff += dGauges;
+
+    const rPlantsStart = 98 + dynOff;
+    const dPlants = Math.max(1, sickPlants.length) - 5; dynOff += dPlants;
+
+    const rSec7Start = 106 + dynOff;
+    const dSec7 = Math.max(1, sec7TotalCnt) - 4; dynOff += dSec7;
+
+    const rPhotosStart = 113 + dynOff;
+    const dPhotos = Math.max(1, photos.length) - 6; dynOff += dPhotos;
+
+    const rObs = 123 + dynOff;
+    const rAna = 125 + dynOff;
+    const rRec = 127 + dynOff;
+    const rSignOff = 131 + dynOff;
+    const rFinalLast = 140 + dynOff;
+
+    lightPayload.sectionRowPlan = {
+        attendance: { baseStart: 18, baseSlots: 5, count: log.attendance.length, finalStart: rAttStart, delta: dAtt },
+        tasks: { baseStart: 27, baseSlots: 33, count: totalTaskZoneRows, finalStart: rTasksStart, delta: dTasks },
+        equipment: { baseStart: 64, baseSlots: 3, count: log.tools.length, finalStart: rToolsStart, delta: dTools },
+        moisture5A: { baseStart: 71, baseSlots: 5, count: filledMoistCnt, finalStart: rMoistStart, delta: dMoist },
+        waterMeters5B: { baseStart: 79, baseSlots: 2, count: log.meters.length, finalStart: rMetersStart, delta: dMeters },
+        barGauges5D: { baseStart: 89, baseSlots: 6, count: log.gauges.length, finalStart: rGaugesStart, delta: dGauges },
+        plantsHealth6: { baseStart: 98, baseSlots: 5, count: sickPlants.length, finalStart: rPlantsStart, delta: dPlants },
+        incidents7: { baseStart: 106, baseSlots: 4, count: sec7TotalCnt, finalStart: rSec7Start, delta: dSec7 },
+        photos8: { baseStart: 113, baseSlots: 6, count: photos.length, finalStart: rPhotosStart, delta: dPhotos },
+        finalTotalDelta: dynOff,
+        finalLastRow: rFinalLast
+    };
 
     const hardenedPrompt = `أنت خبير أتمتة التقارير الميدانية لشركة غابات الغذاء (The Food Forests).
 مرفق لك ملفان:
@@ -8905,105 +9047,71 @@ async function exportLightweightDFL() {
 
 التزم بالصرامة التامة بالقواعد التالية (باستخدام openpyxl مع copy من مكتبة copy):
 
-### القاعدة 0: الحفاظ المطلق على ألوان وخطوط وحدود القالب النظيف V04 + عدم زرع صور مصغرة داخل الخلايا!
-- **ممنوع زرع أي صور مصغرة داخل خلايا الإكسيل!** الصور تُرفع على Google Drive، ونحن نضع أسماء الصور (PHOTO_01.jpg) وروابط Google Drive القابلة للنقر (Hyperlinks) في خاناتها المخصصة.
-- لا تغيّر لون أي خلفية خلية (Fill) أو ترويسة قسم في القالب نهائياً!
-- ألوان القالب النظيف V04: عمود التسلسل A رمادي فاتح (#ECEFF1)، خلايا الإدخال كريمي (#FFFDF0) أو أصفر فاتح (#FFFDE7)، وخلايا أداء الري أخضر فاتح (#E8F5E9).
-- عند إدراج صفوف جديدة أو دمج خلايا عمودياً: انسخ التنسيق الأصلي (copy(src.fill), copy(src.font), copy(src.border), copy(src.alignment)) لكل خلية مضافة أو مدمجة حتى لا تتحول إلى اللون الأبيض أبداً.
+### القاعدة 0: محرك تعديل الصفوف النظيف (بدون أي صفوف فارغة أو تشويه ارتفاعات أو قوائم منسدلة!)
+- **ممنوع زرع أي صور مصغرة داخل خلايا الإكسيل!** الصور تُرفع على Google Drive، ونضع أسماء الصور وروابط Drive القابلة للنقر (Hyperlinks) في خلاياها.
+- **ممنوع ترك صفوف فارغة زائدة في التقرير!** بدلاً من مجرد إخفاء عشرات الصفوف الفارغة، استخدم دالة موحّدة \`resize_section_rows(ws, start_row, base_count, target_count, row_merges, default_height, max_col)\` تنفّذ التوسيع (إذا \`target_count > base_count\`) أو الحذف الفعلي للصفوف الفائضة (إذا \`target_count < base_count\` مع إبقاء صف واحد على الأقل \`max(1, target_count)\`) بحيث تقوم في كل استدعاء بـ:
+  1. حفظ وفك جميع نطاقات الدمج \`ws.merged_cells.ranges\` التي تقع عند أو أسفل نقطة الإدراج/الحذف، وحذف الدمج الذي يقع بالكامل داخل الصفوف المحذوفة فقط.
+  2. حفظ جميع ارتفاعات الصفوف \`ws.row_dimensions[r].height\` وحالة \`hidden\` لكل صف أسفل نقطة التعديل **قبل** \`ws.insert_rows\` أو \`ws.delete_rows\`، ثم إعادة إسنادها بالضبط إلى مواقعها الجديدة بعدها (لأن openpyxl لا يزيح ارتفاعات الصفوف تلقائياً!).
+  3. عند الإدراج: نسخ التنسيق الأصلي بالكامل (\`copy(src.fill)\`, \`copy(src.font)\`, \`copy(src.border)\`, \`copy(src.alignment)\`, \`src.number_format\`) من آخر صف بالقسم إلى الصفوف المضافة، وتطبيق دمج الأعمدة الخاص بكل صف (\`row_merges\`).
+  4. إعادة تطبيق نطاقات الدمج المحفوظة بعد إزاحتها بمقدار \`delta\`، وتحديث نطاقات القوائم المنسدلة \`ws.data_validations\` بإزاحتها وتوسيعها لتغطية الصفوف المضافة حتى لا يظهر أي تحذير عند فتح Excel!
+- **إزالة الفراغات المزعجة في القالب:**
+  * أخفِ صف محطة الطقس الفارغ **الصف 14** (\`ws.row_dimensions[14].hidden = True\`).
+  * صغّر ارتفاع صف الفاصل بعد الحضور (**الصف ${rSep23}**) من \`42.75\` إلى **\`10\`**.
+  * احذف أي صفوف فارغة بعد الصف الأخير (**الصف ${rFinalLast}**) واضبط منطقة الطباعة: \`ws.print_area = 'A1:L${rFinalLast}'\`.
+- **ارتفاع تلقائي للنصوص الطويلة (Auto Row Height):** احسب ارتفاع صفوف الحضور والمهام والمعدات والأداء والـ OAR حسب طول النص وعدد الأسطر (\`wrap_text=True\`) حتى لا ينقص أي حرف عند الفتح أو الطباعة.
 
-### القاعدة 1: إزاحة الصفوف للعمالة الإضافية (offset = ${rowOffset})
-- القالب النظيف V04 يحتوي على 5 صفوف للحضور (صفوف 18 إلى 22).
-- إذا كان rowOffsetForExtraWorkers > 0:
-  1. احفظ جميع نطاقات الدمج الموجودة في الورقة التي تبدأ من صف >= 23، ثم فك دمجها مؤقتاً (ws.unmerge_cells).
-  2. أدرج ${rowOffset} صفوف عند الصف 23 (ws.insert_rows(23, ${rowOffset})).
-  3. لكل صف مضاف (23 إلى ${22 + rowOffset}): اضبط ارتفاع الصف على 42.75، وانسخ التنسيق الأصلي (fill, font, border, alignment) من صف 22 لكل عمود من A إلى K (A باللون الرمادي #ECEFF1 وبحدود كاملة)، ثم ادمج H{r}:K{r}.
-  4. أعد تطبيق جميع نطاقات الدمج المحفوظة بإضافة offset = ${rowOffset} إلى أرقام صفوفها.
-  5. حدّث معادلتي الاستهلاك في القسم 5B (صفوف ${79 + rowOffset} و ${80 + rowOffset}) لتصبح: =IF(OR(F{r}="",G{r}=""),"",G{r}-F{r}).
+### القاعدة 1: تطبيق توسيع/تقليص الأقسام بالترتيب الدقيق من الأعلى للأسفل
+طبّق \`resize_section_rows\` بالترتيب التالي (متطابق مع \`sectionRowPlan\` في ملف JSON):
+1. **القسم 2 (الحضور — 5 صفوف أصلية من 18):** العدد الفعلي = ${log.attendance.length} (دمج الصف: \`H:K\`، ارتفاع 36، \`max_col=11\`) ← يبدأ عند صف **${rAttStart}**.
+2. **القسم 3 (المهام — 33 صفاً أصلياً):** عدد أسطر المناطق الفعلي = ${totalTaskZoneRows} (دمج الصف: \`H:J\`، ارتفاع 27.75، \`max_col=12\`) ← يبدأ عند صف **${rTasksStart}** وينتهي عند **${rTasksEnd}**.
+3. **القسم 4 (المعدات والأدوات — 3 صفوف أصلية):** العدد الفعلي = ${log.tools.length} (دمج الصف: \`F:K\`، ارتفاع 26، \`max_col=11\`) ← يبدأ عند صف **${rToolsStart}** (**كل معدة في سطرها المستقل — ممنوع حشر معدات إضافية داخل ملاحظات السطر الثالث!**).
+4. **القسم 5A (الرطوبة — 5 صفوف أصلية):** العدد الفعلي = ${filledMoistCnt} (دمج الصف: \`B:C\` و \`E:K\`، ارتفاع 24، \`max_col=11\`) ← يبدأ عند صف **${rMoistStart}**.
+5. **القسم 5B (عدادات المياه — صفّان أصليان):** العدد الفعلي = ${log.meters.length} (دمج الصف: \`B:D\` و \`I:K\`، ارتفاع 26، \`max_col=11\`) ← يبدأ عند صف **${rMetersStart}**، واكتب لكل عداد المعادلة الدقيقة \`=IF(OR(F{r}="",G{r}=""),"",G{r}-F{r})\` في العمود **H**.
+6. **القسم 5D (مقاييس الضغط — 6 صفوف أصلية):** العدد الفعلي = ${log.gauges.length} (دمج الصف: \`G:K\`، ارتفاع 24، \`max_col=11\`) ← يبدأ عند صف **${rGaugesStart}**.
+7. **القسم 6 (صحة النباتات — 5 صفوف أصلية):** العدد الفعلي = ${sickPlants.length} (دمج الصف: \`B:C\`, \`F:G\`, \`I:K\`، ارتفاع 26، \`max_col=11\`) ← يبدأ عند صف **${rPlantsStart}**.
+8. **القسم 7 (الحوادث والمشاكل — 4 صفوف أصلية):** العدد الفعلي = ${sec7TotalCnt} (دمج الصف: \`B:E\`, \`G:K\`، ارتفاع 24، \`max_col=11\`) ← يبدأ عند صف **${rSec7Start}** (كل عنصر في سطره المستقل بدون رمي الفائض في OAR!).
+9. **القسم 8 (مراجع الصور وروابط Drive — 6 صفوف أصلية):** العدد الفعلي = ${photos.length} (دمج الصف: \`B:D\`, \`E:G\`, \`H:K\`، ارتفاع 24، \`max_col=11\`) ← يبدأ عند صف **${rPhotosStart}**.
 
-### القاعدة 2: البيانات التعريفية (Metadata — صفوف ثابتة بدون إزاحة)
+### القاعدة 2: البيانات التعريفية (Metadata — صفوف ثابتة 5..10)
 - F5 = ${log.dflNum} | F6 = "${site.name}" | B7 = "${state.activeDate}" | F7 = "${dayEn}" | B8 = "${state.company.teamLead}" | B9 = "${state.company.shift}" | F9 = "${state.company.supervisor || 'Maitham Ibrahim'}" | B10 = ${state.company.outsideRate}
-- إذا كان googleDriveFolderLink غير فارغ، ضعه كرابط تشعبي (Hyperlink) في الخلية F10 بالنص 'Google Drive Photos Folder' ولون خط أزرق (#0284C7) وتحته خط.
+- إذا كان \`googleDriveFolderLink\` غير فارغ، ضعه كرابط تشعبي (Hyperlink) في **F10** بالنص 'Google Drive Photos Folder' ولون خط أزرق (#0284C7) وتحته خط.
 
-### القاعدة 3: القسم 1 (Weather — صف 13 بالكامل من B13 إلى K13!)
-- املأ **جميع** خلايا صف الطقس 13 من section1_weather (وإذا كانت أي خانة فارغة في JSON فابحث عن طقس مدينة الحلة لتاريخ ${state.activeDate} وأكملها بالكامل — ممنوع ترك أي خلية فارغة أو وضع رمز '-'):
-  * **B13**: Conditions / الأحوال | **C13**: Temp Min °C (رقم) | **D13**: Temp Max °C (رقم) | **E13**: Wind / الرياح | **F13**: Humidity % / الرطوبة (رقم) | **G13**: UV Index (رقم) | **H13**: Pressure hPa / الضغط (رقم) | **I13**: Precip mm/h / الأمطار (رقم) | **J13**: Time of Recording / وقت القراءة | **K13**: Notes / ملاحظات.
+### القاعدة 3: القسم 1 (Weather — صف 13 بالكامل من B13 إلى K13)
+- املأ جميع خلايا صف الطقس 13 من \`section1_weather\` (وإذا كانت أي خانة فارغة في JSON فابحث عن طقس الحلة لتاريخ ${state.activeDate} وأكملها بالكامل): B13 الأحوال، C13 الصغرى، D13 العظمى، E13 الرياح، F13 الرطوبة، G13 UV، H13 الضغط، I13 الأمطار، J13 الوقت، K13 ملاحظات.
 
-### القاعدة 4: القسم 2 (Attendance — صفوف 18 إلى ${17 + log.attendance.length})
-- املأ section2_attendance في الأعمدة A (التسلسل)، B (الاسم)، C (النوع)، D (الحالة)، E (الدخول)، F (الخروج)، G (الأوفرتايم)، H:K (ملاحظات). وأخفِ أي صف فارغ متبقٍ حتى صف 22.
+### القاعدة 4: القسم 2 (الحضور — بدءاً من صف ${rAttStart})
+- املأ \`section2_attendance\` في الأعمدة A (التسلسل)، B (الاسم)، C (النوع)، D (الحالة)، E (الدخول)، F (الخروج)، G (الأوفرتايم)، H:K (ملاحظات).
 
-### القاعدة 5: القسم 3 (Tasks — يبدأ من صف ${27 + rowOffset} حتى ${59 + offAfterTasks})
-- أول صف بيانات للمهام هو **صف ${27 + rowOffset}** مباشرة (لا تترك صف ${27 + rowOffset} فارغاً!).
-${extraTaskRows > 0 ? `- **توسيع جدول المهام تلقائياً (${totalTaskZoneRows} صف > 33):** لأن عدد صفوف المناطق (${totalTaskZoneRows}) يتجاوز 33، فك دمج النطاقات من صف >= ${60 + rowOffset}، ثم أدرج **${extraTaskRows}** صفوف عند الصف **${60 + rowOffset}** (ws.insert_rows(${60 + rowOffset}, ${extraTaskRows})) وانسخ التنسيق الأصلي من صف ${59 + rowOffset} لكل عمود A..L مع دمج H{r}:J{r} لكل صف مضاف، ثم أعد تطبيق النطاقات المدمجة بإضافة +${extraTaskRows} وحدّث معادلتي القسم 5B عند الصفين ${79 + offAfterTasks} و ${80 + offAfterTasks}.` : ''}
-1. **تفريق المناطق (منطقة واحدة لكل صف):** لكل عنصر في section3_tasks، أفرد مناطق zonesList في صفوف متتالية بحيث يأخذ كل صف منطقة واحدة فقط في العمود D (Zone).
-2. **دمج المهام المتزامنة والمتشابهة عمودياً:**
-   - اجمع الصفوف المتتالية التي تكون ناتجة عن تفريق نفس المهمة، أو التي تحمل syncWithPrev == True، أو التي تشترك في نفس (startTime + task + briefDescription + time + workersAssigned + workersCount) أي حدثت في نفس الوقت تماماً.
-   - ادمج عمودياً عبر هذه الصفوف المتشابهة الأعمدة التالية فقط: **A ('#')**، **B ('Task')**، **C ('Brief Description')**، **E ('Time')**، **F ('Workers #')**، و**K ('Worker(s) Assigned')**.
-   - **ممنوع** دمج العمود **D ('Zone')** أو **G ('Status')** أو **H:J ('Notes')** أو **L ('Image Reference')** عمودياً! أبقِ H{r}:J{r} مدمجاً أفقياً لكل صف على حدة فقط.
-   - انسخ التنسيق الأصلي من صف ${27 + rowOffset} لكل خلية (A: #ECEFF1، B,C,G,H:J,K,L: #FFFDF0، D,E,F: #FFFDE7) قبل وبعد أي دمج عمودي!
-3. **دقة العمال وعدد العمال (Columns F & K):** العمود F رقم صحيح (إذا كان المنفذ "Team" فاكتب ${presentCount})، والعمود K "Team" أو الأسماء مفصولة بـ ' / '.
-4. **مرجع الصور ورابط Google Drive (Column L):** اكتب اسم ملف الصورة المرجعي مثل 'PHOTO_01.jpg' في L{r} فقط إذا وُجد (واتركه فارغاً تماماً إذا لم توجد صورة). وإذا احتوى العنصر على driveLinks غير فارغة، أضف أول رابط كـ Hyperlink قابل للنقر على الخلية L{r} بلون أزرق (#0284C7) وتحته خط.
-5. **إخفاء الصفوف الفارغة فقط:** أخفِ الصفوف الفارغة المتبقية من بعد آخر مهمة وحتى صف ${59 + offAfterTasks} فقط.
+### القاعدة 5: القسم 3 (المهام — صفوف ${rTasksStart} إلى ${rTasksEnd})
+1. **تفريق المناطق (منطقة واحدة لكل صف):** لكل عنصر في \`section3_tasks\`، أفرد \`zonesList\` في صفوف متتالية (منطقة واحدة في العمود D).
+2. **دمج المهام المتزامنة والمتشابهة عمودياً:** ادمج عمودياً فقط الأعمدة **A, B, C, E, F, K** للصفوف الناتجة عن نفس المهمة أو التي تحمل \`syncWithPrev == True\` أو تشترك في نفس \`(startTime + task + briefDescription + time + workersAssigned + workersCount)\`. **ممنوع** دمج D أو G أو H:J أو L عمودياً! وانسخ التنسيق الأصلي (A: #ECEFF1، B/C/G/H:J/K/L: #FFFDF0، D/E/F: #FFFDE7) لجميع الخلايا المدمجة حتى لا تتحول للون الأبيض أبداً.
+3. **العمال والصور:** العمود F رقم صحيح (إذا "Team" فاكتب ${presentCount})، والعمود K "Team" أو الأسماء مفصولة بـ ' / '. العمود L اسم الصورة المرجعي مع Hyperlink لأول رابط في \`driveLinks\` إن وُجد.
 
-### القاعدة 6: الأقسام 4 و 5 و 6 و 7 و 8 (أرقام الصفوف الدقيقة في قالب V04 بعد الإزاحة)
-- **القسم 4 (المعدات — صفوف البيانات ${64 + offAfterTasks}..${66 + offAfterTasks}):** املأ section4_equipment وأخفِ الفارغ منها فقط (أبقِ صف الفاصل ${67 + offAfterTasks} وترويسة القسم الخامس ${68 + offAfterTasks} ظاهرين!).
-- **القسم 5A (الرطوبة — صفوف البيانات ${71 + offAfterTasks}..${75 + offAfterTasks}):** املأ moisture5A وأخفِ الفارغ منها فقط.
-- **القسم 5B (عدادات المياه — صفوف البيانات ${79 + offAfterTasks}..${80 + offAfterTasks}):**
-  * **A**: التسلسل | **B:D**: اسم العداد | **E**: الجودة البصرية | **F**: القراءة السابقة رقم | **G**: القراءة الحالية رقم | **H**: المعادلة =IF(OR(F{r}="",G{r}=""),"",G{r}-F{r}) | **I:K**: الملاحظات ومرجع الصورة (مع Hyperlink إذا وُجد driveLinks). أخفِ صف العداد الفارغ فقط.
-- **القسم 5C (أداء نظام الري — صفوف ${83 + offAfterTasks}..${85 + offAfterTasks}):**
-  * **B${83 + offAfterTasks}**: حالة النظام | **E${83 + offAfterTasks}**: مدة التشغيل | **B${84 + offAfterTasks}**: المناطق المروية | **E${84 + offAfterTasks}**: ملاحظات الضغط | **B${85 + offAfterTasks}**: ملاحظات الأداء.
-- **القسم 5D (مقاييس الضغط — صفوف البيانات ${89 + offAfterTasks}..${94 + offAfterTasks}):** املأ barGauges5D (A: التسلسل، B: الاسم، C: القراءة، D: 'bar'، E: المدى الطبيعي، F: الحالة، G:K: ملاحظات) وأخفِ الفارغ منها فقط.
-- **القسم 6 (صحة النبات — صفوف ${98 + offAfterTasks}..${102 + offAfterTasks}) والقسم 7 (الحوادث — صفوف ${106 + offAfterTasks}..${109 + offAfterTasks}):** املأها (مع وضع Hyperlink لروابط Drive في عمود الصورة/المرجع إن وُجدت) وأخفِ الفارغ منها فقط.
-- **القسم 8 (مراجع الصور وروابط Google Drive — يبدأ من صف ${113 + offAfterTasks}):**
-  * إذا كان عدد الصور في section8_photoReferences أكثر من 6 (extraPhotoRows = ${extraPhotoRows})، أدرج ${extraPhotoRows} صفوف عند الصف ${119 + offAfterTasks} مع نسخ التنسيق والدمج (B:D, E:G, H:K) من صف ${118 + offAfterTasks} وإزاحة القسمين 9 و 10 بمقدار ${extraPhotoRows}.
-  * املأ كل صورة في صفها: **A** = التسلسل، **B:D** = اسم الملف (fileName، واجعله Hyperlink قابل للنقر إذا وُجد driveLink)، **E:G** = القسم (section)، **H:K** = الوصف (description) متبوعاً برابط Google Drive الكامل ('description — driveLink') إذا وُجد حتى يظهر الرابط بوضوح تام. أخفِ الصفوف الفارغة منها فقط.
+### القاعدة 6: الأقسام 4 و 5 و 6 و 7 و 8 (تعبئة بالصفوف المحددة أعلاه)
+- **القسم 4 (صف ${rToolsStart}+):** املأ جميع عناصر \`section4_equipment\` (A التسلسل، B الاسم، C الفئة، D الكمية، E الحالة، F:K الملاحظات).
+- **القسم 5A (صف ${rMoistStart}+):** املأ \`moisture5A\` (A, B:C, D, E:K).
+- **القسم 5B (صف ${rMetersStart}+):** املأ \`waterMeters5B\` (A, B:D الاسم، E الجودة، F السابق، G الحالي، H المعادلة \`=IF(OR(F{r}="",G{r}=""),"",G{r}-F{r})\`، I:K الملاحظات ومرجع الصورة مع Hyperlink).
+- **القسم 5C (صفوف ${rPerfStart}..${rPerfStart + 2}):** B${rPerfStart} حالة النظام، E${rPerfStart} مدة التشغيل، B${rPerfStart + 1} المناطق المروية، E${rPerfStart + 1} ملاحظات الضغط، B${rPerfStart + 2} ملاحظات الأداء.
+- **القسم 5D (صف ${rGaugesStart}+):** املأ \`barGauges5D\` (A, B, C, D='bar', E, F, G:K).
+- **القسم 6 (صف ${rPlantsStart}+):** املأ \`section6_plantsHealth\` (A, B:C, D, E, F:G, H, I:K مع Hyperlink).
+- **القسم 7 (صف ${rSec7Start}+):** املأ \`section7_incidentsAndIssues\` (A, B:E, F, G:K مع Hyperlink).
+- **القسم 8 (صف ${rPhotosStart}+):** املأ \`section8_photoReferences\` (A, B:D اسم الملف كـ Hyperlink، E:G القسم، H:K الوصف + الرابط).
 
-### القاعدة 7: القسم 9 (OAR) والقسم 10 (Sign-off) + منطقة الطباعة لورقة 'Daily Field Log'
-- **القسم 9 (OAR):** اكتب OBS في **A${123 + pOff}**، ANA في **A${125 + pOff}**، REC في **A${127 + pOff}**.
-- **القسم 10 (Sign-off — صف ${131 + pOff}):**
-  * اكتب اسم قائد الفريق في **A${131 + pOff}** (مدمجة A:D).
-  * أبقِ خانة التوقيع في **E${131 + pOff}** (مدمجة E:G).
-  * اكتب التاريخ والوقت في **H${131 + pOff}** (مدمجة H:K).
-- اضبط منطقة الطباعة: ws.print_area = 'A1:L${140 + pOff}'.
+### القاعدة 7: القسم 9 (OAR) والقسم 10 (Sign-off) ومنطقة الطباعة
+- **القسم 9 (OAR):** اكتب OBS في **A${rObs}**، ANA في **A${rAna}**، REC في **A${rRec}** مع ارتفاع تلقائي يناسب النص.
+- **القسم 10 (Sign-off — صف ${rSignOff}):** اكتب اسم قائد الفريق في **A${rSignOff}**، والتوقيع النصي في **E${rSignOff}** إن وُجد، والتاريخ في **H${rSignOff}**.
+- اضبط منطقة الطباعة: \`ws.print_area = 'A1:L${rFinalLast}'\`.
 
-### القاعدة 8: قفل البيانات الحرفي والصياغة الرسمية (Strict Zero-Alteration & Formal Reporting Lock)
-- **ممنوع منعاً باتاً الاجتهاد أو تغيير أي رقم أو بيان وارد في ملف JSON!** لا تغيّر أرقام العدادات، ولا لترات التنكر، ولا الساعات، ولا أسماء العمال والمناطق، ولا تحذف أو تعدّل أي ملاحظة مكتوبة — انسخ القيم كما هي حرفياً إلى خلاياها المحددة.
-- **منع دمج عمود المناطق (Zone):** يُمنع دمج خلايا العمود D (Zone) عمودياً؛ كل منطقة تأخذ سطرها المستقل في العمود D مع عمود الحالة (G) والملاحظات (H:J) الخاص بها، بينما تندمج الأعمدة المشتركة (A, B, C, E, F, K) فقط للمهمة الواحدة.
-- إذا احتجت لإتمام أي خانة طقس فارغة فقط أو تنسيق نص رسمي، التزم بالصياغة الإدارية والهندسية الرسمية باللغتين العربية والإنجليزية دون أي ألفاظ عامية أو تغيير في الأرقام والحقائق.
+### القاعدة 8: قفل البيانات الحرفي والصياغة الرسمية
+- **ممنوع منعاً باتاً تغيير أي رقم أو بيان وارد في ملف JSON!** انسخ أرقام العدادات والتنكر والساعات وأسماء العمال والمناطق والملاحظات حرفياً بدون أي تحريف أو حذف.
 
-### القاعدة 9: تعبئة ورقة 'Incident Report' بالكامل (إذا كانت incidentReportsSheet غير فارغة — عدد التقارير: ${log.incidents.length})
-- **مهم جداً:** يجب تعبئة ورقة **'Incident Report'** في نفس ملف الإكسيل (وإذا كان هناك أكثر من تقرير حادث، انسخ ورقة 'Incident Report' عبر wb.copy_worksheet لكل تقرير إضافي):
-  * **G5** (مدمجة G5:H5): رقم الحادث (code مثل 'IR-001')
-  * **D6**: 'The Food Forests (TFF)' | **G6** (مدمجة G6:H6): "${site.name}"
-  * **D7**: "${state.activeDate}" | **G7** (مدمجة G7:H7): وقت الحادث (time)
-  * **D8**: "${state.company.teamLead}" | **G8** (مدمجة G8:H8): 'Team Lead  /  قائد الفريق'
-  * **D9**: 'DFL-${log.dflNum}' | **G9** (مدمجة G9:H9): "${state.activeDate}"
-  * **D12**: مستوى الخطورة (severity) | **H12**: جهة التصعيد ('Team Lead' أو 'Supervisor' أو 'Consultant + GM')
-  * **D16** (مدمجة D16:E16): "${site.name}" | **G16** (مدمجة G16:H16): الموقع المحدد (zone)
-  * **D19** (مدمجة D19:H19): نوع الحادث (type)
-  * **C23** (مدمجة C23:D23): الأشخاص المتورطون (persons) | **G23** (مدمجة G23:H23): الإصابة / التأثير (impact)
-  * **C31**: وقت الحادث (time) | **D31** (مدمجة D31:H31): ماذا حدث / التسلسل (timeline)
-  * **B39** (مدمجة B39:H39): الإجراء الفوري المتخذ (action)
-  * **D45**: رعاية طبية؟ (medical) | **G46** (مدمجة G46:H46): المستشفى / العلاج (hospital)
-  * **C51** (مدمجة C51:D51): الشهود (witnesses)
-  * **صفوف 59..67 (8. HSE & PPE ASSESSMENT):** إذا وُجدت مصفوفة ppeAssessment، اكتب حالة كل معدة حماية (status) في **E59** إلى **E67** حسب رقم الصف (row).
-  * **صفوف 72..76 (9. PHOTOS & EVIDENCE):** اكتب أسماء صور الحادث في **C72:E72** (مع Hyperlink إذا وُجد driveLinks)، والنوع 'Photo / صورة' في **F72**، والوصف + رابط Drive في **G72:H72**.
-  * **C80** (مدمجة C80:D80): الإجراء التصحيحي (correctiveAction) | **E80**: "${state.company.teamLead}" | **F80**: "${state.activeDate}" | **G80**: 'Pending / معلق'
-  * **B88** (مدمجة B88:C88): "${state.company.supervisor || 'Maitham Ibrahim'}" | **D88** (مدمجة D88:E88): 'Supervisor / المشرف' | **F88** (مدمجة F88:G88): تاريخ ووقت الإبلاغ | **H88**: 'Yes / نعم'
-  * **B95** (مدمجة B95:H95): الملاحظة (obs) | **B97** (مدمجة B97:H97): التحليل (ana) | **B99** (مدمجة B99:H99): التوصية (rec)
-  * **B104** (مدمجة B104:C104): 'Name  /  الاسم: ${state.company.teamLead}' | **B106** (مدمجة B106:C106): 'Date  /  التاريخ: ${state.activeDate}'
-
-### القاعدة 10: تعبئة ورقة 'Site Deviation Log' بالكامل (إذا كانت siteDeviationLogSheet غير فارغة — عدد السجلات: ${log.sdls.length})
-- املأ ورقة **'Site Deviation Log'** في نفس الملف:
-  * **G5**: رقم السجل (code) | **D6**: 'The Food Forests (TFF)' | **G6**: "${site.name}" | **D7**: "${state.activeDate}" | **G7**: وقت الرفع (time) | **D8**: "${state.company.teamLead}" | **G8**: 'Team Lead  /  قائد الفريق' | **G9**: "${state.company.supervisor || 'Maitham Ibrahim'}"
-  * **D11**: الحالة (status مثل 'Open / مفتوح' أو 'Resolved / محلول') | **G11**: الخطورة (severity)
-  * **D15**: الموضوع (subject) | **D16**: المنطقة (zone) | **D17**: نوع الانحراف (type) | **D18**: الطرف المسؤول (party) | **D19**: الصلاحية المنتهكة (authority)
-  * **B31**: الملاحظة (obs) | **B33**: التحليل (ana) | **B35**: التوصية (rec)
-  * **صفوف 38..43**: صور وأدلة الانحراف في **C38:E38** (مع Hyperlink لـ driveLinks) و**F38** ('Photo / صورة') و**G38:H38** (الوصف + رابط Drive).
-  * **صفوف 52..55 (6. RESOLUTION):** إذا كان حقل resolution موجوداً، اكتب **D52** (dateResolved)، **G52** (resolvedBy)، **D53** (actionsTaken)، **D54** (resolvedBy)، **G54** (dateResolved)، **D55** (preventiveMeasure)، **G55** (preventiveRef)، و**H47** = 'Yes / نعم'.
+### القاعدة 9: ورقتا 'Incident Report' و 'Site Deviation Log'
+- إذا كانت \`incidentReportsSheet\` غير فارغة (${log.incidents.length} تقارير): عبّئ ورقة **'Incident Report'** بالكامل (وانسخها بـ \`wb.copy_worksheet\` لأي تقرير إضافي). أما إذا كانت فارغة فأخفِ الورقة (\`ws.sheet_state = 'hidden'\`).
+- إذا كانت \`siteDeviationLogSheet\` غير فارغة (${log.sdls.length} سجلات): عبّئ ورقة **'Site Deviation Log'** بالكامل (وانسخها لأي سجل إضافي). أما إذا كانت فارغة فأخفِ الورقة (\`ws.sheet_state = 'hidden'\`).
 
 ### التسليم الفوري (إلزامي — بدون توقف):
 1. نفّذ كود Python الآن وأنشئ ملف الإكسيل **Al-Mutahida_DFL${log.dflNum}_${state.activeDate}_Filled.xlsx** داخل المجلد الحالي مباشرة.
-2. تحقق من أن الملف حُفظ بنجاح وحجمه أكبر من صفر.
+2. تحقق برمجياً من عدم وجود أي دمج متداخل وأن ارتفاعات الترويسات والأقسام سليمة وأن الملف حُفظ بنجاح.
 3. **أرسل وأرفق رابط تحميل الملف النهائي مباشرة في هذا الرد الأول فوراً** — لا تكتفِ بعرض الكود ولا تنتظر أن أطلب منك إرسال الملف مرة ثانية!`;
 
     const templateFile = buildCleanTemplateFileObj();
@@ -9046,7 +9154,7 @@ ${extraTaskRows > 0 ? `- **توسيع جدول المهام تلقائياً (${
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.8) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.9) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -9730,7 +9838,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.8 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.9 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
