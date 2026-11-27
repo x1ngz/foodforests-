@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V16.6</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V16.7</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -134,6 +134,10 @@
         .queue-item:last-child { border-bottom: none; }
         .live-timer-pill { display: inline-flex; align-items: center; gap: 4px; background: #e0f2fe; border: 1px solid #7dd3fc; color: #0369a1; padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: bold; margin-top: 4px; cursor: pointer; }
         .live-timer-pill.is-paused { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+        .live-progress-wrap { width: 100%; height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin: 5px 0; }
+        .live-progress-bar { height: 100%; background: #16a34a; transition: width 0.6s linear, background-color 0.3s; }
+        .mini-timer-bar { background: linear-gradient(135deg, #0369a1, #0284c7); color: white; padding: 6px 12px; font-size: 11.5px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 6px; position: sticky; top: 108px; z-index: 945; box-shadow: 0 3px 8px rgba(2,132,199,0.28); }
+        .mini-timer-bar.show { display: flex; }
 
         .radar-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 9px; margin-bottom: 10px; }
         .radar-grid { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
@@ -254,7 +258,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V16.6 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V16.7 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -277,8 +281,9 @@
         </div>
     </header>
 
-    <!-- Timer Alert Bar & Daily Lunch Break Banner -->
+    <!-- Timer Alert Bar, Cross-Tab Mini-Timer & Daily Lunch Break Banner -->
     <div id="timerAlertBar" class="timer-alert-bar"></div>
+    <div id="stickyMiniTimerBar" class="mini-timer-bar"></div>
     <div id="dailyBreakBanner" class="meter-reminder" style="background:#fef3c7;border-bottom:2px solid #d97706;color:#78350f;"></div>
 
     <div id="meterReminderBar" class="meter-reminder">
@@ -794,7 +799,7 @@ let state = {
 
 
 
-/* ================= V16.6: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V16.7: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -917,7 +922,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V16.6: Task Presets Manager ================= */
+/* ================= V16.7: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1007,7 +1012,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V16.6: DFL Readiness Progress Bar ================= */
+/* ================= V16.7: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1047,7 +1052,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V16.6: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V16.7: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1303,7 +1308,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V16.6: Electronic Touch Signature Pad ================= */
+/* ================= V16.7: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1846,7 +1851,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V16.6: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V16.7: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -2821,17 +2826,77 @@ function ensurePhotosArr(obj) {
     return obj.photos;
 }
 
+function findLatestPriorMeterReading(site, meterId, meterName, beforeDateStr, fallbackVal = 0) {
+    const priorDates = Object.keys(site.logs || {}).filter(d => d < beforeDateStr).sort().reverse();
+    for (const d of priorDates) {
+        const dl = site.logs[d];
+        if (!dl || !Array.isArray(dl.meters)) continue;
+        const found = dl.meters.find(x => x.id === meterId) || (meterName ? dl.meters.find(x => x.name === meterName) : null);
+        if (found && found.curr !== '' && found.curr != null && !isNaN(parseFloat(found.curr))) {
+            return parseFloat(found.curr);
+        }
+    }
+    return (fallbackVal !== '' && fallbackVal != null && !isNaN(parseFloat(fallbackVal))) ? parseFloat(fallbackVal) : 0;
+}
+
+function syncSiteMeterLastReading(site, meterId, meterName) {
+    const sMeter = (site.meters || []).find(x => x.id === meterId) || (meterName ? (site.meters || []).find(x => x.name === meterName) : null);
+    if (!sMeter) return;
+    const allDates = Object.keys(site.logs || {}).sort().reverse();
+    for (const d of allDates) {
+        const dl = site.logs[d];
+        if (!dl || !Array.isArray(dl.meters)) continue;
+        const found = dl.meters.find(x => x.id === meterId) || (meterName ? dl.meters.find(x => x.name === meterName) : null);
+        if (found && found.curr !== '' && found.curr != null && !isNaN(parseFloat(found.curr))) {
+            sMeter.lastReading = parseFloat(found.curr);
+            return;
+        }
+    }
+}
+
+function propagateMeterReadingForward(site, meterId, meterName, fromDateStr, newCurrVal) {
+    const futureDates = Object.keys(site.logs || {}).filter(d => d > fromDateStr).sort();
+    for (const d of futureDates) {
+        const dl = site.logs[d];
+        if (!dl || !Array.isArray(dl.meters)) continue;
+        const m = dl.meters.find(x => x.id === meterId) || (meterName ? dl.meters.find(x => x.name === meterName) : null);
+        if (!m) continue;
+        if (!m.prevManual) {
+            m.prev = newCurrVal;
+        }
+        // Once a future day already has its own recorded curr reading, stop cascading past it
+        if (m.curr !== '' && m.curr != null && !isNaN(parseFloat(m.curr))) {
+            break;
+        }
+    }
+}
+
+function computeNextDflForDate(site, dateStr) {
+    const allDates = Object.keys(site.logs || {}).sort();
+    const priorDates = allDates.filter(d => d < dateStr);
+    for (let i = priorDates.length - 1; i >= 0; i--) {
+        const pd = site.logs[priorDates[i]];
+        const n = pd ? parseInt(pd.dflNum, 10) : NaN;
+        if (!isNaN(n) && n > 0) return n + 1;
+    }
+    const laterDates = allDates.filter(d => d > dateStr);
+    for (let i = 0; i < laterDates.length; i++) {
+        const ld = site.logs[laterDates[i]];
+        const n = ld ? parseInt(ld.dflNum, 10) : NaN;
+        if (!isNaN(n) && n > 1) return n - 1;
+    }
+    return Math.max(1, parseInt(site.nextDfl, 10) || 1);
+}
+
 function getDayLog(dateStr = state.activeDate) {
     const site = getSite();
     if (!site.logs[dateStr]) {
-        const sortedDates = Object.keys(site.logs).sort();
-        const prevDate = sortedDates.filter(d => d < dateStr).pop();
-        const prevLog = prevDate ? site.logs[prevDate] : null;
-        const activeUserKey = (state.company.currentUser || state.company.teamLead || 'Default').trim();
-        if (!site.dflSequences) site.dflSequences = {};
-        const assignedDfl = site.dflSequences[activeUserKey] || site.nextDfl || 1;
-        site.dflSequences[activeUserKey] = assignedDfl + 1;
-        site.nextDfl = Math.max(site.nextDfl || 1, assignedDfl + 1);
+        const existingDates = Object.keys(site.logs).sort();
+        const latestExisting = existingDates[existingDates.length - 1] || '';
+        const assignedDfl = computeNextDflForDate(site, dateStr);
+        if (!latestExisting || dateStr >= latestExisting) {
+            site.nextDfl = assignedDfl + 1;
+        }
         site.logs[dateStr] = {
             dflNum: assignedDfl,
             attendance: state.company.staffPool.map((s, idx) => ({
@@ -2840,8 +2905,7 @@ function getDayLog(dateStr = state.activeDate) {
             })),
             tasks: [],
             meters: site.meters.map(m => {
-                const prevM = prevLog && prevLog.meters ? prevLog.meters.find(x => x.id === m.id) : null;
-                const startVal = prevM && prevM.curr !== '' && prevM.curr != null ? prevM.curr : (m.lastReading || 0);
+                const startVal = findLatestPriorMeterReading(site, m.id, m.name, dateStr, m.lastReading || 0);
                 return { id: m.id, name: m.name, status: 'working', prev: startVal, curr: '', visual: 'Clear / صافية', note: '', photos: [] };
             }),
             gauges: site.gauges.map(g => ({ id: g.id, name: g.name, normal: g.normal, val: '', note: '' })),
@@ -2864,7 +2928,19 @@ function getDayLog(dateStr = state.activeDate) {
     if (!l.sdls) l.sdls = [];
     if (!l.perf) l.perf = { status: 'جيد', duration: '', zonesIrrigated: '', zonesManualEdit: false, pressureNotes: '', notes: '' };
     l.tasks.forEach(t => ensurePhotosArr(t));
-    l.meters.forEach(m => ensurePhotosArr(m));
+    // Auto-sync meter prev reading from nearest prior day if today's curr is still empty and prev wasn't manually overridden
+    let meterSynced = false;
+    (l.meters || []).forEach(m => {
+        ensurePhotosArr(m);
+        if ((m.curr === '' || m.curr == null) && !m.prevManual) {
+            const latestPrior = findLatestPriorMeterReading(site, m.id, m.name, dateStr, m.prev);
+            if (latestPrior !== '' && latestPrior != null && Number(latestPrior) !== Number(m.prev)) {
+                m.prev = latestPrior;
+                meterSynced = true;
+            }
+        }
+    });
+    if (meterSynced) saveState();
     site.issues.forEach(i => ensurePhotosArr(i));
     return l;
 }
@@ -2949,7 +3025,13 @@ function checkEndOfShiftReminder() {
     const now = new Date();
     const mins = now.getHours() * 60 + now.getMinutes();
     const todayStr = now.toISOString().split('T')[0];
-    const log = getDayLog(todayStr);
+    const site = getSite();
+    const log = site && site.logs ? site.logs[todayStr] : null;
+    if (!log) {
+        const banner = document.getElementById('endOfShiftBanner');
+        if (banner) banner.style.display = 'none';
+        return;
+    }
     const hasUnfinished = (log.tasks || []).some(t =>
         !t.status.includes('Completed') && !t.status.includes('Carried Over')
     );
@@ -3254,10 +3336,35 @@ function formatMsAsHrMin(ms) {
     return `${h}:${String(m).padStart(2, '0')} hr`;
 }
 
+function formatMsAsHrMinSec(ms) {
+    const totalSecs = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(totalSecs / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const s = totalSecs % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 function formatTime24FromMs(ms) {
     if (!ms) return '';
     const d = new Date(ms);
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function quickShiftTaskStartMins(tIdx, deltaMins) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t) return;
+    pushUndo('تعديل بداية المهمة السريع');
+    const curStartMs = hhmmToDateMs(t.fixedStartTime || '', state.activeDate) || t.startTimeMs || Date.now();
+    const dayStartMs = hhmmToDateMs('05:00', state.activeDate) || 0;
+    const newStartMs = Math.max(dayStartMs, curStartMs + deltaMins * 60000);
+    t.startTimeMs = newStartMs;
+    t.fixedStartTime = formatTime24FromMs(newStartMs);
+    saveState();
+    renderTasks(log);
+    renderAttendance(log);
+    checkTaskTimers();
+    showToast(`🕒 تم تعديل وقت البداية إلى ${t.fixedStartTime}`);
 }
 
 function toggleTaskIgnoreBreak(tIdx) {
@@ -3276,23 +3383,66 @@ function toggleTaskIgnoreBreak(tIdx) {
 }
 
 function toggleTaskPause(tIdx) {
-    pushUndo('إيقاف/استئناف مؤقت مهمة');
     const log = getDayLog();
     const t = log.tasks[tIdx];
     if (!t) return;
     const now = Date.now();
     if (!t.startTimeMs) t.startTimeMs = hhmmToDateMs(t.fixedStartTime || '08:00', state.activeDate) || now;
     if (t.pausedAtMs) {
+        pushUndo('استئناف مؤقت مهمة');
         const rawGap = Math.max(0, now - t.pausedAtMs);
         const brkOv = t.ignoreBreak ? 0 : getBreakOverlapMs(t.pausedAtMs, now, state.activeDate);
+        const netPauseMins = Math.round(Math.max(0, rawGap - brkOv) / 60000);
         t.pausedTotalMs = (t.pausedTotalMs || 0) + Math.max(0, rawGap - brkOv);
+        const pFromStr = formatTime24FromMs(t.pausedAtMs);
+        const pToStr = formatTime24FromMs(now);
+        const reason = t.pauseReason || '';
         t.pausedAtMs = null;
+        t.pauseReason = '';
+        if (reason && netPauseMins >= 1) {
+            const formalEntry = `توقف مؤقت (${pFromStr}-${pToStr} - ${reason})`;
+            t.note = t.note ? `${t.note} | ${formalEntry}` : formalEntry;
+        }
+        saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
         showToast('▶️ تم استئناف العمل والمؤقت');
     } else {
-        t.pausedAtMs = now;
-        showToast('⏸️ تم إيقاف المؤقت مؤقتاً');
+        openPauseReasonModal(tIdx);
     }
+}
+
+function openPauseReasonModal(tIdx) {
+    const t = getDayLog().tasks[tIdx];
+    if (!t) return;
+    const reasons = [
+        { lbl: '⚡ انقطاع الكهرباء', val: 'انقطاع التيار الكهربائي' },
+        { lbl: '🔧 كسر أو تسريب أنبوب', val: 'إصلاح كسر أو تسريب في أنبوب الري' },
+        { lbl: '☕ استراحة عمل', val: 'استراحة مؤقتة' },
+        { lbl: '👷 تبديل أو إسناد عمال', val: 'تبديل الكادر أو إسناد منطقة أخرى' },
+        { lbl: '🚚 انتظار تنكر / مواد', val: 'انتظار وصول المياه أو المواد' }
+    ];
+    openModal(`
+        <h3 class="card-title">⏸️ سبب التوقف المؤقت (${esc(t.zones)})</h3>
+        <p style="font-size:11.5px;color:var(--muted);margin-top:0;">اختر سبب التوقف لتوثيقه تلقائياً بالملاحظات عند الاستئناف (أو أوقف بدون سبب):</p>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+            ${reasons.map(r => `<button class="btn btn-outline" style="justify-content:flex-start;" onclick="confirmTaskPauseWithReason(${tIdx}, '${esc(r.val)}')">${r.lbl}</button>`).join('')}
+            <button class="btn btn-orange" onclick="confirmTaskPauseWithReason(${tIdx}, '')">⏸️ إيقاف مؤقت بدون ذكر سبب</button>
+        </div>
+        <button class="btn btn-outline btn-full" onclick="closeModal()">إلغاء</button>
+    `);
+}
+
+function confirmTaskPauseWithReason(tIdx, reasonText) {
+    pushUndo('إيقاف مؤقت لمهمة');
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t) return;
+    const now = Date.now();
+    if (!t.startTimeMs) t.startTimeMs = hhmmToDateMs(t.fixedStartTime || '08:00', state.activeDate) || now;
+    t.pausedAtMs = now;
+    t.pauseReason = reasonText || '';
+    closeModal();
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
+    showToast(reasonText ? `⏸️ تم إيقاف المؤقت (${reasonText})` : '⏸️ تم إيقاف المؤقت مؤقتاً');
 }
 
 function toggleSectionCollapse(bodyId, icoId) {
@@ -3336,7 +3486,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V16.6: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V16.7: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function addTaskEventLog(t, iconAndLabel, customTimeStr = null) {
     if (!Array.isArray(t.events)) t.events = [];
     const now = new Date();
@@ -3351,19 +3501,92 @@ function isTaskPassiveIrrigation(t) {
     return d.includes('drip') || d.includes('sprinkler');
 }
 
+function getTaskLiveProgressMeta(t, now = Date.now()) {
+    const netMs = getTaskNetElapsedMs(t, now);
+    const targetMins = parseDurationToMins(t.dur) || 60;
+    const targetMs = targetMins * 60000;
+    const isIrr = !!(t.task && t.task.includes('Irrigation'));
+    const isActivelyRunning = !!(t.status && t.status.includes('Progress') && !t.stoppedForToday && !t.fixedEndTime && !t.pausedAtMs && !isTaskCappedByShiftEnd(t, now));
+    const pct = targetMs > 0 ? Math.min(100, Math.round((netMs / targetMs) * 100)) : 0;
+    const remMs = targetMs - netMs;
+    const remMins = Math.ceil(remMs / 60000);
+    let barColor = '#16a34a';
+    let statusBadge = '';
+    if (isIrr) {
+        if (remMs <= 0) {
+            barColor = '#dc2626';
+            const overSecs = Math.floor(Math.abs(remMs) / 1000);
+            const om = Math.floor(overSecs / 60);
+            const os = overSecs % 60;
+            statusBadge = `تجاوز بـ ${om}:${String(os).padStart(2, '0')}`;
+        } else if (remMs <= 5 * 60000) {
+            barColor = '#d97706';
+            const rm = Math.floor(remMs / 60000);
+            const rs = Math.floor((remMs % 60000) / 1000);
+            statusBadge = `متبقي ${rm}:${String(rs).padStart(2, '0')} د`;
+        } else {
+            const rm = Math.floor(remMs / 60000);
+            const rs = Math.floor((remMs % 60000) / 1000);
+            statusBadge = `متبقي ${rm}:${String(rs).padStart(2, '0')} د`;
+        }
+    } else {
+        barColor = '#0284c7';
+    }
+    return { netMs, targetMs, targetMins, isIrr, isActivelyRunning, pct, remMs, remMins, barColor, statusBadge };
+}
+
 function formatTaskLiveTimerLabel(t, now = Date.now()) {
-    const netStr = formatMsAsHrMin(getTaskNetElapsedMs(t, now));
-    if (t.stoppedForToday) return `⏹️ توقف بنهاية الدوام — تبقى جاري (${t.fixedStartTime || '08:00'} – ${t.fixedEndTime || ''} | ${netStr})`;
-    if (t.fixedEndTime) return `⏱️ مثبت: ${netStr} (${t.fixedStartTime || '08:00'} – ${t.fixedEndTime})`;
-    if (t.pausedAtMs) return `⏸️ متوقف مؤقتاً (${netStr})`;
-    if (isTaskCappedByShiftEnd(t, now)) return `⏱️ محسوب لغاية نهاية الدوام (${netStr})`;
-    if (isNowInDailyBreak(now) && !t.ignoreBreak) return `☕ استراحة الظهر (${netStr})`;
-    return `⏱️ مستمر الآن: ${netStr}`;
+    const meta = getTaskLiveProgressMeta(t, now);
+    const hmStr = formatMsAsHrMin(meta.netMs);
+    const hmsStr = formatMsAsHrMinSec(meta.netMs);
+    if (t.stoppedForToday) return `⏹️ توقف بنهاية الدوام — تبقى جاري (${t.fixedStartTime || '08:00'} – ${t.fixedEndTime || ''} | ${hmStr})`;
+    if (t.fixedEndTime) return `⏱️ مثبت: ${hmStr} (${t.fixedStartTime || '08:00'} – ${t.fixedEndTime})`;
+    if (t.pausedAtMs) return `⏸️ متوقف مؤقتاً (${hmStr})${t.pauseReason ? ' — ' + t.pauseReason : ''}`;
+    if (isTaskCappedByShiftEnd(t, now)) return `⏱️ محسوب لغاية نهاية الدوام (${hmStr})`;
+    if (isNowInDailyBreak(now) && !t.ignoreBreak) return `☕ استراحة الظهر (${hmStr})`;
+    return `⏱️ ${hmsStr}${meta.statusBadge ? ' • ' + meta.statusBadge : ''}`;
+}
+
+function updateStickyMiniTimerBar(log, now = Date.now()) {
+    const bar = document.getElementById('stickyMiniTimerBar');
+    if (!bar) return;
+    if (state.activeTab === 'tasks') {
+        bar.classList.remove('show');
+        return;
+    }
+    const running = (log.tasks || [])
+        .map((t, idx) => ({ t, idx }))
+        .filter(x => x.t.status && x.t.status.includes('Progress') && !x.t.stoppedForToday && !x.t.fixedEndTime);
+    if (!running.length) {
+        bar.classList.remove('show');
+        return;
+    }
+    const first = running[0];
+    const meta = getTaskLiveProgressMeta(first.t, now);
+    const extraTxt = running.length > 1 ? ` (+${running.length - 1})` : '';
+    const timeTxt = first.t.pausedAtMs
+        ? `⏸️ متوقف (${formatMsAsHrMin(meta.netMs)})`
+        : `${formatMsAsHrMinSec(meta.netMs)}${meta.statusBadge ? ' • ' + meta.statusBadge : ''}`;
+    bar.style.background = (meta.isIrr && meta.remMs <= 0)
+        ? 'linear-gradient(135deg,#b91c1c,#dc2626)'
+        : ((meta.isIrr && meta.remMs <= 5 * 60000) ? 'linear-gradient(135deg,#b45309,#d97706)' : 'linear-gradient(135deg,#0369a1,#0284c7)');
+    bar.innerHTML = `
+        <div style="flex:1;cursor:pointer;min-width:150px;" onclick="switchTab('tasks');setTimeout(()=>scrollToTaskCard(${first.idx}),60)">
+            🔵 <b>${esc(first.t.zones)}</b>${extraTxt} — <span>${esc(timeTxt)}</span>
+        </div>
+        <div style="display:flex;gap:4px;">
+            <button class="btn btn-sm" style="background:rgba(255,255,255,0.22);color:white;padding:3px 7px;" onclick="switchTab('tasks');setTimeout(()=>scrollToTaskCard(${first.idx}),60)">فتح ↗️</button>
+            <button class="btn btn-sm" style="background:#16a34a;color:white;padding:3px 7px;" onclick="setTaskStatus(${first.idx}, 'Completed / مكتمل')">✓ إكمال</button>
+        </div>
+    `;
+    bar.classList.add('show');
 }
 
 function updateLiveTimersDomOnly() {
     updateLiveShiftClockDom();
-    const log = getDayLog();
+    const site = getSite();
+    const log = site && site.logs ? site.logs[state.activeDate] : null;
+    if (!log) return;
     const now = Date.now();
     document.querySelectorAll('[data-live-task-id]').forEach(el => {
         const tid = el.getAttribute('data-live-task-id');
@@ -3372,8 +3595,18 @@ function updateLiveTimersDomOnly() {
             el.textContent = formatTaskLiveTimerLabel(t, now);
         }
     });
+    document.querySelectorAll('[data-live-prog-id]').forEach(el => {
+        const tid = el.getAttribute('data-live-prog-id');
+        const t = log.tasks.find(x => x.id === tid);
+        if (t && t.status.includes('Progress')) {
+            const meta = getTaskLiveProgressMeta(t, now);
+            el.style.width = `${meta.pct}%`;
+            el.style.backgroundColor = meta.barColor;
+        }
+    });
+    updateStickyMiniTimerBar(log, now);
 }
-setInterval(updateLiveTimersDomOnly, 15000);
+setInterval(updateLiveTimersDomOnly, 1000);
 
 /* ================= Worker Task Hours Calculation & Breakdown Engine ================= */
 function parseDurationToMins(durStr) {
@@ -3982,7 +4215,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V16.6: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V16.7: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function syncTaskCompletionAndLiveClockOnDurChange(t, newMins) {
     if (!t || !newMins || newMins <= 0) return;
     const targetNetMs = newMins * 60000;
@@ -4759,38 +4992,83 @@ function applySpellAndDictationGuard(rawText) {
 }
 
 /* ================= Timer Alert Bar ================= */
+const _firedTimerPreAlerts = new Set();
+const _firedTimerEndAlerts = new Set();
+
+function triggerGentleVibrate(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch {}
+}
+
 function checkTaskTimers() {
-    const log = getDayLog();
+    const site = getSite();
+    const log = site && site.logs ? site.logs[state.activeDate] : null;
+    if (!log) return;
     const expiredList = [];
+    const soonList = [];
     const nowMs = Date.now();
 
-    log.tasks.forEach((t, idx) => {
+    (log.tasks || []).forEach((t, idx) => {
         const isIrr = (t.task || '').includes('Irrigation');
         if (isIrr && t.status.includes('Progress') && t.startTimeMs && !t.pausedAtMs && !t.stoppedForToday && !t.fixedEndTime && !t.timerFrozen && !isTaskCappedByShiftEnd(t, nowMs) && !(isNowInDailyBreak(nowMs) && !t.ignoreBreak)) {
             const elapMins = getTaskNetElapsedMs(t, nowMs) / 60000;
             const targetMins = parseDurationToMins(t.dur) || 60;
-            if (elapMins >= targetMins) {
-                const overMins = Math.floor(elapMins - targetMins);
+            const remMins = targetMins - elapMins;
+            const alertKey = `${state.activeDate}_${t.id}`;
+            if (remMins <= 0) {
+                const overMins = Math.floor(Math.abs(remMins));
                 expiredList.push({
                     idx,
-                    isIrr: true,
                     text: `🚰 انتهى وقت ري (${t.zones}) منذ ${overMins} دقيقة — أغلق الصمام!`
                 });
+                if (!_firedTimerEndAlerts.has(alertKey)) {
+                    _firedTimerEndAlerts.add(alertKey);
+                    playGentleChime();
+                    triggerGentleVibrate([250, 100, 250]);
+                    sendSystemBrowserNotice(`🚰 انتهى وقت ري (${t.zones})`, 'يرجى إغلاق الصمام وإكمال المهمة.');
+                }
+            } else if (remMins <= 5 && targetMins > 5) {
+                const rCeil = Math.ceil(remMins);
+                soonList.push({
+                    idx,
+                    text: `⏳ بقيت ${rCeil} دقائق على انتهاء ري (${t.zones})`
+                });
+                if (!_firedTimerPreAlerts.has(alertKey)) {
+                    _firedTimerPreAlerts.add(alertKey);
+                    playGentleChime();
+                    triggerGentleVibrate([120, 70, 120]);
+                    showToast(`⏳ تنبيه: بقيت ${rCeil} دقائق على انتهاء ري (${t.zones})`);
+                }
             }
         }
     });
 
     const bar = document.getElementById('timerAlertBar');
-    if (expiredList.length > 0 && bar) {
-        const first = expiredList[0];
-        const btnLabel = first.isIrr ? '🚰 إغلاق الصمام' : '✅ إكمال المهمة';
-        bar.innerHTML = `<div style="flex:1;">${expiredList.map(x => esc(x.text)).join('<br>')}</div><button class="btn btn-outline btn-sm" style="color:var(--red);white-space:nowrap;" onclick="switchTab('tasks');scrollToTaskCard(${first.idx})">${btnLabel}</button>`;
-        bar.classList.add('show');
-    } else if (bar) {
-        bar.classList.remove('show');
+    if (bar) {
+        if (expiredList.length > 0) {
+            const first = expiredList[0];
+            bar.style.background = '#fef2f2';
+            bar.style.borderBottomColor = '#ef4444';
+            bar.style.color = '#991b1b';
+            bar.innerHTML = `<div style="flex:1;">${expiredList.map(x => esc(x.text)).join('<br>')}</div>
+                <div style="display:flex;gap:4px;">
+                    <button class="btn btn-green btn-sm" style="white-space:nowrap;" onclick="setTaskStatus(${first.idx}, 'Completed / مكتمل')">✓ أغلق الصمام وأكمل</button>
+                    <button class="btn btn-outline btn-sm" style="color:var(--red);white-space:nowrap;" onclick="switchTab('tasks');scrollToTaskCard(${first.idx})">عرض</button>
+                </div>`;
+            bar.classList.add('show');
+        } else if (soonList.length > 0) {
+            const first = soonList[0];
+            bar.style.background = '#fffbeb';
+            bar.style.borderBottomColor = '#f59e0b';
+            bar.style.color = '#92400e';
+            bar.innerHTML = `<div style="flex:1;">${soonList.map(x => esc(x.text)).join('<br>')}</div>
+                <button class="btn btn-outline btn-sm" style="color:#92400e;white-space:nowrap;" onclick="switchTab('tasks');scrollToTaskCard(${first.idx})">فتح ↗️</button>`;
+            bar.classList.add('show');
+        } else {
+            bar.classList.remove('show');
+        }
     }
 }
-setInterval(checkTaskTimers, 60000);
+setInterval(checkTaskTimers, 15000);
 
 /* ================= Auto-Sync Irrigated Zones & Hours ================= */
 function syncIrrigatedZonesFromTasks(force = false) {
@@ -4884,22 +5162,35 @@ function switchTab(tabId) {
     document.body.classList.toggle('alpha-pad', tabId === 'inv' && activeInvZoneId !== null);
     if (tabId === 'tools') renderReadingsAndTools(getDayLog());
     if (tabId === 'tasks') { renderTasks(getDayLog()); checkTaskTimers(); }
+    updateStickyMiniTimerBar(getDayLog());
     setTimeout(triggerAllAutoGrows, 20);
 }
 
 function onDateChange(val) { if (!val) return; state.activeDate = val; getDayLog(val); saveState(); renderAll(); }
 function onDflNumChange(val) {
-    const n = parseInt(val);
+    const n = parseInt(val, 10);
     if (!isNaN(n) && n > 0) {
         pushUndo('تعديل رقم DFL');
         const site = getSite();
-        const activeUserKey = (state.company.currentUser || state.company.teamLead || 'Default').trim();
-        if (!site.dflSequences) site.dflSequences = {};
-        getDayLog().dflNum = n;
-        site.dflSequences[activeUserKey] = n + 1;
-        site.nextDfl = Math.max(site.nextDfl || 1, n + 1);
+        const curLog = getDayLog();
+        curLog.dflNum = n;
+        curLog.dflManual = true;
+        let nextNum = n + 1;
+        const futureDates = Object.keys(site.logs || {}).filter(d => d > state.activeDate).sort();
+        for (const fd of futureDates) {
+            const fl = site.logs[fd];
+            if (!fl) continue;
+            if (fl.dflManual) {
+                nextNum = (parseInt(fl.dflNum, 10) || nextNum) + 1;
+                continue;
+            }
+            fl.dflNum = nextNum;
+            nextNum++;
+        }
+        site.nextDfl = nextNum;
         saveState();
-        showToast(`🔢 تم تثبيت تسلسل DFL لـ (${activeUserKey}) ليكمل من ${n + 1}`);
+        renderExportAndIssues(site, curLog);
+        showToast(`🔢 تم اعتماد DFL-${n} وتحديث التسلسل القادم تلقائياً (${n + 1})`);
     }
 }
 function onSiteSelectChange(val) {
@@ -4908,13 +5199,36 @@ function onSiteSelectChange(val) {
     showToast('📍 تم التبديل إلى: ' + getSite().name);
 }
 
+function promptRenumberArchiveDfl() {
+    const site = getSite();
+    const datesAsc = Object.keys(site.logs || {}).sort();
+    if (!datesAsc.length) return;
+    const firstDfl = parseInt(site.logs[datesAsc[0]].dflNum, 10) || 1;
+    const inp = prompt(`إعادة ترقيم جميع أيام الأرشيف (${datesAsc.length} أيام) تصاعدياً.\nأدخل رقم DFL لأقدم تاريخ (${datesAsc[0]}):`, String(firstDfl));
+    if (inp === null) return;
+    const startNum = parseInt(inp, 10);
+    if (isNaN(startNum) || startNum <= 0) { showToast('⚠️ أدخل رقماً صحيحاً أكبر من 0'); return; }
+    pushUndo('إعادة ترقيم أرشيف DFL');
+    let cur = startNum;
+    datesAsc.forEach(d => {
+        site.logs[d].dflNum = cur;
+        site.logs[d].dflManual = false;
+        cur++;
+    });
+    site.nextDfl = cur;
+    saveState();
+    renderAll();
+    openFullArchiveModal();
+    showToast(`🔢 تم إعادة ترقيم ${datesAsc.length} أيام بنجاح (من DFL-${startNum} إلى DFL-${cur - 1})`);
+}
+
 /* ================= Full Archive Modal ================= */
 function openFullArchiveModal() {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
     openModal(`
         <h3 class="card-title">📅 أرشيف أيام (${esc(site.name.split('/')[0])})</h3>
-        <div style="max-height:320px;overflow-y:auto;margin-bottom:10px;">
+        <div style="max-height:300px;overflow-y:auto;margin-bottom:10px;">
             ${allDates.map(d => {
                 const dl = site.logs[d];
                 const pres = (dl.attendance || []).filter(w => !w.status.includes('Absent')).length;
@@ -4929,6 +5243,7 @@ function openFullArchiveModal() {
                 </div>`;
             }).join('')}
         </div>
+        <button class="btn btn-orange btn-full" style="margin-bottom:7px;padding:9px;font-size:12.5px;" onclick="promptRenumberArchiveDfl()">🔢 إعادة ترقيم تسلسل DFL للأرشيف</button>
         <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
     `);
 }
@@ -5618,18 +5933,34 @@ function renderTasks(log) {
                 ${manualOtNum > 0 ? `<span class="badge" style="background:#ede9fe;color:#5b21b6;">OT +${manualOtNum}h</span>` : ''}
             </div>
 
-            ${isProg ? `
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:6px;">
-                <span class="live-timer-pill ${t.stoppedForToday || t.fixedEndTime || t.pausedAtMs || isTaskCappedByShiftEnd(t) ? 'is-paused' : ''}" onclick="openTaskTimeControlModal(${idx})">
-                    <span data-live-task-id="${t.id}">${formatTaskLiveTimerLabel(t)}</span>
-                </span>
-                <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                    <button type="button" class="btn ${t.stoppedForToday ? 'btn-blue' : 'btn-orange'} btn-sm" style="padding:3px 8px;font-size:11px;" onclick="toggleTaskStoppedForToday(${idx})" title="إيقاف العمل لنهاية الدوام مع بقاء المهمة جاري وحساب ساعات العمال">
-                        ${t.stoppedForToday ? '▶️ استكمال العمل' : '⏹️ انتهى وقت العمل (تبقى جاري)'}
-                    </button>
-                    ${!t.stoppedForToday ? `<button type="button" class="btn btn-outline btn-sm" style="padding:3px 7px;font-size:11px;" onclick="toggleTaskPause(${idx})">${t.pausedAtMs ? '▶️ استئناف' : '⏸️ توقف مؤقت'}</button>` : ''}
+            ${isProg ? (() => {
+                const lMeta = getTaskLiveProgressMeta(t);
+                const isLiveOpen = !t.stoppedForToday && !t.fixedEndTime;
+                return `
+            <div style="margin-bottom:6px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:5px;flex-wrap:wrap;">
+                    <span class="live-timer-pill ${t.stoppedForToday || t.fixedEndTime || t.pausedAtMs || isTaskCappedByShiftEnd(t) ? 'is-paused' : ''}" onclick="openTaskTimeControlModal(${idx})">
+                        <span data-live-task-id="${t.id}">${formatTaskLiveTimerLabel(t)}</span>
+                    </span>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                        <button type="button" class="btn ${t.stoppedForToday ? 'btn-blue' : 'btn-orange'} btn-sm" style="padding:3px 8px;font-size:11px;" onclick="toggleTaskStoppedForToday(${idx})" title="إيقاف العمل لنهاية الدوام مع بقاء المهمة جاري وحساب ساعات العمال">
+                            ${t.stoppedForToday ? '▶️ استكمال العمل' : '⏹️ انتهى وقت العمل (تبقى جاري)'}
+                        </button>
+                        ${!t.stoppedForToday ? `<button type="button" class="btn btn-outline btn-sm" style="padding:3px 7px;font-size:11px;" onclick="toggleTaskPause(${idx})">${t.pausedAtMs ? '▶️ استئناف' : '⏸️ توقف مؤقت'}</button>` : ''}
+                    </div>
                 </div>
-            </div>` : ''}
+                ${isLiveOpen ? `
+                <div class="live-progress-wrap">
+                    <div class="live-progress-bar" data-live-prog-id="${t.id}" style="width:${lMeta.pct}%;background-color:${lMeta.barColor};"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:3px;">
+                    <span style="font-size:10px;color:var(--muted);font-weight:bold;">بدأت قبل:</span>
+                    <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:white;" onclick="quickShiftTaskStartMins(${idx}, -15)">-15 د</span>
+                    <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:white;" onclick="quickShiftTaskStartMins(${idx}, -30)">-30 د</span>
+                    <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:white;" onclick="quickShiftTaskStartMins(${idx}, -60)">-1 س</span>
+                </div>` : ''}
+            </div>`;
+            })() : ''}
 
             <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:4px;">
                 <span class="chip" onclick="openTaskTimeControlModal(${idx})" style="background:#e0f2fe;color:#0369a1;border-color:#7dd3fc;">👷 ${(t.workers && t.workers.length) ? `العمال (${t.workers.includes('Team') ? 'Team' : t.workers.length})` : '+ عمال'}</span>
@@ -6280,7 +6611,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V16.6: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V16.7: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -6597,9 +6928,10 @@ function renderReadingsAndTools(log) {
         <div class="meter-card ${isFaulty ? 'faulty' : ''}">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:4px;flex-wrap:wrap;">
                 <b style="font-size:13px;" onclick="renameMeter(${idx})">${esc(m.name)} ✏️</b>
-                <div style="display:flex;gap:3px;">
+                <div style="display:flex;gap:3px;flex-wrap:wrap;">
                     <button class="btn btn-sm ${!isFaulty ? 'btn-green' : 'btn-outline'}" onclick="setMeterStatus(${idx},'working')">شغال</button>
                     <button class="btn btn-sm ${isFaulty ? 'btn-red' : 'btn-outline'}" onclick="setMeterStatus(${idx},'faulty')">عاطل</button>
+                    <button class="btn btn-sm btn-outline" onclick="pullPrevMeterReading(${idx})" title="جلب آخر قراءة سابقة من الأرشيف">🔄 الأمس</button>
                     <button class="btn btn-sm btn-blue" onclick="openPhotoSourceChoice('meter', ${idx})">📸 (${mPhotos.length})</button>
                     <button class="btn btn-sm btn-outline" onclick="clearMeterReading(${idx})" title="مسح القراءة">🧹</button>
                     <button class="btn btn-sm btn-outline" style="color:var(--red);" onclick="deleteMeter(${idx})" title="حذف">🗑️</button>
@@ -6607,8 +6939,8 @@ function renderReadingsAndTools(log) {
             </div>
             ${!isFaulty ? `
             <div class="grid-2" style="font-size:12px;">
-                <div><label class="lbl">السابق:</label><input type="number" class="inp" style="margin:0;padding:6px;" value="${esc(m.prev)}" onchange="updateMeterField(${idx},'prev',this.value)"></div>
-                <div><label class="lbl" style="${isNegUsage ? 'color:var(--red);' : ''}">الحالي (الاستهلاك: ${usage} m³${isNegUsage ? ' ⚠️' : ''}):</label><input type="number" class="inp" style="margin:0;padding:6px;${isNegUsage ? 'border-color:var(--red);background:#fef2f2;' : ''}" value="${esc(m.curr)}" onchange="updateMeterField(${idx},'curr',this.value)"></div>
+                <div><label class="lbl">السابق:</label><input type="number" step="any" class="inp" style="margin:0;padding:6px;" value="${esc(m.prev)}" onchange="updateMeterField(${idx},'prev',this.value)"></div>
+                <div><label class="lbl" style="${isNegUsage ? 'color:var(--red);' : ''}">الحالي (الاستهلاك: ${usage} m³${isNegUsage ? ' ⚠️' : ''}):</label><input type="number" step="any" class="inp" style="margin:0;padding:6px;${isNegUsage ? 'border-color:var(--red);background:#fef2f2;' : ''}" value="${esc(m.curr)}" onchange="updateMeterField(${idx},'curr',this.value)"></div>
             </div>` : `
             <input class="inp" style="margin:0;background:white;font-size:12px;" value="${esc(m.note)}" placeholder="وصف عطل العداد..." onchange="updateMeterField(${idx},'note',this.value)">`}
             ${mPhotos.length > 0 ? `
@@ -6690,24 +7022,46 @@ function setMeterStatus(idx, st) {
     logSectionHistory('tools', 'meter', `حالة عداد ${m.name}: ${st === 'working' ? 'شغال' : 'عاطل'}`, { meterId: m.id });
     saveState(); renderReadingsAndTools(getDayLog());
 }
+function pullPrevMeterReading(idx) {
+    const site = getSite();
+    const log = getDayLog();
+    const m = log.meters[idx];
+    if (!m) return;
+    const found = findLatestPriorMeterReading(site, m.id, m.name, state.activeDate, '');
+    if (found === '' || found == null) {
+        showToast('⚠️ لا توجد قراءة سابقة مسجّلة لهذا العداد بالأرشيف');
+        return;
+    }
+    pushUndo('جلب قراءة سابقة للعداد');
+    m.prev = found;
+    m.prevManual = false;
+    saveState();
+    renderReadingsAndTools(log);
+    showToast(`🔄 تم جلب آخر قراءة سابقة (${found}) لعداد ${m.name}`);
+}
+
 function updateMeterField(idx, k, v) {
     pushUndo('تحديث قراءة عداد');
     const site = getSite();
-    const m = getDayLog().meters[idx];
+    const log = getDayLog();
+    const m = log.meters[idx];
+    if (!m) return;
     m[k] = v;
-    const latestDate = Object.keys(site.logs || {}).sort().pop() || state.activeDate;
-    if (k === 'curr' && v !== '') {
+    if (k === 'prev') {
+        m.prevManual = true;
+    } else if (k === 'curr') {
         const numV = parseFloat(v);
         const numPrev = parseFloat(m.prev || 0);
-        if (!isNaN(numV) && numV < numPrev) {
-            showToast(`⚠️ تنبيه: القراءة الحالية (${numV}) أصغر من القراءة السابقة (${numPrev})!`);
+        if (v !== '' && !isNaN(numV)) {
+            if (numV < numPrev) {
+                showToast(`⚠️ تنبيه: القراءة الحالية (${numV}) أصغر من القراءة السابقة (${numPrev})!`);
+            }
+            propagateMeterReadingForward(site, m.id, m.name, state.activeDate, numV);
         }
-        if (site.meters[idx] && state.activeDate >= latestDate) {
-            site.meters[idx].lastReading = numV;
-        }
+        syncSiteMeterLastReading(site, m.id, m.name);
     }
     logSectionHistory('tools', 'meter', `قراءة ${m.name}: ${v}`, { meterId: m.id });
-    saveState(); renderReadingsAndTools(getDayLog());
+    saveState(); renderReadingsAndTools(log);
 }
 function clearMeterReading(idx) { pushUndo('مسح قراءة عداد'); getDayLog().meters[idx].curr = ''; getDayLog().meters[idx].photos = []; saveState(); renderReadingsAndTools(getDayLog()); showToast('🧹 تم مسح قراءة العداد'); }
 function renameMeter(idx) {
@@ -8572,7 +8926,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.6) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.7) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -9176,7 +9530,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.6 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.7 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
