@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V17.1</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V17.2</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,9 +42,13 @@
         .dfl-box { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; }
         .dfl-num { background: white; color: var(--primary-dark); border: none; border-radius: 5px; width: 48px; padding: 3px 4px; font-weight: bold; text-align: center; font-size: 13px; }
 
-        /* V17.1: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
+        /* V17.2: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
         .note-item-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-right: 3px solid var(--blue); border-radius: 7px; padding: 5px 8px; margin-bottom: 4px; font-size: 12px; line-height: 1.45; }
         .note-item-card.is-blocked-note { background: #fff5f5; border-color: #fecaca; border-right-color: var(--red); color: #7f1d1d; font-weight: 600; }
+        .note-item-card.is-zone-note { background: #f5f3ff; border-color: #ddd6fe; border-right-color: var(--purple); }
+        .zone-note-tag { display: inline-block; background: var(--purple); color: white; font-size: 10px; font-weight: bold; padding: 1px 6px; border-radius: 5px; margin-left: 5px; white-space: nowrap; }
+        .scope-tab-btn { flex: 0 0 auto; padding: 5px 10px; border-radius: 99px; border: 1.5px solid var(--border); background: white; font-size: 11.5px; font-weight: bold; color: var(--text); cursor: pointer; white-space: nowrap; }
+        .scope-tab-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
         .zone-group-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 8px; margin-bottom: 6px; }
         .zone-group-head { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; font-weight: bold; color: var(--muted); margin-bottom: 4px; }
         .an-tab-bar { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 8px; }
@@ -56,7 +60,7 @@
         .att-pill.st-half { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
         .att-pill.st-ot { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
 
-        /* V17.1: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
+        /* V17.2: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
         .slim-act-bar {
             display: flex; align-items: center; justify-content: space-between; gap: 6px;
             background: #ffffff; border: 1px solid #cbd5e1; border-right: 4px solid var(--blue);
@@ -281,7 +285,7 @@
                 <button class="icon-btn" onclick="openActivityLogModal('all')" title="سجل آخر الحركات والحماية من الأخطاء">📜</button>
                 <button class="icon-btn" onclick="openAnalyticsCenterModal('blind','7d')" title="مركز الإحصائيات والتحليل الذكي">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V17.1 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V17.2 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -602,7 +606,7 @@
                 </div>
             </div>
 
-            <!-- V17.1: Clean 3-Step Day-Closing & Export Hub -->
+            <!-- V17.2: Clean 3-Step Day-Closing & Export Hub -->
             <div class="card" style="border-top:4px solid var(--primary);">
                 <div class="card-head" style="margin-bottom:8px;">
                     <h3 class="card-title">📤 مركز إقفال وتصدير اليوم</h3>
@@ -927,7 +931,7 @@ let state = {
 
 
 
-/* ================= V17.1: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V17.2: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -1049,7 +1053,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V17.1: Task Presets Manager ================= */
+/* ================= V17.2: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1139,7 +1143,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V17.1: DFL Readiness Progress Bar ================= */
+/* ================= V17.2: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1179,7 +1183,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V17.1: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
+/* ================= V17.2: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
 let _anState = { tab: 'blind', period: '7d', fromDate: '', toDate: '' };
 
 function getAnalyticsDateRange(site, period, customFrom = '', customTo = '') {
@@ -2401,7 +2405,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V17.1: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
+/* ================= V17.2: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
 function computeLogExportSignature(log, site = getSite(), dateStr = state.activeDate) {
     if (!log) return '';
     try {
@@ -2417,7 +2421,7 @@ function computeLogExportSignature(log, site = getSite(), dateStr = state.active
             dfl: log.dflNum,
             wx: log.weather || {},
             att: (log.attendance || []).map(w => [w.name, w.type, w.status, w.tIn, w.tOut, w.ot, w.note]),
-            tasks: (log.tasks || []).map(t => [t.task, t.desc, t.zones, t.dur, t.fixedStartTime, t.fixedEndTime, t.status, t.workers, t.note, t.tankerLiters, t.syncWithPrev, (t.photos || []).length]),
+            tasks: (log.tasks || []).map(t => [t.task, t.desc, t.zones, t.dur, t.fixedStartTime, t.fixedEndTime, t.status, t.workers, t.note, t.zoneNotes || {}, t.tankerLiters, t.syncWithPrev, (t.photos || []).length]),
             tools: log.tools || [],
             moist: log.moisture || [],
             meters: (log.meters || []).map(m => [m.name, m.status, m.prev, m.curr, m.visual, m.note, (m.photos || []).length]),
@@ -2694,7 +2698,7 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
                     startTime: stTime,
                     wCount,
                     status: t.status.includes('Carried Over') ? 'Not Started / لم يبدأ' : t.status,
-                    note: (t.note || ''),
+                    note: getTaskNoteForZone(t, z),
                     wStr,
                     pRef: zIdx === 0 ? (taskPhotoRefs[tIdx] || '') : '',
                     pLinks: zIdx === 0 ? (taskPhotoLinks[tIdx] || []) : [],
@@ -2843,7 +2847,7 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
                         if (savedFont) cObj.font = JSON.parse(JSON.stringify(savedFont));
                         if (savedBorder) cObj.border = JSON.parse(JSON.stringify(savedBorder));
                     }
-                    setCellAlignSafe(ws.getCell(`${colL}${r1}`), { horizontal: 'center', vertical: 'center', wrapText: true });
+                    setCellAlignSafe(ws.getCell(`${colL}${r1}`), { horizontal: 'center', vertical: 'middle', wrapText: true });
                 }
             }
         });
@@ -3080,6 +3084,21 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
         if (ws.rowCount > finalLastRow) {
             ws.spliceRows(finalLastRow + 1, ws.rowCount - finalLastRow);
         }
+        // V17.2: Center ALL text horizontally & vertically (middle) across Daily Field Log safely (preserving colors/fills/borders!)
+        for (let rr = 1; rr <= finalLastRow; rr++) {
+            const rowObj = ws.getRow(rr);
+            for (let cc = 1; cc <= 12; cc++) {
+                const cell = rowObj.getCell(cc);
+                if (cell.isMerged && cell.master && cell.master !== cell) continue;
+                const hasContent = cell.value !== null && cell.value !== undefined && cell.value !== '';
+                if (hasContent || rr >= 5) {
+                    const prevAl = (cell.alignment && typeof cell.alignment === 'object') ? cell.alignment : {};
+                    if (prevAl.horizontal !== 'center' || prevAl.vertical !== 'middle' || !prevAl.wrapText) {
+                        setCellAlignSafe(cell, { ...prevAl, horizontal: 'center', vertical: 'middle', wrapText: true });
+                    }
+                }
+            }
+        }
         ws.pageSetup.printArea = `A1:L${finalLastRow}`;
 
         // Hide empty optional IR / SDL sheets so workbook stays super clean
@@ -3168,6 +3187,10 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
                     setCellFontSafe(irSig, { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } });
                 }
                 targetIrWs.getCell('B106').value = `Date  /  التاريخ: ${targetDate}`;
+                ['G5','D6','G6','D7','G7','D8','G8','D9','G9','D12','H12','D16','G16','D19','C23','G23','C31','D31','B39','D45','G46','C51','D68','C80','E80','F80','G80','B88','D88','F88','H88','B95','B97','B99','B104','C105','B106'].forEach(addr => {
+                    const c = targetIrWs.getCell(addr);
+                    if (c.value !== null && c.value !== undefined && c.value !== '') setCellAlignSafe(c, { horizontal: 'center', vertical: 'middle', wrapText: true });
+                });
             });
         }
 
@@ -3224,6 +3247,10 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
                     sdSig.value = state.company.textSignature;
                     setCellFontSafe(sdSig, { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } });
                 }
+                ['G5','D6','G6','D7','G7','D8','G8','G9','D11','G11','D15','D16','D17','D18','D19','B31','B33','B35','H47','D52','G52','D53','D54','G54','D55','G55','C60'].forEach(addr => {
+                    const c = targetSdlWs.getCell(addr);
+                    if (c.value !== null && c.value !== undefined && c.value !== '') setCellAlignSafe(c, { horizontal: 'center', vertical: 'middle', wrapText: true });
+                });
             });
         }
 
@@ -5427,7 +5454,7 @@ function applyCustomTime(targetType, targetIdx, targetInputId) {
     showToast('⏱️ تم ضبط الوقت: ' + formatted);
 }
 
-/* ================= V17.1: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
+/* ================= V17.2: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
 function pushUndo(actionLabel) {
     try {
         const snap = JSON.stringify(state);
@@ -5658,7 +5685,7 @@ function revertActivityEntry(aid) {
         ok = log.tasks.length < beforeLen;
     } else if (rv.type === 'task_notes') {
         const t = (log.tasks || []).find(x => x.id === rv.taskId);
-        if (t) { t.notesList = JSON.parse(JSON.stringify(rv.oldNotesList || [])); t.note = rv.oldNote || ''; ok = true; }
+        if (t) { t.notesList = JSON.parse(JSON.stringify(rv.oldNotesList || [])); t.note = rv.oldNote || ''; if (rv.oldZoneNotes !== undefined) t.zoneNotes = JSON.parse(JSON.stringify(rv.oldZoneNotes || {})); ok = true; }
     } else if (rv.type === 'task_zones') {
         const t = (log.tasks || []).find(x => x.id === rv.taskId);
         if (t) { t.zones = rv.oldZones; ok = true; }
@@ -6583,7 +6610,8 @@ function renderTasks(log) {
         if (taskStatusFilter === 'done' && !t.status.includes('Completed')) return false;
         if (taskStatusFilter === 'pending' && t.status.includes('Completed')) return false;
         if (!taskSearchQuery) return true;
-        const hay = `${t.task || ''} ${t.desc || ''} ${t.zones || ''} ${t.status || ''} ${t.note || ''} ${(t.workers || []).join(' ')}`.toLowerCase();
+        const zNotesStr = t.zoneNotes ? Object.entries(t.zoneNotes).map(([zk, arr]) => zk + ' ' + (arr || []).map(x => x.text).join(' ')).join(' ') : '';
+        const hay = `${t.task || ''} ${t.desc || ''} ${t.zones || ''} ${t.status || ''} ${t.note || ''} ${zNotesStr} ${(t.workers || []).join(' ')}`.toLowerCase();
         return hay.includes(taskSearchQuery);
     });
 
@@ -6800,22 +6828,36 @@ function renderTasks(log) {
 
             ${(() => {
                 const uNotes = getTaskUserNotes(t);
+                const zList = getTaskZonesArr(t);
+                const zEntries = getAllTaskZoneNoteEntries(t);
+                const totalNotesCnt = uNotes.length + zEntries.length;
                 const autoExtra = getTaskAutoOnlySummary(t);
-                const notesHtml = uNotes.map((nObj, nI) => `
+                const genHtml = uNotes.map((nObj, nI) => `
                     <div class="note-item-card ${isBlock ? 'is-blocked-note' : ''}">
                         <span style="flex:1;word-break:break-word;">📝 ${esc(nObj.text)}</span>
                         <div style="display:flex;gap:3px;flex-shrink:0;">
-                            <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;" onclick="editSingleTaskNote(${idx}, ${nI})" title="تعديل">✏️</button>
-                            <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${nI})" title="حذف">✕</button>
+                            <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;" onclick="editSingleTaskNote(${idx}, ${nI}, '__ALL__')" title="تعديل">✏️</button>
+                            <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${nI}, null, '__ALL__')" title="حذف">✕</button>
                         </div>
                     </div>`).join('');
+                const perZoneHtml = zEntries.map(item => `
+                    <div class="note-item-card is-zone-note">
+                        <span style="flex:1;word-break:break-word;"><span class="zone-note-tag">📍 ${esc(item.zone)}</span>${esc(item.text)}</span>
+                        <div style="display:flex;gap:3px;flex-shrink:0;">
+                            <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;" onclick="editSingleTaskNote(${idx}, ${item.nIdx}, '${esc(item.zone)}')" title="تعديل">✏️</button>
+                            <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${item.nIdx}, null, '${esc(item.zone)}')" title="حذف">✕</button>
+                        </div>
+                    </div>`).join('');
+                const notesHtml = genHtml + perZoneHtml;
+                const multiZoneHint = zList.length > 1 ? ' (عام أو لكل منطقة)' : '';
+
                 if (isBlock) {
                     return `
             <div class="block-drawer">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:4px;flex-wrap:wrap;">
-                    <label class="lbl" style="color:var(--red);margin:0;font-size:12px;">🛑 سبب التوقف والملاحظات (${uNotes.length}):</label>
+                    <label class="lbl" style="color:var(--red);margin:0;font-size:12px;">🛑 سبب التوقف والملاحظات (${totalNotesCnt}):</label>
                     <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                        <button class="btn btn-outline btn-sm" style="background:white;padding:2px 7px;font-size:10.5px;" onclick="openTaskNotesModal(${idx}, 'fault')">+ ملاحظة / محفوظة</button>
+                        <button class="btn btn-outline btn-sm" style="background:white;padding:2px 7px;font-size:10.5px;" onclick="openTaskNotesModal(${idx}, 'fault', '__ALL__')">+ ملاحظة${multiZoneHint}</button>
                         ${isIrr ? `<button class="btn btn-blue btn-sm" style="padding:2px 6px;font-size:10px;" onclick="createReplacementTankerTask(${idx})">🚚 تعويض تنكر</button>` : ''}
                         <button class="btn btn-red btn-sm" style="padding:2px 6px;font-size:10px;" onclick="escalateTaskToIssue(${idx})">🚨 تصعيد مشكلة</button>
                     </div>
@@ -6823,7 +6865,7 @@ function renderTasks(log) {
                 ${notesHtml || '<div style="font-size:11.5px;color:#b91c1c;margin-bottom:5px;">⚠️ اضغط على سبب سريع أو «+ ملاحظة» لتوثيق سبب التوقف</div>'}
                 ${autoExtra ? `<div style="font-size:10.5px;color:#475569;margin:3px 0;">⚙️ ${esc(autoExtra)}</div>` : ''}
                 <div style="margin-top:4px;">
-                    ${QUICK_NOTE_PHRASES.filter(q => q.cat === 'fault').map(q => `<span class="chip" style="background:white;" onclick="appendTaskNoteItem(${idx}, '${esc(q.text)}')">+ ${q.label}</span>`).join('')}
+                    ${QUICK_NOTE_PHRASES.filter(q => q.cat === 'fault').map(q => `<span class="chip" style="background:white;" onclick="appendTaskNoteItem(${idx}, '${esc(q.text)}', null, '__ALL__')">+ ${q.label}</span>`).join('')}
                 </div>
             </div>`;
                 }
@@ -6831,10 +6873,11 @@ function renderTasks(log) {
             <div style="margin-top:8px;">
                 ${notesHtml}
                 ${autoExtra ? `<div style="font-size:10.5px;color:var(--muted);background:#f8fafc;border:1px dashed #cbd5e1;border-radius:6px;padding:4px 7px;margin-bottom:5px;">⚙️ ${esc(autoExtra)}</div>` : ''}
-                <div style="display:flex;gap:5px;align-items:center;">
-                    <button type="button" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;background:white;padding:6px 8px;font-size:11.5px;color:var(--blue);border-color:#bae6fd;" onclick="openTaskNotesModal(${idx}, 'saved')">
-                        📝 ${uNotes.length ? `+ إضافة ملاحظة أخرى (${uNotes.length})` : '+ إضافة ملاحظة / ملاحظات محفوظة'}
+                <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">
+                    <button type="button" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;background:white;padding:6px 8px;font-size:11.5px;color:var(--blue);border-color:#bae6fd;" onclick="openTaskNotesModal(${idx}, 'saved', '__ALL__')">
+                        📝 ${totalNotesCnt ? `+ ملاحظة أخرى (${totalNotesCnt})${multiZoneHint}` : `+ إضافة ملاحظة${multiZoneHint}`}
                     </button>
+                    ${zList.length > 1 ? `<button type="button" class="btn btn-outline btn-sm" style="background:#f5f3ff;color:var(--purple);border-color:#c4b5fd;padding:6px 8px;font-size:11px;" onclick="openTaskNotesModal(${idx}, 'saved', '${esc(zList[0])}')">📍 ملاحظة لمنطقة</button>` : ''}
                 </div>
             </div>`;
             })()}
@@ -6877,6 +6920,11 @@ function splitTaskZones(idx) {
         const clone = JSON.parse(JSON.stringify(t));
         clone.id = 't_' + Date.now() + '_' + i;
         clone.zones = z;
+        const ownZNotes = getZoneSpecificNotes(t, z);
+        const baseGenNotes = JSON.parse(JSON.stringify(getTaskUserNotes(t)));
+        clone.notesList = [...baseGenNotes, ...JSON.parse(JSON.stringify(ownZNotes))];
+        clone.zoneNotes = {};
+        rebuildTaskNoteFromList(clone);
         clone.photos = i === 0 ? ensurePhotosArr(t) : [];
         clone.startTimeMs = null;
         clone.pausedTotalMs = 0;
@@ -7213,7 +7261,7 @@ function setTaskStatus(idx, st) {
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
 }
 
-/* ================= V17.1: Advanced Multi-Notes & Saved Custom Notes Library ================= */
+/* ================= V17.2: Advanced Multi-Notes & Saved Custom Notes Library ================= */
 function stripAutoSuffixFromNote(rawStr, suffix) {
     let base = String(rawStr || '');
     if (suffix) {
@@ -7235,10 +7283,67 @@ function getTaskAutoOnlySummary(t) {
     return parts.join(' | ');
 }
 
+function getTaskZonesArr(t) {
+    return String((t && t.zones) || 'عام / General').split(',').map(s => s.trim()).filter(Boolean);
+}
+
+function getZoneSpecificNotes(t, zoneName) {
+    if (!t || !t.zoneNotes || typeof t.zoneNotes !== 'object' || !zoneName) return [];
+    const arr = t.zoneNotes[zoneName];
+    return Array.isArray(arr) ? arr : [];
+}
+
+function getAllTaskZoneNoteEntries(t) {
+    if (!t || !t.zoneNotes || typeof t.zoneNotes !== 'object') return [];
+    const activeZones = getTaskZonesArr(t);
+    const out = [];
+    const seenKeys = new Set();
+    activeZones.forEach(z => {
+        seenKeys.add(z);
+        getZoneSpecificNotes(t, z).forEach((nObj, nIdx) => {
+            if (nObj && String(nObj.text || '').trim()) {
+                out.push({ zone: z, nIdx, id: nObj.id, text: nObj.text });
+            }
+        });
+    });
+    Object.keys(t.zoneNotes).forEach(zk => {
+        if (seenKeys.has(zk)) return;
+        getZoneSpecificNotes(t, zk).forEach((nObj, nIdx) => {
+            if (nObj && String(nObj.text || '').trim()) {
+                out.push({ zone: zk, nIdx, id: nObj.id, text: nObj.text });
+            }
+        });
+    });
+    return out;
+}
+
+function getTaskHasAnyNotes(t) {
+    if (!t) return false;
+    if (String(t.note || '').trim()) return true;
+    return getAllTaskZoneNoteEntries(t).length > 0;
+}
+
+function getTaskNoteForZone(t, zoneName) {
+    if (!t) return '';
+    const cleanBase = stripAutoSuffixFromNote(t.note, t.autoNoteSuffix);
+    const tankerLines = cleanBase.split('\n').map(s => s.trim()).filter(s => s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية'));
+    const genLines = getTaskUserNotes(t).map(x => String(x.text || '').trim()).filter(Boolean);
+    const zoneLines = getZoneSpecificNotes(t, zoneName).map(x => String(x.text || '').trim()).filter(Boolean);
+
+    const allLines = [];
+    [...genLines, ...zoneLines, ...tankerLines].forEach(ln => {
+        if (ln && !allLines.includes(ln)) allLines.push(ln);
+    });
+    let combined = allLines.join('\n');
+    if (t.autoNoteSuffix) {
+        combined = combined ? `${combined} | ${t.autoNoteSuffix}` : t.autoNoteSuffix;
+    }
+    return combined;
+}
+
 function getTaskUserNotes(t) {
     if (!t) return [];
     if (Array.isArray(t.notesList)) return t.notesList;
-    // Lazy migrate existing plain t.note without touching tanker lines or autoNoteSuffix
     let base = String(t.note || '');
     if (t.autoNoteSuffix) {
         if (base === t.autoNoteSuffix) base = '';
@@ -7274,55 +7379,112 @@ function ensureTaskNotesList(t) {
     return t.notesList;
 }
 
-function appendTaskNoteItem(idx, textVal, reopenCat = null) {
+function ensureZoneNotesList(t, zoneName) {
+    if (!t.zoneNotes || typeof t.zoneNotes !== 'object') t.zoneNotes = {};
+    if (!Array.isArray(t.zoneNotes[zoneName])) t.zoneNotes[zoneName] = [];
+    return t.zoneNotes[zoneName];
+}
+
+function appendTaskNoteItem(idx, textVal, reopenCat = null, scope = '__ALL__') {
     const clean = applySpellAndDictationGuard(String(textVal || '').trim()).text;
     if (!clean) return;
-    pushUndo('إضافة ملاحظة للمهمة');
+    const isZoneScope = scope && scope !== '__ALL__';
+    pushUndo(isZoneScope ? `إضافة ملاحظة لمنطقة (${scope})` : 'إضافة ملاحظة للمهمة');
     const log = getDayLog();
     const t = log.tasks[idx];
     if (!t) return;
     const oldNotesList = JSON.parse(JSON.stringify(ensureTaskNotesList(t)));
+    const oldZoneNotes = JSON.parse(JSON.stringify(t.zoneNotes || {}));
     const oldNote = t.note || '';
-    const list = ensureTaskNotesList(t);
-    if (!list.some(x => x.text === clean)) {
-        list.push({ id: 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), text: clean });
+
+    if (isZoneScope) {
+        const zArr = ensureZoneNotesList(t, scope);
+        if (!zArr.some(x => x.text === clean)) {
+            zArr.push({ id: 'zn_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), text: clean });
+        }
+    } else {
+        const list = ensureTaskNotesList(t);
+        if (!list.some(x => x.text === clean)) {
+            list.push({ id: 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), text: clean });
+        }
+        rebuildTaskNoteFromList(t);
     }
-    rebuildTaskNoteFromList(t);
-    recordActivity({ sec: 'tasks', label: `ملاحظة (${t.zones})`, before: '', after: clean.slice(0, 45), jump: { tab: 'tasks', taskId: t.id }, revert: { type: 'task_notes', taskId: t.id, oldNotesList, oldNote } });
+
+    recordActivity({
+        sec: 'tasks',
+        label: isZoneScope ? `ملاحظة خاصة لـ (${scope})` : `ملاحظة (${t.zones})`,
+        before: '',
+        after: clean.slice(0, 45),
+        jump: { tab: 'tasks', taskId: t.id },
+        revert: { type: 'task_notes', taskId: t.id, oldNotesList, oldZoneNotes, oldNote }
+    });
     saveState();
     renderTasks(log);
-    if (reopenCat) openTaskNotesModal(idx, reopenCat);
-    else showToast('📝 تمت إضافة الملاحظة للمهمة');
+    if (reopenCat) openTaskNotesModal(idx, reopenCat, scope);
+    else showToast(isZoneScope ? `📍 تمت إضافة ملاحظة مستقلة لمنطقة (${scope})` : '📝 تمت إضافة الملاحظة للمهمة');
 }
 
-function editSingleTaskNote(idx, nIdx) {
+function editSingleTaskNote(idx, nIdx, scope = '__ALL__') {
     const log = getDayLog();
     const t = log.tasks[idx];
     if (!t) return;
-    const list = ensureTaskNotesList(t);
+    const isZoneScope = scope && scope !== '__ALL__';
+    const list = isZoneScope ? ensureZoneNotesList(t, scope) : ensureTaskNotesList(t);
     if (!list[nIdx]) return;
-    const updated = prompt('تعديل الملاحظة:', list[nIdx].text);
+    const updated = prompt(isZoneScope ? `تعديل ملاحظة منطقة (${scope}):` : 'تعديل الملاحظة:', list[nIdx].text);
     if (updated === null) return;
     pushUndo('تعديل ملاحظة مهمة');
+    const oldNotesList = JSON.parse(JSON.stringify(ensureTaskNotesList(t)));
+    const oldZoneNotes = JSON.parse(JSON.stringify(t.zoneNotes || {}));
+    const oldNote = t.note || '';
+    const prevTxt = list[nIdx].text;
     const clean = applySpellAndDictationGuard(updated.trim()).text;
     if (clean) list[nIdx].text = clean;
-    else list.splice(nIdx, 1);
-    rebuildTaskNoteFromList(t);
+    else {
+        list.splice(nIdx, 1);
+        if (isZoneScope && list.length === 0) delete t.zoneNotes[scope];
+    }
+    if (!isZoneScope) rebuildTaskNoteFromList(t);
+    recordActivity({
+        sec: 'tasks',
+        label: isZoneScope ? `تعديل ملاحظة (${scope})` : `تعديل ملاحظة (${t.zones})`,
+        before: prevTxt.slice(0, 35),
+        after: (clean || 'محذوفة').slice(0, 35),
+        jump: { tab: 'tasks', taskId: t.id },
+        revert: { type: 'task_notes', taskId: t.id, oldNotesList, oldZoneNotes, oldNote }
+    });
     saveState();
     renderTasks(log);
 }
 
-function deleteSingleTaskNote(idx, nIdx, reopenCat = null) {
+function deleteSingleTaskNote(idx, nIdx, reopenCat = null, scope = '__ALL__') {
     pushUndo('حذف ملاحظة مهمة');
     const log = getDayLog();
     const t = log.tasks[idx];
     if (!t) return;
-    const list = ensureTaskNotesList(t);
+    const isZoneScope = scope && scope !== '__ALL__';
+    const oldNotesList = JSON.parse(JSON.stringify(ensureTaskNotesList(t)));
+    const oldZoneNotes = JSON.parse(JSON.stringify(t.zoneNotes || {}));
+    const oldNote = t.note || '';
+    const list = isZoneScope ? ensureZoneNotesList(t, scope) : ensureTaskNotesList(t);
+    const removedTxt = (list[nIdx] && list[nIdx].text) || '';
     list.splice(nIdx, 1);
-    rebuildTaskNoteFromList(t);
+    if (isZoneScope) {
+        if (list.length === 0) delete t.zoneNotes[scope];
+    } else {
+        rebuildTaskNoteFromList(t);
+    }
+    recordActivity({
+        sec: 'tasks',
+        label: isZoneScope ? `حذف ملاحظة (${scope})` : `حذف ملاحظة (${t.zones})`,
+        before: removedTxt.slice(0, 35),
+        after: 'محذوفة',
+        jump: { tab: 'tasks', taskId: t.id },
+        revert: { type: 'task_notes', taskId: t.id, oldNotesList, oldZoneNotes, oldNote }
+    });
     saveState();
     renderTasks(log);
-    if (reopenCat) openTaskNotesModal(idx, reopenCat);
+    if (reopenCat) openTaskNotesModal(idx, reopenCat, scope);
 }
 
 function saveCustomQuickNoteToLibrary(textVal) {
@@ -7337,15 +7499,15 @@ function saveCustomQuickNoteToLibrary(textVal) {
     return false;
 }
 
-function deleteSavedCustomNote(sIdx, tIdx) {
+function deleteSavedCustomNote(sIdx, tIdx, scope = '__ALL__') {
     if (!Array.isArray(state.company.savedNotes)) return;
     state.company.savedNotes.splice(sIdx, 1);
     saveState();
-    openTaskNotesModal(tIdx, 'saved');
+    openTaskNotesModal(tIdx, 'saved', scope);
     showToast('🗑️ تم حذف الملاحظة من مكتبتك');
 }
 
-function submitModalNewNote(idx, alsoSaveToLib, curCat) {
+function submitModalNewNote(idx, alsoSaveToLib, curCat, scope = '__ALL__') {
     const inp = document.getElementById('newTaskNoteInp');
     const txt = (inp ? inp.value : '').trim();
     if (!txt) { showToast('⚠️ اكتب نص الملاحظة أولاً'); return; }
@@ -7353,14 +7515,20 @@ function submitModalNewNote(idx, alsoSaveToLib, curCat) {
         saveCustomQuickNoteToLibrary(txt);
         showToast('⭐ تمت الإضافة والحفظ في ملاحظاتك الجاهزة!');
     }
-    appendTaskNoteItem(idx, txt, alsoSaveToLib ? 'saved' : curCat);
+    appendTaskNoteItem(idx, txt, alsoSaveToLib ? 'saved' : curCat, scope);
 }
 
-function openTaskNotesModal(idx, activeCat = 'saved') {
+function openTaskNotesModal(idx, activeCat = 'saved', activeScope = '__ALL__') {
     const log = getDayLog();
     const t = log.tasks[idx];
     if (!t) return;
-    const uNotes = getTaskUserNotes(t);
+    const zList = getTaskZonesArr(t);
+    const hasMultiZones = zList.length > 1;
+    const scope = (hasMultiZones && activeScope && activeScope !== '__ALL__' && zList.includes(activeScope)) ? activeScope : '__ALL__';
+    const isZoneScope = scope !== '__ALL__';
+
+    const genNotes = getTaskUserNotes(t);
+    const curNotes = isZoneScope ? getZoneSpecificNotes(t, scope) : genNotes;
     const saved = Array.isArray(state.company.savedNotes) ? state.company.savedNotes : [];
     const cats = [
         { id: 'saved', label: `⭐ ملاحظاتي (${saved.length})` },
@@ -7376,43 +7544,61 @@ function openTaskNotesModal(idx, activeCat = 'saved') {
             ? '<div style="font-size:11.5px;color:var(--muted);text-align:center;padding:10px;">لا توجد ملاحظات محفوظة بعد — اكتب أي ملاحظة واضغط «⭐ إضافة وحفظ بملاحظاتي» لتبقى جاهزة دائماً!</div>'
             : saved.map((txt, sI) => `
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:5px;background:white;border:1px solid #fde68a;border-radius:7px;padding:5px 8px;margin-bottom:4px;">
-                    <span style="flex:1;font-size:12px;cursor:pointer;font-weight:600;" onclick="appendTaskNoteItem(${idx}, state.company.savedNotes[${sI}], 'saved')">+ ${esc(txt)}</span>
-                    <button type="button" class="btn btn-outline btn-sm" style="color:var(--red);padding:1px 5px;font-size:10px;" onclick="deleteSavedCustomNote(${sI}, ${idx})">🗑️</button>
+                    <span style="flex:1;font-size:12px;cursor:pointer;font-weight:600;" onclick="appendTaskNoteItem(${idx}, state.company.savedNotes[${sI}], 'saved', '${esc(scope)}')">+ ${esc(txt)}</span>
+                    <button type="button" class="btn btn-outline btn-sm" style="color:var(--red);padding:1px 5px;font-size:10px;" onclick="deleteSavedCustomNote(${sI}, ${idx}, '${esc(scope)}')">🗑️</button>
                 </div>`).join('');
     } else {
         libHtml = QUICK_NOTE_PHRASES.filter(q => q.cat === activeCat).map(q => `
-            <span class="chip" style="background:white;padding:5px 9px;" onclick="appendTaskNoteItem(${idx}, '${esc(q.text)}', '${activeCat}')">+ ${esc(q.label)}</span>
+            <span class="chip" style="background:white;padding:5px 9px;" onclick="appendTaskNoteItem(${idx}, '${esc(q.text)}', '${activeCat}', '${esc(scope)}')">+ ${esc(q.label)}</span>
         `).join('');
     }
 
+    const scopeBarHtml = hasMultiZones ? `
+        <div style="background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:9px;padding:7px 8px;margin-bottom:9px;">
+            <label class="lbl" style="color:var(--purple);margin-bottom:5px;">📍 حدد نطاق الملاحظة (عام للكل أو مستقلة لمنطقة محددة):</label>
+            <div class="an-tab-bar" style="margin-bottom:0;">
+                <button type="button" class="scope-tab-btn ${!isZoneScope ? 'active' : ''}" onclick="openTaskNotesModal(${idx}, '${activeCat}', '__ALL__')">🌐 عام للكل (${genNotes.length})</button>
+                ${zList.map(z => {
+                    const cnt = getZoneSpecificNotes(t, z).length;
+                    return `<button type="button" class="scope-tab-btn ${scope === z ? 'active' : ''}" onclick="openTaskNotesModal(${idx}, '${activeCat}', '${esc(z)}')">📍 ${esc(z)}${cnt ? ` (${cnt})` : ''}</button>`;
+                }).join('')}
+            </div>
+        </div>` : '';
+
+    const scopeTargetLabel = isZoneScope ? `لمنطقة (${esc(scope)}) فقط` : (hasMultiZones ? 'لجميع مناطق المهمة' : 'لهذه المهمة');
+
     openModal(`
         <h3 class="card-title">📝 ملاحظات المهمة (${esc(t.zones)})</h3>
+        ${scopeBarHtml}
         <div style="margin-bottom:8px;">
-            <label class="lbl">الملاحظات المضافة لهذه المهمة (${uNotes.length}):</label>
-            ${uNotes.length === 0 ? '<div style="font-size:11.5px;color:var(--muted);padding:6px;background:#f8fafc;border-radius:7px;">لا توجد ملاحظات مضافة بعد</div>' :
-            uNotes.map((nObj, nI) => `
-                <div class="note-item-card">
-                    <span style="flex:1;">• ${esc(nObj.text)}</span>
-                    <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${nI}, '${activeCat}')">✕</button>
+            <label class="lbl">${isZoneScope ? `📍 الملاحظات المستقلة لمنطقة (${esc(scope)}) (${curNotes.length}):` : `🌐 الملاحظات المضافة ${scopeTargetLabel} (${curNotes.length}):`}</label>
+            ${curNotes.length === 0 ? `<div style="font-size:11.5px;color:var(--muted);padding:6px;background:#f8fafc;border-radius:7px;">لا توجد ملاحظات ${isZoneScope ? `خاصة بمنطقة (${esc(scope)})` : 'مضافة'} بعد</div>` :
+            curNotes.map((nObj, nI) => `
+                <div class="note-item-card ${isZoneScope ? 'is-zone-note' : ''}">
+                    <span style="flex:1;">${isZoneScope ? `<span class="zone-note-tag">📍 ${esc(scope)}</span>` : '• '}${esc(nObj.text)}</span>
+                    <div style="display:flex;gap:3px;flex-shrink:0;">
+                        <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;" onclick="closeModal();editSingleTaskNote(${idx}, ${nI}, '${esc(scope)}')">✏️</button>
+                        <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${nI}, '${activeCat}', '${esc(scope)}')">✕</button>
+                    </div>
                 </div>`).join('')}
         </div>
 
-        <label class="lbl">اكتب ملاحظة جديدة:</label>
+        <label class="lbl">اكتب ملاحظة جديدة ${scopeTargetLabel}:</label>
         <div style="display:flex;gap:4px;margin-bottom:6px;">
             <div class="inp-wrap" style="margin:0;flex:1;">
-                <textarea id="newTaskNoteInp" class="inp auto-grow" rows="2" placeholder="اكتب ملاحظتك هنا..."></textarea>
+                <textarea id="newTaskNoteInp" class="inp auto-grow" rows="2" placeholder="${isZoneScope ? `اكتب ملاحظة خاصة بمنطقة ${esc(scope)} فقط...` : 'اكتب ملاحظتك هنا...'}"></textarea>
                 <button class="clr-btn top-align" onclick="quickClearField('newTaskNoteInp')">✕</button>
             </div>
             <button class="btn btn-outline btn-sm" onclick="startDictation('newTaskNoteInp')">🎤</button>
         </div>
         <div class="grid-2" style="margin-bottom:10px;">
-            <button class="btn btn-blue btn-sm" style="padding:8px;" onclick="submitModalNewNote(${idx}, false, '${activeCat}')">+ إضافة للمهمة</button>
-            <button class="btn btn-orange btn-sm" style="padding:8px;" onclick="submitModalNewNote(${idx}, true, '${activeCat}')">⭐ إضافة وحفظ بملاحظاتي</button>
+            <button class="btn ${isZoneScope ? 'btn-purple' : 'btn-blue'} btn-sm" style="padding:8px;" onclick="submitModalNewNote(${idx}, false, '${activeCat}', '${esc(scope)}')">+ إضافة ${isZoneScope ? `لـ (${esc(scope)})` : 'للمهمة'}</button>
+            <button class="btn btn-orange btn-sm" style="padding:8px;" onclick="submitModalNewNote(${idx}, true, '${activeCat}', '${esc(scope)}')">⭐ إضافة وحفظ بملاحظاتي</button>
         </div>
 
-        <label class="lbl">إضافة سريعة من المكتبة (تُضاف بدون مسح الملاحظات السابقة):</label>
+        <label class="lbl">إضافة سريعة من المكتبة (${scopeTargetLabel} — بدون مسح السابق):</label>
         <div class="an-tab-bar" style="margin-bottom:6px;">
-            ${cats.map(c => `<button type="button" class="an-tab-btn ${activeCat === c.id ? 'active' : ''}" style="padding:4px 8px;font-size:11px;" onclick="openTaskNotesModal(${idx}, '${c.id}')">${c.label}</button>`).join('')}
+            ${cats.map(c => `<button type="button" class="an-tab-btn ${activeCat === c.id ? 'active' : ''}" style="padding:4px 8px;font-size:11px;" onclick="openTaskNotesModal(${idx}, '${c.id}', '${esc(scope)}')">${c.label}</button>`).join('')}
         </div>
         <div style="max-height:150px;overflow-y:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:7px;margin-bottom:10px;">
             ${libHtml}
@@ -7446,7 +7632,7 @@ function escalateTaskToIssue(idx) {
     saveState(); renderExportAndIssues(site, getDayLog()); showToast(`🚨 تم تصعيد العطل إلى متتبع المشاكل (${code})`);
 }
 
-/* ================= V17.1: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
+/* ================= V17.2: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
 function onNewTaskTypeChange(val) {
     const v = String(val || '');
     const irrBox = document.getElementById('mTaskIrrPresetsBox');
@@ -7595,7 +7781,7 @@ function saveNewTask(startImmediately = false) {
 }
 
 
-/* ================= V17.1: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V17.2: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -9108,7 +9294,7 @@ function autoGenerateOAR() {
     saveState(); renderExportAndIssues(site, log); triggerAllAutoGrows(); showToast('🔄 تم توليد مسودة OAR تلقائياً');
 }
 
-/* ================= V17.1: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
+/* ================= V17.2: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
 function buildShiftWhatsAppText(level = 'quick') {
     const site = getSite();
     const log = getDayLog();
@@ -9151,7 +9337,7 @@ function buildShiftWhatsAppText(level = 'quick') {
         ``,
         `✅ *المهام المنجزة (${doneTasks.length}/${log.tasks.length}):*`,
         ...(doneTasks.length ? doneTasks.map(t => `• [${t.zones}] ${(t.task.split('/')[1] || t.task).trim()}${t.desc ? ' — ' + t.desc : ''} (${getTaskReportDurationStr(t)})`) : ['• لا توجد مهام مكتملة بعد']),
-        ...(blockedTasks.length ? ['', `🛑 *المهام المتوقفة (${blockedTasks.length}):*`, ...blockedTasks.map(t => `• [${t.zones}] ${t.note || t.desc}`)] : []),
+        ...(blockedTasks.length ? ['', `🛑 *المهام المتوقفة (${blockedTasks.length}):*`, ...blockedTasks.map(t => { const zns = getAllTaskZoneNoteEntries(t).map(x => `${x.zone}: ${x.text}`).join(' | '); return `• [${t.zones}] ${[t.note, zns].filter(Boolean).join(' | ') || t.desc}`; })] : []),
         ...(log.oar && (log.oar.obs || log.oar.rec) ? ['', `📝 *خلاصة OAR:*`, log.oar.obs ? `• OBS: ${log.oar.obs}` : '', log.oar.rec ? `• REC: ${log.oar.rec}` : ''] : []),
         log.driveFolderLink ? `\n🔗 *مجلد صور اليوم (Google Drive):*\n${log.driveFolderLink}` : ''
     ].filter(x => x !== '');
@@ -9202,11 +9388,11 @@ function buildDflPreviewInnerHtml() {
             const wStr = (t.workers && t.workers.includes('Team')) ? 'Team' : ((t.workers || []).join(' / ') || '-');
             const stTime = getTaskFixedStartTimeStr(t);
             const repDur = getTaskReportDurationStr(t);
-            const noteOut = (t.note || '-');
             zones.forEach((z, zIdx) => {
+                const zNoteOut = getTaskNoteForZone(t, z) || '-';
                 rows.push({
                     task: t.task, desc: t.desc, zone: z, dur: repDur, startTime: stTime,
-                    wStr, status: (t.status.split('/')[1] || t.status).trim(), note: noteOut,
+                    wStr, status: (t.status.split('/')[1] || t.status).trim(), note: zNoteOut,
                     pRef: zIdx === 0 ? (taskPhotoRefs[i] || '-') : '-',
                     groupWithPrev: zIdx > 0 || (zIdx === 0 && !!t.syncWithPrev && i > 0)
                 });
@@ -9234,7 +9420,7 @@ function buildDflPreviewInnerHtml() {
                 ${isFirst ? `<td rowspan="${span}" style="padding:3px;">${esc(r.dur)}<div style="font-size:9px;color:#0284c7;">${esc(r.startTime)}</div></td>` : ''}
                 ${isFirst ? `<td rowspan="${span}" style="padding:3px;">${esc(r.wStr)}</td>` : ''}
                 <td style="padding:3px;">${esc(r.status)}</td>
-                <td style="padding:3px;text-align:right;">${esc(r.note)}</td>
+                <td style="padding:3px;text-align:center;">${esc(r.note)}</td>
                 <td style="padding:3px;color:#0284c7;">${esc(r.pRef)}</td>
             </tr>`;
         }).join('');
@@ -9810,7 +9996,7 @@ function runPreExportCheck(mode = 'direct_excel') {
     if (log.gauges.some(g => g.val === '')) warnings.push({ msg: 'توجد مقاييس ضغط بدون قراءة اليوم.', btn: '↗️ الضغط', act: `closeModal();switchTab('tools')` });
     if (log.meters.some(m => ensurePhotosArr(m).length === 0)) warnings.push({ msg: 'لم تُلتقط صورة عداد المياه اليوم.', btn: '📸 تصوير', act: `closeModal();jumpToMeters()` });
     if (log.attendance.some(w => !w.status.includes('Absent') && !w.tOut)) warnings.push({ msg: 'يوجد عامل حاضر بدون وقت خروج.', btn: '↗️ الحضور', act: `closeModal();switchTab('att')` });
-    if (log.tasks.some(t => t.status.includes('Blocked') && !(t.note || '').trim())) warnings.push({ msg: 'توجد مهمة متوقفة بدون كتابة السبب.', btn: '↗️ المهام', act: `closeModal();switchTab('tasks')` });
+    if (log.tasks.some(t => t.status.includes('Blocked') && !getTaskHasAnyNotes(t))) warnings.push({ msg: 'توجد مهمة متوقفة بدون كتابة السبب.', btn: '↗️ المهام', act: `closeModal();switchTab('tasks')` });
     if (log.tasks.some(t => !(t.zones || '').trim())) warnings.push({ msg: 'توجد مهمة بدون تحديد المنطقة.', btn: '↗️ المهام', act: `closeModal();switchTab('tasks')` });
 
     if (warnings.length > 0) {
@@ -9971,15 +10157,19 @@ async function exportLightweightDFL() {
             const isTeam = wList.includes('Team');
             const wCount = isTeam ? presentCount : (wList.length > 0 ? wList.length : 1);
             const wStr = isTeam ? 'Team' : wList.join(' / ');
+            const zList = (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean);
+            const resolvedZoneNotes = {};
+            zList.forEach(z => { resolvedZoneNotes[z] = getTaskNoteForZone(t, z); });
             return {
                 task: t.task,
                 briefDescription: t.desc,
-                zonesList: (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean),
+                zonesList: zList,
                 startTime: getTaskFixedStartTimeStr(t),
                 time: getTaskReportDurationStr(t),
                 workersCount: wCount,
                 status: t.status.includes('Carried Over') ? 'Not Started / لم يبدأ' : t.status,
                 notes: (t.note || ''),
+                zoneNotes: resolvedZoneNotes,
                 workersAssigned: wStr,
                 imageRef: taskPhotoRefs[idx] || '',
                 driveLinks: (taskPhotoLinks[idx] || []).filter(Boolean),
@@ -10142,6 +10332,7 @@ async function exportLightweightDFL() {
   * أخفِ صف محطة الطقس الفارغ **الصف 14** (\`ws.row_dimensions[14].hidden = True\`).
   * صغّر ارتفاع صف الفاصل بعد الحضور (**الصف ${rSep23}**) من \`42.75\` إلى **\`10\`**.
   * احذف أي صفوف فارغة بعد الصف الأخير (**الصف ${rFinalLast}**) واضبط منطقة الطباعة: \`ws.print_area = 'A1:L${rFinalLast}'\`.
+- **توسيط كامل للنصوص في الإكسيل (Center Alignment — إلزامي):** اضبط محاذاة **جميع خلايا البيانات والجدول** في ورقة \`Daily Field Log\` (والحوادث والانحرافات) إلى الوسط أفقياً وعمودياً مع التفاف النص: \`Alignment(horizontal='center', vertical='center', wrap_text=True)\` — ممنوع ترك أي نص محاذياً لليمين أو اليسار!
 - **ارتفاع تلقائي للنصوص الطويلة (Auto Row Height):** احسب ارتفاع صفوف الحضور والمهام والمعدات والأداء والـ OAR حسب طول النص وعدد الأسطر (\`wrap_text=True\`) حتى لا ينقص أي حرف عند الفتح أو الطباعة.
 
 ### القاعدة 1: تطبيق توسيع/تقليص الأقسام بالترتيب الدقيق من الأعلى للأسفل
@@ -10167,7 +10358,7 @@ async function exportLightweightDFL() {
 - املأ \`section2_attendance\` في الأعمدة A (التسلسل)، B (الاسم)، C (النوع)، D (الحالة)، E (الدخول)، F (الخروج)، G (الأوفرتايم)، H:K (ملاحظات).
 
 ### القاعدة 5: القسم 3 (المهام — صفوف ${rTasksStart} إلى ${rTasksEnd})
-1. **تفريق المناطق (منطقة واحدة لكل صف):** لكل عنصر في \`section3_tasks\`، أفرد \`zonesList\` في صفوف متتالية (منطقة واحدة في العمود D).
+1. **تفريق المناطق والملاحظات المستقلة لكل منطقة:** لكل عنصر في \`section3_tasks\`، أفرد \`zonesList\` في صفوف متتالية (منطقة واحدة في العمود D)، واكتب في العمود **H:J (Notes)** لكل صف منطقة \`z\` القيمة \`zoneNotes.get(z, notes)\` الخاصة بتلك المنطقة تحديداً!
 2. **دمج المهام المتزامنة والمتشابهة عمودياً:** ادمج عمودياً فقط الأعمدة **A, B, C, E, F, K** للصفوف الناتجة عن نفس المهمة أو التي تحمل \`syncWithPrev == True\` أو تشترك في نفس \`(startTime + task + briefDescription + time + workersAssigned + workersCount)\`. **ممنوع** دمج D أو G أو H:J أو L عمودياً! وانسخ التنسيق الأصلي (A: #ECEFF1، B/C/G/H:J/K/L: #FFFDF0، D/E/F: #FFFDE7) لجميع الخلايا المدمجة حتى لا تتحول للون الأبيض أبداً.
 3. **العمال والصور:** العمود F رقم صحيح (إذا "Team" فاكتب ${presentCount})، والعمود K "Team" أو الأسماء مفصولة بـ ' / '. العمود L اسم الصورة المرجعي مع Hyperlink لأول رابط في \`driveLinks\` إن وُجد.
 
@@ -10238,7 +10429,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.1) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.2) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -10888,7 +11079,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.1 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.2 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
