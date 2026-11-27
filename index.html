@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V16.7</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V16.8</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -258,7 +258,7 @@
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
                 <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V16.7 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V16.8 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -632,6 +632,11 @@
    - المؤقت الحي + تعديل ساعة البداية + الاستراحة + رادار الري + كشف المستحقات
    ========================================================================== */
 
+function getLocalDateStr(d = new Date()) {
+    const dt = (d instanceof Date) ? d : new Date(d);
+    return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+}
+
 const DB_NAME = 'TFF_FOS_DB_V8';
 const DB_STORE = 'state';
 let db = null, saveTimer = null, pendingPhotoCtx = null, activeInvZoneId = null, activeEntryPrompt = null;
@@ -762,7 +767,7 @@ const AL_MUTAHIDA_PLAN = {
 
 let state = {
     activeSiteId: 'mutahida',
-    activeDate: new Date().toISOString().split('T')[0],
+    activeDate: getLocalDateStr(),
     activeTab: 'att',
     company: {
         teamLead: 'Hussein M. Abed  /  حسين مرتضى عبد',
@@ -799,7 +804,7 @@ let state = {
 
 
 
-/* ================= V16.7: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V16.8: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -922,7 +927,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V16.7: Task Presets Manager ================= */
+/* ================= V16.8: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1012,7 +1017,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V16.7: DFL Readiness Progress Bar ================= */
+/* ================= V16.8: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1052,7 +1057,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V16.7: Weekly / Monthly Site Analytics Dashboard ================= */
+/* ================= V16.8: Weekly / Monthly Site Analytics Dashboard ================= */
 function openDeepAnalyticsModal(subTab = 'zones') {
     const site = getSite();
     const allDates = Object.keys(site.logs).sort().reverse();
@@ -1308,7 +1313,7 @@ function openAnalyticsDashboardModal(period = '7d') {
     `);
 }
 
-/* ================= V16.7: Electronic Touch Signature Pad ================= */
+/* ================= V16.8: Electronic Touch Signature Pad ================= */
 let sigDrawing = false;
 function initSignaturePadCanvas() {
     const canvas = document.getElementById('sigPadCanvas');
@@ -1564,7 +1569,7 @@ async function fetchHillaWeather(manualTrigger = false) {
 function getNextDateStr(dateStr = state.activeDate) {
     const d = new Date(dateStr + 'T12:00:00');
     d.setDate(d.getDate() + 1);
-    return d.toISOString().split('T')[0];
+    return getLocalDateStr(d);
 }
 
 function openCarryTaskToTomorrowModal(idx) {
@@ -1851,7 +1856,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V16.7: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V16.8: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -2575,7 +2580,7 @@ function normalizeState() {
     if (!state.activeSiteId || !state.sites[state.activeSiteId]) {
         state.activeSiteId = Object.keys(state.sites)[0];
     }
-    if (!state.activeDate) state.activeDate = new Date().toISOString().split('T')[0];
+    if (!state.activeDate) state.activeDate = getLocalDateStr();
 
     Object.values(state.sites).forEach(s => {
         if (!Array.isArray(s.zones) || !s.zones.length) s.zones = [...MASTER_ZONES];
@@ -2972,7 +2977,7 @@ function getBreakOverlapMs(startMs, endMs, dateStr = state.activeDate) {
 }
 
 function isNowInDailyBreak(nowMs = Date.now()) {
-    const todayStr = new Date(nowMs).toISOString().split('T')[0];
+    const todayStr = getLocalDateStr(nowMs);
     const bw = getBreakWindowMs(todayStr);
     return nowMs >= bw.startMs && nowMs < bw.endMs;
 }
@@ -3024,7 +3029,7 @@ function onTaskSearchInput(val) {
 function checkEndOfShiftReminder() {
     const now = new Date();
     const mins = now.getHours() * 60 + now.getMinutes();
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = getLocalDateStr(now);
     const site = getSite();
     const log = site && site.logs ? site.logs[todayStr] : null;
     if (!log) {
@@ -3055,7 +3060,7 @@ setInterval(checkEndOfShiftReminder, 30000);
 function checkDailyBreakStatus() {
     const now = new Date();
     const nowMs = now.getTime();
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = getLocalDateStr(now);
     const bw = getBreakWindowMs(todayStr);
     const inBreak = nowMs >= bw.startMs && nowMs < bw.endMs;
     const banner = document.getElementById('dailyBreakBanner');
@@ -3142,7 +3147,7 @@ function toggleTaskStoppedForToday(tIdx) {
     if (!t || !t.status || !t.status.includes('Progress')) return;
     pushUndo('إيقاف/استكمال مهمة جارية لنهاية الدوام');
     const now = Date.now();
-    const todayStr = new Date(now).toISOString().split('T')[0];
+    const todayStr = getLocalDateStr(now);
 
     if (t.stoppedForToday) {
         // Resume live work today
@@ -3246,7 +3251,7 @@ function getTaskActiveIntervals(t, nowMs = Date.now(), dateStr = state.activeDat
         } else if (t.pausedAtMs) {
             eMs = t.pausedAtMs;
         } else {
-            const todayStr = new Date(nowMs).toISOString().split('T')[0];
+            const todayStr = getLocalDateStr(nowMs);
             const capMs = getTaskShiftEndCapMs(t, dateStr);
             if (dateStr === todayStr) {
                 eMs = nowMs;
@@ -3486,7 +3491,7 @@ function updateLiveShiftClockDom() {
 setInterval(updateLiveShiftClockDom, 1000);
 
 
-/* ================= V16.7: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
+/* ================= V16.8: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
 function addTaskEventLog(t, iconAndLabel, customTimeStr = null) {
     if (!Array.isArray(t.events)) t.events = [];
     const now = new Date();
@@ -4215,7 +4220,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V16.7: Shift Time Distribution & Custom Rebalancing Engine ================= */
+/* ================= V16.8: Shift Time Distribution & Custom Rebalancing Engine ================= */
 function syncTaskCompletionAndLiveClockOnDurChange(t, newMins) {
     if (!t || !newMins || newMins <= 0) return;
     const targetNetMs = newMins * 60000;
@@ -4502,7 +4507,7 @@ function updateTaskTimeControlPreview(tIdx) {
         liveMode = true;
         const capMs = getTaskShiftEndCapMs({ ...t, manualOt: liveOt, fixedEndTime: '' }, state.activeDate);
         const nowMs = Date.now();
-        const todayStr = new Date(nowMs).toISOString().split('T')[0];
+        const todayStr = getLocalDateStr(nowMs);
         eMs = (state.activeDate === todayStr) ? Math.min(nowMs, capMs || nowMs) : (capMs || nowMs);
     }
     if (!sMs || !eMs || eMs <= sMs) {
@@ -5476,10 +5481,23 @@ function markAllPresent() {
 function deleteWorkerFromToday(idx) {
     if (confirm('حذف العامل من قائمة اليوم؟')) {
         pushUndo('حذف عامل من اليوم');
-        const w = getDayLog().attendance[idx];
-        getDayLog().attendance.splice(idx, 1);
-        logSectionHistory('att', 'delete', `حذف من اليوم: ${w.name.split('/')[1] || w.name}`, {});
-        saveState(); renderAttendance(getDayLog());
+        const log = getDayLog();
+        const w = log.attendance[idx];
+        const shortName = w ? (w.name.split('/')[1] || w.name).trim() : '';
+        log.attendance.splice(idx, 1);
+        if (shortName) {
+            (log.tasks || []).forEach(t => {
+                if (Array.isArray(t.workers) && t.workers.includes(shortName)) {
+                    t.workers = t.workers.filter(x => x !== shortName);
+                }
+                if (t.workerTimings && t.workerTimings[shortName]) {
+                    delete t.workerTimings[shortName];
+                    syncWorkerTimingNotesOnTask(t);
+                }
+            });
+        }
+        logSectionHistory('att', 'delete', `حذف من اليوم: ${shortName}`, {});
+        saveState(); renderAttendance(log); renderTasks(log);
     }
 }
 function copyYesterdayCrew() {
@@ -6297,7 +6315,7 @@ function setTaskStatus(idx, st) {
     t.status = st;
     const now = Date.now();
     const nowDate = new Date(now);
-    const todayStr = nowDate.toISOString().split('T')[0];
+    const todayStr = getLocalDateStr(nowDate);
     const nowMins = nowDate.getHours() * 60 + nowDate.getMinutes();
 
     if (st.includes('Progress') && !oldSt.includes('Progress')) {
@@ -6611,7 +6629,7 @@ function saveNewTask() {
 }
 
 
-/* ================= V16.7: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V16.8: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -6785,26 +6803,31 @@ function saveTankerDispensed(tIdx) {
 
         const newTankerLine = `تم استعمال ${litersFmt} لتر من مياه الحوضية${tripTagAr} في منطقة (${t.zones})${ppmAr}${visNoteAr}${remAr}${moveAr} / Used ${litersFmt} L of tanker water${tripTagEn} in (${t.zones})${ppmEn}${visNoteEn}${remEn}${moveEn}`;
 
-        // Preserve any manual notes and worker timing suffix (| 👥 ...)
-        const existingNote = String(t.note || '');
-        const workerMarker = ' | 👥 ';
-        let workerSuffix = '';
-        let withoutWorker = existingNote;
-        const wIdx = existingNote.indexOf(workerMarker);
-        if (wIdx !== -1) {
-            workerSuffix = existingNote.slice(wIdx);
-            withoutWorker = existingNote.slice(0, wIdx).trim();
-        } else if (existingNote.startsWith('👥 ')) {
-            workerSuffix = ' | ' + existingNote;
-            withoutWorker = '';
+        // Preserve manual notes, previous tanker trips, AND modern worker timing notes cleanly
+        let baseNote = String(t.note || '');
+        if (t.autoNoteSuffix) {
+            if (baseNote === t.autoNoteSuffix) baseNote = '';
+            else if (baseNote.endsWith(' | ' + t.autoNoteSuffix)) baseNote = baseNote.slice(0, -(' | ' + t.autoNoteSuffix).length).trim();
+            else if (baseNote.includes(t.autoNoteSuffix)) baseNote = baseNote.replace(t.autoNoteSuffix, '').replace(/^\s*\|\s*|\s*\|\s*$/g, '').trim();
         }
+        baseNote = baseNote.replace(/\s*\|\s*👥\s*[\s\S]*$/g, '').replace(/^👥\s*[\s\S]*$/g, '').trim();
 
-        const otherLines = withoutWorker
+        const otherLines = baseNote
             .split('\n')
             .map(s => s.trim())
-            .filter(s => s && !s.startsWith('تم استعمال ') && !s.includes('Used ') && !(tripNum > 1 && s.includes(`النقلة #${tripNum}`)));
+            .filter(s => {
+                if (!s) return false;
+                const isTankerAutoLine = s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية');
+                if (!isTankerAutoLine) return true;
+                if (tripNum > 1) {
+                    return !s.includes(`(النقلة #${tripNum})`);
+                }
+                // For Trip #1, replace only previous Trip #1 line (lines without النقلة #2/#3)
+                return /\(النقلة #\d+\)/.test(s);
+            });
         otherLines.push(newTankerLine);
-        t.note = otherLines.join('\n') + workerSuffix;
+        t.note = otherLines.join('\n');
+        syncWorkerTimingNotesOnTask(t);
 
         logSectionHistory('tasks', 'tanker', `صرف تنكر ${t.zones}: ${litersFmt} L`, { taskId: t.id });
     }
@@ -7063,23 +7086,75 @@ function updateMeterField(idx, k, v) {
     logSectionHistory('tools', 'meter', `قراءة ${m.name}: ${v}`, { meterId: m.id });
     saveState(); renderReadingsAndTools(log);
 }
-function clearMeterReading(idx) { pushUndo('مسح قراءة عداد'); getDayLog().meters[idx].curr = ''; getDayLog().meters[idx].photos = []; saveState(); renderReadingsAndTools(getDayLog()); showToast('🧹 تم مسح قراءة العداد'); }
+function clearMeterReading(idx) {
+    pushUndo('مسح قراءة عداد');
+    const site = getSite();
+    const log = getDayLog();
+    const m = log.meters[idx];
+    if (!m) return;
+    m.curr = '';
+    m.photos = [];
+    syncSiteMeterLastReading(site, m.id, m.name);
+    const priorVal = findLatestPriorMeterReading(site, m.id, m.name, state.activeDate, m.prev || 0);
+    propagateMeterReadingForward(site, m.id, m.name, state.activeDate, priorVal);
+    saveState(); renderReadingsAndTools(log);
+    showToast('🧹 تم مسح قراءة العداد وتحديث القراءة المرجعية');
+}
 function renameMeter(idx) {
-    const n = prompt('تعديل اسم العداد:', getDayLog().meters[idx].name);
-    if (n && n.trim()) { pushUndo('تعديل اسم عداد'); getDayLog().meters[idx].name = n.trim(); if (getSite().meters[idx]) getSite().meters[idx].name = n.trim(); saveState(); renderReadingsAndTools(getDayLog()); }
+    const site = getSite();
+    const log = getDayLog();
+    const m = log.meters[idx];
+    if (!m) return;
+    const n = prompt('تعديل اسم العداد:', m.name);
+    if (n && n.trim()) {
+        pushUndo('تعديل اسم عداد');
+        const newName = n.trim();
+        const oldName = m.name;
+        m.name = newName;
+        const sMeter = (site.meters || []).find(x => x.id === m.id) || (site.meters || []).find(x => x.name === oldName);
+        if (sMeter) sMeter.name = newName;
+        Object.keys(site.logs || {}).filter(d => d > state.activeDate).forEach(fd => {
+            const fm = (site.logs[fd].meters || []).find(x => x.id === m.id);
+            if (fm) fm.name = newName;
+        });
+        saveState(); renderReadingsAndTools(log);
+    }
 }
 function deleteMeter(idx) {
-    if (confirm('حذف هذا العداد نهائياً من الموقع؟')) { pushUndo('حذف عداد'); getDayLog().meters.splice(idx, 1); getSite().meters.splice(idx, 1); saveState(); renderReadingsAndTools(getDayLog()); showToast('🗑️ تم حذف العداد'); }
+    const site = getSite();
+    const log = getDayLog();
+    const m = log.meters[idx];
+    if (!m) return;
+    if (confirm('حذف هذا العداد نهائياً من الموقع؟')) {
+        pushUndo('حذف عداد');
+        log.meters.splice(idx, 1);
+        site.meters = (site.meters || []).filter(x => x.id !== m.id);
+        Object.keys(site.logs || {}).filter(d => d > state.activeDate).forEach(fd => {
+            if (Array.isArray(site.logs[fd].meters)) {
+                site.logs[fd].meters = site.logs[fd].meters.filter(x => x.id !== m.id || (x.curr !== '' && x.curr != null));
+            }
+        });
+        saveState(); renderReadingsAndTools(log); showToast('🗑️ تم حذف العداد');
+    }
 }
 function addCustomMeter() {
     const name = prompt('اسم عداد المياه الجديد:');
-    if (!name) return;
-    pushUndo('إضافة عداد: ' + name);
+    if (!name || !name.trim()) return;
+    pushUndo('إضافة عداد: ' + name.trim());
+    const site = getSite();
+    const log = getDayLog();
     const id = 'm_' + Date.now();
-    getSite().meters.push({ id, name, lastReading: 0 });
-    getDayLog().meters.push({ id, name, status: 'working', prev: 0, curr: '', visual: 'Clear / صافية', note: '', photos: [] });
-    logSectionHistory('tools', 'meter', `إضافة عداد: ${name}`, { meterId: id });
-    saveState(); renderReadingsAndTools(getDayLog());
+    const cleanName = name.trim();
+    site.meters.push({ id, name: cleanName, lastReading: 0 });
+    log.meters.push({ id, name: cleanName, status: 'working', prev: 0, curr: '', visual: 'Clear / صافية', note: '', photos: [] });
+    Object.keys(site.logs || {}).filter(d => d > state.activeDate).forEach(fd => {
+        if (!Array.isArray(site.logs[fd].meters)) site.logs[fd].meters = [];
+        if (!site.logs[fd].meters.some(x => x.id === id)) {
+            site.logs[fd].meters.push({ id, name: cleanName, status: 'working', prev: 0, curr: '', visual: 'Clear / صافية', note: '', photos: [] });
+        }
+    });
+    logSectionHistory('tools', 'meter', `إضافة عداد: ${cleanName}`, { meterId: id });
+    saveState(); renderReadingsAndTools(log);
 }
 function updateGaugeVal(idx, v) {
     pushUndo('تحديث قراءة مقياس ضغط');
@@ -7088,15 +7163,40 @@ function updateGaugeVal(idx, v) {
     logSectionHistory('tools', 'gauge', `ضغط ${g.name}: ${v} bar`, { gaugeId: g.id });
     saveState(); renderReadingsAndTools(getDayLog());
 }
-function deleteGauge(idx) { if (confirm('حذف مقياس الضغط؟')) { pushUndo('حذف مقياس ضغط'); getDayLog().gauges.splice(idx, 1); getSite().gauges.splice(idx, 1); saveState(); renderReadingsAndTools(getDayLog()); } }
+function deleteGauge(idx) {
+    const site = getSite();
+    const log = getDayLog();
+    const g = log.gauges[idx];
+    if (!g) return;
+    if (confirm('حذف مقياس الضغط؟')) {
+        pushUndo('حذف مقياس ضغط');
+        log.gauges.splice(idx, 1);
+        site.gauges = (site.gauges || []).filter(x => x.id !== g.id);
+        Object.keys(site.logs || {}).filter(d => d > state.activeDate).forEach(fd => {
+            if (Array.isArray(site.logs[fd].gauges)) {
+                site.logs[fd].gauges = site.logs[fd].gauges.filter(x => x.id !== g.id || (x.val !== '' && x.val != null));
+            }
+        });
+        saveState(); renderReadingsAndTools(log);
+    }
+}
 function addCustomGauge() {
     const name = prompt('اسم مقياس الضغط الجديد:');
-    if (!name) return;
-    pushUndo('إضافة مقياس: ' + name);
+    if (!name || !name.trim()) return;
+    pushUndo('إضافة مقياس: ' + name.trim());
+    const site = getSite();
+    const log = getDayLog();
     const id = 'g_' + Date.now();
-    getSite().gauges.push({ id, name, normal: 2.0 });
-    getDayLog().gauges.push({ id, name, normal: 2.0, val: '', note: '' });
-    saveState(); renderReadingsAndTools(getDayLog());
+    const cleanName = name.trim();
+    site.gauges.push({ id, name: cleanName, normal: 2.0 });
+    log.gauges.push({ id, name: cleanName, normal: 2.0, val: '', note: '' });
+    Object.keys(site.logs || {}).filter(d => d > state.activeDate).forEach(fd => {
+        if (!Array.isArray(site.logs[fd].gauges)) site.logs[fd].gauges = [];
+        if (!site.logs[fd].gauges.some(x => x.id === id)) {
+            site.logs[fd].gauges.push({ id, name: cleanName, normal: 2.0, val: '', note: '' });
+        }
+    });
+    saveState(); renderReadingsAndTools(log);
 }
 function updateMachinery(k, v) {
     const log = getDayLog();
@@ -7477,9 +7577,15 @@ async function exportInventoryStandaloneExcel() {
     sumWs.addRow(['الإجمالي الكلي', '', gTot]);
     sumWs.columns.forEach(c => c.width = 15);
 
+    let maxEntryPhotos = 1;
+    site.inventory.forEach(z => z.plants.forEach(p => (p.entries || []).forEach(e => {
+        const cnt = ensurePhotosArr(e).filter(pid => !!getPhotoUrl(pid)).length;
+        if (cnt > maxEntryPhotos) maxEntryPhotos = cnt;
+    })));
     const entWs = wb.addWorksheet('سجل الترتيب والصور', { views: [{ rightToLeft: true }] });
-    entWs.addRow(['المنطقة', 'النبات', 'التسلسل', 'التاريخ', 'الحالة الصحية', 'الطول المقاس', 'الصورة']).font = { bold: true };
-    entWs.columns.forEach((c, i) => { c.width = i === 6 ? 22 : 15; });
+    const photoCols = Array.from({ length: maxEntryPhotos }, (_, k) => maxEntryPhotos === 1 ? 'الصورة' : `صورة ${k + 1}`);
+    entWs.addRow(['المنطقة', 'النبات', 'التسلسل', 'التاريخ', 'الحالة الصحية', 'الطول المقاس', ...photoCols]).font = { bold: true };
+    entWs.columns.forEach((c, i) => { c.width = i >= 6 ? 22 : 15; });
     entWs.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDF4' } };
 
     let rIdx = 2;
@@ -7487,16 +7593,16 @@ async function exportInventoryStandaloneExcel() {
         z.plants.forEach(p => {
             (p.entries || []).forEach((e, i) => {
                 const cObj = HEALTH_CONDITIONS.find(c => c.id === e.condId);
-                const rowObj = entWs.addRow([z.name, p.name, `#${i+1}`, e.date, cObj ? cObj.name : '', e.height || '', '']);
-                rowObj.height = 70;
-                const ePhotos = ensurePhotosArr(e);
-                const resolvedDataUrl = ePhotos.length > 0 ? getPhotoUrl(ePhotos[0]) : '';
-                if (resolvedDataUrl) {
+                const emptyImgCells = Array.from({ length: maxEntryPhotos }, () => '');
+                const rowObj = entWs.addRow([z.name, p.name, `#${i+1}`, e.date, cObj ? cObj.name : '', e.height || '', ...emptyImgCells]);
+                const validUrls = ensurePhotosArr(e).map(pid => getPhotoUrl(pid)).filter(Boolean);
+                rowObj.height = validUrls.length > 0 ? 70 : 22;
+                validUrls.forEach((dataUrl, pK) => {
                     try {
-                        const imgId = wb.addImage({ base64: resolvedDataUrl, extension: 'jpeg' });
-                        entWs.addImage(imgId, { tl: { col: 6.1, row: rIdx - 0.9 }, ext: { width: 120, height: 80 } });
+                        const imgId = wb.addImage({ base64: dataUrl, extension: 'jpeg' });
+                        entWs.addImage(imgId, { tl: { col: 6 + pK + 0.1, row: rIdx - 0.9 }, ext: { width: 120, height: 80 } });
                     } catch {}
-                }
+                });
                 rIdx++;
             });
         });
@@ -8779,15 +8885,25 @@ async function exportLightweightDFL() {
     };
 
     const jsonFname = `TFF_Light_DFL${log.dflNum}_${state.activeDate}.json`;
+    const totalTaskZoneRows = log.tasks.reduce((sum, t) => sum + Math.max(1, (t.zones || 'عام / General').split(',').map(s => s.trim()).filter(Boolean).length), 0);
+    const extraTaskRows = Math.max(0, totalTaskZoneRows - 33);
+    const offAfterTasks = rowOffset + extraTaskRows;
     const extraPhotoRows = Math.max(0, photos.length - 6);
-    const pOff = rowOffset + extraPhotoRows;
+    const pOff = offAfterTasks + extraPhotoRows;
+    lightPayload.totalTaskZoneRows = totalTaskZoneRows;
+    lightPayload.extraTaskRowsOver33 = extraTaskRows;
 
     const hardenedPrompt = `أنت خبير أتمتة التقارير الميدانية لشركة غابات الغذاء (The Food Forests).
-مرفق لك:
-1. قالب Excel النظيف المحدّث (Al-Mutahida_DFL_V04_Clean.xlsx).
-2. ملف بيانات اليوم الخفيف (${jsonFname}).
+مرفق لك ملفان:
+1. قالب Excel النظيف المحدّث: Al-Mutahida_DFL_V04_Clean.xlsx
+2. ملف بيانات اليوم الخفيف: ${jsonFname}
 
-اكتب ونفّذ كود Python (باستخدام openpyxl مع copy من مكتبة copy) لتعبئة ورقة 'Daily Field Log' مباشرة (In-Place) وحفظ النتيجة باسم Al-Mutahida_DFL${log.dflNum}_${state.activeDate}_Filled.xlsx مع الالتزام الصارم بجميع القواعد التالية:
+⚡ **أمر تنفيذي مباشر (إلزامي):**
+نفّذ كود Python فوراً الآن داخل بيئة التنفيذ (بدون طلب تأكيد، وبدون عرض الكود فقط أو التوقف قبل التسليم) لتعبئة القالب مباشرة (In-Place) وحفظ الملف النهائي باسم:
+**Al-Mutahida_DFL${log.dflNum}_${state.activeDate}_Filled.xlsx**
+ثم **أرفق وقدّم رابط تحميل ملف الإكسيل الناتج مباشرة في هذا الرد الأول فوراً** دون انتظار رسالة ثانية مني!
+
+التزم بالصرامة التامة بالقواعد التالية (باستخدام openpyxl مع copy من مكتبة copy):
 
 ### القاعدة 0: الحفاظ المطلق على ألوان وخطوط وحدود القالب النظيف V04 + عدم زرع صور مصغرة داخل الخلايا!
 - **ممنوع زرع أي صور مصغرة داخل خلايا الإكسيل!** الصور تُرفع على Google Drive، ونحن نضع أسماء الصور (PHOTO_01.jpg) وروابط Google Drive القابلة للنقر (Hyperlinks) في خاناتها المخصصة.
@@ -8815,8 +8931,9 @@ async function exportLightweightDFL() {
 ### القاعدة 4: القسم 2 (Attendance — صفوف 18 إلى ${17 + log.attendance.length})
 - املأ section2_attendance في الأعمدة A (التسلسل)، B (الاسم)، C (النوع)، D (الحالة)، E (الدخول)، F (الخروج)، G (الأوفرتايم)، H:K (ملاحظات). وأخفِ أي صف فارغ متبقٍ حتى صف 22.
 
-### القاعدة 5: القسم 3 (Tasks — يبدأ من صف ${27 + rowOffset} حتى ${59 + rowOffset})
+### القاعدة 5: القسم 3 (Tasks — يبدأ من صف ${27 + rowOffset} حتى ${59 + offAfterTasks})
 - أول صف بيانات للمهام هو **صف ${27 + rowOffset}** مباشرة (لا تترك صف ${27 + rowOffset} فارغاً!).
+${extraTaskRows > 0 ? `- **توسيع جدول المهام تلقائياً (${totalTaskZoneRows} صف > 33):** لأن عدد صفوف المناطق (${totalTaskZoneRows}) يتجاوز 33، فك دمج النطاقات من صف >= ${60 + rowOffset}، ثم أدرج **${extraTaskRows}** صفوف عند الصف **${60 + rowOffset}** (ws.insert_rows(${60 + rowOffset}, ${extraTaskRows})) وانسخ التنسيق الأصلي من صف ${59 + rowOffset} لكل عمود A..L مع دمج H{r}:J{r} لكل صف مضاف، ثم أعد تطبيق النطاقات المدمجة بإضافة +${extraTaskRows} وحدّث معادلتي القسم 5B عند الصفين ${79 + offAfterTasks} و ${80 + offAfterTasks}.` : ''}
 1. **تفريق المناطق (منطقة واحدة لكل صف):** لكل عنصر في section3_tasks، أفرد مناطق zonesList في صفوف متتالية بحيث يأخذ كل صف منطقة واحدة فقط في العمود D (Zone).
 2. **دمج المهام المتزامنة والمتشابهة عمودياً:**
    - اجمع الصفوف المتتالية التي تكون ناتجة عن تفريق نفس المهمة، أو التي تحمل syncWithPrev == True، أو التي تشترك في نفس (startTime + task + briefDescription + time + workersAssigned + workersCount) أي حدثت في نفس الوقت تماماً.
@@ -8825,19 +8942,19 @@ async function exportLightweightDFL() {
    - انسخ التنسيق الأصلي من صف ${27 + rowOffset} لكل خلية (A: #ECEFF1، B,C,G,H:J,K,L: #FFFDF0، D,E,F: #FFFDE7) قبل وبعد أي دمج عمودي!
 3. **دقة العمال وعدد العمال (Columns F & K):** العمود F رقم صحيح (إذا كان المنفذ "Team" فاكتب ${presentCount})، والعمود K "Team" أو الأسماء مفصولة بـ ' / '.
 4. **مرجع الصور ورابط Google Drive (Column L):** اكتب اسم ملف الصورة المرجعي مثل 'PHOTO_01.jpg' في L{r} فقط إذا وُجد (واتركه فارغاً تماماً إذا لم توجد صورة). وإذا احتوى العنصر على driveLinks غير فارغة، أضف أول رابط كـ Hyperlink قابل للنقر على الخلية L{r} بلون أزرق (#0284C7) وتحته خط.
-5. **إخفاء الصفوف الفارغة فقط:** أخفِ الصفوف الفارغة المتبقية من بعد آخر مهمة وحتى صف ${59 + rowOffset} فقط.
+5. **إخفاء الصفوف الفارغة فقط:** أخفِ الصفوف الفارغة المتبقية من بعد آخر مهمة وحتى صف ${59 + offAfterTasks} فقط.
 
 ### القاعدة 6: الأقسام 4 و 5 و 6 و 7 و 8 (أرقام الصفوف الدقيقة في قالب V04 بعد الإزاحة)
-- **القسم 4 (المعدات — صفوف البيانات ${64 + rowOffset}..${66 + rowOffset}):** املأ section4_equipment وأخفِ الفارغ منها فقط (أبقِ صف الفاصل ${67 + rowOffset} وترويسة القسم الخامس ${68 + rowOffset} ظاهرين!).
-- **القسم 5A (الرطوبة — صفوف البيانات ${71 + rowOffset}..${75 + rowOffset}):** املأ moisture5A وأخفِ الفارغ منها فقط.
-- **القسم 5B (عدادات المياه — صفوف البيانات ${79 + rowOffset}..${80 + rowOffset}):**
+- **القسم 4 (المعدات — صفوف البيانات ${64 + offAfterTasks}..${66 + offAfterTasks}):** املأ section4_equipment وأخفِ الفارغ منها فقط (أبقِ صف الفاصل ${67 + offAfterTasks} وترويسة القسم الخامس ${68 + offAfterTasks} ظاهرين!).
+- **القسم 5A (الرطوبة — صفوف البيانات ${71 + offAfterTasks}..${75 + offAfterTasks}):** املأ moisture5A وأخفِ الفارغ منها فقط.
+- **القسم 5B (عدادات المياه — صفوف البيانات ${79 + offAfterTasks}..${80 + offAfterTasks}):**
   * **A**: التسلسل | **B:D**: اسم العداد | **E**: الجودة البصرية | **F**: القراءة السابقة رقم | **G**: القراءة الحالية رقم | **H**: المعادلة =IF(OR(F{r}="",G{r}=""),"",G{r}-F{r}) | **I:K**: الملاحظات ومرجع الصورة (مع Hyperlink إذا وُجد driveLinks). أخفِ صف العداد الفارغ فقط.
-- **القسم 5C (أداء نظام الري — صفوف ${83 + rowOffset}..${85 + rowOffset}):**
-  * **B${83 + rowOffset}**: حالة النظام | **E${83 + rowOffset}**: مدة التشغيل | **B${84 + rowOffset}**: المناطق المروية | **E${84 + rowOffset}**: ملاحظات الضغط | **B${85 + rowOffset}**: ملاحظات الأداء.
-- **القسم 5D (مقاييس الضغط — صفوف البيانات ${89 + rowOffset}..${94 + rowOffset}):** املأ barGauges5D (A: التسلسل، B: الاسم، C: القراءة، D: 'bar'، E: المدى الطبيعي، F: الحالة، G:K: ملاحظات) وأخفِ الفارغ منها فقط.
-- **القسم 6 (صحة النبات — صفوف ${98 + rowOffset}..${102 + rowOffset}) والقسم 7 (الحوادث — صفوف ${106 + rowOffset}..${109 + rowOffset}):** املأها (مع وضع Hyperlink لروابط Drive في عمود الصورة/المرجع إن وُجدت) وأخفِ الفارغ منها فقط.
-- **القسم 8 (مراجع الصور وروابط Google Drive — يبدأ من صف ${113 + rowOffset}):**
-  * إذا كان عدد الصور في section8_photoReferences أكثر من 6 (extraPhotoRows = ${extraPhotoRows})، أدرج ${extraPhotoRows} صفوف عند الصف ${119 + rowOffset} مع نسخ التنسيق والدمج (B:D, E:G, H:K) من صف ${118 + rowOffset} وإزاحة القسمين 9 و 10 بمقدار ${extraPhotoRows}.
+- **القسم 5C (أداء نظام الري — صفوف ${83 + offAfterTasks}..${85 + offAfterTasks}):**
+  * **B${83 + offAfterTasks}**: حالة النظام | **E${83 + offAfterTasks}**: مدة التشغيل | **B${84 + offAfterTasks}**: المناطق المروية | **E${84 + offAfterTasks}**: ملاحظات الضغط | **B${85 + offAfterTasks}**: ملاحظات الأداء.
+- **القسم 5D (مقاييس الضغط — صفوف البيانات ${89 + offAfterTasks}..${94 + offAfterTasks}):** املأ barGauges5D (A: التسلسل، B: الاسم، C: القراءة، D: 'bar'، E: المدى الطبيعي، F: الحالة، G:K: ملاحظات) وأخفِ الفارغ منها فقط.
+- **القسم 6 (صحة النبات — صفوف ${98 + offAfterTasks}..${102 + offAfterTasks}) والقسم 7 (الحوادث — صفوف ${106 + offAfterTasks}..${109 + offAfterTasks}):** املأها (مع وضع Hyperlink لروابط Drive في عمود الصورة/المرجع إن وُجدت) وأخفِ الفارغ منها فقط.
+- **القسم 8 (مراجع الصور وروابط Google Drive — يبدأ من صف ${113 + offAfterTasks}):**
+  * إذا كان عدد الصور في section8_photoReferences أكثر من 6 (extraPhotoRows = ${extraPhotoRows})، أدرج ${extraPhotoRows} صفوف عند الصف ${119 + offAfterTasks} مع نسخ التنسيق والدمج (B:D, E:G, H:K) من صف ${118 + offAfterTasks} وإزاحة القسمين 9 و 10 بمقدار ${extraPhotoRows}.
   * املأ كل صورة في صفها: **A** = التسلسل، **B:D** = اسم الملف (fileName، واجعله Hyperlink قابل للنقر إذا وُجد driveLink)، **E:G** = القسم (section)، **H:K** = الوصف (description) متبوعاً برابط Google Drive الكامل ('description — driveLink') إذا وُجد حتى يظهر الرابط بوضوح تام. أخفِ الصفوف الفارغة منها فقط.
 
 ### القاعدة 7: القسم 9 (OAR) والقسم 10 (Sign-off) + منطقة الطباعة لورقة 'Daily Field Log'
@@ -8848,12 +8965,12 @@ async function exportLightweightDFL() {
   * اكتب التاريخ والوقت في **H${131 + pOff}** (مدمجة H:K).
 - اضبط منطقة الطباعة: ws.print_area = 'A1:L${140 + pOff}'.
 
-### القاعدة 9: قفل البيانات الحرفي والصياغة الرسمية (Strict Zero-Alteration & Formal Reporting Lock)
+### القاعدة 8: قفل البيانات الحرفي والصياغة الرسمية (Strict Zero-Alteration & Formal Reporting Lock)
 - **ممنوع منعاً باتاً الاجتهاد أو تغيير أي رقم أو بيان وارد في ملف JSON!** لا تغيّر أرقام العدادات، ولا لترات التنكر، ولا الساعات، ولا أسماء العمال والمناطق، ولا تحذف أو تعدّل أي ملاحظة مكتوبة — انسخ القيم كما هي حرفياً إلى خلاياها المحددة.
 - **منع دمج عمود المناطق (Zone):** يُمنع دمج خلايا العمود D (Zone) عمودياً؛ كل منطقة تأخذ سطرها المستقل في العمود D مع عمود الحالة (G) والملاحظات (H:J) الخاص بها، بينما تندمج الأعمدة المشتركة (A, B, C, E, F, K) فقط للمهمة الواحدة.
 - إذا احتجت لإتمام أي خانة طقس فارغة فقط أو تنسيق نص رسمي، التزم بالصياغة الإدارية والهندسية الرسمية باللغتين العربية والإنجليزية دون أي ألفاظ عامية أو تغيير في الأرقام والحقائق.
 
-### القاعدة 8: تعبئة ورقة 'Incident Report' بالكامل (إذا كانت incidentReportsSheet غير فارغة — عدد التقارير: ${log.incidents.length})
+### القاعدة 9: تعبئة ورقة 'Incident Report' بالكامل (إذا كانت incidentReportsSheet غير فارغة — عدد التقارير: ${log.incidents.length})
 - **مهم جداً:** يجب تعبئة ورقة **'Incident Report'** في نفس ملف الإكسيل (وإذا كان هناك أكثر من تقرير حادث، انسخ ورقة 'Incident Report' عبر wb.copy_worksheet لكل تقرير إضافي):
   * **G5** (مدمجة G5:H5): رقم الحادث (code مثل 'IR-001')
   * **D6**: 'The Food Forests (TFF)' | **G6** (مدمجة G6:H6): "${site.name}"
@@ -8884,7 +9001,10 @@ async function exportLightweightDFL() {
   * **صفوف 38..43**: صور وأدلة الانحراف في **C38:E38** (مع Hyperlink لـ driveLinks) و**F38** ('Photo / صورة') و**G38:H38** (الوصف + رابط Drive).
   * **صفوف 52..55 (6. RESOLUTION):** إذا كان حقل resolution موجوداً، اكتب **D52** (dateResolved)، **G52** (resolvedBy)، **D53** (actionsTaken)، **D54** (resolvedBy)، **G54** (dateResolved)، **D55** (preventiveMeasure)، **G55** (preventiveRef)، و**H47** = 'Yes / نعم'.
 
-احفظ الملف بصيغة .xlsx وقدّم رابط التحميل مباشرة.`;
+### التسليم الفوري (إلزامي — بدون توقف):
+1. نفّذ كود Python الآن وأنشئ ملف الإكسيل **Al-Mutahida_DFL${log.dflNum}_${state.activeDate}_Filled.xlsx** داخل المجلد الحالي مباشرة.
+2. تحقق من أن الملف حُفظ بنجاح وحجمه أكبر من صفر.
+3. **أرسل وأرفق رابط تحميل الملف النهائي مباشرة في هذا الرد الأول فوراً** — لا تكتفِ بعرض الكود ولا تنتظر أن أطلب منك إرسال الملف مرة ثانية!`;
 
     const templateFile = buildCleanTemplateFileObj();
     const jsonFile = new File([JSON.stringify(lightPayload, null, 2)], jsonFname, { type: 'application/json;charset=utf-8' });
@@ -8926,7 +9046,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.7) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.8) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -9034,7 +9154,6 @@ function renderInlineModalPhotoStrip() {
 function removeInlineModalPhoto(pid) {
     const idx = tempModalPhotos.indexOf(pid);
     if (idx !== -1) tempModalPhotos.splice(idx, 1);
-    deletePhotoFromStore(pid);
     renderInlineModalPhotoStrip();
 }
 function triggerFileInp(id) { const el = document.getElementById(id); el.value = ''; el.click(); }
@@ -9138,18 +9257,19 @@ async function onPhotoSelected(e) {
 function removePhotoFromItem(type, idx, photoIdx) {
     pushUndo('حذف صورة');
     const log = getDayLog();
-    const popAndDel = arr => { const removed = arr.splice(photoIdx, 1); if (removed[0]) deletePhotoFromStore(removed[0]); };
-    if (type === 'task') popAndDel(ensurePhotosArr(log.tasks[idx]));
-    else if (type === 'meter') popAndDel(ensurePhotosArr(log.meters[idx]));
-    else if (type === 'issue') popAndDel(ensurePhotosArr(getSite().issues[idx]));
+    // Keep binary in photoStore so Undo (↩️) restores cleanly without broken images; purgeOldPhotos() GCs orphans
+    const popOnly = arr => { if (Array.isArray(arr)) arr.splice(photoIdx, 1); };
+    if (type === 'task') popOnly(ensurePhotosArr(log.tasks[idx]));
+    else if (type === 'meter') popOnly(ensurePhotosArr(log.meters[idx]));
+    else if (type === 'issue') popOnly(ensurePhotosArr(getSite().issues[idx]));
     else if (type === 'plant') {
         const { pIdx, entryId } = idx;
         const z = getSite().inventory.find(x => x.id === activeInvZoneId);
         const p = z ? z.plants[pIdx] : null;
         const ent = p ? (p.entries || []).find(e => e.id === entryId) : null;
-        if (ent) popAndDel(ensurePhotosArr(ent));
+        if (ent) popOnly(ensurePhotosArr(ent));
     }
-    saveState(); renderAll(); showToast('🗑️ تم حذف الصورة');
+    saveState(); renderAll(); showToast('🗑️ تم حذف الصورة (يمكنك التراجع ↩️)');
 }
 
 function startDictation(targetId, onDone) {
@@ -9280,7 +9400,7 @@ function openStaffPoolManager() {
 function removeStaffFromPool(i) { state.company.staffPool.splice(i, 1); saveState(); openStaffPoolManager(); }
 
 function purgeOldPhotos() {
-    const cutoff = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
+    const cutoff = getLocalDateStr(Date.now() - 30 * 86400000);
     const clearArr = arr => { (arr || []).forEach(pid => deletePhotoFromStore(pid)); return []; };
     Object.values(state.sites).forEach(s => {
         Object.entries(s.logs).forEach(([d, l]) => {
@@ -9294,17 +9414,47 @@ function purgeOldPhotos() {
         (s.issues || []).forEach(iss => { if (iss.date && iss.date < cutoff && iss.status !== 'Open') iss.photos = clearArr(iss.photos); });
         s.inventory.forEach(z => z.plants.forEach(p => (p.entries || []).forEach(e => { if (e.date < cutoff) e.photos = clearArr(e.photos); })));
     });
-    saveState(); showToast('🧹 تم حذف الصور القديمة من المخزن مع بقاء كل الأرقام والسجلات');
+    const referencedPids = new Set();
+    const collectPids = arr => (arr || []).forEach(pid => { if (pid && !String(pid).startsWith('data:')) referencedPids.add(pid); });
+    Object.values(state.sites || {}).forEach(s => {
+        (s.issues || []).forEach(iss => collectPids(iss.photos));
+        (s.inventory || []).forEach(z => (z.plants || []).forEach(p => (p.entries || []).forEach(e => collectPids(e.photos))));
+        Object.values(s.logs || {}).forEach(dl => {
+            (dl.tasks || []).forEach(t => collectPids(t.photos));
+            (dl.meters || []).forEach(m => collectPids(m.photos));
+            (dl.incidents || []).forEach(ir => collectPids(ir.photos));
+            (dl.sdls || []).forEach(sd => collectPids(sd.photos));
+        });
+    });
+    let orphanCount = 0;
+    Array.from(photoCache.keys()).forEach(pid => {
+        if (!referencedPids.has(pid)) {
+            deletePhotoFromStore(pid);
+            orphanCount++;
+        }
+    });
+    saveState(); showToast(`🧹 تم تنظيف الصور القديمة${orphanCount ? ` وحذف ${orphanCount} صورة غير مستخدمة` : ''} بأمان`);
 }
 
 function saveMasterDbToPhoneDownloads() {
-    downloadFullBackup('TFF_Master_DB');
-    showToast('📱 تم حفظ ملف قاعدة البيانات (TFF_Master_DB.json) في مجلد التنزيلات بالتلفون!');
+    openModal(`
+        <h3 class="card-title">📱 حفظ قاعدة البيانات بالتلفون</h3>
+        <p style="font-size:12px;color:var(--muted);margin-top:0;">اختر نوع النسخة الاحتياطية المناسبة:</p>
+        <button class="btn btn-green btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="closeModal();downloadFullBackup('TFF_Light_DB', false)">
+            <span>⚡ نسخة خفيفة وسريعة (بدون صور — موصى بها)</span>
+            <span style="font-size:10.5px;opacity:0.9;">تحفظ كل الأيام والمهام والعدادات والجرد والروابط بحجم صغير جداً</span>
+        </button>
+        <button class="btn btn-blue btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="closeModal();downloadFullBackup('TFF_Master_DB', true)">
+            <span>📦 نسخة كاملة شاملة الصور</span>
+            <span style="font-size:10.5px;opacity:0.9;">تضم جميع البيانات والصور (قد يكون حجمها كبيراً إذا الأرشيف طويل)</span>
+        </button>
+        <button class="btn btn-outline btn-full" onclick="closeModal()">إلغاء</button>
+    `);
 }
 
-function downloadFullBackup(customPrefix = 'TFF_FullBackup') {
+function downloadFullBackup(customPrefix = 'TFF_FullBackup', includePhotos = true) {
     const cloneState = JSON.parse(JSON.stringify(state));
-    const resArr = arr => (arr || []).map(pid => getPhotoUrl(pid)).filter(Boolean);
+    const resArr = arr => includePhotos ? (arr || []).map(pid => getPhotoUrl(pid)).filter(Boolean) : [];
     Object.values(cloneState.sites || {}).forEach(s => {
         (s.issues || []).forEach(iss => iss.photos = resArr(iss.photos));
         (s.inventory || []).forEach(z => (z.plants || []).forEach(p => (p.entries || []).forEach(e => e.photos = resArr(e.photos))));
@@ -9320,6 +9470,7 @@ function downloadFullBackup(customPrefix = 'TFF_FullBackup') {
     a.href = URL.createObjectURL(blob);
     a.download = `${customPrefix}_${state.activeDate}.json`;
     a.click();
+    showToast(includePhotos ? '📦 تم حفظ النسخة الكاملة شاملة الصور بالتلفون!' : '⚡ تم حفظ النسخة الخفيفة السريعة بالتلفون!');
 }
 function triggerBackupRestore() { const i = document.getElementById('backupFileInput'); i.value = ''; i.click(); }
 function isDayLogSubstantive(dl) {
@@ -9332,13 +9483,59 @@ function isDayLogSubstantive(dl) {
     return false;
 }
 
+function mergeTwoDayLogsSafely(curLog, incLog) {
+    let mergedTasks = 0;
+    // 1. Merge tasks without duplicates (by id or task+zones+desc signature)
+    if (!Array.isArray(curLog.tasks)) curLog.tasks = [];
+    const curIds = new Set(curLog.tasks.map(t => t.id).filter(Boolean));
+    const curSigs = new Set(curLog.tasks.map(t => `${(t.task || '').trim()}|${(t.zones || '').trim()}|${(t.desc || '').trim()}`));
+    (incLog.tasks || []).forEach(it => {
+        const sig = `${(it.task || '').trim()}|${(it.zones || '').trim()}|${(it.desc || '').trim()}`;
+        if ((it.id && curIds.has(it.id)) || curSigs.has(sig)) return;
+        curLog.tasks.push(JSON.parse(JSON.stringify(it)));
+        if (it.id) curIds.add(it.id);
+        curSigs.add(sig);
+        mergedTasks++;
+    });
+    // 2. Fill missing meter & gauge readings from incoming log
+    (incLog.meters || []).forEach(im => {
+        const cm = (curLog.meters || []).find(x => x.id === im.id || x.name === im.name);
+        if (cm && (cm.curr === '' || cm.curr == null) && im.curr !== '' && im.curr != null) {
+            cm.curr = im.curr;
+            if (!cm.prev && im.prev) cm.prev = im.prev;
+            if ((!cm.photos || !cm.photos.length) && Array.isArray(im.photos) && im.photos.length) cm.photos = JSON.parse(JSON.stringify(im.photos));
+        }
+    });
+    (incLog.gauges || []).forEach(ig => {
+        const cg = (curLog.gauges || []).find(x => x.id === ig.id || x.name === ig.name);
+        if (cg && (cg.val === '' || cg.val == null) && ig.val !== '' && ig.val != null) cg.val = ig.val;
+    });
+    // 3. Merge tools, incidents, sdls & photo links without duplicates
+    if (!Array.isArray(curLog.tools)) curLog.tools = [];
+    const toolNames = new Set(curLog.tools.map(x => `${x.name}|${x.qty}`));
+    (incLog.tools || []).forEach(tl => {
+        if (!toolNames.has(`${tl.name}|${tl.qty}`)) curLog.tools.push(JSON.parse(JSON.stringify(tl)));
+    });
+    if (!Array.isArray(curLog.incidents)) curLog.incidents = [];
+    const irCodes = new Set(curLog.incidents.map(x => x.code));
+    (incLog.incidents || []).forEach(ir => { if (!irCodes.has(ir.code)) curLog.incidents.push(JSON.parse(JSON.stringify(ir))); });
+    if (!Array.isArray(curLog.sdls)) curLog.sdls = [];
+    const sdlCodes = new Set(curLog.sdls.map(x => x.code));
+    (incLog.sdls || []).forEach(sd => { if (!sdlCodes.has(sd.code)) curLog.sdls.push(JSON.parse(JSON.stringify(sd))); });
+    if (incLog.photoLinks && typeof incLog.photoLinks === 'object') {
+        curLog.photoLinks = { ...incLog.photoLinks, ...(curLog.photoLinks || {}) };
+    }
+    return mergedTasks;
+}
+
 function executeBackupSmartMerge() {
     const incoming = window._pendingBackupData;
     if (!incoming || !incoming.sites) return;
     const overwriteMatching = !!document.getElementById('chkMergeOverwriteMatching')?.checked;
     pushUndo('دمج ذكي لنسخة احتياطية');
     let addedDays = 0;
-    let keptLocalDays = 0;
+    let mergedSameDays = 0;
+    let mergedTasksTotal = 0;
 
     Object.entries(incoming.sites).forEach(([sid, incSite]) => {
         if (!state.sites[sid]) {
@@ -9352,8 +9549,11 @@ function executeBackupSmartMerge() {
             if (!curSite.logs[dStr] || !isDayLogSubstantive(curSite.logs[dStr]) || (overwriteMatching && isDayLogSubstantive(incLog))) {
                 curSite.logs[dStr] = JSON.parse(JSON.stringify(incLog));
                 addedDays++;
-            } else {
-                keptLocalDays++;
+            } else if (isDayLogSubstantive(incLog)) {
+                // Same-Day Two-Device Merge: combine tasks, readings, tools, IR/SDL from both devices without overwriting!
+                const addedT = mergeTwoDayLogsSafely(curSite.logs[dStr], incLog);
+                mergedSameDays++;
+                mergedTasksTotal += addedT;
             }
         });
         if (incSite.nextDfl && (!curSite.nextDfl || incSite.nextDfl > curSite.nextDfl)) {
@@ -9399,7 +9599,7 @@ function executeBackupSmartMerge() {
     closeModal();
     saveState();
     renderAll();
-    showToast(`✅ تم الدمج الذكي: أُضيف ${addedDays} أيام وحُفظت ${keptLocalDays} أيام حالية بأمان`);
+    showToast(`✅ تم الدمج الذكي: أُضيف ${addedDays} أيام ودُمج ${mergedSameDays} أيام مشتركة (+${mergedTasksTotal} مهام) بأمان`);
 }
 
 function executeBackupFullReplace() {
@@ -9439,7 +9639,7 @@ function onBackupFileLoaded(e) {
                 </label>
                 <button class="btn btn-green btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="executeBackupSmartMerge()">
                     <span>🔀 دمج ذكي (موصى به — يحافظ على شغل اليوم)</span>
-                    <span style="font-size:10.5px;opacity:0.9;">يضيف الأيام الناقصة والجرد بدون حذف مهام اليوم الموجودة بالتلفون</span>
+                    <span style="font-size:10.5px;opacity:0.9;">يدمج مهام وقراءات نفس اليوم بين جهازين ويضيف الأيام الناقصة والجرد بدون حذف شغلك</span>
                 </button>
                 <button class="btn btn-orange btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="executeBackupFullReplace()">
                     <span>🔄 استبدال كامل (Replace All)</span>
@@ -9530,7 +9730,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.7 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.8 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
