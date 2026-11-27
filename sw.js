@@ -1,7 +1,8 @@
-const CACHE_NAME = 'tff-fos-offline-v16.7';
+const CACHE_NAME = 'tff-fos-offline-v16.8';
 const CORE_ASSETS = [
   './',
   './index.html',
+  './manifest.json',
   'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
   'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js'
 ];
@@ -34,7 +35,8 @@ self.addEventListener('fetch', event => {
         .then(res => {
           if (res && res.ok) {
             const clone = res.clone();
-            caches.open(CACHE_NAME).then(c => c.put('./index.html', clone)).catch(() => {});
+            caches.open(CACHE_NAME).then(c => c.put('./index.html',
+  './manifest.json', clone)).catch(() => {});
           }
           return res;
         })
