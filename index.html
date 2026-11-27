@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V16.9</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V17.0</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,22 +42,22 @@
         .dfl-box { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; }
         .dfl-num { background: white; color: var(--primary-dark); border: none; border-radius: 5px; width: 48px; padding: 3px 4px; font-weight: bold; text-align: center; font-size: 13px; }
 
-        /* Sticky Live Section History Banner */
-        .sticky-sec-bar {
-            position: sticky; top: 114px; z-index: 920;
-            background: rgba(255,255,255,0.97);
-            border: 1.5px solid var(--blue); border-right: 6px solid var(--blue);
-            border-radius: 10px; padding: 7px 10px; margin-bottom: 10px;
-            box-shadow: 0 4px 12px rgba(15,23,42,0.10);
-            display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;
-        }
-        .sticky-sec-bar.empty-bar { border-color: var(--border); border-right-color: var(--muted); }
-        .sticky-sec-info { flex: 1; min-width: 170px; font-size: 11.5px; line-height: 1.4; }
-        .sticky-sec-title { font-weight: bold; color: var(--blue); font-size: 11px; }
-        .sticky-sec-actions { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+        /* V17.0: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
+        .note-item-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-right: 3px solid var(--blue); border-radius: 7px; padding: 5px 8px; margin-bottom: 4px; font-size: 12px; line-height: 1.45; }
+        .note-item-card.is-blocked-note { background: #fff5f5; border-color: #fecaca; border-right-color: var(--red); color: #7f1d1d; font-weight: 600; }
+        .zone-group-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 8px; margin-bottom: 6px; }
+        .zone-group-head { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; font-weight: bold; color: var(--muted); margin-bottom: 4px; }
+        .an-tab-bar { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 8px; }
+        .an-tab-btn { flex: 0 0 auto; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; font-size: 11.5px; font-weight: bold; color: var(--muted); cursor: pointer; white-space: nowrap; }
+        .an-tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .blind-alert { border-radius: 9px; padding: 8px 10px; margin-bottom: 7px; font-size: 11.5px; line-height: 1.5; border-right: 4px solid var(--orange); background: #fffbeb; border-top: 1px solid #fde68a; border-left: 1px solid #fde68a; border-bottom: 1px solid #fde68a; }
+        .blind-alert.crit { background: #fef2f2; border-color: #fecaca; border-right-color: var(--red); color: #7f1d1d; }
+        .blind-alert.good { background: #f0fdf4; border-color: #bbf7d0; border-right-color: var(--primary); color: #166534; }
+        .att-pill.st-half { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
+        .att-pill.st-ot { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
 
         /* Timer Alert Bar */
-        .timer-alert-bar { background: #fef2f2; border-bottom: 2px solid #ef4444; color: #991b1b; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 110px; z-index: 950; }
+        .timer-alert-bar { background: #fef2f2; border-bottom: 2px solid #ef4444; color: #991b1b; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 78px; z-index: 950; }
         .timer-alert-bar.show { display: flex; animation: slideDown 0.3s; }
         @keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -136,7 +136,7 @@
         .live-timer-pill.is-paused { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
         .live-progress-wrap { width: 100%; height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin: 5px 0; }
         .live-progress-bar { height: 100%; background: #16a34a; transition: width 0.6s linear, background-color 0.3s; }
-        .mini-timer-bar { background: linear-gradient(135deg, #0369a1, #0284c7); color: white; padding: 6px 12px; font-size: 11.5px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 6px; position: sticky; top: 108px; z-index: 945; box-shadow: 0 3px 8px rgba(2,132,199,0.28); }
+        .mini-timer-bar { background: linear-gradient(135deg, #0369a1, #0284c7); color: white; padding: 6px 12px; font-size: 11.5px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 6px; position: sticky; top: 76px; z-index: 945; box-shadow: 0 3px 8px rgba(2,132,199,0.28); }
         .mini-timer-bar.show { display: flex; }
 
         .radar-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 9px; margin-bottom: 10px; }
@@ -256,9 +256,9 @@
             <select id="siteSelect" class="site-select" onchange="onSiteSelectChange(this.value)"></select>
             <div class="header-tools" style="flex-shrink:0;">
                 <button id="globalUndoBtn" class="icon-btn" onclick="globalUndo()" title="تراجع شامل" disabled>↩️</button>
-                <button class="icon-btn" onclick="openAnalyticsDashboardModal('7d')" title="إحصائيات الموقع">📊</button>
+                <button class="icon-btn" onclick="openAnalyticsCenterModal('blind','7d')" title="مركز الإحصائيات والتحليل الذكي">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V16.9 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V17.0 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -272,13 +272,7 @@
                 <input type="number" id="dflNumInput" class="dfl-num" onchange="onDflNumChange(this.value)">
             </div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:6px;background:rgba(255,255,255,0.14);padding:5px 9px;border-radius:8px;flex-wrap:wrap;">
-            <span style="font-size:11px;font-weight:bold;white-space:nowrap;">👤 المستخدم:</span>
-            <select id="currentUserSelect" style="flex:1;min-width:110px;background:rgba(255,255,255,0.96);color:#0f172a;border:none;border-radius:6px;padding:4px 6px;font-size:11.5px;font-weight:bold;" onchange="setCurrentUser(this.value)" title="مستخدم البرنامج الحالي">
-                <option value="">اختر المستخدم...</option>
-            </select>
 
-        </div>
     </header>
 
     <!-- Timer Alert Bar, Cross-Tab Mini-Timer & Daily Lunch Break Banner -->
@@ -302,7 +296,6 @@
     <main class="main-wrap">
         <!-- TAB 1: Attendance -->
         <div id="tab-att" class="tab-pane active">
-            <div id="stickyHist-att"></div>
             <div class="card">
                 <div class="card-head">
                     <h3 class="card-title">👷 الحضور والكادر (القسم 2)</h3>
@@ -321,7 +314,6 @@
 
         <!-- TAB 2: Tasks & Irrigation -->
         <div id="tab-tasks" class="tab-pane">
-            <div id="stickyHist-tasks"></div>
 
             <!-- Live Local Clock & Break Info -->
             <div id="liveShiftClockBar" style="background:linear-gradient(135deg,#0f172a,#1e293b);color:white;border-radius:10px;padding:8px 11px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(15,23,42,0.14);">
@@ -379,14 +371,12 @@
             <div id="taskSummaryFilterBar"></div>
             
             <div id="tasksContainer"></div>
-            <div id="transfersContainer"></div>
             
             <button class="btn btn-green btn-full" onclick="openTaskModal()">+ إضافة مهمة جديدة (أو مهمة حرة)</button>
         </div>
 
         <!-- TAB 3: Readings & Tools -->
         <div id="tab-tools" class="tab-pane">
-            <div id="stickyHist-tools"></div>
                         <!-- Section 1: Weather Conditions Card -->
             <div class="card">
                 <div class="card-head">
@@ -530,13 +520,13 @@
 
         <!-- TAB 4: Plant Inventory & Health -->
         <div id="tab-inv" class="tab-pane">
-            <div id="stickyHist-inv"></div>
             
             <div class="inv-filter-bar">
                 <span class="chip active" id="f_all" onclick="setInvFilter('all')">الكل</span>
-                <span class="chip" id="f_warn" onclick="setInvFilter('warn')">⚠️ متضرر فقط</span>
-                <span class="chip" id="f_today" onclick="setInvFilter('today')">📅 مُجرد اليوم</span>
-                <span class="chip" style="margin-right:auto;background:var(--primary);color:white;border:none;" onclick="exportInventoryStandaloneExcel()">📥 تصدير إكسيل مستقل</span>
+                <span class="chip" id="f_warn" onclick="setInvFilter('warn')">⚠️ متضرر</span>
+                <span class="chip" id="f_today" onclick="setInvFilter('today')">📅 اليوم</span>
+                <span class="chip" id="invStopMarkerChip" onclick="setStopMarker()" style="background:#fef2f2;color:var(--red);border-color:#fca5a5;">🎀 علامة توقف</span>
+                <span class="chip" style="margin-right:auto;background:var(--primary);color:white;border:none;" onclick="exportInventoryStandaloneExcel()">📥 إكسيل الجرد</span>
             </div>
 
             <div id="invContainer"></div>
@@ -545,7 +535,6 @@
 
         <!-- TAB 5: Issues, IR/SDL, OAR & Export -->
         <div id="tab-export" class="tab-pane">
-            <div id="stickyHist-issues"></div>
             <div id="dflReadinessBox"></div>
             
             <div class="card">
@@ -650,17 +639,58 @@ let latestPayrollWaText = '';
 const TANKER_FULL_CAPACITY = 24000;
 const DURATION_OPTIONS = [
     '0:10 hr', '0:15 hr', '0:20 hr', '0:30 hr', '0:45 hr',
-    '1:00 hr', '1:15 hr', '1:30 hr', '2:00 hr', '2:30 hr',
-    '3:00 hr', '4:00 hr', '5:00 hr', '6:00 hr'
+    '1:00 hr', '1:15 hr', '1:30 hr', '1:45 hr',
+    '2:00 hr', '2:15 hr', '2:30 hr', '2:45 hr',
+    '3:00 hr', '3:15 hr', '3:30 hr', '3:45 hr',
+    '4:00 hr', '4:15 hr', '4:30 hr', '4:45 hr',
+    '5:00 hr', '5:15 hr', '5:30 hr', '5:45 hr', '6:00 hr'
 ];
 const MASTER_ZONES = ['OL1','OL2','OR1','OR2','AL1','AL2','AR1','AR2','AR3','AR4','AR5','B1','B2','B3','B4','C1','C2','C3','C4','E1','E2','D1','H1','H2','H3','H4','H5','OH','Admin','Nursery','AC','W','عام / General'];
 const MASTER_TASKS = [
-    'Irrigation  /  ري المنطقة', 'Pruning  /  تقليم الأشجار', 'Weeding  /  إزالة الأعشاب',
-    'Fertilizing  /  تسميد', 'Planting  /  زراعة وتشتيل', 'Harvesting  /  حصاد',
-    'Soil Preparation  /  تحضير التربة', 'Pest Control  /  رش المبيدات أو العلاج',
-    'Inspection  /  فحص ومراقبة', 'Cleaning  /  جمع النفايات وتنظيف الموقع',
-    'Equipment Maintenance  /  صيانة المعدات', 'Main Line & Equipment Maintenance  /  صيانة الأنابيب الرئيسية والمعدات',
-    'Water System Check  /  فحص نظام الري', 'Meter Reading  /  قراءة العدادات', 'Other  /  أخرى'
+    'Irrigation  /  ري المنطقة',
+    'Pruning  /  تقليم الأشجار',
+    'Weeding  /  إزالة الأعشاب',
+    'Fertilizing  /  تسميد',
+    'Planting  /  زراعة وتشتيل',
+    'Harvesting  /  حصاد',
+    'Soil Preparation  /  تحضير التربة',
+    'Pest Control  /  رش المبيدات أو العلاج',
+    'Inspection  /  فحص ومراقبة',
+    'Cleaning  /  جمع النفايات وتنظيف الموقع',
+    'Equipment Maintenance  /  صيانة المعدات',
+    'Mulching  /  تغطية التربة',
+    'Transplanting  /  نقل الشتلات',
+    'Path Maintenance  /  صيانة الممرات',
+    'Biochar Application  /  تطبيق البايوشار',
+    'Compost Application  /  تطبيق السماد',
+    'Water System Check  /  فحص نظام الري',
+    'Meter Reading  /  قراءة العدادات',
+    'Food Waste Transfer  /  نقل بقايا الطعام إلى منطقة الطمر',
+    'Soil & Moisture Check  /  فحص التربة والرطوبة',
+    'Irrigation Round Check  /  جولة تفقد نظام الري',
+    'Main Line & Equipment Maintenance  /  صيانة الأنابيب الرئيسية والمعدات',
+    'Plant Support  /  دعم النبات',
+    'Other  /  أخرى'
+];
+const WATER_VISUAL_OPTIONS = [
+    'Clear / صافية',
+    'Turbid / عكرة',
+    'Colored / ملونة',
+    'Sediment / رواسب'
+];
+const SDL_STATUS_OPTIONS = [
+    'Open / مفتوح',
+    'Under Investigation / قيد التحقيق',
+    'Awaiting Client Response / بانتظار رد العميل',
+    'Resolved / محلول',
+    'Escalated / مصعَّد'
+];
+const SEVERITY_IR_SDL_OPTIONS = [
+    'Near Miss / حادث وشيك',
+    'Minor / طفيف',
+    'Moderate / متوسط',
+    'Major / كبير',
+    'Critical / حرج'
 ];
 const IRR_DESC_PRESETS = [
     { label: 'Drip only', text: 'Drip only', dur: '1:00 hr' },
@@ -670,11 +700,22 @@ const IRR_DESC_PRESETS = [
     { label: 'Water tanker', text: 'Irrigating the area using a water tanker', dur: '1:00 hr' }
 ];
 const QUICK_NOTE_PHRASES = [
-    { label: 'كسر أنبوب رئيسي', text: 'Main supply pipe break / كسر في أنبوب التغذية الرئيسي' },
-    { label: 'تسريب أنبوب تنقيط', text: 'Drip line leak / تسريب في أنبوب التنقيط' },
-    { label: 'عطل صمام / قفل', text: 'Valve malfunction / عطل في صمام الري' },
-    { label: 'أعمال حفريات', text: 'Blocked due to excavation works / متوقف بسبب أعمال الحفريات' },
-    { label: 'عدم توفر حوضية', text: 'Water tanker was not provided / عدم توفر حوضية مياه' }
+    { cat: 'fault', label: 'كسر أنبوب رئيسي', text: 'Main supply pipe break / كسر في أنبوب التغذية الرئيسي' },
+    { cat: 'fault', label: 'تسريب أنبوب تنقيط', text: 'Drip line leak / تسريب في أنبوب التنقيط' },
+    { cat: 'fault', label: 'عطل صمام / قفل', text: 'Valve malfunction / عطل في صمام الري' },
+    { cat: 'fault', label: 'أعمال حفريات', text: 'Blocked due to excavation works / متوقف بسبب أعمال الحفريات' },
+    { cat: 'fault', label: 'عدم توفر حوضية', text: 'Water tanker was not provided / عدم توفر حوضية مياه' },
+    { cat: 'fault', label: 'انقطاع كهرباء', text: 'Power outage interrupted operation / توقف العمل بسبب انقطاع التيار الكهربائي' },
+    { cat: 'irr', label: 'ضغط طبيعي وري منتظم', text: 'Normal pressure and uniform irrigation coverage / ضغط طبيعي وتوزيع ري منتظم' },
+    { cat: 'irr', label: 'انخفاض ضغط بالخط', text: 'Low water pressure observed on line / لوحظ انخفاض في ضغط المياه بالخط' },
+    { cat: 'irr', label: 'تم غسل الفلاتر', text: 'Main irrigation filters backwashed and cleaned / تم غسل وتنظيف فلاتر الري' },
+    { cat: 'irr', label: 'رطوبة تربة كافية', text: 'Soil moisture sufficient; skipped extra run / رطوبة التربة كافية ولم تحتج ري إضافي' },
+    { cat: 'exec', label: 'أُنجز بالكامل وبجودة', text: 'Completed thoroughly per daily plan / تم التنفيذ بالكامل وفق الخطة اليومية' },
+    { cat: 'exec', label: 'تحتاج متابعة غداً', text: 'Requires follow-up inspection tomorrow / تحتاج متابعة وفحص ميداني غداً' },
+    { cat: 'exec', label: 'إزالة أعشاب وتنظيف', text: 'Weeds cleared and waste transferred to disposal / تمت إزالة الأعشاب ونقل المخلفات' },
+    { cat: 'exec', label: 'معالجة شتلات مجهدة', text: 'Targeted care applied to stressed seedlings / تم تقديم رعاية مركزة للشتلات المجهدة' },
+    { cat: 'crew', label: 'تم إسناد كادر إضافي', text: 'Additional crew support assigned to accelerate work / تم إسناد كادر إضافي لإنجاز العمل' },
+    { cat: 'crew', label: 'بانتظار مواد صيانة', text: 'Pending spare parts / materials delivery / بانتظار توفير مواد وقطع الصيانة' }
 ];
 const DICTATION_CORRECTIONS = [
     [/عيري بيك|يري بيك|اير بيك|عيري بايب/gi, 'irrigation pipe'],
@@ -684,11 +725,18 @@ const DICTATION_CORRECTIONS = [
     [/تانكر|تنكر/gi, 'water tanker'],
     [/فالف|فلف/gi, 'valve']
 ];
-const ROLES = ['Team Lead / قائد فريق', 'Supervisor / مشرف', 'Permanent Worker / عامل دائم', 'Outside Worker / عامل خارجي'];
+const ROLES = [
+    'Employee  /  موظف',
+    'Outside Worker  /  عامل خارجي',
+    'Intern  /  متدرب',
+    'كادر العميل',
+    'Team Lead / قائد فريق',
+    'Supervisor / مشرف'
+];
 const DEFAULT_STAFF = [
-    { name: 'Hussein M. Abed  /  حسين مرتضى عبد', type: 'Permanent Worker / عامل دائم', tIn: '08:00', tOut: '17:00' },
-    { name: 'Hussein Y. Hussin / حسين يوسف حسين', type: 'Permanent Worker / عامل دائم', tIn: '08:00', tOut: '17:00' },
-    { name: 'Mohammed M. Hassan  /  محمد مهدي حسن', type: 'Permanent Worker / عامل دائم', tIn: '08:00', tOut: '17:00' },
+    { name: 'Hussein M. Abed  /  حسين مرتضى عبد', type: 'Employee  /  موظف', tIn: '08:00', tOut: '17:00' },
+    { name: 'Hussein Y. Hussin / حسين يوسف حسين', type: 'Employee  /  موظف', tIn: '08:00', tOut: '17:00' },
+    { name: 'Mohammed M. Hassan  /  محمد مهدي حسن', type: 'Employee  /  موظف', tIn: '08:00', tOut: '17:00' },
     { name: 'حمزة خضر جاسم', type: 'Outside Worker  /  عامل خارجي', tIn: '08:00', tOut: '16:00' },
     { name: 'علي مسلم جواد', type: 'Outside Worker  /  عامل خارجي', tIn: '08:00', tOut: '16:00' },
     { name: 'امير علي فريز', type: 'Outside Worker  /  عامل خارجي', tIn: '08:00', tOut: '16:00' },
@@ -700,7 +748,7 @@ const DEFAULT_TOOLS = [
     { name: 'Garden broom (مكنسة حدائق)', cat: 'Tool / أداة', qty: 1, cond: 'Good / جيد', note: '' },
     { name: 'Grass Trimmer / Lawn Mower (آلة / أداة جز عشب)', cat: 'Equipment / معدة', qty: 2, cond: 'Good / جيد', note: '' },
     { name: 'Gardening gloves (كفوف حدائق)', cat: 'Tool / أداة', qty: 3, cond: 'Good / جيد', note: '' },
-    { name: 'اكياس نفايات', cat: 'Materials / مادة', qty: 5, cond: 'Good / جيد', note: '' }
+    { name: 'اكياس نفايات', cat: 'Material / مادة', qty: 5, cond: 'Good / جيد', note: '' }
 ];
 const HEALTH_CONDITIONS = [
     { id: 'c1', name: 'بصحة جيدة', color: '#81c784', dfl: 'ممتاز' },
@@ -804,7 +852,7 @@ let state = {
 
 
 
-/* ================= V16.9: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V17.0: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -845,7 +893,6 @@ const DEFAULT_PPE_LIST = [
 ];
 
 function ensureSiteStock(site) {
-    if (typeof site.fuelBalance !== 'number' || isNaN(site.fuelBalance)) site.fuelBalance = 0;
     if (!Array.isArray(site.stockItems)) {
         site.stockItems = [
             { id: 'stk_bags', name: 'اكياس نفايات', unit: 'كيس', qty: 50, minAlert: 15 },
@@ -927,7 +974,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V16.9: Task Presets Manager ================= */
+/* ================= V17.0: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1017,7 +1064,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V16.9: DFL Readiness Progress Bar ================= */
+/* ================= V17.0: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1057,134 +1104,722 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V16.9: Weekly / Monthly Site Analytics Dashboard ================= */
-function openDeepAnalyticsModal(subTab = 'zones') {
+/* ================= V17.0: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
+let _anState = { tab: 'blind', period: '7d', fromDate: '', toDate: '' };
+
+function getAnalyticsDateRange(site, period, customFrom = '', customTo = '') {
+    const activeD = state.activeDate;
+    const activeMs = new Date(activeD + 'T12:00:00').getTime();
+    const allDates = Object.keys(site.logs || {}).sort();
+    const filtered = allDates.filter(d => {
+        if (period === 'all') return true;
+        if (period === 'today') return d === activeD;
+        if (period === 'custom') {
+            if (customFrom && d < customFrom) return false;
+            if (customTo && d > customTo) return false;
+            return true;
+        }
+        const dMs = new Date(d + 'T12:00:00').getTime();
+        const diffDays = Math.round((activeMs - dMs) / 86400000);
+        if (period === '7d') return diffDays >= 0 && diffDays <= 7;
+        if (period === '30d') return diffDays >= 0 && diffDays <= 30;
+        return true;
+    });
+    return { allDates, filteredDates: filtered };
+}
+
+function computeFullSiteAnalytics(period = '7d', customFrom = '', customTo = '') {
     const site = getSite();
-    const allDates = Object.keys(site.logs).sort().reverse();
+    const activeD = state.activeDate;
+    const activeMs = new Date(activeD + 'T12:00:00').getTime();
+    const rate = parseFloat(state.company.outsideRate) || 25000;
+    const { allDates, filteredDates } = getAnalyticsDateRange(site, period, customFrom, customTo);
+
+    // Trackers
+    let meterM3 = 0, tankerL = 0, tankerTrips = 0, pumpHrs = 0, genHrs = 0;
+    let totalTasks = 0, doneTasks = 0, blockedTasks = 0, carriedTasks = 0, inProgTasks = 0;
+    let totalOutsidePay = 0, totalOutsideDays = 0, totalOtHrs = 0;
+    let totalPaidShiftMins = 0, totalWorkedTaskMins = 0, unassignedTasksCount = 0;
+
+    const dailyMeterUsage = [];
+    const ppmValues = [];
+    const visualCounts = {};
+    const gaugeStats = {};
     const zoneStats = {};
-    const zoneTaskStats = {};
-    const historyRows = [];
+    const taskTypeStats = {};
+    const blockReasons = {};
+    const workerStats = {};
+    const agroHistory = {};
+    const plannedVsActual = [];
+    const lastIrrAll = {};
 
-    allDates.forEach(d => {
-        const log = site.logs[d];
-        const presCnt = (log.attendance || []).filter(w => !w.status.includes('Absent')).length;
-        let dayDone = 0, dayBlocked = 0, dayWaterM3 = 0;
-
-        (log.meters || []).forEach(m => {
-            if (m.status === 'working' && m.curr !== '' && !isNaN(parseFloat(m.curr))) {
-                const diff = parseFloat(m.curr) - (parseFloat(m.prev) || 0);
-                if (diff > 0) dayWaterM3 += diff;
+    // Compute last irrigation & last agro across ALL history up to activeDate (for blind-spot detector)
+    allDates.filter(d => d <= activeD).forEach(d => {
+        const dl = site.logs[d];
+        (dl.tasks || []).forEach(t => {
+            const zList = (t.zones || '').split(',').map(z => z.trim()).filter(Boolean);
+            if (t.task.includes('Irrigation') && t.status.includes('Completed')) {
+                zList.forEach(z => { lastIrrAll[z] = d; });
             }
-        });
-
-        (log.tasks || []).forEach(t => {
-            const zArr = (t.zones || 'General').split(',').map(z => z.trim()).filter(Boolean);
-            const wCnt = (t.workers && t.workers[0] === 'Team') ? Math.max(1, presCnt) : (t.workers && t.workers.length ? t.workers.length : 1);
-            const mins = parseDurationToMins(getTaskReportDurationStr(t, Date.now(), d));
-            const tShort = (t.task.split('/')[1] || t.task).trim();
-
-            if (t.status.includes('Completed')) dayDone++;
-            if (t.status.includes('Blocked')) dayBlocked++;
-
-            zArr.forEach(z => {
-                if (!zoneStats[z]) zoneStats[z] = { tasks: 0, totalMins: 0, totalWorkers: 0, blocked: 0, problems: [] };
-                const shareMins = mins / (zArr.length || 1);
-                zoneStats[z].tasks++;
-                zoneStats[z].totalMins += shareMins;
-                zoneStats[z].totalWorkers += wCnt;
-                if (t.status.includes('Blocked')) {
-                    zoneStats[z].blocked++;
-                    if (t.note) zoneStats[z].problems.push(`${d}: ${t.note}`);
+            if (t.agroName || (t.task || '').includes('Fertilizing') || (t.task || '').includes('Pest Control') || (t.task || '').includes('Biochar') || (t.task || '').includes('Compost')) {
+                if (t.status.includes('Completed') || t.agroName) {
+                    zList.forEach(z => {
+                        agroHistory[z] = {
+                            zone: z, date: d,
+                            material: t.agroName || (t.task.split('/')[1] || t.task).trim(),
+                            dose: t.agroDose || '-',
+                            daysAgo: Math.max(0, Math.round((activeMs - new Date(d + 'T12:00:00').getTime()) / 86400000))
+                        };
+                    });
                 }
-
-                const ztKey = `${z}|||${tShort}`;
-                if (!zoneTaskStats[ztKey]) zoneTaskStats[ztKey] = { zone: z, task: tShort, count: 0, totalMins: 0, totalWorkers: 0 };
-                zoneTaskStats[ztKey].count++;
-                zoneTaskStats[ztKey].totalMins += shareMins;
-                zoneTaskStats[ztKey].totalWorkers += wCnt;
-            });
-        });
-
-        (site.issues || []).forEach(iss => {
-            if (iss.date === d && iss.zone) {
-                if (!zoneStats[iss.zone]) zoneStats[iss.zone] = { tasks: 0, totalMins: 0, totalWorkers: 0, blocked: 0, problems: [] };
-                zoneStats[iss.zone].blocked++;
-                zoneStats[iss.zone].problems.push(`${d}: [${iss.code}] ${iss.desc}`);
             }
-        });
-
-        historyRows.push({
-            date: d,
-            dflNum: log.dflNum,
-            presCnt,
-            totalTasks: (log.tasks || []).length,
-            dayDone,
-            dayBlocked,
-            dayWaterM3: dayWaterM3.toFixed(1)
         });
     });
 
+    // Main loop over filteredDates
+    filteredDates.forEach(d => {
+        const dl = site.logs[d];
+        const att = dl.attendance || [];
+        const presWorkers = att.filter(w => !String(w.status || '').includes('Absent'));
+        const presCnt = presWorkers.length;
+
+        // Meter consumption per day
+        let dayM3 = 0, dayIrrHrs = 0;
+        (dl.meters || []).forEach(m => {
+            if (m.status === 'working' && m.curr !== '' && m.curr != null && !isNaN(parseFloat(m.curr))) {
+                const diff = parseFloat(m.curr) - (parseFloat(m.prev) || 0);
+                if (diff > 0) { meterM3 += diff; dayM3 += diff; }
+            }
+            const vis = (m.visual || 'Clear / صافية').split('/')[1] || m.visual || 'صافية';
+            visualCounts[vis.trim()] = (visualCounts[vis.trim()] || 0) + 1;
+        });
+
+        // Gauges health
+        (dl.gauges || []).forEach(g => {
+            if (g.val === '' || g.val == null || isNaN(parseFloat(g.val))) return;
+            const v = parseFloat(g.val);
+            const norm = parseFloat(g.normal) || 2.0;
+            if (!gaugeStats[g.name]) gaugeStats[g.name] = { name: g.name, normal: norm, readings: [], lowCount: 0 };
+            gaugeStats[g.name].readings.push(v);
+            if (v < norm) gaugeStats[g.name].lowCount++;
+        });
+
+        if (dl.machinery) {
+            pumpHrs += parseFloat(dl.machinery.pumpHrs) || 0;
+            genHrs += parseFloat(dl.machinery.genHrs) || 0;
+        }
+
+        // Attendance & Cost & Punctuality
+        let dayCostIQD = 0;
+        const dayWorkerShiftMins = {};
+        att.forEach(w => {
+            const wn = (w.name.split('/')[1] || w.name).trim();
+            if (!workerStats[wn]) {
+                workerStats[wn] = { name: wn, type: w.type, present: 0, halfDay: 0, absent: 0, late: 0, lateMinsSum: 0, otHrs: 0, shiftMins: 0, workedMins: 0, tasksCount: 0, payIQD: 0 };
+            }
+            const ws = workerStats[wn];
+            const st = String(w.status || '');
+            const isAbs = st.includes('Absent');
+            const isHalf = st.includes('Half Day');
+            const isLate = st.includes('Late');
+            const isOut = String(w.type || '').includes('Outside');
+            const ot = parseFloat(w.ot) || 0;
+            totalOtHrs += ot;
+            ws.otHrs += ot;
+
+            if (isAbs) {
+                ws.absent++;
+            } else {
+                if (isHalf) { ws.halfDay++; ws.present += 0.5; }
+                else ws.present++;
+                if (isLate) {
+                    ws.late++;
+                    const inM = hhmmToDateMs(w.tIn || '08:00', d);
+                    const refM = hhmmToDateMs('08:00', d);
+                    if (inM && refM && inM > refM) ws.lateMinsSum += Math.round((inM - refM) / 60000);
+                }
+                let sMins = isHalf ? 210 : 420;
+                if (w.tIn && w.tOut) {
+                    const sMs = hhmmToDateMs(w.tIn, d), eMs = hhmmToDateMs(w.tOut, d);
+                    if (sMs && eMs && eMs > sMs) {
+                        const brk = getBreakOverlapMs(sMs, eMs, d);
+                        sMins = Math.max(0, Math.round((eMs - sMs - brk) / 60000));
+                    }
+                }
+                sMins += Math.round(ot * 60);
+                ws.shiftMins += sMins;
+                totalPaidShiftMins += sMins;
+                dayWorkerShiftMins[wn] = sMins;
+
+                if (isOut) {
+                    const dayMult = isHalf ? 0.5 : 1;
+                    const otPay = Math.round((rate / 7) * ot);
+                    const p = Math.round(rate * dayMult) + otPay;
+                    ws.payIQD += p;
+                    totalOutsidePay += p;
+                    totalOutsideDays += dayMult;
+                    dayCostIQD += p;
+                }
+            }
+        });
+
+        // Compute task man-minutes to allocate daily labor cost proportionally across zones & task types!
+        const dayTaskEntries = [];
+        let dayTotalManMins = 0;
+        (dl.tasks || []).forEach(t => {
+            totalTasks++;
+            const st = String(t.status || '');
+            if (st.includes('Completed')) doneTasks++;
+            else if (st.includes('Blocked')) blockedTasks++;
+            else if (st.includes('Carried Over')) carriedTasks++;
+            else if (st.includes('Progress')) inProgTasks++;
+
+            const actualMins = parseDurationToMins(getTaskReportDurationStr(t, Date.now(), d));
+            const plannedMins = parseDurationToMins(t.dur) || 60;
+            if (st.includes('Completed') && actualMins > 0 && plannedMins > 0) {
+                const diffM = actualMins - plannedMins;
+                if (Math.abs(diffM) >= 15) {
+                    plannedVsActual.push({ date: d, zones: t.zones, task: (t.task.split('/')[1] || t.task).trim(), plannedMins, actualMins, diffM });
+                }
+            }
+            if (t.task.includes('Irrigation') && (st.includes('Completed') || st.includes('Progress'))) {
+                dayIrrHrs += actualMins / 60;
+            }
+
+            // Tanker stats
+            const tkTot = getTaskTotalTankerLiters(t);
+            if (tkTot > 0) {
+                tankerL += tkTot;
+                tankerTrips += (t.tankerTrips || 1);
+            }
+            if (t.tankerPpm && !isNaN(parseFloat(t.tankerPpm))) ppmValues.push({ val: parseFloat(t.tankerPpm), date: d, zones: t.zones });
+
+            // Workers credited
+            const wList = t.workers || [];
+            if (wList.length === 0 && (st.includes('Completed') || st.includes('Progress'))) unassignedTasksCount++;
+            const assignedNames = wList.includes('Team')
+                ? presWorkers.map(w => (w.name.split('/')[1] || w.name).trim())
+                : wList.filter(Boolean);
+            const wCnt = Math.max(1, assignedNames.length);
+            const isPassive = isTaskPassiveIrrigation(t);
+            const effectiveWorkMins = isPassive ? Math.min(15, actualMins) : actualMins;
+            if (st.includes('Completed') || st.includes('Progress')) {
+                assignedNames.forEach(wn => {
+                    if (workerStats[wn]) {
+                        workerStats[wn].workedMins += effectiveWorkMins;
+                        workerStats[wn].tasksCount++;
+                    }
+                    totalWorkedTaskMins += effectiveWorkMins;
+                });
+            }
+
+            const manMins = (st.includes('Completed') || st.includes('Progress')) ? (effectiveWorkMins * wCnt) : 0;
+            dayTotalManMins += manMins;
+            dayTaskEntries.push({ t, actualMins, manMins, wCnt });
+
+            if (st.includes('Blocked')) {
+                const reasonRaw = String(t.note || 'سبب غير محدد').split('\n')[0].trim().slice(0, 65);
+                if (!blockReasons[reasonRaw]) blockReasons[reasonRaw] = { reason: reasonRaw, count: 0, lostMins: 0 };
+                blockReasons[reasonRaw].count++;
+                blockReasons[reasonRaw].lostMins += plannedMins;
+            }
+        });
+
+        // Allocate daily cost & accumulate zone/task metrics
+        dayTaskEntries.forEach(({ t, actualMins, manMins, wCnt }) => {
+            const shareCost = (dayTotalManMins > 0 && manMins > 0) ? (dayCostIQD * (manMins / dayTotalManMins)) : 0;
+            const tLabel = (t.task.split('/')[1] || t.task).trim();
+            if (!taskTypeStats[tLabel]) taskTypeStats[tLabel] = { name: tLabel, count: 0, done: 0, blocked: 0, totalMins: 0, manMins: 0, costIQD: 0 };
+            taskTypeStats[tLabel].count++;
+            if (t.status.includes('Completed')) taskTypeStats[tLabel].done++;
+            if (t.status.includes('Blocked')) taskTypeStats[tLabel].blocked++;
+            taskTypeStats[tLabel].totalMins += actualMins;
+            taskTypeStats[tLabel].manMins += manMins;
+            taskTypeStats[tLabel].costIQD += shareCost;
+
+            const zArr = (t.zones || 'عام / General').split(',').map(z => z.trim()).filter(Boolean);
+            const zDiv = Math.max(1, zArr.length);
+            zArr.forEach(z => {
+                if (!zoneStats[z]) zoneStats[z] = { zone: z, tasks: 0, done: 0, blocked: 0, totalMins: 0, manMins: 0, costIQD: 0, tankerL: 0 };
+                zoneStats[z].tasks++;
+                if (t.status.includes('Completed')) zoneStats[z].done++;
+                if (t.status.includes('Blocked')) zoneStats[z].blocked++;
+                zoneStats[z].totalMins += actualMins / zDiv;
+                zoneStats[z].manMins += manMins / zDiv;
+                zoneStats[z].costIQD += shareCost / zDiv;
+                zoneStats[z].tankerL += getTaskTotalTankerLiters(t) / zDiv;
+            });
+        });
+
+        if (dayM3 > 0) dailyMeterUsage.push({ date: d, m3: dayM3, irrHrs: dayIrrHrs });
+    });
+
+    // Inventory & Plant Health & Growth Tracker (full site inventory)
+    const invZonesCount = (site.inventory || []).length;
+    const totalSiteZones = (site.zones || []).filter(z => !z.includes('عام')).length || 32;
+    let totalPlants = 0, healthyPlants = 0, stressedPlants = 0, deadPlants = 0;
+    const invZoneSummary = [];
+    const speciesMap = {};
+    const inventoriedZoneNames = new Set();
+
+    (site.inventory || []).forEach(z => {
+        inventoriedZoneNames.add(z.name);
+        let zTot = 0, zHealthy = 0, zStressed = 0, zDead = 0, zLastDate = '';
+        (z.plants || []).forEach(p => {
+            const c = p.counts || {};
+            const h = c.c1 || 0;
+            const dCnt = c.c3 || 0;
+            const sCnt = (c.c2 || 0) + (c.c4 || 0) + (c.c5 || 0) + (c.c6 || 0);
+            const pTot = h + sCnt + dCnt;
+            if (pTot === 0) return;
+            zTot += pTot; zHealthy += h; zStressed += sCnt; zDead += dCnt;
+            totalPlants += pTot; healthyPlants += h; stressedPlants += sCnt; deadPlants += dCnt;
+
+            if (!speciesMap[p.name]) speciesMap[p.name] = { name: p.name, total: 0, healthy: 0, stressed: 0, dead: 0, heights: [], datedHeights: [] };
+            const sp = speciesMap[p.name];
+            sp.total += pTot; sp.healthy += h; sp.stressed += sCnt; sp.dead += dCnt;
+
+            (p.entries || []).forEach(e => {
+                if (e.date && (!zLastDate || e.date > zLastDate)) zLastDate = e.date;
+                const hv = parseFloat(e.height);
+                if (!isNaN(hv) && hv > 0) {
+                    sp.heights.push(hv);
+                    if (e.date) sp.datedHeights.push({ date: e.date, h: hv });
+                }
+            });
+        });
+        const zStaleDays = zLastDate ? Math.max(0, Math.round((activeMs - new Date(zLastDate + 'T12:00:00').getTime()) / 86400000)) : null;
+        invZoneSummary.push({
+            zone: z.name, total: zTot, healthy: zHealthy, stressed: zStressed, dead: zDead,
+            survivalPct: zTot ? Math.round((zHealthy / zTot) * 100) : 0,
+            deadPct: zTot ? Math.round((zDead / zTot) * 100) : 0,
+            lastDate: zLastDate, staleDays: zStaleDays
+        });
+    });
+
+    const speciesList = Object.values(speciesMap).map(sp => {
+        const avgH = sp.heights.length ? +(sp.heights.reduce((a, b) => a + b, 0) / sp.heights.length).toFixed(2) : null;
+        let growthDelta = null;
+        if (sp.datedHeights.length >= 2) {
+            const byDate = {};
+            sp.datedHeights.forEach(x => { if (!byDate[x.date]) byDate[x.date] = []; byDate[x.date].push(x.h); });
+            const dKeys = Object.keys(byDate).sort();
+            if (dKeys.length >= 2) {
+                const firstAvg = byDate[dKeys[0]].reduce((a, b) => a + b, 0) / byDate[dKeys[0]].length;
+                const lastAvg = byDate[dKeys[dKeys.length - 1]].reduce((a, b) => a + b, 0) / byDate[dKeys[dKeys.length - 1]].length;
+                growthDelta = +(lastAvg - firstAvg).toFixed(2);
+            }
+        }
+        return {
+            ...sp,
+            survivalPct: sp.total ? Math.round((sp.healthy / sp.total) * 100) : 0,
+            deadPct: sp.total ? Math.round((sp.dead / sp.total) * 100) : 0,
+            avgH, growthDelta
+        };
+    }).sort((a, b) => b.total - a.total);
+
+    // Blind-Spot Alerts Engine
+    const blindSpots = [];
+
+    // 1) Thirst vs. Plant Stress Correlation
+    invZoneSummary.forEach(iz => {
+        if (iz.stressed + iz.dead >= 3) {
+            const lastIrr = lastIrrAll[iz.zone];
+            const irrDays = lastIrr ? Math.max(0, Math.round((activeMs - new Date(lastIrr + 'T12:00:00').getTime()) / 86400000)) : null;
+            const zBlk = (zoneStats[iz.zone] && zoneStats[iz.zone].blocked) || 0;
+            if (irrDays === null || irrDays >= 3 || zBlk > 0) {
+                blindSpots.push({
+                    sev: 'crit',
+                    title: `🌿💧 ارتباط عطش وتدهور في (${iz.zone})`,
+                    detail: `توجد ${iz.stressed} شتلة مجهدة/مصفرة و${iz.dead} هالكة؛ وآخر ري كان ${irrDays === null ? 'غير مسجّل' : `قبل ${irrDays} أيام`}${zBlk ? ` مع ${zBlk} توقفات للري` : ''}.`
+                });
+            }
+        }
+    });
+
+    // 2) Water Meter Leak / Spike Detector
+    if (dailyMeterUsage.length >= 3) {
+        const latest = dailyMeterUsage[dailyMeterUsage.length - 1];
+        const prior = dailyMeterUsage.slice(0, -1);
+        const avgPriorM3 = prior.reduce((s, x) => s + x.m3, 0) / prior.length;
+        const avgPriorIrr = prior.reduce((s, x) => s + x.irrHrs, 0) / prior.length;
+        if (avgPriorM3 > 1 && latest.m3 > avgPriorM3 * 1.35 && latest.irrHrs <= avgPriorIrr * 1.15) {
+            const pctJump = Math.round(((latest.m3 - avgPriorM3) / avgPriorM3) * 100);
+            blindSpots.push({
+                sev: 'crit',
+                title: `🚨 اشتباه تسريب مياه صامت (${latest.date})`,
+                detail: `استهلاك العداد قفز إلى ${latest.m3.toFixed(1)} m³ (زيادة +${pctJump}% عن المتوسط ${avgPriorM3.toFixed(1)} m³) دون زيادة مقابلة في ساعات الري.`
+            });
+        }
+    }
+
+    // 3) Crew Idle Hours & Unassigned Tasks
+    const idleMins = Math.max(0, totalPaidShiftMins - totalWorkedTaskMins);
+    const utilizationPct = totalPaidShiftMins > 0 ? Math.min(100, Math.round((totalWorkedTaskMins / totalPaidShiftMins) * 100)) : 0;
+    if (totalPaidShiftMins > 0 && utilizationPct < 65) {
+        blindSpots.push({
+            sev: 'warn',
+            title: `⏱️ ساعات دوام غير موثّقة بمهام (${formatMsAsHrMin(idleMins * 60000)})`,
+            detail: `نسبة توثيق ساعات الكادر داخل المهام هي ${utilizationPct}% فقط (${formatMsAsHrMin(totalWorkedTaskMins * 60000)} من أصل ${formatMsAsHrMin(totalPaidShiftMins * 60000)} مدفوعة).`
+        });
+    }
+    if (unassignedTasksCount > 0) {
+        blindSpots.push({
+            sev: 'warn',
+            title: `👷 مهام منفّذة بدون تحديد أسماء العمال (${unassignedTasksCount})`,
+            detail: `توجد ${unassignedTasksCount} مهام مكتملة/جارية بلا عمال معيّنين مما يقلل دقة توزيع الكلفة والساعات.`
+        });
+    }
+
+    // 4) Sleeping Open Issues (>3 days)
+    const sleepingIssues = (site.issues || []).filter(i => i.status === 'Open').map(i => {
+        const age = i.date ? Math.max(0, Math.round((activeMs - new Date(i.date + 'T12:00:00').getTime()) / 86400000)) : 0;
+        return { ...i, age };
+    }).filter(i => i.age >= 3).sort((a, b) => b.age - a.age);
+    if (sleepingIssues.length > 0) {
+        blindSpots.push({
+            sev: sleepingIssues[0].age >= 7 ? 'crit' : 'warn',
+            title: `⚠️ مشاكل مفتوحة متأخرة بدون حل (${sleepingIssues.length})`,
+            detail: sleepingIssues.slice(0, 3).map(i => `${i.code} [${i.zone}] مفتوحة منذ ${i.age} أيام: ${i.desc}`).join(' | ')
+        });
+    }
+
+    // 5) High Salinity Water Alert (>1500 PPM)
+    const maxPpmObj = ppmValues.length ? ppmValues.reduce((a, b) => b.val > a.val ? b : a) : null;
+    if (maxPpmObj && maxPpmObj.val >= 1500) {
+        blindSpots.push({
+            sev: 'warn',
+            title: `🧪 ارتفاع ملوحة مياه التنكر (${maxPpmObj.val} PPM)`,
+            detail: `سُجّلت ملوحة عالية بتاريخ ${maxPpmObj.date} في منطقة (${maxPpmObj.zones}) — يُنصح بفحص مصدر الحوضية.`
+        });
+    }
+
+    // 6) Chronic Low Pressure Gauges
+    const weakGauges = Object.values(gaugeStats).filter(g => g.readings.length >= 2 && (g.lowCount / g.readings.length) >= 0.4);
+    if (weakGauges.length > 0) {
+        blindSpots.push({
+            sev: 'warn',
+            title: `🎛️ هبوط متكرر بضغط الشبكة (${weakGauges.length} مقاييس)`,
+            detail: weakGauges.map(g => `${g.name}: منخفض في ${Math.round((g.lowCount / g.readings.length) * 100)}% من القراءات`).join(' | ')
+        });
+    }
+
+    // 7) Forgotten Zones (Never Inventoried or >30d stale)
+    const uninventoriedZones = (site.zones || []).filter(z => !z.includes('عام') && !inventoriedZoneNames.has(z));
+    const staleInvZones = invZoneSummary.filter(z => z.staleDays !== null && z.staleDays >= 30);
+    if (uninventoriedZones.length > 0 || staleInvZones.length > 0) {
+        blindSpots.push({
+            sev: 'warn',
+            title: `🌿 مناطق منسية في الجرد (${uninventoriedZones.length} غير مجردة | ${staleInvZones.length} قديمة +30 يوم)`,
+            detail: uninventoriedZones.length ? `لم تُجرد بعد: ${uninventoriedZones.slice(0, 8).join('، ')}${uninventoriedZones.length > 8 ? '...' : ''}` : `تحتاج تحديث جرد: ${staleInvZones.map(x => x.zone).join('، ')}`
+        });
+    }
+
+    const totalWaterM3 = meterM3 + tankerL / 1000;
+    const tankerDepPct = totalWaterM3 > 0 ? Math.round(((tankerL / 1000) / totalWaterM3) * 100) : 0;
+    const avgPpm = ppmValues.length ? Math.round(ppmValues.reduce((s, x) => s + x.val, 0) / ppmValues.length) : null;
+
+    return {
+        siteName: site.name,
+        period,
+        daysCount: filteredDates.length,
+        totalArchiveDays: allDates.length,
+        dateFrom: filteredDates[0] || activeD,
+        dateTo: filteredDates[filteredDates.length - 1] || activeD,
+        blindSpots,
+        meterM3, tankerL, tankerTrips, totalWaterM3, tankerDepPct, pumpHrs, genHrs,
+        avgPpm, maxPpmObj, ppmCount: ppmValues.length, visualCounts,
+        gaugesList: Object.values(gaugeStats).map(g => ({
+            ...g,
+            avg: +(g.readings.reduce((a, b) => a + b, 0) / g.readings.length).toFixed(2),
+            min: +Math.min(...g.readings).toFixed(2),
+            lowPct: Math.round((g.lowCount / g.readings.length) * 100)
+        })),
+        agroList: Object.values(agroHistory).sort((a, b) => b.daysAgo - a.daysAgo),
+        totalTasks, doneTasks, blockedTasks, carriedTasks, inProgTasks,
+        completionPct: totalTasks ? Math.round((doneTasks / totalTasks) * 100) : 0,
+        blockPct: totalTasks ? Math.round((blockedTasks / totalTasks) * 100) : 0,
+        carryPct: totalTasks ? Math.round((carriedTasks / totalTasks) * 100) : 0,
+        totalOutsidePay, totalOutsideDays, totalOtHrs,
+        totalPaidShiftMins, totalWorkedTaskMins, utilizationPct, unassignedTasksCount,
+        zoneList: Object.values(zoneStats).sort((a, b) => b.costIQD - a.costIQD || b.totalMins - a.totalMins),
+        taskTypeList: Object.values(taskTypeStats).sort((a, b) => b.manMins - a.manMins),
+        blockReasonsList: Object.values(blockReasons).sort((a, b) => b.count - a.count),
+        workerList: Object.values(workerStats).sort((a, b) => b.workedMins - a.workedMins),
+        plannedVsActual: plannedVsActual.sort((a, b) => Math.abs(b.diffM) - Math.abs(a.diffM)).slice(0, 8),
+        inv: {
+            invZonesCount, totalSiteZones,
+            coveragePct: Math.min(100, Math.round((invZonesCount / totalSiteZones) * 100)),
+            totalPlants, healthyPlants, stressedPlants, deadPlants,
+            survivalPct: totalPlants ? Math.round((healthyPlants / totalPlants) * 100) : 0,
+            deadPct: totalPlants ? Math.round((deadPlants / totalPlants) * 100) : 0,
+            zones: invZoneSummary.sort((a, b) => (b.stressed + b.dead) - (a.stressed + a.dead)),
+            species: speciesList,
+            unit: state.company.heightUnit || 'م'
+        }
+    };
+}
+
+function openAnalyticsCenterModal(tab = _anState.tab || 'blind', period = _anState.period || '7d') {
+    _anState.tab = tab;
+    _anState.period = period;
+    const fromD = _anState.fromDate || state.activeDate.slice(0, 8) + '01';
+    const toD = _anState.toDate || state.activeDate;
+    const data = computeFullSiteAnalytics(period, fromD, toD);
+    window._latestAnalyticsData = data;
+
     let bodyHtml = '';
-    if (subTab === 'zones') {
-        const zSorted = Object.keys(zoneStats).sort((a, b) => zoneStats[b].totalMins - zoneStats[a].totalMins);
-        bodyHtml = zSorted.length === 0
-            ? '<div style="text-align:center;color:var(--muted);padding:16px;">لا توجد بيانات كافية بعد</div>'
-            : zSorted.map(z => {
-                const st = zoneStats[z];
-                const avgMins = st.tasks ? Math.round(st.totalMins / st.tasks) : 0;
-                const avgWorkers = st.tasks ? (st.totalWorkers / st.tasks).toFixed(1) : '0';
-                return `
-                <div class="meter-card" style="padding:8px;margin-bottom:6px;border-right:4px solid ${st.blocked > 0 ? 'var(--red)' : 'var(--primary)'};">
-                    <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <b style="font-size:13px;">📍 ${esc(z)}</b>
-                        <span class="badge" style="background:#e0f2fe;color:#0369a1;">${st.tasks} مهام</span>
+
+    if (tab === 'blind') {
+        bodyHtml = `
+        <div class="grid-3" style="margin-bottom:8px;">
+            <div class="kpi-box"><div class="kpi-val" style="color:${data.blindSpots.length ? 'var(--red)' : 'var(--primary)'};">${data.blindSpots.length}</div><div class="kpi-sub">تنبيهات مرصودة</div></div>
+            <div class="kpi-box"><div class="kpi-val">${data.utilizationPct}%</div><div class="kpi-sub">استثمار ساعات الكادر</div></div>
+            <div class="kpi-box"><div class="kpi-val">${data.inv.coveragePct}%</div><div class="kpi-sub">تغطية الجرد</div></div>
+        </div>
+        ${data.blindSpots.length === 0 ? `
+            <div class="blind-alert good">✅ <b>ممتاز! لم تُرصد أي نقاط عمياء أو أعطال صامتة</b> ضمن الفترة المختارة (${data.daysCount} أيام).</div>
+        ` : data.blindSpots.map(b => `
+            <div class="blind-alert ${b.sev === 'crit' ? 'crit' : ''}">
+                <div style="font-weight:bold;margin-bottom:2px;">${esc(b.title)}</div>
+                <div>${esc(b.detail)}</div>
+            </div>
+        `).join('')}`;
+    } else if (tab === 'crew') {
+        bodyHtml = `
+        <div class="grid-3" style="margin-bottom:8px;">
+            <div class="kpi-box"><div class="kpi-val">${data.completionPct}%</div><div class="kpi-sub">إنجاز (${data.doneTasks}/${data.totalTasks})</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="color:var(--red);">${data.blockPct}%</div><div class="kpi-sub">توقف (${data.blockedTasks}) / ترحيل (${data.carriedTasks})</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="font-size:13px;">${data.totalOutsidePay.toLocaleString()}</div><div class="kpi-sub">كلفة خارجية (IQD)</div></div>
+        </div>
+        <b style="font-size:12px;display:block;margin-bottom:4px;">📍 أعلى المناطق كلفة وساعات عمل:</b>
+        <div style="margin-bottom:8px;">
+            ${data.zoneList.length === 0 ? '<div style="font-size:11.5px;color:var(--muted);">لا توجد مهام في الفترة</div>' :
+            data.zoneList.slice(0, 8).map(z => `
+                <div class="meter-card" style="padding:7px;margin-bottom:5px;border-right:4px solid ${z.blocked ? 'var(--red)' : 'var(--primary)'};">
+                    <div style="display:flex;justify-content:space-between;font-size:12px;">
+                        <b>📍 ${esc(z.zone)}</b>
+                        <span style="color:var(--primary-dark);font-weight:bold;">${Math.round(z.costIQD).toLocaleString()} IQD</span>
                     </div>
-                    <div style="font-size:11px;margin-top:4px;color:#334155;">
-                        ⏱️ متوسط الوقت: <b>${avgMins} دقيقة</b> | 👷 متوسط العمال: <b>${avgWorkers} عامل</b> | 🚫 المشاكل/التوقفات: <b style="color:${st.blocked ? 'var(--red)' : 'inherit'};">${st.blocked}</b>
-                    </div>
-                    ${st.problems.length ? `<div style="font-size:10px;color:#b91c1c;margin-top:3px;">• ${esc(st.problems.slice(-2).join(' | '))}</div>` : ''}
-                </div>`;
-            }).join('');
-    } else if (subTab === 'tasks') {
-        const ztSorted = Object.values(zoneTaskStats).sort((a, b) => b.count - a.count);
-        bodyHtml = ztSorted.length === 0
-            ? '<div style="text-align:center;color:var(--muted);padding:16px;">لا توجد بيانات مهام مكتملة بعد</div>'
-            : ztSorted.map(item => {
-                const avgM = Math.round(item.totalMins / item.count);
-                const avgW = (item.totalWorkers / item.count).toFixed(1);
-                return `
-                <div class="meter-card" style="padding:7px;margin-bottom:5px;font-size:12px;">
-                    <b>📍 ${esc(item.zone)} — ${esc(item.task)}</b>
-                    <div style="font-size:11px;color:var(--muted);margin-top:2px;">
-                        التكرار: <b>${item.count}×</b> | متوسط الوقت: <b>${avgM} دقيقة</b> | متوسط العمال: <b>${avgW}</b>
-                    </div>
-                </div>`;
-            }).join('');
-    } else {
-        bodyHtml = historyRows.length === 0
-            ? '<div style="text-align:center;color:var(--muted);padding:16px;">لا يوجد سجل أيام بعد</div>'
-            : historyRows.map(r => `
-                <div class="meter-card" style="padding:7px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="jumpToArchiveDate('${r.date}')">
-                    <div>
-                        <b style="font-size:12px;">📅 ${r.date} — DFL-${r.dflNum}</b>
-                        <div style="font-size:10px;color:var(--muted);">👷 الحضور: ${r.presCnt} | ✅ مكتمل: ${r.dayDone}/${r.totalTasks} | 🚫 متوقف: ${r.dayBlocked} | 💧 ${r.dayWaterM3} m³</div>
-                    </div>
-                    <span class="btn btn-blue btn-sm">فتح</span>
+                    <div style="font-size:10.5px;color:var(--muted);">مهام: ${z.done}/${z.tasks} | ساعات عمل: ${(z.manMins / 60).toFixed(1)}h-عامل | توقفات: ${z.blocked}</div>
                 </div>
-            `).join('');
+            `).join('')}
+        </div>
+        <b style="font-size:12px;display:block;margin-bottom:4px;">👷 كفاءة وانضباط الكادر:</b>
+        <div style="margin-bottom:8px;">
+            ${data.workerList.map(w => {
+                const util = w.shiftMins ? Math.min(100, Math.round((w.workedMins / w.shiftMins) * 100)) : 0;
+                const avgLate = w.late ? Math.round(w.lateMinsSum / w.late) : 0;
+                return `
+                <div class="meter-card" style="padding:7px;margin-bottom:5px;font-size:11.5px;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <b>${esc(w.name)}</b>
+                        <span style="color:var(--blue);font-weight:bold;">${(w.workedMins / 60).toFixed(1)}h / ${(w.shiftMins / 60).toFixed(1)}h (${util}%)</span>
+                    </div>
+                    <div style="font-size:10.5px;color:var(--muted);">حضور: ${w.present} | غياب: ${w.absent} | تأخير: ${w.late}${avgLate ? ` (متوسط ${avgLate} د)` : ''} | OT: ${w.otHrs}h${w.payIQD ? ` | ${w.payIQD.toLocaleString()} IQD` : ''}</div>
+                </div>`;
+            }).join('')}
+        </div>
+        ${data.blockReasonsList.length ? `
+        <b style="font-size:12px;color:var(--red);display:block;margin-bottom:4px;">🛑 أكثر أسباب التوقف تكراراً:</b>
+        ${data.blockReasonsList.slice(0, 5).map(r => `<div style="font-size:11px;padding:4px 7px;background:#fef2f2;border-radius:6px;margin-bottom:4px;color:#991b1b;">• <b>${esc(r.reason)}</b> (${r.count}× — ضياع ${(r.lostMins / 60).toFixed(1)} س)</div>`).join('')}` : ''}
+        ${data.plannedVsActual.length ? `
+        <b style="font-size:12px;display:block;margin:6px 0 4px 0;">⏱️ فرق الوقت الفعلي عن المخطط:</b>
+        ${data.plannedVsActual.slice(0, 5).map(p => `<div style="font-size:11px;padding:4px 7px;background:#f8fafc;border-radius:6px;margin-bottom:3px;">${p.date} [${esc(p.zones)}]: مخطط ${p.plannedMins}د ← فعلي <b>${p.actualMins}د</b> (<span style="color:${p.diffM > 0 ? 'var(--red)' : 'var(--primary)'};">${p.diffM > 0 ? '+' : ''}${p.diffM}د</span>)</div>`).join('')}` : ''}`;
+    } else if (tab === 'water') {
+        bodyHtml = `
+        <div class="grid-2" style="margin-bottom:8px;">
+            <div class="kpi-box"><div class="kpi-val">${data.meterM3.toFixed(1)} m³</div><div class="kpi-sub">مياه العدادات</div></div>
+            <div class="kpi-box"><div class="kpi-val">${data.tankerL.toLocaleString()} L</div><div class="kpi-sub">التنكر (${data.tankerTrips} نقلة • ${data.tankerDepPct}%)</div></div>
+            <div class="kpi-box"><div class="kpi-val">${data.totalWaterM3.toFixed(1)} m³</div><div class="kpi-sub">الإجمالي الكلي (${data.daysCount ? (data.totalWaterM3 / data.daysCount).toFixed(1) : 0} m³/يوم)</div></div>
+            <div class="kpi-box"><div class="kpi-val">${data.avgPpm !== null ? data.avgPpm + ' ppm' : '-'}</div><div class="kpi-sub">متوسط ملوحة التنكر${data.maxPpmObj ? ` (أعلى: ${data.maxPpmObj.val})` : ''}</div></div>
+        </div>
+        <div class="meter-card" style="padding:8px;margin-bottom:8px;font-size:11.5px;">
+            ⚙️ ساعات التشغيل: المضخة <b>${data.pumpHrs}h</b> | المولدة <b>${data.genHrs}h</b>
+        </div>
+        <b style="font-size:12px;display:block;margin-bottom:4px;">🎛️ صحة مقاييس الضغط (Bar Gauges):</b>
+        <div style="margin-bottom:8px;">
+            ${data.gaugesList.length === 0 ? '<div style="font-size:11.5px;color:var(--muted);">لا توجد قراءات ضغط مسجلة ضمن الفترة</div>' :
+            data.gaugesList.map(g => `
+                <div class="meter-card" style="padding:7px;margin-bottom:5px;border-right:4px solid ${g.lowPct >= 30 ? 'var(--red)' : 'var(--primary)'};font-size:11.5px;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <b>${esc(g.name)}</b>
+                        <span>متوسط: <b>${g.avg} bar</b> (أدنى: ${g.min})</span>
+                    </div>
+                    <div style="font-size:10.5px;color:${g.lowPct >= 30 ? 'var(--red)' : 'var(--muted)'};">نسبة الهبوط عن الطبيعي (${g.normal} bar): <b>${g.lowPct}%</b> (${g.lowCount}/${g.readings.length} قراءة)</div>
+                </div>
+            `).join('')}
+        </div>
+        <b style="font-size:12px;display:block;margin-bottom:4px;">🧪 سجل آخر تسميد / رش لكل منطقة (Agro History):</b>
+        <div>
+            ${data.agroList.length === 0 ? '<div style="font-size:11.5px;color:var(--muted);">لا توجد عمليات تسميد أو رش مسجّلة بعد</div>' :
+            data.agroList.map(a => `
+                <div class="meter-card" style="padding:7px;margin-bottom:4px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center;">
+                    <div><b>📍 ${esc(a.zone)}</b> — ${esc(a.material)} (${esc(a.dose)})</div>
+                    <span class="badge" style="background:${a.daysAgo >= 21 ? '#fef3c7' : '#dcfce7'};color:${a.daysAgo >= 21 ? '#92400e' : '#166534'};">منذ ${a.daysAgo} يوم</span>
+                </div>
+            `).join('')}
+        </div>`;
+    } else if (tab === 'inv') {
+        const iv = data.inv;
+        bodyHtml = `
+        <div class="grid-3" style="margin-bottom:8px;">
+            <div class="kpi-box"><div class="kpi-val">${iv.totalPlants.toLocaleString()}</div><div class="kpi-sub">إجمالي الشتلات</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="color:var(--primary);">${iv.survivalPct}%</div><div class="kpi-sub">سليمة (${iv.healthyPlants})</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="color:var(--red);">${iv.deadPct}%</div><div class="kpi-sub">هالكة (${iv.deadPlants}) | مجهدة (${iv.stressedPlants})</div></div>
+        </div>
+        <div class="meter-card" style="padding:7px;margin-bottom:8px;font-size:11.5px;">
+            📍 تغطية الجرد: <b>${iv.invZonesCount} من ${iv.totalSiteZones} منطقة (${iv.coveragePct}%)</b>
+        </div>
+        <b style="font-size:12px;display:block;margin-bottom:4px;">🌱 ترتيب الأصناف (الصحة، الهلاك، ومتوسط الطول والنمو):</b>
+        <div style="margin-bottom:8px;">
+            ${iv.species.length === 0 ? '<div style="font-size:11.5px;color:var(--muted);">لا توجد بيانات جرد نباتات بعد</div>' :
+            iv.species.slice(0, 12).map(sp => `
+                <div class="meter-card" style="padding:7px;margin-bottom:5px;border-right:4px solid ${sp.deadPct >= 15 ? 'var(--red)' : (sp.survivalPct >= 80 ? 'var(--primary)' : 'var(--orange)')};font-size:11.5px;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <b>${esc(sp.name)} (${sp.total})</b>
+                        <span style="font-weight:bold;color:${sp.survivalPct >= 80 ? 'var(--primary-dark)' : 'var(--red)'};">سليم ${sp.survivalPct}% | هالك ${sp.deadPct}%</span>
+                    </div>
+                    <div style="font-size:10.5px;color:var(--muted);">
+                        متضرر/مجهد: ${sp.stressed} ${sp.avgH !== null ? `| 📏 متوسط الطول: <b>${sp.avgH} ${esc(iv.unit)}</b>` : ''}
+                        ${sp.growthDelta !== null ? ` | 📈 النمو: <b style="color:${sp.growthDelta >= 0 ? 'var(--primary-dark)' : 'var(--red)'};">${sp.growthDelta >= 0 ? '+' : ''}${sp.growthDelta} ${esc(iv.unit)}</b>` : ''}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <b style="font-size:12px;display:block;margin-bottom:4px;">📍 صحة المناطق المجردة (الأكثر تضرراً أولاً):</b>
+        ${iv.zones.map(z => `
+            <div style="font-size:11.5px;padding:6px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;margin-bottom:4px;display:flex;justify-content:space-between;">
+                <span><b>${esc(z.zone)}</b> (${z.total} شتلة${z.lastDate ? ` • آخر جرد ${z.lastDate}` : ''})</span>
+                <span><b style="color:var(--primary);">${z.survivalPct}%</b> سليم | <b style="color:var(--red);">${z.dead}</b> هالك</span>
+            </div>
+        `).join('')}`;
+    } else {
+        bodyHtml = `
+        <div class="meter-card" style="padding:10px;margin-bottom:10px;font-size:12px;line-height:1.6;">
+            <b>📊 حزمة التقارير الإدارية الجاهزة</b><br>
+            الفترة المختارة: <b>${data.dateFrom}</b> إلى <b>${data.dateTo}</b> (${data.daysCount} أيام مسجّلة).<br>
+            تتضمن جميع تحليلات النقاط العمياء، الكلفة المالية للمناطق، كفاءة الكادر، الميزان المائي، وجرد النباتات.
+        </div>
+        <button class="btn btn-green btn-full" style="padding:12px;" onclick="exportComprehensiveAnalyticsExcel()">📥 تصدير Excel إحصائي شامل (5 أوراق)</button>
+        <button class="btn btn-purple btn-full" style="padding:11px;" onclick="copyExecutiveAnalyticsWhatsApp()">💬 نسخ ملخص تنفيذي للواتساب</button>
+        <button class="btn btn-blue btn-full" style="padding:10px;" onclick="exportDeepAnalyticsCSV()">📄 تصدير سجل البيانات الخام (CSV)</button>`;
     }
 
     openModal(`
-        <h3 class="card-title">🧠 هستوري الـ DFL والتحليل العميق</h3>
-        <div style="display:flex;gap:4px;margin-bottom:8px;">
-            <button class="btn btn-sm ${subTab === 'zones' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openDeepAnalyticsModal('zones')">📍 المناطق</button>
-            <button class="btn btn-sm ${subTab === 'tasks' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openDeepAnalyticsModal('tasks')">📋 المهام/منطقة</button>
-            <button class="btn btn-sm ${subTab === 'history' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openDeepAnalyticsModal('history')">📜 سجل DFL</button>
+        <h3 class="card-title">📊 مركز الإحصائيات والتحليل (${esc(data.siteName.split('/')[0].trim())})</h3>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;">
+            <button class="btn btn-sm ${period === 'today' ? 'btn-blue' : 'btn-outline'}" onclick="openAnalyticsCenterModal('${tab}','today')">اليوم</button>
+            <button class="btn btn-sm ${period === '7d' ? 'btn-blue' : 'btn-outline'}" onclick="openAnalyticsCenterModal('${tab}','7d')">7 أيام</button>
+            <button class="btn btn-sm ${period === '30d' ? 'btn-blue' : 'btn-outline'}" onclick="openAnalyticsCenterModal('${tab}','30d')">30 يوم</button>
+            <button class="btn btn-sm ${period === 'all' ? 'btn-blue' : 'btn-outline'}" onclick="openAnalyticsCenterModal('${tab}','all')">الكل (${data.totalArchiveDays})</button>
+            <button class="btn btn-sm ${period === 'custom' ? 'btn-blue' : 'btn-outline'}" onclick="openAnalyticsCenterModal('${tab}','custom')">فترة مخصصة</button>
         </div>
-        <div style="max-height:310px;overflow-y:auto;margin-bottom:10px;">${bodyHtml}</div>
-        <button class="btn btn-green btn-full" onclick="exportDeepAnalyticsCSV()">📥 سحب التحليل الكامل (Excel / CSV)</button>
-        <button class="btn btn-outline btn-full" style="margin-top:5px;" onclick="closeModal()">إغلاق</button>
+        ${period === 'custom' ? `
+        <div class="grid-2" style="margin-bottom:7px;">
+            <div><label class="lbl">من:</label><input type="date" class="inp" style="margin:0;padding:5px;" value="${esc(fromD)}" onchange="_anState.fromDate=this.value;openAnalyticsCenterModal('${tab}','custom')"></div>
+            <div><label class="lbl">إلى:</label><input type="date" class="inp" style="margin:0;padding:5px;" value="${esc(toD)}" onchange="_anState.toDate=this.value;openAnalyticsCenterModal('${tab}','custom')"></div>
+        </div>` : ''}
+        <div class="an-tab-bar">
+            <button class="an-tab-btn ${tab === 'blind' ? 'active' : ''}" onclick="openAnalyticsCenterModal('blind','${period}')">🔎 النقاط العمياء (${data.blindSpots.length})</button>
+            <button class="an-tab-btn ${tab === 'crew' ? 'active' : ''}" onclick="openAnalyticsCenterModal('crew','${period}')">👷 الكادر والكلفة</button>
+            <button class="an-tab-btn ${tab === 'water' ? 'active' : ''}" onclick="openAnalyticsCenterModal('water','${period}')">💧 المياه والضغط</button>
+            <button class="an-tab-btn ${tab === 'inv' ? 'active' : ''}" onclick="openAnalyticsCenterModal('inv','${period}')">🌿 الجرد والنمو</button>
+            <button class="an-tab-btn ${tab === 'reports' ? 'active' : ''}" onclick="openAnalyticsCenterModal('reports','${period}')">📥 تقارير</button>
+        </div>
+        <div style="max-height:360px;overflow-y:auto;margin-bottom:10px;">${bodyHtml}</div>
+        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
     `);
+}
+
+function copyExecutiveAnalyticsWhatsApp() {
+    const d = window._latestAnalyticsData || computeFullSiteAnalytics(_anState.period, _anState.fromDate, _anState.toDate);
+    const lines = [
+        `📊 *الملخص التحليلي التنفيذي — ${d.siteName.split('/')[0].trim()}*`,
+        `📅 الفترة: ${d.dateFrom} إلى ${d.dateTo} (${d.daysCount} أيام)`,
+        ``,
+        `✅ *المهام والكادر:*`,
+        `• نسبة الإنجاز: ${d.completionPct}% (${d.doneTasks}/${d.totalTasks}) | توقف: ${d.blockedTasks} | ترحيل: ${d.carriedTasks}`,
+        `• استثمار ساعات الكادر: ${d.utilizationPct}% | الكلفة الخارجية: ${d.totalOutsidePay.toLocaleString()} IQD`,
+        ``,
+        `💧 *المياه والشبكة:*`,
+        `• مياه العدادات: ${d.meterM3.toFixed(1)} m³ | التنكر: ${d.tankerL.toLocaleString()} L (${d.tankerTrips} نقلة • ${d.tankerDepPct}%)`,
+        d.avgPpm !== null ? `• متوسط ملوحة التنكر: ${d.avgPpm} PPM` : '',
+        ``,
+        `🌿 *الجرد وصحة النباتات:*`,
+        `• الإجمالي: ${d.inv.totalPlants.toLocaleString()} شتلة | سليم: ${d.inv.survivalPct}% | مجهد: ${d.inv.stressedPlants} | هالك: ${d.inv.deadPlants} (${d.inv.deadPct}%)`,
+        `• تغطية الجرد: ${d.inv.invZonesCount}/${d.inv.totalSiteZones} منطقة (${d.inv.coveragePct}%)`,
+        d.blindSpots.length ? `\n🔎 *أهم التنبيهات (${d.blindSpots.length}):*\n` + d.blindSpots.slice(0, 4).map(b => `• ${b.title}: ${b.detail}`).join('\n') : ''
+    ].filter(Boolean);
+    navigator.clipboard.writeText(lines.join('\n')).then(() => showToast('💬 تم نسخ الملخص التنفيذي للواتساب!')).catch(() => showToast('⚠️ تعذر النسخ التلقائي'));
+}
+
+async function exportComprehensiveAnalyticsExcel() {
+    if (typeof ExcelJS === 'undefined') { showToast('⚠️ مكتبة ExcelJS غير محملة'); return; }
+    showToast('⏳ جاري توليد ملف الإحصائيات الشامل (5 أوراق)...');
+    const d = window._latestAnalyticsData || computeFullSiteAnalytics(_anState.period, _anState.fromDate, _anState.toDate);
+    const wb = new ExcelJS.Workbook();
+    const styleHeader = (ws, colorArgb = 'FF15803D') => {
+        const r1 = ws.getRow(1);
+        r1.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        r1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colorArgb } };
+        r1.height = 24;
+    };
+
+    // Sheet 1: Executive Summary & Blind Spots
+    const s1 = wb.addWorksheet('الملخص والنقاط العمياء', { views: [{ rightToLeft: true }] });
+    s1.addRow(['المؤشر', 'القيمة', 'التفاصيل']);
+    styleHeader(s1, 'FF15803D');
+    [
+        ['الموقع', d.siteName, `الفترة: ${d.dateFrom} إلى ${d.dateTo} (${d.daysCount} أيام)`],
+        ['نسبة إنجاز المهام', `${d.completionPct}%`, `مكتمل: ${d.doneTasks} | متوقف: ${d.blockedTasks} | مرحّل: ${d.carriedTasks} من أصل ${d.totalTasks}`],
+        ['استثمار ساعات الكادر', `${d.utilizationPct}%`, `ساعات مهام: ${(d.totalWorkedTaskMins / 60).toFixed(1)}h من أصل ${(d.totalPaidShiftMins / 60).toFixed(1)}h دوام`],
+        ['كلفة العمالة الخارجية', `${d.totalOutsidePay.toLocaleString()} IQD`, `أيام خارجية: ${d.totalOutsideDays} | أوفرتايم: ${d.totalOtHrs}h`],
+        ['إجمالي المياه', `${d.totalWaterM3.toFixed(1)} m³`, `عدادات: ${d.meterM3.toFixed(1)} m³ | تنكر: ${d.tankerL.toLocaleString()} L (${d.tankerTrips} نقلة)`],
+        ['صحة النباتات بالجرد', `${d.inv.survivalPct}% سليم`, `الإجمالي: ${d.inv.totalPlants} | مجهد: ${d.inv.stressedPlants} | هالك: ${d.inv.deadPlants} (${d.inv.deadPct}%)`],
+        ['تغطية الجرد', `${d.inv.coveragePct}%`, `${d.inv.invZonesCount} من ${d.inv.totalSiteZones} منطقة`]
+    ].forEach(row => s1.addRow(row));
+    s1.addRow([]);
+    s1.addRow(['التنبيهات والنقاط العمياء', 'المستوى', 'الوصف التفصيلي']).font = { bold: true };
+    d.blindSpots.forEach(b => s1.addRow([b.title, b.sev === 'crit' ? 'حرج' : 'تنبيه', b.detail]));
+    s1.columns = [{ width: 28 }, { width: 20 }, { width: 65 }];
+
+    // Sheet 2: Zones & Cost
+    const s2 = wb.addWorksheet('تحليل المناطق والكلفة', { views: [{ rightToLeft: true }] });
+    s2.addRow(['المنطقة', 'المهام', 'المكتملة', 'المتوقفة', 'ساعات العمل', 'ساعات-عامل', 'الكلفة التقديرية (IQD)', 'مياه التنكر (L)']);
+    styleHeader(s2, 'FF0284C7');
+    d.zoneList.forEach(z => s2.addRow([z.zone, z.tasks, z.done, z.blocked, +(z.totalMins / 60).toFixed(1), +(z.manMins / 60).toFixed(1), Math.round(z.costIQD), Math.round(z.tankerL)]));
+    s2.columns.forEach(c => c.width = 16);
+
+    // Sheet 3: Crew Efficiency
+    const s3 = wb.addWorksheet('كفاءة الكادر والانضباط', { views: [{ rightToLeft: true }] });
+    s3.addRow(['العامل', 'النوع', 'أيام الحضور', 'غياب', 'تأخير', 'متوسط التأخير (د)', 'أوفرتايم (h)', 'ساعات المهام', 'ساعات الدوام', 'المستحق (IQD)']);
+    styleHeader(s3, 'FF7C3AED');
+    d.workerList.forEach(w => s3.addRow([w.name, w.type, w.present, w.absent, w.late, w.late ? Math.round(w.lateMinsSum / w.late) : 0, w.otHrs, +(w.workedMins / 60).toFixed(1), +(w.shiftMins / 60).toFixed(1), w.payIQD]));
+    s3.columns.forEach((c, i) => c.width = i === 0 ? 24 : 14);
+
+    // Sheet 4: Water, Gauges & Agro
+    const s4 = wb.addWorksheet('المياه والضغط والتسميد', { views: [{ rightToLeft: true }] });
+    s4.addRow(['المقياس / المنطقة', 'النوع', 'متوسط / المادة', 'أدنى / الجرعة', 'نسبة الهبوط / الأيام']);
+    styleHeader(s4, 'FF0369A1');
+    d.gaugesList.forEach(g => s4.addRow([g.name, 'مقياس ضغط', `${g.avg} bar`, `${g.min} bar`, `هبوط ${g.lowPct}% (${g.lowCount}/${g.readings.length})`]));
+    d.agroList.forEach(a => s4.addRow([a.zone, 'آخر تسميد/رش', a.material, a.dose, `${a.date} (منذ ${a.daysAgo} يوم)`]));
+    s4.columns.forEach(c => c.width = 22);
+
+    // Sheet 5: Inventory, Health & Growth
+    const s5 = wb.addWorksheet('الجرد وصحة النبات والنمو', { views: [{ rightToLeft: true }] });
+    s5.addRow(['الصنف', 'الإجمالي', 'سليم', 'متضرر/مجهد', 'هالك', 'نسبة السلامة %', 'نسبة الهلاك %', `متوسط الطول (${d.inv.unit})`, `معدل النمو (${d.inv.unit})`]);
+    styleHeader(s5, 'FF166534');
+    d.inv.species.forEach(sp => s5.addRow([sp.name, sp.total, sp.healthy, sp.stressed, sp.dead, sp.survivalPct, sp.deadPct, sp.avgH ?? '-', sp.growthDelta ?? '-']));
+    s5.columns.forEach((c, i) => c.width = i === 0 ? 24 : 14);
+
+    const outBuffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([outBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `TFF_Analytics_${state.activeDate}.xlsx`;
+    a.click();
+    showToast('✅ تم تنزيل ملف الإحصائيات الشامل (5 أوراق Excel)!');
 }
 
 function exportDeepAnalyticsCSV() {
@@ -1214,169 +1849,6 @@ function exportDeepAnalyticsCSV() {
     a.download = `DFL_Deep_Analytics_${state.activeDate}.csv`;
     a.click();
     showToast('✅ تم تنزيل ملف التحليل الإحصائي (CSV)');
-}
-
-function openAnalyticsDashboardModal(period = '7d') {
-    const site = getSite();
-    const activeD = state.activeDate;
-    const activeMs = new Date(activeD + 'T12:00:00').getTime();
-    const allDates = Object.keys(site.logs).sort();
-
-    const filteredDates = allDates.filter(d => {
-        if (period === 'all') return true;
-        const dMs = new Date(d + 'T12:00:00').getTime();
-        const diffDays = Math.round((activeMs - dMs) / 86400000);
-        if (period === '7d') return diffDays >= 0 && diffDays <= 7;
-        if (period === '30d') return diffDays >= 0 && diffDays <= 30;
-        return true;
-    });
-
-    let meterM3 = 0, tankerL = 0, tankerTrips = 0, pumpHrs = 0, genHrs = 0, fuelL = 0;
-    let doneTasks = 0, blockedTasks = 0, totalTasks = 0, outsideDays = 0;
-    const zoneBlockCounts = {};
-
-    filteredDates.forEach(d => {
-        const dl = site.logs[d];
-        (dl.meters || []).forEach(m => {
-            if (m.status === 'working' && m.curr !== '' && !isNaN(parseFloat(m.curr))) {
-                const diff = parseFloat(m.curr) - (parseFloat(m.prev) || 0);
-                if (diff > 0) meterM3 += diff;
-            }
-        });
-        (dl.tasks || []).forEach(t => {
-            totalTasks++;
-            if (t.status.includes('Completed')) doneTasks++;
-            if (t.status.includes('Blocked')) {
-                blockedTasks++;
-                (t.zones || '').split(',').map(z => z.trim()).filter(Boolean).forEach(z => {
-                    zoneBlockCounts[z] = (zoneBlockCounts[z] || 0) + 1;
-                });
-            }
-            const tkTot = getTaskTotalTankerLiters(t);
-            if (tkTot > 0) {
-                tankerL += tkTot;
-                tankerTrips += (t.tankerTrips || 1);
-            }
-        });
-        if (dl.machinery) {
-            pumpHrs += parseFloat(dl.machinery.pumpHrs) || 0;
-            genHrs += parseFloat(dl.machinery.genHrs) || 0;
-            fuelL += parseFloat(dl.machinery.fuelL) || 0;
-        }
-        (dl.attendance || []).forEach(w => {
-            if (!w.status.includes('Absent') && w.type.includes('Outside')) outsideDays++;
-        });
-    });
-
-    (site.issues || []).forEach(iss => {
-        if (filteredDates.includes(iss.date) && iss.zone) {
-            zoneBlockCounts[iss.zone] = (zoneBlockCounts[iss.zone] || 0) + 1;
-        }
-    });
-
-    const topProblemZones = Object.entries(zoneBlockCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-    const maxZoneVal = topProblemZones.length ? topProblemZones[0][1] : 1;
-    const taskRate = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
-    const outsidePay = outsideDays * (state.company.outsideRate || 25000);
-
-    openModal(`
-        <h3 class="card-title">📊 لوحة إحصائيات (${esc(site.name.split('/')[0].trim())})</h3>
-        <div style="display:flex;gap:5px;margin-bottom:10px;">
-            <button class="btn btn-sm ${period === '7d' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openAnalyticsDashboardModal('7d')">آخر 7 أيام</button>
-            <button class="btn btn-sm ${period === '30d' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openAnalyticsDashboardModal('30d')">آخر 30 يوم</button>
-            <button class="btn btn-sm ${period === 'all' ? 'btn-blue' : 'btn-outline'}" style="flex:1;" onclick="openAnalyticsDashboardModal('all')">الكل (${allDates.length})</button>
-        </div>
-        <button class="btn btn-purple btn-full" style="margin-bottom:8px;" onclick="openDeepAnalyticsModal('zones')">🧠 هستوري الـ DFL والتحليل العميق (مناطق / مهام / CSV)</button>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">عدد التقارير المحللة ضمن الفترة: <b>${filteredDates.length} أيام</b></div>
-        <div class="grid-2" style="margin-bottom:8px;">
-            <div class="kpi-box"><div class="kpi-val">${meterM3.toFixed(1)} m³</div><div class="kpi-sub">مياه العدادات</div></div>
-            <div class="kpi-box"><div class="kpi-val">${tankerL.toLocaleString()} L</div><div class="kpi-sub">مياه التنكر (${tankerTrips} نقلات)</div></div>
-            <div class="kpi-box"><div class="kpi-val">${taskRate}%</div><div class="kpi-sub">إنجاز المهام (${doneTasks}/${totalTasks})</div></div>
-            <div class="kpi-box"><div class="kpi-val">${pumpHrs}h / ${genHrs}h</div><div class="kpi-sub">تشغيل المضخة / المولدة</div></div>
-        </div>
-        <div class="meter-card" style="padding:8px;margin-bottom:8px;font-size:12px;">
-            👷 أيام العمالة الخارجية: <b>${outsideDays} يوم</b> | المستحقات التقديرية: <b style="color:var(--primary-dark);">${outsidePay.toLocaleString()} IQD</b>
-        </div>
-        <div class="meter-card" style="padding:9px;margin-bottom:10px;">
-            <b style="font-size:12px;color:var(--red);display:block;margin-bottom:6px;">🚨 أكثر المناطق تعرضاً للتوقف أو الأعطال (${blockedTasks} توقفات):</b>
-            ${topProblemZones.length === 0 ? '<div style="font-size:11.5px;color:var(--primary-dark);">✅ لا توجد مناطق متوقفة ضمن هذه الفترة!</div>' :
-            topProblemZones.map(([z, cnt]) => `
-                <div style="margin-bottom:5px;font-size:11.5px;">
-                    <div style="display:flex;justify-content:space-between;"><b>📍 ${esc(z)}</b><span>${cnt} مرة</span></div>
-                    <div style="width:100%;height:6px;background:#fee2e2;border-radius:99px;overflow:hidden;margin-top:2px;">
-                        <div style="width:${Math.round((cnt / maxZoneVal) * 100)}%;height:100%;background:#dc2626;"></div>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
-    `);
-}
-
-/* ================= V16.9: Electronic Touch Signature Pad ================= */
-let sigDrawing = false;
-function initSignaturePadCanvas() {
-    const canvas = document.getElementById('sigPadCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    const getPos = e => {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return {
-            x: (clientX - rect.left) * (canvas.width / rect.width),
-            y: (clientY - rect.top) * (canvas.height / rect.height)
-        };
-    };
-
-    const startDraw = e => {
-        sigDrawing = true;
-        const p = getPos(e);
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        if (e.cancelable) e.preventDefault();
-    };
-    const moveDraw = e => {
-        if (!sigDrawing) return;
-        const p = getPos(e);
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-        if (e.cancelable) e.preventDefault();
-    };
-    const endDraw = () => { sigDrawing = false; };
-
-    canvas.onmousedown = startDraw;
-    canvas.onmousemove = moveDraw;
-    window.addEventListener('mouseup', endDraw);
-    canvas.ontouchstart = startDraw;
-    canvas.ontouchmove = moveDraw;
-    canvas.ontouchend = endDraw;
-}
-
-function clearSignaturePadCanvas() {
-    const canvas = document.getElementById('sigPadCanvas');
-    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function saveElectronicSignature() {
-    const canvas = document.getElementById('sigPadCanvas');
-    if (!canvas) return;
-    state.company.signatureDataUrl = canvas.toDataURL('image/png');
-    saveState();
-    showToast('✍️ تم حفظ التوقيع الإلكتروني وسيُطبع تلقائياً في التقارير!');
-    openSettingsModal();
-}
-
-function deleteElectronicSignature() {
-    state.company.signatureDataUrl = '';
-    saveState();
-    showToast('🗑️ تم حذف التوقيع المحفوظ');
-    openSettingsModal();
 }
 
 /* ================= V9: Embedded Clean Template V04 & Separated Photo Store ================= */
@@ -1625,7 +2097,6 @@ function confirmCarryTaskToTomorrow(idx) {
     if (doneZones.length > 0) {
         t.zones = doneZones.join(', ');
         t.status = 'Completed / مكتمل';
-        addTaskEventLog(t, `✅ اكتمل (${t.zones})`);
         log.tasks.splice(idx + 1, 0, {
             ...JSON.parse(JSON.stringify(t)),
             id: 't_' + Date.now() + '_co_today',
@@ -1651,7 +2122,6 @@ function confirmCarryTaskToTomorrow(idx) {
         t.startTimeMs = null;
         t.pausedTotalMs = 0;
         t.pausedAtMs = null;
-        addTaskEventLog(t, '⏭️ رُحّل للغد');
     }
 
     const tomorrowLog = getDayLog(tomorrow);
@@ -1856,7 +2326,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V16.9: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
+/* ================= V17.0: Direct Offline ExcelJS DFL Generator (Google Drive Links, No Blurry Embeds) ================= */
 async function generateDirectExcelDFL() {
     if (typeof ExcelJS === 'undefined') {
         showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة أو استخدم تصدير JSON');
@@ -1892,7 +2362,21 @@ async function generateDirectExcelDFL() {
 
         const presentCount = log.attendance.filter(w => !w.status.includes('Absent')).length;
 
+        // ExcelJS shares style objects across cells with the same template s-index (e.g. A131/E131/H131)!
+        // ALWAYS isolate cell.style before mutating font/alignment/fill/border so neighbor cells keep their exact colors!
+        const isolateCellStyle = cell => {
+            cell.style = cell.style ? JSON.parse(JSON.stringify(cell.style)) : {};
+        };
+        const setCellFontSafe = (cell, fontObj) => {
+            isolateCellStyle(cell);
+            cell.font = JSON.parse(JSON.stringify(fontObj));
+        };
+        const setCellAlignSafe = (cell, alignObj) => {
+            isolateCellStyle(cell);
+            cell.alignment = JSON.parse(JSON.stringify(alignObj));
+        };
         const cloneStyle = (srcCell, dstCell) => {
+            isolateCellStyle(dstCell);
             if (srcCell.fill && srcCell.fill.type) dstCell.fill = JSON.parse(JSON.stringify(srcCell.fill));
             if (srcCell.font && Object.keys(srcCell.font).length) dstCell.font = JSON.parse(JSON.stringify(srcCell.font));
             if (srcCell.border && Object.keys(srcCell.border).length) dstCell.border = JSON.parse(JSON.stringify(srcCell.border));
@@ -2047,10 +2531,10 @@ async function generateDirectExcelDFL() {
             const validLinks = (linksArr || []).filter(Boolean);
             if (validLinks.length === 1) {
                 cell.value = { text: refText, hyperlink: validLinks[0] };
-                cell.font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                setCellFontSafe(cell, { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } });
             } else if (validLinks.length > 1) {
                 cell.value = { text: `${refText} (${validLinks.length} links)`, hyperlink: validLinks[0] };
-                cell.font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                setCellFontSafe(cell, { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } });
             } else {
                 cell.value = refText;
             }
@@ -2134,8 +2618,9 @@ async function generateDirectExcelDFL() {
         ws.getCell('F9').value = state.company.supervisor || 'Maitham Ibrahim';
         ws.getCell('B10').value = state.company.outsideRate;
         if (driveFolderLink) {
-            ws.getCell('F10').value = { text: 'Google Drive Photos Folder', hyperlink: driveFolderLink };
-            ws.getCell('F10').font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+            const f10 = ws.getCell('F10');
+            f10.value = { text: 'Google Drive Photos Folder', hyperlink: driveFolderLink };
+            setCellFontSafe(f10, { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } });
         }
 
         const wx = ensureWeatherObj(log);
@@ -2218,11 +2703,12 @@ async function generateDirectExcelDFL() {
                     try { ws.mergeCells(`${colL}${r1}:${colL}${r2}`); } catch {}
                     for (let rr = r1; rr <= r2; rr++) {
                         const cObj = ws.getCell(`${colL}${rr}`);
+                        isolateCellStyle(cObj);
                         if (savedFill) cObj.fill = JSON.parse(JSON.stringify(savedFill));
                         if (savedFont) cObj.font = JSON.parse(JSON.stringify(savedFont));
                         if (savedBorder) cObj.border = JSON.parse(JSON.stringify(savedBorder));
                     }
-                    ws.getCell(`${colL}${r1}`).alignment = { horizontal: 'center', vertical: 'center', wrapText: true };
+                    setCellAlignSafe(ws.getCell(`${colL}${r1}`), { horizontal: 'center', vertical: 'center', wrapText: true });
                 }
             }
         });
@@ -2238,7 +2724,7 @@ async function generateDirectExcelDFL() {
             if (tl) {
                 ws.getCell(`A${r}`).value = i + 1;
                 ws.getCell(`B${r}`).value = tl.name;
-                ws.getCell(`C${r}`).value = tl.cat;
+                ws.getCell(`C${r}`).value = (tl.cat === 'Materials / مادة' ? 'Material / مادة' : tl.cat);
                 ws.getCell(`D${r}`).value = tl.qty;
                 ws.getCell(`E${r}`).value = tl.cond;
                 ws.getCell(`F${r}`).value = tl.note || '';
@@ -2295,8 +2781,9 @@ async function generateDirectExcelDFL() {
                 if (mRef) noteParts.push(mRef);
                 const txt = noteParts.join(' | ');
                 if (mLinks.length > 0) {
-                    ws.getCell(`I${r}`).value = { text: txt, hyperlink: mLinks[0] };
-                    ws.getCell(`I${r}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                    const ic = ws.getCell(`I${r}`);
+                    ic.value = { text: txt, hyperlink: mLinks[0] };
+                    setCellFontSafe(ic, { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } });
                 } else {
                     ws.getCell(`I${r}`).value = txt;
                 }
@@ -2315,10 +2802,6 @@ async function generateDirectExcelDFL() {
         if (totalTankerL > 0) perfParts.push(`Tanker Total: ${totalTankerL.toLocaleString()} L (${totalTrips} Trips)`);
         if (log.machinery.pumpHrs || log.machinery.genHrs) {
             perfParts.push(`Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h`);
-        }
-        if (Array.isArray(log.transfers) && log.transfers.length > 0) {
-            const trStr = log.transfers.map(tr => `${tr.worker} (${tr.fromTask} -> ${tr.toTask} @ ${tr.time || ''}${tr.dur ? ', ' + tr.dur : ''})`).join('; ');
-            perfParts.push(`Transfers: ${trStr}`);
         }
         const perfText = perfParts.join(' | ');
         ws.getCell(`B${83 + off}`).value = log.perf.status || 'جيد';
@@ -2391,8 +2874,9 @@ async function generateDirectExcelDFL() {
                 const validL = (item.pLinks || []).filter(Boolean);
                 const labelTxt = item.pRef ? `${item.refCode} (${item.pRef})` : item.refCode;
                 if (validL.length > 0) {
-                    ws.getCell(`G${r}`).value = { text: labelTxt, hyperlink: validL[0] };
-                    ws.getCell(`G${r}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                    const gc = ws.getCell(`G${r}`);
+                    gc.value = { text: labelTxt, hyperlink: validL[0] };
+                    setCellFontSafe(gc, { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } });
                 } else {
                     ws.getCell(`G${r}`).value = labelTxt;
                 }
@@ -2414,8 +2898,9 @@ async function generateDirectExcelDFL() {
             if (pr) {
                 ws.getCell(`A${r}`).value = i + 1;
                 if (pr.driveLink) {
-                    ws.getCell(`B${r}`).value = { text: pr.fileName, hyperlink: pr.driveLink };
-                    ws.getCell(`B${r}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                    const bc = ws.getCell(`B${r}`);
+                    bc.value = { text: pr.fileName, hyperlink: pr.driveLink };
+                    setCellFontSafe(bc, { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } });
                     ws.getCell(`H${r}`).value = `${pr.description} — ${pr.driveLink}`;
                 } else {
                     ws.getCell(`B${r}`).value = pr.fileName;
@@ -2440,22 +2925,19 @@ async function generateDirectExcelDFL() {
         ws.getRow(125 + off).height = calcAutoRowHeight([[anaVal, 90]], 36);
         ws.getRow(127 + off).height = calcAutoRowHeight([[recVal, 90]], 36);
 
-        // 13. Section 10: Sign-Off (Row 131+off) + Electronic Signature
-        ws.getCell(`A${131 + off}`).value = `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`;
-        ws.getCell(`H${131 + off}`).value = `Date & Time  /  التاريخ والوقت: ${state.activeDate}`;
+        // 13. Section 10: Sign-Off (Row 131+off) — isolated cell styles so A131 & H131 keep exact original color!
+        const aSigCell = ws.getCell(`A${131 + off}`);
+        const eSigCell = ws.getCell(`E${131 + off}`);
+        const hSigCell = ws.getCell(`H${131 + off}`);
+        isolateCellStyle(aSigCell);
+        isolateCellStyle(eSigCell);
+        isolateCellStyle(hSigCell);
+        aSigCell.value = `Team Lead Name  /  اسم قائد الفريق: ${state.company.teamLead}`;
+        hSigCell.value = `Date & Time  /  التاريخ والوقت: ${state.activeDate}`;
         if (state.company.textSignature) {
-            const dSigCell = ws.getCell(`E${131 + off}`);
-            dSigCell.value = state.company.textSignature;
-            dSigCell.font = { name: 'Georgia', size: 12, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
-            dSigCell.alignment = { horizontal: 'center', vertical: 'middle' };
-        }
-        let sigImgId = null;
-        if (state.company.signatureDataUrl) {
-            try {
-                sigImgId = wb.addImage({ base64: state.company.signatureDataUrl, extension: 'png' });
-                ws.getRow(131 + off).height = 36;
-                ws.addImage(sigImgId, { tl: { col: 4.9, row: 130 + off + 0.08 }, ext: { width: 105, height: 30 } });
-            } catch {}
+            eSigCell.value = `Signature / التوقيع: ${state.company.textSignature}`;
+            setCellFontSafe(eSigCell, { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } });
+            setCellAlignSafe(eSigCell, { horizontal: 'center', vertical: 'middle', wrapText: true });
         }
 
         // Remove trailing empty rows after Row 140+off and lock exact printArea
@@ -2517,13 +2999,15 @@ async function generateDirectExcelDFL() {
                         }
                     });
                 }
+                if (ir.ppeOverall) targetIrWs.getCell('D68').value = ir.ppeOverall;
                 const irNames = (irPhotoRefs[irIdx] || '').split(' / ').filter(Boolean);
                 const irLinks = (irPhotoLinks[irIdx] || []).filter(Boolean);
                 irNames.slice(0, 5).forEach((fn, pIdx) => {
                     const prRow = 72 + pIdx;
                     if (irLinks[pIdx]) {
-                        targetIrWs.getCell(`C${prRow}`).value = { text: fn, hyperlink: irLinks[pIdx] };
-                        targetIrWs.getCell(`C${prRow}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                        const irC = targetIrWs.getCell(`C${prRow}`);
+                        irC.value = { text: fn, hyperlink: irLinks[pIdx] };
+                        setCellFontSafe(irC, { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } });
                         targetIrWs.getCell(`G${prRow}`).value = `${ir.type} (${ir.zone}) — ${irLinks[pIdx]}`;
                     } else {
                         targetIrWs.getCell(`C${prRow}`).value = fn;
@@ -2544,16 +3028,11 @@ async function generateDirectExcelDFL() {
                 targetIrWs.getCell('B99').value = ir.rec || ir.correctiveAction || '';
                 targetIrWs.getCell('B104').value = `Name  /  الاسم: ${state.company.teamLead}`;
                 if (state.company.textSignature) {
-                    targetIrWs.getCell('C105').value = state.company.textSignature;
-                    targetIrWs.getCell('C105').font = { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
+                    const irSig = targetIrWs.getCell('C105');
+                    irSig.value = state.company.textSignature;
+                    setCellFontSafe(irSig, { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } });
                 }
                 targetIrWs.getCell('B106').value = `Date  /  التاريخ: ${state.activeDate}`;
-                if (sigImgId !== null) {
-                    try {
-                        targetIrWs.getRow(105).height = 32;
-                        targetIrWs.addImage(sigImgId, { tl: { col: 2.1, row: 104.05 }, ext: { width: 95, height: 26 } });
-                    } catch {}
-                }
             });
         }
 
@@ -2585,8 +3064,9 @@ async function generateDirectExcelDFL() {
                 sdNames.slice(0, 6).forEach((fn, pIdx) => {
                     const prRow = 38 + pIdx;
                     if (sdLinks[pIdx]) {
-                        targetSdlWs.getCell(`C${prRow}`).value = { text: fn, hyperlink: sdLinks[pIdx] };
-                        targetSdlWs.getCell(`C${prRow}`).font = { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } };
+                        const sdC = targetSdlWs.getCell(`C${prRow}`);
+                        sdC.value = { text: fn, hyperlink: sdLinks[pIdx] };
+                        setCellFontSafe(sdC, { name: 'Calibri', size: 10, bold: true, underline: true, color: { argb: 'FF0284C7' } });
                         targetSdlWs.getCell(`G${prRow}`).value = `${sd.subject} (${sd.zone}) — ${sdLinks[pIdx]}`;
                     } else {
                         targetSdlWs.getCell(`C${prRow}`).value = fn;
@@ -2605,14 +3085,9 @@ async function generateDirectExcelDFL() {
                     targetSdlWs.getCell('H47').value = 'Yes / نعم';
                 }
                 if (state.company.textSignature) {
-                    targetSdlWs.getCell('C60').value = state.company.textSignature;
-                    targetSdlWs.getCell('C60').font = { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } };
-                }
-                if (sigImgId !== null) {
-                    try {
-                        targetSdlWs.getRow(60).height = 32;
-                        targetSdlWs.addImage(sigImgId, { tl: { col: 2.1, row: 59.05 }, ext: { width: 95, height: 26 } });
-                    } catch {}
+                    const sdSig = targetSdlWs.getCell('C60');
+                    sdSig.value = state.company.textSignature;
+                    setCellFontSafe(sdSig, { name: 'Georgia', size: 11, bold: true, italic: true, color: { argb: 'FF1E3A8A' } });
                 }
             });
         }
@@ -2643,6 +3118,8 @@ function normalizeState() {
     if (!state.company.photoQuality) state.company.photoQuality = 'uhd';
     if (!Array.isArray(state.company.staffPool) || !state.company.staffPool.length) state.company.staffPool = [...DEFAULT_STAFF];
     if (!Array.isArray(state.company.customTasks)) state.company.customTasks = [...MASTER_TASKS];
+    MASTER_TASKS.forEach(mt => { if (!state.company.customTasks.includes(mt)) state.company.customTasks.push(mt); });
+    if (!Array.isArray(state.company.savedNotes)) state.company.savedNotes = [];
     if (!Array.isArray(state.company.customTools)) state.company.customTools = DEFAULT_TOOLS.map(t => t.name);
     if (!state.company.speciesDict || typeof state.company.speciesDict !== 'object') state.company.speciesDict = {};
     if (typeof state.company.currentUser !== 'string') state.company.currentUser = '';
@@ -2705,134 +3182,7 @@ function isStateEffectivelyEmpty(st) {
     return true;
 }
 
-function scoreStateData(st) {
-    if (!st || !st.sites) return 0;
-    let score = 0;
-    Object.values(st.sites).forEach(s => {
-        score += (s.inventory || []).length * 20;
-        score += (s.issues || []).length * 10;
-        const logs = Object.values(s.logs || {});
-        score += logs.length * 15;
-        logs.forEach(dl => {
-            score += (dl.tasks || []).length * 3;
-            score += (dl.tools || []).length;
-        });
-    });
-    return score;
-}
 
-async function scanAllBrowserDatabases() {
-    const candidates = [];
-    const dbNames = new Set(['TFF_FOS_DB_V7', 'TFF_FOS_DB_V6', 'TFF_FOS_DB_V5', 'TFF_FOS_DB_V4', 'TFF_FOS_DB_V3', 'TFF_FOS_DB_V2', 'TFF_FOS_DB_V1', 'TFF_FOS_DB']);
-    try {
-        if (window.indexedDB && indexedDB.databases) {
-            const list = await indexedDB.databases();
-            list.forEach(d => { if (d && d.name && d.name !== DB_NAME) dbNames.add(d.name); });
-        }
-    } catch {}
-
-    for (const name of dbNames) {
-        try {
-            const res = await new Promise(r => {
-                let done = false;
-                const finish = v => { if (!done) { done = true; r(v); } };
-                setTimeout(() => finish(null), 900);
-                const req = indexedDB.open(name);
-                req.onupgradeneeded = () => {
-                    // DB didn't exist before; abort so we don't leave empty DBs
-                    try { req.transaction.abort(); } catch {}
-                    finish(null);
-                };
-                req.onsuccess = ev => {
-                    const odb = ev.target.result;
-                    const stores = Array.from(odb.objectStoreNames || []);
-                    if (!stores.length) { odb.close(); finish(null); return; }
-                    const stName = stores.includes(DB_STORE) ? DB_STORE : stores[0];
-                    try {
-                        const tx = odb.transaction(stName, 'readonly').objectStore(stName).get('root');
-                        tx.onsuccess = () => {
-                            const val = tx.result;
-                            odb.close();
-                            finish(val && val.sites ? val : null);
-                        };
-                        tx.onerror = () => { odb.close(); finish(null); };
-                    } catch { odb.close(); finish(null); }
-                };
-                req.onerror = () => finish(null);
-            });
-            if (res && res.sites) {
-                candidates.push({ source: 'IndexedDB: ' + name, data: res, score: scoreStateData(res) });
-            }
-        } catch {}
-    }
-
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            if (!k || k === DB_NAME) continue;
-            if (k.includes('TFF') || k.includes('FOS')) {
-                const parsed = JSON.parse(localStorage.getItem(k));
-                if (parsed && parsed.sites) {
-                    candidates.push({ source: 'LocalStorage: ' + k, data: parsed, score: scoreStateData(parsed) });
-                }
-            }
-        }
-    } catch {}
-
-    candidates.sort((a, b) => b.score - a.score);
-    return candidates;
-}
-
-async function openDatabaseRecoveryModal() {
-    showToast('🔍 جاري فحص ذاكرة المتصفح عن بيانات V7...');
-    const found = await scanAllBrowserDatabases();
-    if (!found.length) {
-        openModal(`
-            <h3 class="card-title">🔍 نتيجة فحص ذاكرة المتصفح</h3>
-            <p style="font-size:12.5px;color:var(--muted);line-height:1.6;">
-                لم يتم العثور على قواعد بيانات قديمة في هذا المتصفح/الرابط.<br><br>
-                <b>ملاحظة مهمة:</b> إذا كنت تفتح ملف <code>index.html</code> محلياً من الحاسوب (<code>file://</code>)، فلن تظهر بيانات موقع GitHub إلا بعد رفع الملف إلى GitHub وفتحه من رابط موقعك المعتاد.<br><br>
-                كما يمكنك استرجاع بياناتك من أي ملف نسخة احتياطية محفوظ لديك:
-            </p>
-            <button class="btn btn-green btn-full" onclick="closeModal();triggerBackupRestore()">📂 استيراد ملف نسخة احتياطية (.json)</button>
-            <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
-        `);
-        return;
-    }
-
-    window._recoveredCandidates = found;
-    openModal(`
-        <h3 class="card-title">✅ تم العثور على بياناتك القديمة (${found.length})</h3>
-        <p style="font-size:12px;color:var(--muted);">اختر النسخة التي تريد استرجاعها وتثبيتها في التطبيق:</p>
-        <div style="max-height:280px;overflow-y:auto;margin-bottom:10px;">
-            ${found.map((c, idx) => {
-                const sList = Object.values(c.data.sites || {});
-                const totalLogs = sList.reduce((sum, s) => sum + Object.keys(s.logs || {}).length, 0);
-                const totalInv = sList.reduce((sum, s) => sum + (s.inventory || []).length, 0);
-                return `
-                <div class="meter-card" style="padding:9px;display:flex;justify-content:space-between;align-items:center;gap:6px;">
-                    <div>
-                        <b style="font-size:12px;color:var(--blue);">${esc(c.source)}</b>
-                        <div style="font-size:11px;color:var(--text);">الأيام المسجلة: <b>${totalLogs}</b> | مناطق الجرد: <b>${totalInv}</b></div>
-                    </div>
-                    <button class="btn btn-green btn-sm" onclick="applyRecoveredCandidate(${idx})">استرجاع</button>
-                </div>`;
-            }).join('')}
-        </div>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
-    `);
-}
-
-function applyRecoveredCandidate(idx) {
-    const c = window._recoveredCandidates && window._recoveredCandidates[idx];
-    if (!c || !c.data) return;
-    state = c.data;
-    normalizeState();
-    saveState();
-    closeModal();
-    renderAll();
-    showToast('✅ تم استرجاع جميع بياناتك بنجاح!');
-}
 
 function initDB() {
     return new Promise(resolve => {
@@ -2878,15 +3228,7 @@ function initDB() {
                         }
                     } catch {}
                 }
-                if (!loaded) {
-                    const candidates = await scanAllBrowserDatabases();
-                    if (candidates.length > 0 && candidates[0].score > 0) {
-                        state = candidates[0].data;
-                        normalizeState();
-                        saveState();
-                        setTimeout(() => showToast('✅ تم استرجاع بياناتك السابقة تلقائياً!'), 500);
-                    }
-                }
+
                 done();
             };
             req.onerror = () => done();
@@ -3009,7 +3351,7 @@ function getDayLog(dateStr = state.activeDate) {
                 return { id: m.id, name: m.name, status: 'working', prev: startVal, curr: '', visual: 'Clear / صافية', note: '', photos: [] };
             }),
             gauges: site.gauges.map(g => ({ id: g.id, name: g.name, normal: g.normal, val: '', note: '' })),
-            machinery: { pumpHrs: '', genHrs: '', fuelL: '' },
+            machinery: { pumpHrs: '', genHrs: '' },
             moisture: [1, 2, 3, 4, 5].map(n => ({ id: n, zone: '', pct: '', note: '' })),
             perf: { status: 'جيد', duration: '', zonesIrrigated: '', zonesManualEdit: false, pressureNotes: '', notes: '' },
             tools: [],
@@ -3023,7 +3365,7 @@ function getDayLog(dateStr = state.activeDate) {
     const l = site.logs[dateStr];
     if (!l.secHistory) l.secHistory = { att: [], tasks: [], tools: [], inv: [], issues: [] };
     ['att', 'tasks', 'tools', 'inv', 'issues'].forEach(k => { if (!l.secHistory[k]) l.secHistory[k] = []; });
-    if (!l.machinery) l.machinery = { pumpHrs: '', genHrs: '', fuelL: '' };
+    if (!l.machinery) l.machinery = { pumpHrs: '', genHrs: '' };
     if (!l.incidents) l.incidents = [];
     if (!l.sdls) l.sdls = [];
     if (!l.perf) l.perf = { status: 'جيد', duration: '', zonesIrrigated: '', zonesManualEdit: false, pressureNotes: '', notes: '' };
@@ -3501,7 +3843,9 @@ function toggleTaskPause(tIdx) {
         t.pauseReason = '';
         if (reason && netPauseMins >= 1) {
             const formalEntry = `توقف مؤقت (${pFromStr}-${pToStr} - ${reason})`;
-            t.note = t.note ? `${t.note} | ${formalEntry}` : formalEntry;
+            const list = ensureTaskNotesList(t);
+            list.push({ id: 'n_ps_' + now, text: formalEntry });
+            rebuildTaskNoteFromList(t);
         }
         saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
         showToast('▶️ تم استئناف العمل والمؤقت');
@@ -3583,16 +3927,7 @@ function updateLiveShiftClockDom() {
         phaseEl.style.color = '#cbd5e1';
     }
 }
-setInterval(updateLiveShiftClockDom, 1000);
-
-
-/* ================= V16.9: Editable Task Event Timeline & Shift Handover (Morning <-> Evening) ================= */
-function addTaskEventLog(t, iconAndLabel, customTimeStr = null) {
-    if (!Array.isArray(t.events)) t.events = [];
-    const now = new Date();
-    const timeStr = customTimeStr || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    t.events.push({ time: timeStr, label: iconAndLabel });
-}
+// Clock updates inside updateLiveTimersDomOnly (single 1s timer)
 
 function isTaskPassiveIrrigation(t) {
     if (typeof t.isPassiveIrr === 'boolean') return t.isPassiveIrr;
@@ -4315,57 +4650,7 @@ function buildDurationSelectHtml(currentVal, selectId, onChangeExpr) {
 }
 
 
-/* ================= V16.9: Shift Time Distribution & Custom Rebalancing Engine ================= */
-function syncTaskCompletionAndLiveClockOnDurChange(t, newMins) {
-    if (!t || !newMins || newMins <= 0) return;
-    const targetNetMs = newMins * 60000;
-    const st = t.status || '';
 
-    if (st.includes('Progress') && t.startTimeMs) {
-        const now = Date.now();
-        let endPoint = t.pausedAtMs ? t.pausedAtMs : now;
-        if (!t.pausedAtMs && !t.ignoreShiftEndCap && !t.isAfterHours) {
-            const capMs = getTaskShiftEndCapMs(t);
-            if (capMs && endPoint > capMs) endPoint = capMs;
-        }
-        const pausedMs = t.pausedTotalMs || 0;
-        let candidateStart = endPoint - targetNetMs - pausedMs;
-        if (!t.ignoreBreak) {
-            const ov1 = getBreakOverlapMs(candidateStart, endPoint, state.activeDate);
-            candidateStart = endPoint - targetNetMs - pausedMs - ov1;
-            const ov2 = getBreakOverlapMs(candidateStart, endPoint, state.activeDate);
-            candidateStart = endPoint - targetNetMs - pausedMs - ov2;
-        }
-        t.startTimeMs = candidateStart;
-        t.fixedStartTime = formatTime24FromMs(candidateStart);
-        if (Array.isArray(t.events) && t.events.length > 0 && ((t.events[0].label || '').includes('بدأ') || (t.events[0].label || '').includes('▶️'))) {
-            t.events[0].time = t.fixedStartTime;
-        }
-    } else if (st.includes('Completed')) {
-        const sStr = getTaskFixedStartTimeStr(t);
-        const sMs = hhmmToDateMs(sStr, state.activeDate);
-        if (sMs) {
-            let eMs = t.ignoreBreak ? (sMs + targetNetMs) : addNetWorkMinsSkippingBreak(sMs, newMins, state.activeDate);
-            // Preserve any recorded pause gap in timeline
-            if (Array.isArray(t.events) && t.events.length > 1) {
-                let pAcc = 0, ps = null;
-                t.events.forEach(ev => {
-                    const ms = hhmmToDateMs(ev.time, state.activeDate);
-                    if (!ms) return;
-                    const lbl = ev.label || '';
-                    if (lbl.includes('توقف') || lbl.includes('⏸') || lbl.includes('🛑')) { if (ps === null) ps = ms; }
-                    else if ((lbl.includes('رجع') || lbl.includes('استئناف') || lbl.includes('▶️')) && ps !== null) { if (ms > ps) pAcc += (ms - ps); ps = null; }
-                });
-                eMs += pAcc;
-            }
-            const endStr = formatTime24FromMs(eMs);
-            if (Array.isArray(t.events)) {
-                const doneEv = [...t.events].reverse().find(e => (e.label || '').includes('اكتمل') || (e.label || '').includes('✅'));
-                if (doneEv) doneEv.time = endStr;
-            }
-        }
-    }
-}
 
 function openTaskTimeControlModal(tIdx) {
     const log = getDayLog();
@@ -4838,229 +5123,7 @@ function globalUndo() {
     showToast('↩️ تم التراجع عن: ' + last.label);
 }
 
-function logSectionHistory(secKey, actionType, summary, refData = {}) {
-    const log = getDayLog();
-    const timeStr = new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
-    log.secHistory[secKey].unshift({
-        hid: 'h_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-        time: timeStr,
-        actionType,
-        summary,
-        ref: refData
-    });
-    if (log.secHistory[secKey].length > 50) log.secHistory[secKey].pop();
-}
-
-function renderStickySectionHistory(secKey, containerId, labelTitle) {
-    const box = document.getElementById(containerId);
-    if (!box) return;
-    const log = getDayLog();
-    const site = getSite();
-    const list = log.secHistory[secKey] || [];
-    const latest = list[0];
-
-    if (!latest) {
-        box.innerHTML = `
-        <div class="sticky-sec-bar empty-bar">
-            <div class="sticky-sec-info" style="color:var(--muted);">🕒 سجل ${labelTitle}: لا توجد حركات مسجلة بعد</div>
-            <div class="sticky-sec-actions">
-                ${secKey === 'inv' ? `<button class="btn btn-outline btn-sm" onclick="setStopMarker()">🎀 علامة</button>` : ''}
-                <button class="btn btn-outline btn-sm" onclick="openSectionHistoryModal('${secKey}', '${labelTitle}')">📜 السجل (0)</button>
-            </div>
-        </div>`;
-        return;
-    }
-
-    box.innerHTML = `
-    <div class="sticky-sec-bar">
-        <div class="sticky-sec-info">
-            <div class="sticky-sec-title">🕒 آخر حركة في ${labelTitle} (${esc(latest.time)}):</div>
-            <div style="font-weight:bold;color:var(--text);">${esc(latest.summary)}</div>
-            ${secKey === 'inv' && site.stopMarker ? `<div style="color:var(--red);font-size:10.5px;font-weight:bold;">🎀 علامة التوقف: ${esc(site.stopMarker)}</div>` : ''}
-        </div>
-        <div class="sticky-sec-actions">
-            ${secKey === 'inv' ? `<button class="btn btn-outline btn-sm" onclick="setStopMarker()">🎀</button>` : ''}
-            <button class="btn btn-outline btn-sm" onclick="editHistoryItem('${secKey}', '${latest.hid}')" title="تعديل">✏️</button>
-            <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteHistoryItem('${secKey}', '${latest.hid}')" title="حذف من السجل والقسم">🗑️</button>
-            <button class="btn btn-blue btn-sm" onclick="openSectionHistoryModal('${secKey}', '${labelTitle}')">📜 (${list.length})</button>
-        </div>
-    </div>`;
-}
-
-function openSectionHistoryModal(secKey, labelTitle) {
-    const list = getDayLog().secHistory[secKey] || [];
-    openModal(`
-        <h3 class="card-title">📜 سجل وملخص ${labelTitle} (${list.length})</h3>
-        <p style="font-size:11px;color:var(--muted);margin-top:0;">الحذف أو التعديل من هنا ينعكس مباشرة على بيانات القسم والتقرير النهائي:</p>
-        <div style="max-height:330px;overflow-y:auto;margin-bottom:10px;">
-            ${list.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:15px;">السجل فارغ</div>' :
-            list.map(h => `
-                <div class="meter-card" style="padding:8px;display:flex;justify-content:space-between;align-items:center;gap:6px;">
-                    <div style="flex:1;">
-                        <div style="font-size:10px;color:var(--blue);font-weight:bold;">${esc(h.time)}</div>
-                        <div style="font-size:12px;font-weight:bold;">${esc(h.summary)}</div>
-                    </div>
-                    <div style="display:flex;gap:4px;">
-                        <button class="btn btn-outline btn-sm" onclick="closeModal();editHistoryItem('${secKey}', '${h.hid}')">✏️</button>
-                        <button class="btn btn-outline btn-sm" style="color:var(--red);" onclick="deleteHistoryItem('${secKey}', '${h.hid}', true, '${labelTitle}')">🗑️</button>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
-    `);
-}
-
-function deleteHistoryItem(secKey, hid, reopenModal = false, labelTitle = '') {
-    const site = getSite();
-    const log = getDayLog();
-    const list = log.secHistory[secKey] || [];
-    const hIdx = list.findIndex(x => x.hid === hid);
-    if (hIdx === -1) return;
-    const item = list[hIdx];
-    pushUndo('حذف من سجل ' + secKey);
-
-    const ref = item.ref || {};
-    if (secKey === 'tasks' && ref.taskId) {
-        log.tasks = log.tasks.filter(t => t.id !== ref.taskId);
-        syncIrrigatedZonesFromTasks(false);
-    } else if (secKey === 'inv' && ref.zoneId && ref.plantId) {
-        const z = site.inventory.find(x => x.id === ref.zoneId);
-        const p = z ? z.plants.find(x => x.id === ref.plantId) : null;
-        if (p) {
-            if (ref.condId && p.counts[ref.condId] > 0) p.counts[ref.condId]--;
-            if (ref.entryId && p.entries) p.entries = p.entries.filter(e => e.id !== ref.entryId);
-        }
-    } else if (secKey === 'att' && ref.workerId) {
-        if (item.actionType === 'add') log.attendance = log.attendance.filter(w => w.id !== ref.workerId);
-        else { const w = log.attendance.find(x => x.id === ref.workerId); if (w) w.status = 'Present / حاضر'; }
-    } else if (secKey === 'tools') {
-        if (ref.toolId) { const ti = log.tools.findIndex(x => x.id === ref.toolId); if (ti !== -1) log.tools.splice(ti, 1); }
-        else if (ref.toolIdx != null && log.tools[ref.toolIdx]) log.tools.splice(ref.toolIdx, 1);
-        else if (ref.meterId) { const m = log.meters.find(x => x.id === ref.meterId); if (m) m.curr = ''; }
-        else if (ref.gaugeId) { const g = log.gauges.find(x => x.id === ref.gaugeId); if (g) g.val = ''; }
-    } else if (secKey === 'issues' && ref.issueId) {
-        site.issues = site.issues.filter(i => i.id !== ref.issueId);
-    }
-
-    list.splice(hIdx, 1);
-    saveState();
-    renderAll();
-    showToast('🗑️ تم حذف السجل وإلغاء العملية من القسم');
-    if (reopenModal) openSectionHistoryModal(secKey, labelTitle);
-}
-
-function editHistoryItem(secKey, hid) {
-    const site = getSite();
-    const log = getDayLog();
-    const item = (log.secHistory[secKey] || []).find(x => x.hid === hid);
-    if (!item) return;
-    const ref = item.ref || {};
-
-    if (secKey === 'tasks' && ref.taskId) {
-        const tIdx = log.tasks.findIndex(t => t.id === ref.taskId);
-        if (tIdx === -1) { showToast('المهمة محذوفة مسبقاً'); return; }
-        const t = log.tasks[tIdx];
-        openModal(`
-            <h3 class="card-title">✏️ تعديل المهمة من السجل</h3>
-            <label class="lbl">المناطق:</label><input id="ehZones" class="inp" value="${esc(t.zones)}">
-            <label class="lbl">الوصف المختصر:</label><textarea id="ehDesc" class="inp auto-grow" rows="2">${esc(t.desc)}</textarea>
-            <div class="grid-2">
-                <div><label class="lbl">المدة:</label><input id="ehDur" class="inp" value="${esc(t.dur)}"></div>
-                <div><label class="lbl">الحالة:</label>
-                    <select id="ehSt" class="inp">
-                        <option value="Completed / مكتمل" ${t.status.includes('Completed')?'selected':''}>مكتمل</option>
-                        <option value="In Progress / جاري" ${t.status.includes('Progress')?'selected':''}>جاري</option>
-                        <option value="Not Started / لم يبدأ" ${t.status.includes('Not Started')?'selected':''}>لم يبدأ</option>
-                        <option value="Blocked / متوقف" ${t.status.includes('Blocked')?'selected':''}>متوقف</option>
-                    </select>
-                </div>
-            </div>
-            <label class="lbl">ملاحظات:</label><textarea id="ehNote" class="inp auto-grow" rows="2">${esc(t.note || '')}</textarea>
-            <div class="grid-2"><button class="btn btn-green" onclick="saveEditedTaskHistory(${tIdx}, '${hid}')">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
-        `);
-    } else if (secKey === 'inv' && ref.zoneId && ref.plantId) {
-        const z = site.inventory.find(x => x.id === ref.zoneId);
-        const p = z ? z.plants.find(x => x.id === ref.plantId) : null;
-        const ent = p && ref.entryId ? (p.entries || []).find(e => e.id === ref.entryId) : null;
-        if (!p || !ent) { showToast('القيد غير موجود'); return; }
-        openModal(`
-            <h3 class="card-title">✏️ تعديل قيد الجرد (${esc(p.name)})</h3>
-            <label class="lbl">الحالة الصحية:</label>
-            <select id="ehCond" class="inp">${HEALTH_CONDITIONS.map(c => `<option value="${c.id}" ${ent.condId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select>
-            <label class="lbl">الطول (${state.company.heightUnit}):</label>
-            <input type="number" step="any" id="ehHeight" class="inp" value="${ent.height || ''}">
-            <div class="grid-2"><button class="btn btn-green" onclick="saveEditedInvHistory('${ref.zoneId}','${ref.plantId}','${ref.entryId}','${hid}')">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
-        `);
-    } else if (secKey === 'att' && ref.workerId) {
-        const wIdx = log.attendance.findIndex(w => w.id === ref.workerId);
-        if (wIdx !== -1) editWorkerModal(wIdx);
-    } else if (secKey === 'tools') {
-        if (ref.meterId) {
-            const mIdx = log.meters.findIndex(m => m.id === ref.meterId);
-            if (mIdx !== -1) {
-                const v = prompt('تعديل القراءة الحالية للعداد:', log.meters[mIdx].curr);
-                if (v !== null) { updateMeterField(mIdx, 'curr', v); item.summary = `تحديث عداد ${log.meters[mIdx].name}: ${v}`; saveState(); renderAll(); }
-            }
-        } else if (ref.toolIdx != null && log.tools[ref.toolIdx]) {
-            editToolQty(ref.toolIdx);
-        }
-    } else if (secKey === 'issues' && ref.issueId) {
-        const iss = site.issues.find(i => i.id === ref.issueId);
-        if (iss) {
-            const d = prompt('تعديل وصف المشكلة:', iss.desc);
-            if (d !== null && d.trim()) { iss.desc = d.trim(); item.summary = `${iss.code} [${iss.zone}]: ${iss.desc}`; saveState(); renderAll(); }
-        }
-    }
-}
-
-function saveEditedTaskHistory(tIdx, hid) {
-    pushUndo('تعديل مهمة من السجل');
-    const log = getDayLog();
-    const t = log.tasks[tIdx];
-    t.zones = document.getElementById('ehZones').value.trim() || t.zones;
-    t.desc = document.getElementById('ehDesc').value.trim();
-    t.dur = document.getElementById('ehDur').value.trim() || t.dur;
-    t.status = document.getElementById('ehSt').value;
-    t.note = document.getElementById('ehNote').value.trim();
-    const newM = parseDurationToMins(t.dur);
-    if (newM > 0 && t.fixedStartTime) {
-        const sMs = hhmmToDateMs(t.fixedStartTime, state.activeDate);
-        if (sMs) {
-            const eMs = t.ignoreBreak ? (sMs + newM * 60000) : addNetWorkMinsSkippingBreak(sMs, newM, state.activeDate);
-            if (!t.status.includes('Progress') || t.fixedEndTime) t.fixedEndTime = formatTime24FromMs(eMs);
-        }
-    }
-    const hItem = log.secHistory.tasks.find(x => x.hid === hid);
-    if (hItem) hItem.summary = `${t.status.split('/')[1] || t.status}: ${t.zones} (${t.desc})`;
-    syncIrrigatedZonesFromTasks(false);
-    closeModal(); saveState(); renderAll(); showToast('✓ تم تحديث المهمة والسجل');
-}
-
-function saveEditedInvHistory(zoneId, plantId, entryId, hid) {
-    pushUndo('تعديل جرد من السجل');
-    const site = getSite();
-    const z = site.inventory.find(x => x.id === zoneId);
-    const p = z ? z.plants.find(x => x.id === plantId) : null;
-    const ent = p ? (p.entries || []).find(e => e.id === entryId) : null;
-    if (p && ent) {
-        const newCond = document.getElementById('ehCond').value;
-        const newH = parseFloat(document.getElementById('ehHeight').value);
-        if (ent.condId !== newCond) {
-            if (p.counts[ent.condId] > 0) p.counts[ent.condId]--;
-            p.counts[newCond] = (p.counts[newCond] || 0) + 1;
-            ent.condId = newCond;
-        }
-        ent.height = (!isNaN(newH) && newH > 0) ? newH : null;
-        const cObj = HEALTH_CONDITIONS.find(c => c.id === newCond);
-        const hItem = getDayLog().secHistory.inv.find(x => x.hid === hid);
-        if (hItem) {
-            hItem.ref.condId = newCond;
-            hItem.summary = `${z.name} | ${p.name} — ${cObj ? cObj.name : ''} ${ent.height ? `(${ent.height} ${state.company.heightUnit})` : ''}`;
-        }
-    }
-    closeModal(); saveState(); renderAll(); showToast('✓ تم تحديث الجرد والسجل');
-}
+function logSectionHistory() { /* V17.0: Global Undo replaces sticky history bars */ }
 
 /* ================= Helpers ================= */
 function showToast(msg) {
@@ -5352,16 +5415,16 @@ function jumpToArchiveDate(d) { state.activeDate = d; closeModal(); saveState();
 /* ================= TAB 1: Attendance ================= */
 function renderAttendance(log) {
     if (typeof updateGlobalAttendanceList === 'function') updateGlobalAttendanceList();
-    renderStickySectionHistory('att', 'stickyHist-att', 'الحضور');
-    let presentCount = 0, outsidePresent = 0, totalOt = 0;
+    let presentCount = 0, outsideUnits = 0, totalOt = 0;
     log.attendance.forEach(w => {
         if (!w.status.includes('Absent')) {
+            const isHalf = w.status.includes('Half Day');
             presentCount++;
-            if (w.type.includes('Outside')) outsidePresent++;
+            if (w.type.includes('Outside')) outsideUnits += isHalf ? 0.5 : 1;
         }
         totalOt += (parseFloat(w.ot) || 0);
     });
-    const cost = outsidePresent * (state.company.outsideRate || 25000);
+    const cost = Math.round(outsideUnits * (state.company.outsideRate || 25000));
 
     document.getElementById('attKpiStrip').innerHTML = `
         <div class="kpi-box"><div class="kpi-val">${presentCount}/${log.attendance.length}</div><div class="kpi-sub">الحضور اليوم</div></div>
@@ -5374,6 +5437,8 @@ function renderAttendance(log) {
         const isPres = w.status.includes('Present');
         const isAbs = w.status.includes('Absent');
         const isLate = w.status.includes('Late');
+        const isHalf = w.status.includes('Half Day');
+        const isOtSt = w.status.includes('Overtime');
         const wStat = workerHoursMap[w.id] || { workedMins: 0, workedFormatted: '0:00 hr', shiftFormatted: '7:00 hr', diffMins: 0, diffFormatted: '0:00 hr', activeTasksList: [], breakdown: [] };
         const isOver = !isAbs && wStat.diffMins > 10;
         const activeFirst = !isAbs && wStat.activeTasksList && wStat.activeTasksList.length > 0 ? wStat.activeTasksList[0] : null;
@@ -5387,6 +5452,8 @@ function renderAttendance(log) {
                 <div class="att-pills">
                     <button class="att-pill ${isPres ? 'st-present' : ''}" onclick="setWorkerAtt(${idx},'Present / حاضر')">حاضر</button>
                     <button class="att-pill ${isLate ? 'st-late' : ''}" onclick="setWorkerAtt(${idx},'Late / متأخر')">متأخر</button>
+                    <button class="att-pill ${isHalf ? 'st-half' : ''}" onclick="setWorkerAtt(${idx},'Half Day / نصف يوم')">نصف يوم</button>
+                    <button class="att-pill ${isOtSt ? 'st-ot' : ''}" onclick="setWorkerAtt(${idx},'Overtime  /  اوفرتايم')">OT</button>
                     <button class="att-pill ${isAbs ? 'st-absent' : ''}" onclick="setWorkerAtt(${idx},'Absent / غائب')">غائب</button>
                     <button class="att-pill" onclick="editWorkerModal(${idx})" title="تعديل">✏️</button>
                     <button class="att-pill" style="color:var(--red);" onclick="deleteWorkerFromToday(${idx})" title="حذف">🗑️</button>
@@ -5510,6 +5577,11 @@ function setWorkerAtt(idx, st) {
     w.status = st;
     if (st.includes('Present') && (!w.tIn || w.tIn > '08:05')) {
         w.tIn = '08:00';
+    }
+    if (st.includes('Half Day')) {
+        w.tOut = '12:00';
+    } else if (st.includes('Overtime') && !(parseFloat(w.ot) > 0)) {
+        w.ot = 1;
     }
     const shortName = (w.name.split('/')[1] || w.name).trim();
     let removedFromTasks = 0;
@@ -5873,36 +5945,10 @@ function renderTasksQueue(log) {
 }
 
 function renderTasks(log) {
-    renderStickySectionHistory('tasks', 'stickyHist-tasks', 'المهام');
     updateLiveShiftClockDom();
     renderTasksQueue(log);
     renderZoneThirstRadar();
 
-    const trBox = document.getElementById('transfersContainer');
-    if (trBox) {
-        if (Array.isArray(log.transfers) && log.transfers.length > 0) {
-            trBox.innerHTML = `
-                <div class="card" style="border-right:4px solid var(--purple);background:#faf5ff;margin-top:8px;">
-                    <div style="font-weight:bold;color:var(--purple);font-size:13px;margin-bottom:6px;">🔄 سجل تنقلات العمال بين المهام (${log.transfers.length})</div>
-                    ${log.transfers.map((tr, trIdx) => `
-                        <div style="background:white;border:1px solid #e9d5ff;border-radius:8px;padding:7px;margin-bottom:5px;font-size:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
-                            <div>
-                                <b>👷 ${esc(tr.worker)}</b> <span class="badge" style="background:#f3e8ff;color:#6b21a8;">⏰ ${esc(tr.time || '')}</span>
-                                <div style="margin-top:3px;"><span style="color:#b91c1c;">من: ${esc(tr.fromTask)}</span> ➡️ <span style="color:#15803d;">إلى: ${esc(tr.toTask)}</span></div>
-                                ${tr.dur ? `<div style="font-size:11px;color:var(--muted);">⏱️ المدة في المهمة الأولى: ${esc(tr.dur)}</div>` : ''}
-                                ${tr.note ? `<div style="font-size:11px;color:#475569;">📝 ${esc(tr.note)}</div>` : ''}
-                            </div>
-                            <div style="display:flex;gap:3px;">
-                                <button class="btn btn-outline btn-sm" style="padding:2px 6px;" onclick="openEditTaskTransferModal(${trIdx})" title="تعديل الوقت أو المدة">✏️</button>
-                                <button class="btn btn-outline btn-sm" style="color:var(--red);padding:2px 6px;" onclick="deleteTaskTransfer(${trIdx})" title="حذف">✕</button>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>`;
-        } else {
-            trBox.innerHTML = '';
-        }
-    }
 
     const sumBox = document.getElementById('taskSummaryFilterBar');
     const el = document.getElementById('tasksContainer');
@@ -5953,7 +5999,7 @@ function renderTasks(log) {
         const zoneList = (t.zones || '').split(',').map(s => s.trim()).filter(Boolean);
         const canSplit = zoneList.length > 1;
         const wNames = t.workers && t.workers.length ? t.workers.join(' / ') : 'بدون عمال';
-        const isAgro = t.task.includes('Fertilizing') || t.task.includes('Pest Control');
+        const isAgro = t.task.includes('Fertilizing') || t.task.includes('Pest Control') || t.task.includes('Biochar') || t.task.includes('Compost');
         const isIrr = t.task.includes('Irrigation');
         const photos = ensurePhotosArr(t);
         const prevHasWorkers = idx > 0 && log.tasks[idx - 1] && (log.tasks[idx - 1].workers || []).length > 0;
@@ -6150,33 +6196,46 @@ function renderTasks(log) {
                 <button class="st-btn ${isBlock ? 'on-block' : ''}" onclick="setTaskStatus(${idx},'Blocked / متوقف')">متوقف</button>
             </div>
 
-            ${isBlock ? `
+            ${(() => {
+                const uNotes = getTaskUserNotes(t);
+                const autoExtra = getTaskAutoOnlySummary(t);
+                const notesHtml = uNotes.map((nObj, nI) => `
+                    <div class="note-item-card ${isBlock ? 'is-blocked-note' : ''}">
+                        <span style="flex:1;word-break:break-word;">📝 ${esc(nObj.text)}</span>
+                        <div style="display:flex;gap:3px;flex-shrink:0;">
+                            <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;" onclick="editSingleTaskNote(${idx}, ${nI})" title="تعديل">✏️</button>
+                            <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${nI})" title="حذف">✕</button>
+                        </div>
+                    </div>`).join('');
+                if (isBlock) {
+                    return `
             <div class="block-drawer">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:4px;flex-wrap:wrap;">
-                    <label class="lbl" style="color:var(--red);margin:0;font-size:12px;">🛑 سبب التوقف (إلزامي):</label>
-                    <div style="display:flex;gap:4px;">
+                    <label class="lbl" style="color:var(--red);margin:0;font-size:12px;">🛑 سبب التوقف والملاحظات (${uNotes.length}):</label>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                        <button class="btn btn-outline btn-sm" style="background:white;padding:2px 7px;font-size:10.5px;" onclick="openTaskNotesModal(${idx}, 'fault')">+ ملاحظة / محفوظة</button>
                         ${isIrr ? `<button class="btn btn-blue btn-sm" style="padding:2px 6px;font-size:10px;" onclick="createReplacementTankerTask(${idx})">🚚 تعويض تنكر</button>` : ''}
                         <button class="btn btn-red btn-sm" style="padding:2px 6px;font-size:10px;" onclick="escalateTaskToIssue(${idx})">🚨 تصعيد مشكلة</button>
                     </div>
                 </div>
-                <div style="display:flex;gap:4px;margin-bottom:6px;">
-                    <div class="inp-wrap" style="margin:0;flex:1;">
-                        <textarea id="tnote_${idx}" class="inp auto-grow blocked-note-box" rows="2" placeholder="اكتب سبب التوقف بوضوح..." oninput="autoGrow(this)" onchange="updateTaskNote(${idx}, this.value)">${esc(t.note)}</textarea>
-                        <button class="clr-btn top-align" onclick="quickClearField('tnote_${idx}', () => updateTaskNote(${idx}, ''))">✕</button>
-                    </div>
-                    <button class="btn btn-outline btn-sm" onclick="startDictation('tnote_${idx}', v => updateTaskNote(${idx}, v))">🎤</button>
+                ${notesHtml || '<div style="font-size:11.5px;color:#b91c1c;margin-bottom:5px;">⚠️ اضغط على سبب سريع أو «+ ملاحظة» لتوثيق سبب التوقف</div>'}
+                ${autoExtra ? `<div style="font-size:10.5px;color:#475569;margin:3px 0;">⚙️ ${esc(autoExtra)}</div>` : ''}
+                <div style="margin-top:4px;">
+                    ${QUICK_NOTE_PHRASES.filter(q => q.cat === 'fault').map(q => `<span class="chip" style="background:white;" onclick="appendTaskNoteItem(${idx}, '${esc(q.text)}')">+ ${q.label}</span>`).join('')}
                 </div>
-                <div>
-                    ${QUICK_NOTE_PHRASES.map(q => `<span class="chip" onclick="setTaskNoteChip(${idx}, '${esc(q.text)}')">${q.label}</span>`).join('')}
+            </div>`;
+                }
+                return `
+            <div style="margin-top:8px;">
+                ${notesHtml}
+                ${autoExtra ? `<div style="font-size:10.5px;color:var(--muted);background:#f8fafc;border:1px dashed #cbd5e1;border-radius:6px;padding:4px 7px;margin-bottom:5px;">⚙️ ${esc(autoExtra)}</div>` : ''}
+                <div style="display:flex;gap:5px;align-items:center;">
+                    <button type="button" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;background:white;padding:6px 8px;font-size:11.5px;color:var(--blue);border-color:#bae6fd;" onclick="openTaskNotesModal(${idx}, 'saved')">
+                        📝 ${uNotes.length ? `+ إضافة ملاحظة أخرى (${uNotes.length})` : '+ إضافة ملاحظة / ملاحظات محفوظة'}
+                    </button>
                 </div>
-            </div>` : `
-            <div style="display:flex;gap:4px;margin-top:8px;">
-                <div class="inp-wrap" style="margin:0;flex:1;">
-                    <textarea id="tnote_${idx}" class="inp auto-grow" rows="2" style="font-size:12.5px;" placeholder="${isNotSt ? 'لم يبدأ — بانتظار التنفيذ...' : 'ملاحظة إضافية للمهمة...'}" oninput="autoGrow(this)" onchange="updateTaskNote(${idx}, this.value)">${esc(t.note)}</textarea>
-                    <button class="clr-btn top-align" onclick="quickClearField('tnote_${idx}', () => updateTaskNote(${idx}, ''))">✕</button>
-                </div>
-                <button class="btn btn-outline btn-sm" onclick="startDictation('tnote_${idx}', v => updateTaskNote(${idx}, v))">🎤</button>
-            </div>`}
+            </div>`;
+            })()}
         </div>`;
     }).join('');
     setTimeout(triggerAllAutoGrows, 15);
@@ -6199,8 +6258,6 @@ function applyIrrPreset(idx, txt, dur) {
     t.desc = txt; t.dur = dur;
     t.isTanker = txt.toLowerCase().includes('tanker');
     if (t.isTanker && !t.tankerCapacity) { t.tankerCapacity = TANKER_FULL_CAPACITY; t.tankerTrips = 1; }
-    const newMins = parseDurationToMins(dur);
-    if (newMins > 0) syncTaskCompletionAndLiveClockOnDurChange(t, newMins);
     logSectionHistory('tasks', 'edit', `${t.zones}: ${txt}`, { taskId: t.id });
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
 }
@@ -6367,28 +6424,82 @@ function jumpToZoneFromTask(zonesStr) {
     }, 80);
 }
 
+function buildGroupedZonePickerHtml(siteZones, selectedSet, targetInputId, chipClass = 'zp-chip') {
+    const groups = [
+        { label: 'OL / OR', test: z => /^O[LR]\d/i.test(z) },
+        { label: 'AL / AR', test: z => /^A[LR]\d/i.test(z) },
+        { label: 'مجموعة B', test: z => /^B\d/i.test(z) },
+        { label: 'مجموعة C', test: z => /^C\d/i.test(z) },
+        { label: 'مجموعة E / D', test: z => /^[ED]\d/i.test(z) },
+        { label: 'مجموعة H', test: z => /^H\d/i.test(z) },
+        { label: 'مرافق وأخرى', test: () => true }
+    ];
+    const used = new Set();
+    const rendered = groups.map(g => {
+        const items = siteZones.filter(z => !used.has(z) && g.test(z));
+        items.forEach(z => used.add(z));
+        if (!items.length) return '';
+        const listJson = esc(JSON.stringify(items));
+        return `
+        <div class="zone-group-box">
+            <div class="zone-group-head">
+                <span>${g.label}</span>
+                ${items.length > 1 && g.label !== 'مرافق وأخرى' ? `<span style="color:var(--blue);cursor:pointer;" onclick="toggleZoneGroupChips('${chipClass}','${targetInputId}',${listJson})">☑️ تحديد المجموعة</span>` : ''}
+            </div>
+            <div>
+                ${items.map(z => `<span class="chip ${chipClass} ${selectedSet.has(z) ? 'active' : ''}" data-z="${esc(z)}" onclick="toggleSingleZoneChip(this,'${chipClass}','${targetInputId}')">${esc(z)}</span>`).join('')}
+            </div>
+        </div>`;
+    }).join('');
+    return `
+        <div style="display:flex;gap:5px;margin-bottom:6px;align-items:center;">
+            <input class="inp" style="margin:0;padding:5px 8px;font-size:12px;flex:1;" placeholder="🔍 تصفية المناطق..." oninput="filterZonePickerChips(this.value,'${chipClass}')">
+            <button type="button" class="btn btn-outline btn-sm" onclick="clearAllZonePickerChips('${chipClass}','${targetInputId}')">مسح</button>
+        </div>
+        <div style="max-height:210px;overflow-y:auto;margin-bottom:6px;">${rendered}</div>`;
+}
+
+function syncZoneChipsToInput(chipClass, targetInputId) {
+    const active = Array.from(document.querySelectorAll(`.${chipClass}.active`)).map(x => x.dataset.z);
+    const inp = document.getElementById(targetInputId);
+    if (inp) inp.value = active.join(', ');
+}
+function toggleSingleZoneChip(el, chipClass, targetInputId) {
+    el.classList.toggle('active');
+    syncZoneChipsToInput(chipClass, targetInputId);
+}
+function toggleZoneGroupChips(chipClass, targetInputId, groupArr) {
+    const chips = Array.from(document.querySelectorAll(`.${chipClass}`)).filter(c => groupArr.includes(c.dataset.z));
+    const allOn = chips.every(c => c.classList.contains('active'));
+    chips.forEach(c => c.classList.toggle('active', !allOn));
+    syncZoneChipsToInput(chipClass, targetInputId);
+}
+function clearAllZonePickerChips(chipClass, targetInputId) {
+    document.querySelectorAll(`.${chipClass}`).forEach(c => c.classList.remove('active'));
+    const inp = document.getElementById(targetInputId);
+    if (inp) inp.value = '';
+}
+function filterZonePickerChips(q, chipClass) {
+    const low = (q || '').trim().toLowerCase();
+    document.querySelectorAll(`.${chipClass}`).forEach(c => {
+        c.style.display = (!low || c.dataset.z.toLowerCase().includes(low)) ? 'inline-flex' : 'none';
+    });
+}
+
 function openZonePickerModal(tIdx) {
     const site = getSite();
     const t = getDayLog().tasks[tIdx];
     const current = new Set((t.zones || '').split(',').map(s => s.trim()).filter(Boolean));
     openModal(`
-        <h3 class="card-title">📍 تعديل مناطق المهمة</h3>
-        <div style="max-height:220px;overflow-y:auto;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:8px;">
-            ${site.zones.map(z => `<span class="chip ${current.has(z) ? 'active' : ''}" onclick="this.classList.toggle('active')" data-z="${esc(z)}">${esc(z)}</span>`).join('')}
-        </div>
-        <label class="lbl">أو اكتب مناطق مخصصة (مفصولة بفاصلة):</label>
+        <h3 class="card-title">📍 تعديل مناطق المهمة (اختيار متعدد)</h3>
+        ${buildGroupedZonePickerHtml(site.zones, current, 'customZonesInp', 'ezp-chip')}
+        <label class="lbl">المناطق المختارة (أو اكتب مخصص مفصول بفاصلة):</label>
         <div class="inp-wrap">
-            <input id="customZonesInp" class="inp" value="${esc(t.zones)}">
-            <button class="clr-btn" onclick="quickClearField('customZonesInp')">✕</button>
+            <input id="customZonesInp" class="inp" style="font-weight:bold;" value="${esc(t.zones)}">
+            <button class="clr-btn" onclick="clearAllZonePickerChips('ezp-chip','customZonesInp')">✕</button>
         </div>
-        <div class="grid-2"><button class="btn btn-green" onclick="savePickedZones(${tIdx})">تحديث</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
+        <div class="grid-2"><button class="btn btn-green" onclick="savePickedZones(${tIdx})">✓ تحديث المناطق</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
     `);
-    document.querySelectorAll('#genericModalBody .chip').forEach(ch => {
-        ch.addEventListener('click', () => {
-            const activeZones = Array.from(document.querySelectorAll('#genericModalBody .chip.active')).map(x => x.dataset.z);
-            document.getElementById('customZonesInp').value = activeZones.join(', ');
-        });
-    });
 }
 function savePickedZones(tIdx) {
     const val = document.getElementById('customZonesInp').value.trim();
@@ -6396,7 +6507,6 @@ function savePickedZones(tIdx) {
         pushUndo('تعديل مناطق مهمة');
         const t = getDayLog().tasks[tIdx];
         t.zones = val;
-        logSectionHistory('tasks', 'edit', `تعديل مناطق إلى: ${val}`, { taskId: t.id });
     }
     syncIrrigatedZonesFromTasks(false);
     closeModal(); saveState(); renderTasks(getDayLog());
@@ -6489,19 +6599,214 @@ function setTaskStatus(idx, st) {
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
 }
 
-function updateTaskNote(idx, v) {
-    const t = getDayLog().tasks[idx];
-    const res = applySpellAndDictationGuard(v);
-    t.note = res.text;
-    if (res.changed) showToast('✨ تم تصحيح المصطلح الإنجليزي تلقائياً');
-    saveState(); renderTasks(getDayLog());
+/* ================= V17.0: Advanced Multi-Notes & Saved Custom Notes Library ================= */
+function stripAutoSuffixFromNote(rawStr, suffix) {
+    let base = String(rawStr || '');
+    if (suffix) {
+        if (base === suffix) base = '';
+        else if (base.endsWith(' | ' + suffix)) base = base.slice(0, -(' | ' + suffix).length).trim();
+        else if (base.includes(suffix)) base = base.replace(suffix, '').replace(/^\s*\|\s*|\s*\|\s*$/g, '').trim();
+    }
+    return base;
 }
-function setTaskNoteChip(idx, v) { pushUndo('تعديل سبب توقف'); getDayLog().tasks[idx].note = v; saveState(); renderTasks(getDayLog()); }
+
+function getTaskAutoOnlySummary(t) {
+    const parts = [];
+    const base = stripAutoSuffixFromNote(t.note, t.autoNoteSuffix);
+    base.split('\n').forEach(line => {
+        const s = line.trim();
+        if (s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية')) parts.push(s.split(' / ')[0]);
+    });
+    if (t.autoNoteSuffix) parts.push(t.autoNoteSuffix);
+    return parts.join(' | ');
+}
+
+function getTaskUserNotes(t) {
+    if (!t) return [];
+    if (Array.isArray(t.notesList)) return t.notesList;
+    // Lazy migrate existing plain t.note without touching tanker lines or autoNoteSuffix
+    let base = String(t.note || '');
+    if (t.autoNoteSuffix) {
+        if (base === t.autoNoteSuffix) base = '';
+        else if (base.endsWith(' | ' + t.autoNoteSuffix)) base = base.slice(0, -(' | ' + t.autoNoteSuffix).length).trim();
+        else if (base.includes(t.autoNoteSuffix)) base = base.replace(t.autoNoteSuffix, '').replace(/^\s*\|\s*|\s*\|\s*$/g, '').trim();
+    }
+    const list = [];
+    base.split('\n').forEach(line => {
+        const s = line.trim();
+        if (!s) return;
+        if (s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية')) return;
+        list.push({ id: 'n_' + Math.random().toString(36).slice(2, 8), text: s });
+    });
+    return list;
+}
+
+function rebuildTaskNoteFromList(t) {
+    const cleanBase = stripAutoSuffixFromNote(t.note, t.autoNoteSuffix);
+    const tankerLines = cleanBase.split('\n').map(s => s.trim()).filter(s => s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية'));
+    const userLines = (Array.isArray(t.notesList) ? t.notesList : []).map(x => String(x.text || '').trim()).filter(Boolean);
+    const allLines = [...userLines, ...tankerLines];
+    let combined = allLines.join('\n');
+    if (t.autoNoteSuffix) {
+        combined = combined ? `${combined} | ${t.autoNoteSuffix}` : t.autoNoteSuffix;
+    }
+    t.note = combined;
+}
+
+function ensureTaskNotesList(t) {
+    if (!Array.isArray(t.notesList)) {
+        t.notesList = getTaskUserNotes(t);
+    }
+    return t.notesList;
+}
+
+function appendTaskNoteItem(idx, textVal, reopenCat = null) {
+    const clean = applySpellAndDictationGuard(String(textVal || '').trim()).text;
+    if (!clean) return;
+    pushUndo('إضافة ملاحظة للمهمة');
+    const log = getDayLog();
+    const t = log.tasks[idx];
+    if (!t) return;
+    const list = ensureTaskNotesList(t);
+    if (!list.some(x => x.text === clean)) {
+        list.push({ id: 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), text: clean });
+    }
+    rebuildTaskNoteFromList(t);
+    saveState();
+    renderTasks(log);
+    if (reopenCat) openTaskNotesModal(idx, reopenCat);
+    else showToast('📝 تمت إضافة الملاحظة للمهمة');
+}
+
+function editSingleTaskNote(idx, nIdx) {
+    const log = getDayLog();
+    const t = log.tasks[idx];
+    if (!t) return;
+    const list = ensureTaskNotesList(t);
+    if (!list[nIdx]) return;
+    const updated = prompt('تعديل الملاحظة:', list[nIdx].text);
+    if (updated === null) return;
+    pushUndo('تعديل ملاحظة مهمة');
+    const clean = applySpellAndDictationGuard(updated.trim()).text;
+    if (clean) list[nIdx].text = clean;
+    else list.splice(nIdx, 1);
+    rebuildTaskNoteFromList(t);
+    saveState();
+    renderTasks(log);
+}
+
+function deleteSingleTaskNote(idx, nIdx, reopenCat = null) {
+    pushUndo('حذف ملاحظة مهمة');
+    const log = getDayLog();
+    const t = log.tasks[idx];
+    if (!t) return;
+    const list = ensureTaskNotesList(t);
+    list.splice(nIdx, 1);
+    rebuildTaskNoteFromList(t);
+    saveState();
+    renderTasks(log);
+    if (reopenCat) openTaskNotesModal(idx, reopenCat);
+}
+
+function saveCustomQuickNoteToLibrary(textVal) {
+    const clean = String(textVal || '').trim();
+    if (!clean) return false;
+    if (!Array.isArray(state.company.savedNotes)) state.company.savedNotes = [];
+    if (!state.company.savedNotes.includes(clean)) {
+        state.company.savedNotes.unshift(clean);
+        saveState();
+        return true;
+    }
+    return false;
+}
+
+function deleteSavedCustomNote(sIdx, tIdx) {
+    if (!Array.isArray(state.company.savedNotes)) return;
+    state.company.savedNotes.splice(sIdx, 1);
+    saveState();
+    openTaskNotesModal(tIdx, 'saved');
+    showToast('🗑️ تم حذف الملاحظة من مكتبتك');
+}
+
+function submitModalNewNote(idx, alsoSaveToLib, curCat) {
+    const inp = document.getElementById('newTaskNoteInp');
+    const txt = (inp ? inp.value : '').trim();
+    if (!txt) { showToast('⚠️ اكتب نص الملاحظة أولاً'); return; }
+    if (alsoSaveToLib) {
+        saveCustomQuickNoteToLibrary(txt);
+        showToast('⭐ تمت الإضافة والحفظ في ملاحظاتك الجاهزة!');
+    }
+    appendTaskNoteItem(idx, txt, alsoSaveToLib ? 'saved' : curCat);
+}
+
+function openTaskNotesModal(idx, activeCat = 'saved') {
+    const log = getDayLog();
+    const t = log.tasks[idx];
+    if (!t) return;
+    const uNotes = getTaskUserNotes(t);
+    const saved = Array.isArray(state.company.savedNotes) ? state.company.savedNotes : [];
+    const cats = [
+        { id: 'saved', label: `⭐ ملاحظاتي (${saved.length})` },
+        { id: 'fault', label: '🛑 أعطال وتوقف' },
+        { id: 'irr', label: '💧 ري وشبكة' },
+        { id: 'exec', label: '✅ تنفيذ وجودة' },
+        { id: 'crew', label: '👷 مواد وكادر' }
+    ];
+
+    let libHtml = '';
+    if (activeCat === 'saved') {
+        libHtml = saved.length === 0
+            ? '<div style="font-size:11.5px;color:var(--muted);text-align:center;padding:10px;">لا توجد ملاحظات محفوظة بعد — اكتب أي ملاحظة واضغط «⭐ إضافة وحفظ بملاحظاتي» لتبقى جاهزة دائماً!</div>'
+            : saved.map((txt, sI) => `
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:5px;background:white;border:1px solid #fde68a;border-radius:7px;padding:5px 8px;margin-bottom:4px;">
+                    <span style="flex:1;font-size:12px;cursor:pointer;font-weight:600;" onclick="appendTaskNoteItem(${idx}, state.company.savedNotes[${sI}], 'saved')">+ ${esc(txt)}</span>
+                    <button type="button" class="btn btn-outline btn-sm" style="color:var(--red);padding:1px 5px;font-size:10px;" onclick="deleteSavedCustomNote(${sI}, ${idx})">🗑️</button>
+                </div>`).join('');
+    } else {
+        libHtml = QUICK_NOTE_PHRASES.filter(q => q.cat === activeCat).map(q => `
+            <span class="chip" style="background:white;padding:5px 9px;" onclick="appendTaskNoteItem(${idx}, '${esc(q.text)}', '${activeCat}')">+ ${esc(q.label)}</span>
+        `).join('');
+    }
+
+    openModal(`
+        <h3 class="card-title">📝 ملاحظات المهمة (${esc(t.zones)})</h3>
+        <div style="margin-bottom:8px;">
+            <label class="lbl">الملاحظات المضافة لهذه المهمة (${uNotes.length}):</label>
+            ${uNotes.length === 0 ? '<div style="font-size:11.5px;color:var(--muted);padding:6px;background:#f8fafc;border-radius:7px;">لا توجد ملاحظات مضافة بعد</div>' :
+            uNotes.map((nObj, nI) => `
+                <div class="note-item-card">
+                    <span style="flex:1;">• ${esc(nObj.text)}</span>
+                    <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${nI}, '${activeCat}')">✕</button>
+                </div>`).join('')}
+        </div>
+
+        <label class="lbl">اكتب ملاحظة جديدة:</label>
+        <div style="display:flex;gap:4px;margin-bottom:6px;">
+            <div class="inp-wrap" style="margin:0;flex:1;">
+                <textarea id="newTaskNoteInp" class="inp auto-grow" rows="2" placeholder="اكتب ملاحظتك هنا..."></textarea>
+                <button class="clr-btn top-align" onclick="quickClearField('newTaskNoteInp')">✕</button>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="startDictation('newTaskNoteInp')">🎤</button>
+        </div>
+        <div class="grid-2" style="margin-bottom:10px;">
+            <button class="btn btn-blue btn-sm" style="padding:8px;" onclick="submitModalNewNote(${idx}, false, '${activeCat}')">+ إضافة للمهمة</button>
+            <button class="btn btn-orange btn-sm" style="padding:8px;" onclick="submitModalNewNote(${idx}, true, '${activeCat}')">⭐ إضافة وحفظ بملاحظاتي</button>
+        </div>
+
+        <label class="lbl">إضافة سريعة من المكتبة (تُضاف بدون مسح الملاحظات السابقة):</label>
+        <div class="an-tab-bar" style="margin-bottom:6px;">
+            ${cats.map(c => `<button type="button" class="an-tab-btn ${activeCat === c.id ? 'active' : ''}" style="padding:4px 8px;font-size:11px;" onclick="openTaskNotesModal(${idx}, '${c.id}')">${c.label}</button>`).join('')}
+        </div>
+        <div style="max-height:150px;overflow-y:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:7px;margin-bottom:10px;">
+            ${libHtml}
+        </div>
+        <button class="btn btn-green btn-full" onclick="closeModal()">✓ تم</button>
+    `);
+}
+
 function deleteTask(idx) {
     pushUndo('حذف مهمة');
-    const t = getDayLog().tasks[idx];
     getDayLog().tasks.splice(idx, 1);
-    logSectionHistory('tasks', 'delete', `حذف مهمة: ${t.zones} (${t.desc})`, {});
     syncIrrigatedZonesFromTasks(false);
     saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog());
 }
@@ -6511,174 +6816,64 @@ function escalateTaskToIssue(idx) {
     const code = getNextSequentialCode(site.issues, 'ISS', 2);
     const iid = 'i_' + Date.now();
     site.issues.unshift({ id: iid, code, date: state.activeDate, zone: t.zones, severity: 'High', desc: `${t.desc}: ${t.note || 'توقف الري'}`, status: 'Open', resolvedDate: '', photos: [...ensurePhotosArr(t)] });
-    logSectionHistory('issues', 'add', `تصعيد ${code} [${t.zones}]: ${t.note || t.desc}`, { issueId: iid });
     saveState(); renderExportAndIssues(site, getDayLog()); showToast(`🚨 تم تصعيد العطل إلى متتبع المشاكل (${code})`);
 }
 
-function applyTransferToTasksTimings(log, tr) {
-    if (!log || !tr || !tr.worker) return;
-    const w = tr.worker;
-    const fTask = log.tasks.find(t => t.id === tr.fromTaskId);
-    const tTask = log.tasks.find(t => t.id === tr.toTaskId);
-    const trTime = tr.time || '10:00';
-    const isRoundTrip = tr.mode === 'roundtrip';
-    const retTime = isRoundTrip ? (tr.returnTime || trTime) : '';
-    const cleanNote = String(tr.note || '').trim();
-
-    if (fTask) {
-        if (!Array.isArray(fTask.workers)) fTask.workers = [];
-        if (!fTask.workers.includes('Team') && !fTask.workers.includes(w)) {
-            fTask.workers.push(w);
-        }
-        if (!fTask.workerTimings) fTask.workerTimings = {};
-        const fStart = getTaskFixedStartTimeStr(fTask);
-        if (isRoundTrip) {
-            fTask.workerTimings[w] = {
-                from: fStart,
-                to: '',
-                awayFrom: trTime,
-                awayTo: retTime,
-                mode: 'roundtrip',
-                note: cleanNote,
-                transferId: tr.id
-            };
-        } else {
-            fTask.workerTimings[w] = {
-                from: fStart,
-                to: trTime,
-                mode: 'moved',
-                note: cleanNote,
-                transferId: tr.id
-            };
-        }
-        syncWorkerTimingNotesOnTask(fTask);
-    }
-
-    if (tTask) {
-        if (!Array.isArray(tTask.workers)) tTask.workers = [];
-        if (!tTask.workers.includes('Team') && !tTask.workers.includes(w)) {
-            tTask.workers.push(w);
-        }
-        if (!tTask.workerTimings) tTask.workerTimings = {};
-        const fromLabel = fTask ? `من (${fTask.zones})` : '';
-        const mergedNote = [fromLabel, cleanNote].filter(Boolean).join(' - ');
-        tTask.workerTimings[w] = {
-            from: trTime,
-            to: isRoundTrip ? retTime : '',
-            mode: isRoundTrip ? 'roundtrip' : 'normal',
-            note: mergedNote,
-            transferId: tr.id
-        };
-        syncWorkerTimingNotesOnTask(tTask);
-    }
-}
-
-function removeTransferFromTasksTimings(log, tr) {
-    if (!log || !tr) return;
-    (log.tasks || []).forEach(t => {
-        if (t.workerTimings && tr.worker && t.workerTimings[tr.worker] && t.workerTimings[tr.worker].transferId === tr.id) {
-            delete t.workerTimings[tr.worker];
-            syncWorkerTimingNotesOnTask(t);
-        }
-    });
-}
-
-function openEditTaskTransferModal(trIdx) {
-    const log = getDayLog();
-    const tr = (log.transfers || [])[trIdx];
-    if (!tr) return;
-    const presentWorkers = log.attendance.filter(w => !w.status.includes('Absent')).map(w => (w.name.split('/')[1] || w.name).trim());
-    if (tr.worker && !presentWorkers.includes(tr.worker)) presentWorkers.unshift(tr.worker);
-    const isRt = tr.mode === 'roundtrip';
-
-    openModal(`
-        <h3 class="card-title">✏️ تعديل بيانات انتقال العامل</h3>
-        <label class="lbl">العامل:</label>
-        <select id="edTrWorker" class="inp">
-            ${presentWorkers.map(w => `<option value="${esc(w)}" ${w === tr.worker ? 'selected' : ''}>${esc(w)}</option>`).join('')}
-        </select>
-        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:7px 9px;margin-bottom:8px;font-size:11.5px;">
-            <div>من: <b>${esc(tr.fromTask)}</b></div>
-            <div>إلى: <b>${esc(tr.toTask)}</b></div>
-        </div>
-        <label class="lbl">نوع الانتقال:</label>
-        <select id="edTrMode" class="inp" style="font-weight:bold;" onchange="document.getElementById('edTrReturnWrap').style.display=(this.value==='roundtrip'?'block':'none')">
-            <option value="moved" ${!isRt ? 'selected' : ''}>🚚 انتقال كامل</option>
-            <option value="roundtrip" ${isRt ? 'selected' : ''}>🔄 انتقال مؤقت وعودة</option>
-        </select>
-        <div class="grid-2">
-            <div><label class="lbl">ساعة الانتقال:</label><input type="time" id="edTrTime" class="inp" value="${esc(tr.time || '')}"></div>
-            <div id="edTrReturnWrap" style="display:${isRt ? 'block' : 'none'};"><label class="lbl">ساعة العودة:</label><input type="time" id="edTrReturnTime" class="inp" value="${esc(tr.returnTime || tr.time || '')}"></div>
-        </div>
-        <label class="lbl">ملاحظة (تُكتب بدون إيموجي):</label>
-        <input id="edTrNote" class="inp" value="${esc(tr.note || '')}">
-        <div class="grid-2">
-            <button class="btn btn-green" onclick="saveEditedTaskTransfer(${trIdx})">💾 حفظ التعديل</button>
-            <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
-        </div>
-    `);
-}
-
-function saveEditedTaskTransfer(trIdx) {
-    const log = getDayLog();
-    const tr = (log.transfers || [])[trIdx];
-    if (!tr) return;
-    pushUndo('تعديل وقت/مدة انتقال عامل');
-    removeTransferFromTasksTimings(log, tr);
-    tr.worker = document.getElementById('edTrWorker').value || tr.worker;
-    tr.mode = document.getElementById('edTrMode')?.value || tr.mode || 'moved';
-    tr.time = document.getElementById('edTrTime').value || tr.time;
-    tr.returnTime = tr.mode === 'roundtrip' ? (document.getElementById('edTrReturnTime')?.value || tr.time) : '';
-    tr.note = document.getElementById('edTrNote').value.trim();
-    const fTask = log.tasks.find(t => t.id === tr.fromTaskId);
-    if (fTask) {
-        const fStartMs = hhmmToDateMs(getTaskFixedStartTimeStr(fTask), state.activeDate);
-        const trMs = hhmmToDateMs(tr.time, state.activeDate);
-        if (fStartMs && trMs && trMs > fStartMs) {
-            tr.dur = formatMsAsHrMin(Math.max(0, trMs - fStartMs - (fTask.ignoreBreak ? 0 : getBreakOverlapMs(fStartMs, trMs, state.activeDate))));
-        }
-    }
-    applyTransferToTasksTimings(log, tr);
-    logSectionHistory('tasks', 'edit', `تعديل انتقال ${tr.worker} (${tr.time})`, {});
-    closeModal(); saveState(); renderTasks(log); renderAttendance(log);
-    showToast(`✅ تم تحديث انتقال ${tr.worker} وساعات عمله`);
-}
-
-function deleteTaskTransfer(idx) {
-    const log = getDayLog();
-    if (!Array.isArray(log.transfers)) return;
-    pushUndo('حذف سجل انتقال عامل');
-    const tr = log.transfers[idx];
-    removeTransferFromTasksTimings(log, tr);
-    log.transfers.splice(idx, 1);
-    saveState(); renderTasks(log); renderAttendance(log);
+/* ================= V17.0: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
+function onNewTaskTypeChange(val) {
+    const v = String(val || '');
+    const irrBox = document.getElementById('mTaskIrrPresetsBox');
+    const agroBox = document.getElementById('mTaskAgroBox');
+    if (irrBox) irrBox.style.display = v.includes('Irrigation') ? 'block' : 'none';
+    if (agroBox) agroBox.style.display = (v.includes('Fertilizing') || v.includes('Pest Control') || v.includes('Biochar') || v.includes('Compost')) ? 'block' : 'none';
 }
 
 function openTaskModal() {
+    const site = getSite();
+    const log = getDayLog();
+    const presentWorkers = (log.attendance || []).filter(w => !String(w.status || '').includes('Absent'));
+    const nowStr = formatTime24FromMs(Date.now());
+    const initZones = new Set();
+
     openModal(`
-        <h3 class="card-title">📋 إضافة مهمة جديدة</h3>
-        <label class="lbl">نوع المهمة:</label>
+        <h3 class="card-title">📋 إضافة مهمة جديدة (متطور)</h3>
+        <label class="lbl">نوع المهمة (مطابق لقائمة DFL الرسمية — 24 مهمة):</label>
         <div class="inp-wrap">
-            <input id="mTaskType" list="globalTasksList" class="inp" value="Irrigation  /  ري المنطقة">
-            <button class="clr-btn" onclick="quickClearField('mTaskType')">✕</button>
+            <select id="mTaskTypeSel" class="inp" style="font-weight:bold;" onchange="document.getElementById('mTaskType').value=this.value;onNewTaskTypeChange(this.value)">
+                ${state.company.customTasks.map(tk => `<option value="${esc(tk)}" ${tk.includes('Irrigation  /') ? 'selected' : ''}>${esc(tk)}</option>`).join('')}
+            </select>
         </div>
+        <div class="inp-wrap" style="margin-bottom:6px;">
+            <input id="mTaskType" list="globalTasksList" class="inp" value="Irrigation  /  ري المنطقة" placeholder="أو اكتب اسم مهمة مخصصة..." oninput="onNewTaskTypeChange(this.value)">
+            <button class="clr-btn" onclick="quickClearField('mTaskType', ()=>onNewTaskTypeChange(''))">✕</button>
+        </div>
+
+        <label class="lbl">📍 اختر منطقة أو أكثر لنفس المهمة (بلمسة واحدة):</label>
+        ${buildGroupedZonePickerHtml(site.zones, initZones, 'mTaskZones', 'nt-zchip')}
+        <div class="inp-wrap" style="margin-bottom:7px;">
+            <input id="mTaskZones" class="inp" style="font-weight:bold;background:white;" placeholder="تظهر هنا المناطق المختارة مثل: B1, B2, C4">
+            <button class="clr-btn" onclick="clearAllZonePickerChips('nt-zchip','mTaskZones')">✕</button>
+        </div>
+
         <label class="lbl">وصف مختصر:</label>
         <div class="inp-wrap" style="margin-bottom:5px;">
             <textarea id="mTaskDesc" class="inp auto-grow" rows="2" placeholder="مثلاً: Drip only أو تفاصيل العمل..."></textarea>
             <button class="clr-btn top-align" onclick="quickClearField('mTaskDesc')">✕</button>
         </div>
-        <div style="margin-bottom:6px;">
+        <div id="mTaskIrrPresetsBox" style="margin-bottom:7px;">
             ${IRR_DESC_PRESETS.map(pr => `<span class="chip" onclick="document.getElementById('mTaskDesc').value='${esc(pr.text)}';document.getElementById('mTaskDurSel').value='${pr.dur}';document.getElementById('mTaskTanker').checked=${pr.text.includes('tanker')};">${pr.label}</span>`).join('')}
         </div>
-        <label class="lbl">المنطقة / المناطق:</label>
-        <div class="inp-wrap">
-            <input id="mTaskZones" list="globalZonesList" class="inp" placeholder="مثلاً: AR5 أو B1, B2">
-            <button class="clr-btn" onclick="quickClearField('mTaskZones')">✕</button>
+        <div id="mTaskAgroBox" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:7px;margin-bottom:7px;">
+            <div class="grid-2">
+                <div><label class="lbl">🧪 اسم السماد/المبيد:</label><input id="mTaskAgroName" class="inp" style="margin:0;background:white;" placeholder="مثلاً: NPK / Biochar"></div>
+                <div><label class="lbl">الجرعة / الكمية:</label><input id="mTaskAgroDose" class="inp" style="margin:0;background:white;" placeholder="مثلاً: 2 كغم"></div>
+            </div>
         </div>
+
         <div class="grid-2">
             <div>
-                <label class="lbl">ساعة البدء (اختياري):</label>
-                <input type="time" id="mTaskStartTime" class="inp" style="font-weight:bold;text-align:center;" value="08:00">
+                <label class="lbl">ساعة البدء:</label>
+                <input type="time" id="mTaskStartTime" class="inp" style="font-weight:bold;text-align:center;" value="${esc(nowStr)}">
             </div>
             <div>
                 <label class="lbl">المدة المخططة:</label>
@@ -6688,43 +6883,86 @@ function openTaskModal() {
                 </div>
             </div>
         </div>
+
+        <label class="lbl">👷 تعيين العمال مباشرة (اختياري):</label>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px;">
+            <span class="chip nt-wchip" data-w="Team" onclick="toggleNewTaskWorkerChip(this)">👥 الفريق كامل (Team)</span>
+            ${presentWorkers.map(w => {
+                const sn = (w.name.split('/')[1] || w.name).trim();
+                return `<span class="chip nt-wchip" data-w="${esc(sn)}" onclick="toggleNewTaskWorkerChip(this)">${esc(sn)}</span>`;
+            }).join('')}
+        </div>
+
         <label style="display:block;font-size:12px;font-weight:bold;margin-bottom:8px;"><input type="checkbox" id="mTaskTanker"> ري بالتنكر 🚚 (24,000 L)</label>
-        <div class="grid-2" style="margin-top:8px;"><button class="btn btn-green" onclick="saveNewTask()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إلغاء</button></div>
+        <div class="grid-2" style="margin-top:6px;">
+            <button class="btn btn-blue" onclick="saveNewTask(true)">▶️ إضافة وبدء الآن</button>
+            <button class="btn btn-green" onclick="saveNewTask(false)">⏳ إضافة للقادم</button>
+        </div>
+        <button class="btn btn-outline btn-full" style="margin-top:6px;margin-bottom:0;" onclick="closeModal()">إلغاء</button>
     `);
 }
-function saveNewTask() {
+
+function toggleNewTaskWorkerChip(el) {
+    if (el.dataset.w === 'Team') {
+        const willBeActive = !el.classList.contains('active');
+        document.querySelectorAll('.nt-wchip').forEach(c => c.classList.remove('active'));
+        if (willBeActive) el.classList.add('active');
+    } else {
+        document.querySelector('.nt-wchip[data-w="Team"]')?.classList.remove('active');
+        el.classList.toggle('active');
+    }
+}
+
+function saveNewTask(startImmediately = false) {
     const rawTask = document.getElementById('mTaskType').value.trim() || 'Other  /  أخرى';
     const desc = applySpellAndDictationGuard(document.getElementById('mTaskDesc').value.trim()).text;
     const zones = document.getElementById('mTaskZones').value.trim() || 'عام / General';
     const dur = document.getElementById('mTaskDurSel').value || '1:00 hr';
-    const startTimeVal = document.getElementById('mTaskStartTime')?.value || '08:00';
+    const startTimeVal = document.getElementById('mTaskStartTime')?.value || formatTime24FromMs(Date.now());
     const isTanker = document.getElementById('mTaskTanker').checked || desc.toLowerCase().includes('tanker');
+    const agroName = (document.getElementById('mTaskAgroName')?.value || '').trim();
+    const agroDose = (document.getElementById('mTaskAgroDose')?.value || '').trim();
+    const pickedWorkers = Array.from(document.querySelectorAll('.nt-wchip.active')).map(c => c.dataset.w);
+
     const isStandard = MASTER_TASKS.includes(rawTask);
     const finalDesc = isStandard ? desc : (desc ? `${rawTask} — ${desc}` : rawTask);
     const tid = 't_' + Date.now();
+    const now = Date.now();
+    const initialNotes = agroName ? [{ id: 'n_ag_' + now, text: `المادة: ${agroName}${agroDose ? ' (' + agroDose + ')' : ''}` }] : [];
+
     pushUndo('إضافة مهمة: ' + zones);
-    getDayLog().tasks.push({
+    const log = getDayLog();
+    const newTask = {
         id: tid,
         task: isStandard ? rawTask : 'Other  /  أخرى',
         desc: finalDesc,
         zones, dur,
-        status: 'Not Started / لم يبدأ',
+        status: startImmediately ? 'In Progress / جاري' : 'Not Started / لم يبدأ',
         fixedStartTime: startTimeVal,
         fixedEndTime: '',
+        stoppedForToday: false,
         manualPauseFrom: '',
         manualPauseTo: '',
         manualOt: 0,
-        workers: [], note: '',
+        workers: pickedWorkers,
+        note: initialNotes.length ? initialNotes[0].text : '',
+        notesList: initialNotes,
         isTanker, tankerCapacity: isTanker ? (getLatestTankerRemaining() || TANKER_FULL_CAPACITY) : '', tankerLiters: '', tankerPrevTripsLiters: 0, tankerTripHistory: [], tankerPpm: '', tankerVisual: 'Clear / صافية', tankerTrips: 1,
-        agroName: '', agroDose: '', photos: [], startTimeMs: null, pausedTotalMs: 0, pausedAtMs: null
-    });
-    logSectionHistory('tasks', 'add', `إضافة مهمة: ${zones} (${finalDesc})`, { taskId: tid });
+        agroName, agroDose, photos: [],
+        startTimeMs: startImmediately ? (hhmmToDateMs(startTimeVal, state.activeDate) || now) : null,
+        pausedTotalMs: 0, pausedAtMs: null
+    };
+    log.tasks.push(newTask);
+    if (agroName) {
+        log.tools.push({ name: agroName, cat: 'Material / مادة', qty: 1, cond: 'Good / جيد', note: agroDose });
+    }
     syncIrrigatedZonesFromTasks(false);
-    closeModal(); saveState(); renderTasks(getDayLog()); showToast('✓ تمت إضافة المهمة لقائمة القادم');
+    closeModal(); saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
+    showToast(startImmediately ? `▶️ بدأت المهمة (${zones}) والعداد الحي يعمل الآن!` : `✓ تمت إضافة المهمة (${zones}) لقائمة القادم`);
 }
 
 
-/* ================= V16.9: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V17.0: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -6855,9 +7093,7 @@ function openTankerFinishModal(tIdx) {
         </div>
         <label class="lbl">نقاوة الماء:</label>
         <select id="tkVis" class="inp">
-            <option value="Clear / صافية" ${t.tankerVisual === 'Clear / صافية' ? 'selected' : ''}>Clear / صافية</option>
-            <option value="Turbid / عكرة" ${t.tankerVisual === 'Turbid / عكرة' ? 'selected' : ''}>Turbid / عكرة</option>
-            <option value="Sediment / رواسب" ${t.tankerVisual === 'Sediment / رواسب' ? 'selected' : ''}>Sediment / رواسب</option>
+            ${WATER_VISUAL_OPTIONS.map(v => `<option value="${esc(v)}" ${(t.tankerVisual || 'Clear / صافية') === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}
         </select>
         <label class="lbl">🚚 انتقل التنكر إلى المنطقة التالية (اختياري — يُوثّق رسمياً في الملاحظات):</label>
         <div class="inp-wrap">
@@ -6949,9 +7185,11 @@ function saveAgroData(tIdx) {
     t.agroName = document.getElementById('agName').value.trim();
     t.agroDose = document.getElementById('agDose').value.trim();
     if (t.agroName) {
-        t.note = `المادة: ${t.agroName} (${t.agroDose})`;
-        getDayLog().tools.push({ name: t.agroName, cat: 'Materials / مادة', qty: 1, cond: 'Good / جيد', note: t.agroDose });
-        logSectionHistory('tasks', 'agro', `تسميد/علاج ${t.zones}: ${t.agroName}`, { taskId: t.id });
+        const list = ensureTaskNotesList(t);
+        const agTxt = `المادة: ${t.agroName}${t.agroDose ? ' (' + t.agroDose + ')' : ''}`;
+        if (!list.some(x => x.text === agTxt)) list.push({ id: 'n_ag_' + Date.now(), text: agTxt });
+        rebuildTaskNoteFromList(t);
+        getDayLog().tools.push({ name: t.agroName, cat: 'Material / مادة', qty: 1, cond: 'Good / جيد', note: t.agroDose });
     }
     closeModal(); saveState(); renderTasks(getDayLog()); renderReadingsAndTools(getDayLog());
 }
@@ -7004,7 +7242,6 @@ function removePlanItem(dayEn, idx) { getSite().plan[dayEn].splice(idx, 1); save
 function jumpToMeters() { switchTab('tools'); window.scrollTo(0, 0); }
 
 function renderReadingsAndTools(log) {
-    renderStickySectionHistory('tools', 'stickyHist-tools', 'القراءات والأدوات');
     const wx = ensureWeatherObj(log);
     if (document.getElementById('wxCond')) {
         document.getElementById('wxCond').value = wx.cond || '';
@@ -7056,9 +7293,15 @@ function renderReadingsAndTools(log) {
                 </div>
             </div>
             ${!isFaulty ? `
-            <div class="grid-2" style="font-size:12px;">
+            <div class="grid-2" style="font-size:12px;margin-bottom:6px;">
                 <div><label class="lbl">السابق:</label><input type="number" step="any" class="inp" style="margin:0;padding:6px;" value="${esc(m.prev)}" onchange="updateMeterField(${idx},'prev',this.value)"></div>
                 <div><label class="lbl" style="${isNegUsage ? 'color:var(--red);' : ''}">الحالي (الاستهلاك: ${usage} m³${isNegUsage ? ' ⚠️' : ''}):</label><input type="number" step="any" class="inp" style="margin:0;padding:6px;${isNegUsage ? 'border-color:var(--red);background:#fef2f2;' : ''}" value="${esc(m.curr)}" onchange="updateMeterField(${idx},'curr',this.value)"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;">
+                <label class="lbl" style="margin:0;white-space:nowrap;">💧 نقاوة الماء:</label>
+                <select class="inp" style="margin:0;padding:4px 7px;font-size:11.5px;flex:1;" onchange="updateMeterField(${idx},'visual',this.value)">
+                    ${WATER_VISUAL_OPTIONS.map(v => `<option value="${esc(v)}" ${(m.visual || 'Clear / صافية') === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}
+                </select>
             </div>` : `
             <input class="inp" style="margin:0;background:white;font-size:12px;" value="${esc(m.note)}" placeholder="وصف عطل العداد..." onchange="updateMeterField(${idx},'note',this.value)">`}
             ${mPhotos.length > 0 ? `
@@ -7295,18 +7538,8 @@ function addCustomGauge() {
 }
 function updateMachinery(k, v) {
     const log = getDayLog();
-    const site = getSite();
-    ensureSiteStock(site);
-    if (k === 'fuelL') {
-        const newFuel = parseFloat(v) || 0;
-        const prevDed = parseFloat(log.machinery._prevFuelDeducted) || 0;
-        const delta = newFuel - prevDed;
-        site.fuelBalance = Math.max(0, Math.round((site.fuelBalance - delta) * 10) / 10);
-        log.machinery._prevFuelDeducted = newFuel;
-    }
     log.machinery[k] = v;
     saveState();
-    renderFuelAndStockStrip(site, log);
 }
 function updatePerfField(k, v) {
     const log = getDayLog();
@@ -7337,7 +7570,7 @@ function openToolModal() {
         <label class="lbl">الاسم:</label>
         <div class="inp-wrap"><input id="tlName" list="globalToolsList" class="inp" placeholder="مثلاً: اكياس نفايات..."><button class="clr-btn" onclick="quickClearField('tlName')">✕</button></div>
         <div class="grid-2">
-            <div><label class="lbl">الفئة:</label><select id="tlCat" class="inp"><option value="Equipment / معدة">Equipment / معدة</option><option value="Tool / أداة">Tool / أداة</option><option value="Materials / مادة">Materials / مادة</option></select></div>
+            <div><label class="lbl">الفئة:</label><select id="tlCat" class="inp"><option value="Equipment / معدة">Equipment / معدة</option><option value="Tool / أداة">Tool / أداة</option><option value="Material / مادة">Material / مادة</option></select></div>
             <div><label class="lbl">الكمية:</label><input type="number" id="tlQty" class="inp" value="1"></div>
         </div>
         <div class="grid-2">
@@ -7381,7 +7614,8 @@ function setInvFilter(val) {
 }
 
 function renderInventory(site) {
-    renderStickySectionHistory('inv', 'stickyHist-inv', 'الجرد');
+    const smChip = document.getElementById('invStopMarkerChip');
+    if (smChip) smChip.textContent = site.stopMarker ? `🎀 توقف: ${site.stopMarker}` : '🎀 علامة توقف';
     const invBox = document.getElementById('invContainer');
     const alphaBox = document.getElementById('alphaScroller');
 
@@ -7714,7 +7948,6 @@ async function exportInventoryStandaloneExcel() {
 
 /* ================= TAB 5: Issues, IR, SDL, OAR & Precision Gemini Export ================= */
 function renderExportAndIssues(site, log) {
-    renderStickySectionHistory('issues', 'stickyHist-issues', 'المشاكل والحوادث');
     renderDflReadinessBar(site, log);
     const { photos } = collectTodayPhotos();
     const cntEl = document.getElementById('todayPhotoCount');
@@ -7898,10 +8131,7 @@ function openIncidentModal(editIdx = null) {
         <div class="grid-2">
             <div><label class="lbl">نوع الحادث:</label><input id="irType" class="inp" value="${esc(existing ? existing.type : '')}" placeholder="كسر أنبوب / إصابة"></div>
             <div><label class="lbl">الخطورة:</label><select id="irSev" class="inp">
-                <option value="Minor / طفيف" ${sevVal.includes('Minor') ? 'selected' : ''}>Minor / طفيف</option>
-                <option value="Moderate / متوسط" ${sevVal.includes('Moderate') ? 'selected' : ''}>Moderate / متوسط</option>
-                <option value="Major / كبير" ${sevVal.includes('Major') ? 'selected' : ''}>Major / كبير</option>
-                <option value="Critical / حرج" ${sevVal.includes('Critical') ? 'selected' : ''}>Critical / حرج</option>
+                ${SEVERITY_IR_SDL_OPTIONS.map(sv => `<option value="${esc(sv)}" ${sevVal === sv || sevVal.includes(sv.split('/')[0].trim()) ? 'selected' : ''}>${esc(sv)}</option>`).join('')}
             </select></div>
         </div>
         <div style="margin-bottom:6px;">
@@ -7933,6 +8163,12 @@ function openIncidentModal(editIdx = null) {
                 <span id="ppeColIco">▼ فتح</span>
             </button>
             <div id="modalPpeWrap" style="display:none;margin-top:6px;">
+                <label class="lbl">الالتزام العام بمعدات الحماية (D68):</label>
+                <select id="irPpeOverall" class="inp" style="margin-bottom:6px;">
+                    <option value="Yes / نعم" ${(existing && existing.ppeOverall === 'Yes / نعم') ? 'selected' : ''}>Yes / نعم</option>
+                    <option value="Partially / جزئياً" ${(existing && existing.ppeOverall === 'Partially / جزئياً') ? 'selected' : ''}>Partially / جزئياً</option>
+                    <option value="No / لا" ${(existing && existing.ppeOverall === 'No / لا') ? 'selected' : ''}>No / لا</option>
+                </select>
                 <div id="modalPpeContainer" class="grid-2">${renderModalPpeGrid()}</div>
             </div>
         </div>
@@ -7985,6 +8221,7 @@ function saveIncident(editIdx = null) {
         witnesses: document.getElementById('irWitnesses').value.trim(),
         correctiveAction: corrective || action,
         ppe: JSON.parse(JSON.stringify(window._modalPpeState || DEFAULT_PPE_LIST)),
+        ppeOverall: document.getElementById('irPpeOverall')?.value || 'Yes / نعم',
         obs,
         ana,
         rec,
@@ -8021,14 +8258,14 @@ function openSdlModal(editIdx = null) {
             <div><label class="lbl">الوقت:</label><input type="time" id="sdlTime" class="inp" value="${esc(defaultTime)}"></div>
         </div>
         <div class="grid-2">
-            <div><label class="lbl">الخطورة:</label><select id="sdlSev" class="inp">
-                <option value="Moderate / متوسط" ${sevVal.includes('Moderate') ? 'selected' : ''}>Moderate / متوسط</option>
-                <option value="Major / كبير" ${sevVal.includes('Major') ? 'selected' : ''}>Major / كبير</option>
-                <option value="Critical / حرج" ${sevVal.includes('Critical') ? 'selected' : ''}>Critical / حرج</option>
-                <option value="Minor / طفيف" ${sevVal.includes('Minor') ? 'selected' : ''}>Minor / طفيف</option>
+            <div><label class="lbl">الحالة (DFL Status):</label><select id="sdlStatus" class="inp">
+                ${SDL_STATUS_OPTIONS.map(st => `<option value="${esc(st)}" ${(existing ? existing.status : 'Open / مفتوح') === st ? 'selected' : ''}>${esc(st)}</option>`).join('')}
             </select></div>
-            <div><label class="lbl">نوع الانحراف:</label><input id="sdlType" class="inp" value="${esc(existing ? existing.type : '')}" placeholder="تجاوز / تأخير / تنفيذ"></div>
+            <div><label class="lbl">الخطورة:</label><select id="sdlSev" class="inp">
+                ${SEVERITY_IR_SDL_OPTIONS.map(sv => `<option value="${esc(sv)}" ${sevVal === sv || sevVal.includes(sv.split('/')[0].trim()) ? 'selected' : ''}>${esc(sv)}</option>`).join('')}
+            </select></div>
         </div>
+        <label class="lbl">نوع الانحراف:</label><input id="sdlType" class="inp" value="${esc(existing ? existing.type : '')}" placeholder="تجاوز / تأخير / تنفيذ">
         <div class="grid-2">
             <div><label class="lbl">الطرف المسؤول / المُبلِّغ:</label><input id="sdlParty" list="globalAttendanceList" class="inp" value="${esc(existing ? existing.party : '')}" placeholder="المقاول / الجهة"></div>
             <div><label class="lbl">الصلاحية المنتهكة:</label><input id="sdlAuth" class="inp" value="${esc(existing ? existing.authority : '')}" placeholder="اختياري..."></div>
@@ -8060,7 +8297,7 @@ function saveSdl(editIdx = null) {
 
     const record = {
         code,
-        status: prevObj ? (prevObj.status || 'Open / مفتوح') : 'Open / مفتوح',
+        status: document.getElementById('sdlStatus')?.value || (prevObj ? (prevObj.status || 'Open / مفتوح') : 'Open / مفتوح'),
         resolution: prevObj ? (prevObj.resolution || null) : null,
         subject: document.getElementById('sdlSub').value.trim(),
         zone,
@@ -8836,10 +9073,7 @@ async function exportLightweightDFL() {
     const machNote = (log.machinery.pumpHrs || log.machinery.genHrs)
         ? `Pump: ${log.machinery.pumpHrs || 0}h, Gen: ${log.machinery.genHrs || 0}h` : '';
     const tankerNote = totalTankerL > 0 ? `Tanker Total: ${totalTankerL.toLocaleString()} L (${totalTrips} Trips)` : '';
-    const transferNote = (Array.isArray(log.transfers) && log.transfers.length > 0)
-        ? 'Transfers: ' + log.transfers.map(tr => `${tr.worker} (${tr.fromTask} -> ${tr.toTask} @ ${tr.time || ''})`).join('; ')
-        : '';
-    const cleanPerfNotes = [log.perf.notes, tankerNote, machNote, transferNote].filter(Boolean).join(' | ');
+    const cleanPerfNotes = [log.perf.notes, tankerNote, machNote].filter(Boolean).join(' | ');
 
     const wx = ensureWeatherObj(log);
 
@@ -8902,7 +9136,7 @@ async function exportLightweightDFL() {
                 syncWithPrev: !!t.syncWithPrev
             };
         }),
-        section4_equipment: log.tools,
+        section4_equipment: (log.tools || []).map(tl => ({ ...tl, cat: tl.cat === 'Materials / مادة' ? 'Material / مادة' : tl.cat })),
         section5_siteReadings: {
             moisture5A: log.moisture.filter(m => m.zone || m.pct),
             waterMeters5B: log.meters.map((m, idx) => ({
@@ -9154,7 +9388,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V16.9) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.0) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -9453,26 +9687,11 @@ function openSettingsModal() {
             <textarea id="stSiteZones" class="inp auto-grow" rows="2">${esc(site.zones.join(', '))}</textarea>
             <button class="clr-btn top-align" onclick="quickClearField('stSiteZones')">✕</button>
         </div>
-        <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:9px;margin-bottom:10px;">
-            <label class="lbl" style="color:var(--primary-dark);">✍️ التوقيع الإلكتروني لقائد الفريق (يُطبع تلقائياً في التقارير):</label>
-            ${state.company.signatureDataUrl ? `
-            <div style="background:white;border:1px solid #cbd5e1;border-radius:7px;padding:5px;text-align:center;margin-bottom:6px;">
-                <img src="${state.company.signatureDataUrl}" style="max-height:52px;display:inline-block;">
-                <div style="font-size:10px;color:var(--primary);">✓ التوقيع محفوظ ومفعّل</div>
-            </div>` : ''}
-            <canvas id="sigPadCanvas" width="320" height="100" style="width:100%;height:100px;background:white;border:1.5px dashed #94a3b8;border-radius:8px;touch-action:none;display:block;margin-bottom:6px;"></canvas>
-            <div class="grid-2">
-                <button class="btn btn-blue btn-sm" onclick="saveElectronicSignature()">💾 حفظ التوقيع</button>
-                <button class="btn btn-outline btn-sm" onclick="clearSignaturePadCanvas()">🧹 مسح اللوحة</button>
-            </div>
-            ${state.company.signatureDataUrl ? `<button class="btn btn-outline btn-sm" style="width:100%;margin-top:5px;color:var(--red);" onclick="deleteElectronicSignature()">🗑️ حذف التوقيع المحفوظ</button>` : ''}
-        </div>
-        <button class="btn btn-orange btn-full" onclick="closeModal();openDatabaseRecoveryModal()">🔄 استرجاع بيانات V7 من ذاكرة الجهاز</button>
+
         <button class="btn btn-blue btn-full" onclick="openStaffPoolManager()">👷 إدارة القائمة الدائمة للكادر (${state.company.staffPool.length})</button>
         <button class="btn btn-outline btn-full" style="color:var(--red);" onclick="purgeOldPhotos()">🧹 تنظيف الصور الأقدم من 30 يوم</button>
         <div class="grid-2"><button class="btn btn-green" onclick="saveSettings()">حفظ</button><button class="btn btn-outline" onclick="closeModal()">إغلاق</button></div>
     `);
-    setTimeout(initSignaturePadCanvas, 40);
 }
 function saveSettings() {
     state.company.teamLead = document.getElementById('stTl').value.trim();
@@ -9768,25 +9987,9 @@ window.onerror = function(msg, src, lineNo) {
     if (t) { t.textContent = '⚠️ خطأ تقني (' + lineNo + '): ' + msg; t.classList.add('show'); }
 };
 
-function setCurrentUser(val) {
-    state.company.currentUser = val || '';
-    if (val) {
-        const log = getDayLog();
-        const found = log.attendance.find(w => (w.name.split('/')[1] || w.name).trim() === val);
-        if (found && found.type.includes('Lead')) {
-            state.company.teamLead = found.name;
-        }
-    }
-    saveState();
-    renderAll();
-    updateGlobalAttendanceList();
-    showToast('👤 المستخدم النشط: ' + (val || 'الافتراضي'));
-}
-
 function updateGlobalAttendanceList() {
     const dl = document.getElementById('globalAttendanceList');
     const supDl = document.getElementById('globalSupervisorsList');
-    const curSel = document.getElementById('currentUserSelect');
     const log = getDayLog();
     const sorted = [...log.attendance].sort((a, b) => {
         if (a.type.includes('Lead')) return -1;
@@ -9806,14 +10009,6 @@ function updateGlobalAttendanceList() {
             }
         });
         supDl.innerHTML = Array.from(supSet).map(s => `<option value="${esc(s)}">`).join('');
-    }
-    if (curSel) {
-        const currVal = state.company.currentUser || '';
-        curSel.innerHTML = '<option value="">👤 المستخدم</option>' + sorted.map(w => {
-            const n = (w.name.split('/')[1] || w.name).trim();
-            const icon = w.type.includes('Lead') ? '👑' : (w.type.includes('Supervisor') ? '👔' : '👷');
-            return `<option value="${esc(n)}" ${currVal === n ? 'selected' : ''}>${icon} ${esc(n)}</option>`;
-        }).join('');
     }
 }
 
@@ -9838,7 +10033,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V16.9 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.0 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
