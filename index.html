@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V17.2</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V17.5</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,7 +42,7 @@
         .dfl-box { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; }
         .dfl-num { background: white; color: var(--primary-dark); border: none; border-radius: 5px; width: 48px; padding: 3px 4px; font-weight: bold; text-align: center; font-size: 13px; }
 
-        /* V17.2: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
+        /* V17.5: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
         .note-item-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-right: 3px solid var(--blue); border-radius: 7px; padding: 5px 8px; margin-bottom: 4px; font-size: 12px; line-height: 1.45; }
         .note-item-card.is-blocked-note { background: #fff5f5; border-color: #fecaca; border-right-color: var(--red); color: #7f1d1d; font-weight: 600; }
         .note-item-card.is-zone-note { background: #f5f3ff; border-color: #ddd6fe; border-right-color: var(--purple); }
@@ -60,7 +60,7 @@
         .att-pill.st-half { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
         .att-pill.st-ot { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
 
-        /* V17.2: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
+        /* V17.5: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
         .slim-act-bar {
             display: flex; align-items: center; justify-content: space-between; gap: 6px;
             background: #ffffff; border: 1px solid #cbd5e1; border-right: 4px solid var(--blue);
@@ -81,6 +81,17 @@
         .export-stamp.st-none { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
         .export-stamp.st-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
         .export-stamp.st-stale { background: #fef3c7; color: #92400e; border: 1.5px solid #f59e0b; }
+        /* V17.5: Worker Weekly Attendance Matrix & Payment Settlement UI */
+        .wk-dot-row { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
+        .wk-dot { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 34px; padding: 2px 4px; border-radius: 6px; font-size: 9.5px; font-weight: bold; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; line-height: 1.25; }
+        .wk-dot.d-pres { background: #dcfce7; color: #166534; border-color: #86efac; }
+        .wk-dot.d-late { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+        .wk-dot.d-half { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
+        .wk-dot.d-abs { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+        .wk-dot.d-ot { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+        .pay-card { background: white; border: 1px solid #cbd5e1; border-right: 4px solid var(--primary); border-radius: 9px; padding: 8px 9px; margin-bottom: 7px; font-size: 12px; }
+        .pay-card.is-emp { border-right-color: var(--blue); }
+        .pay-card.has-due { border-right-color: var(--orange); }
 
         /* Timer Alert Bar */
         .timer-alert-bar { background: #fef2f2; border-bottom: 2px solid #ef4444; color: #991b1b; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 78px; z-index: 950; }
@@ -285,7 +296,7 @@
                 <button class="icon-btn" onclick="openActivityLogModal('all')" title="سجل آخر الحركات والحماية من الأخطاء">📜</button>
                 <button class="icon-btn" onclick="openAnalyticsCenterModal('blind','7d')" title="مركز الإحصائيات والتحليل الذكي">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V17.2 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V17.5 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -329,7 +340,7 @@
                     <h3 class="card-title">👷 الحضور والكادر (القسم 2)</h3>
                     <div style="display:flex;gap:4px;flex-wrap:wrap;">
                         <button class="btn btn-blue btn-sm" onclick="openAllWorkersHoursModal()">⏱️ ساعات المهام</button>
-                        <button class="btn btn-purple btn-sm" onclick="openPayrollModal()">💰 المستحقات</button>
+                        <button class="btn btn-purple btn-sm" onclick="openPayrollModal()">📅 سجل الدوام والمستحقات</button>
                         <button class="btn btn-outline btn-sm" onclick="copyYesterdayCrew()">📋 كادر الأمس</button>
                         <button class="btn btn-outline btn-sm" onclick="markAllPresent()">✓ الكل حاضر</button>
                     </div>
@@ -606,7 +617,7 @@
                 </div>
             </div>
 
-            <!-- V17.2: Clean 3-Step Day-Closing & Export Hub -->
+            <!-- V17.5: Clean 3-Step Day-Closing & Export Hub -->
             <div class="card" style="border-top:4px solid var(--primary);">
                 <div class="card-head" style="margin-bottom:8px;">
                     <h3 class="card-title">📤 مركز إقفال وتصدير اليوم</h3>
@@ -655,19 +666,17 @@
                 </div>
             </div>
 
-            <!-- Collapsible Database Backup & Restore Card (Isolated from Daily Export) -->
-            <div class="card" style="padding:10px 13px;">
-                <div class="card-head" style="margin-bottom:0;padding-bottom:0;border-bottom:none;cursor:pointer;" onclick="toggleSectionCollapse('backupBodyWrap', 'backupToggleIco')">
-                    <h3 class="card-title" style="font-size:13.5px;">💾 النسخ الاحتياطي وقاعدة البيانات</h3>
-                    <span id="backupToggleIco" class="badge" style="background:#f1f5f9;color:var(--muted);">▼ فتح</span>
+            <!-- V17.5: Direct WhatsApp Merge Sync & Database Backup Card -->
+            <div class="card" style="padding:11px 13px;border-top:3px solid var(--blue);">
+                <div class="card-head" style="margin-bottom:7px;padding-bottom:6px;">
+                    <h3 class="card-title" style="font-size:13.5px;">🔀 المزامنة والدمج والنسخ الاحتياطي</h3>
+                    <span class="badge" style="background:#e0f2fe;color:#0369a1;font-size:10px;">مباشر للواتساب</span>
                 </div>
-                <div id="backupBodyWrap" style="display:none;margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;">
-                    <p style="font-size:11px;color:var(--muted);margin:0 0 8px 0;">لحفظ نسخة احتياطية كاملة لجميع الأيام والجرد والإعدادات أو نقلها لهاتف آخر:</p>
-                    <div class="grid-2">
-                        <button class="btn btn-blue" onclick="saveMasterDbToPhoneDownloads()">📱 حفظ القاعدة بالتلفون</button>
-                        <button class="btn btn-outline" onclick="triggerBackupRestore()">📂 استيراد / دمج</button>
-                    </div>
+                <div class="grid-2" style="margin-bottom:7px;">
+                    <button class="btn btn-green" style="font-size:12px;padding:9px 6px;" onclick="saveMasterDbToPhoneDownloads()">📤 إرسال للدمج / واتساب</button>
+                    <button class="btn btn-outline" style="font-size:12px;padding:9px 6px;" onclick="openImportMergeChoiceModal()">📂 استيراد / دمج</button>
                 </div>
+                <button class="btn btn-blue btn-full" style="margin-bottom:0;padding:10px;font-size:12.5px;" onclick="triggerDflExcelImport()">📊 استيراد ملفات DFL إكسيل قديمة / جديدة (.xlsx)</button>
             </div>
         </div>
     </main>
@@ -687,7 +696,8 @@
     <!-- Hidden File Inputs (Multi-Photo Enabled!) -->
     <input type="file" id="camFileInput" accept="image/*" capture="environment" style="display:none" onchange="onPhotoSelected(event)">
     <input type="file" id="galFileInput" accept="image/*" multiple style="display:none" onchange="onPhotoSelected(event)">
-    <input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="onBackupFileLoaded(event)">
+    <input type="file" id="backupFileInput" accept=".json,.txt,application/json,text/plain" style="display:none" onchange="onBackupFileLoaded(event)">
+    <input type="file" id="dflExcelImportInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none" onchange="onDflExcelFilesSelected(event)">
 
     <!-- Modals -->
     <div id="genericModal" class="modal"><div class="modal-box" id="genericModalBody"></div></div>
@@ -931,7 +941,7 @@ let state = {
 
 
 
-/* ================= V17.2: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V17.5: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -1053,7 +1063,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V17.2: Task Presets Manager ================= */
+/* ================= V17.5: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1143,7 +1153,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V17.2: DFL Readiness Progress Bar ================= */
+/* ================= V17.5: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1183,7 +1193,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V17.2: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
+/* ================= V17.5: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
 let _anState = { tab: 'blind', period: '7d', fromDate: '', toDate: '' };
 
 function getAnalyticsDateRange(site, period, customFrom = '', customTo = '') {
@@ -2405,7 +2415,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V17.2: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
+/* ================= V17.5: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
 function computeLogExportSignature(log, site = getSite(), dateStr = state.activeDate) {
     if (!log) return '';
     try {
@@ -3084,7 +3094,7 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
         if (ws.rowCount > finalLastRow) {
             ws.spliceRows(finalLastRow + 1, ws.rowCount - finalLastRow);
         }
-        // V17.2: Center ALL text horizontally & vertically (middle) across Daily Field Log safely (preserving colors/fills/borders!)
+        // V17.5: Center ALL text horizontally & vertically (middle) across Daily Field Log safely (preserving colors/fills/borders!)
         for (let rr = 1; rr <= finalLastRow; rr++) {
             const rowObj = ws.getRow(rr);
             for (let cc = 1; cc <= 12; cc++) {
@@ -3513,8 +3523,44 @@ function normalizeState() {
         if (!s.plan || typeof s.plan !== 'object') s.plan = {};
         if (!Array.isArray(s.inventory)) s.inventory = [];
         if (!Array.isArray(s.issues)) s.issues = [];
+        if (!Array.isArray(s.workerPayments)) s.workerPayments = [];
         if (!s.logs || typeof s.logs !== 'object') s.logs = {};
         if (!s.nextDfl) s.nextDfl = 187;
+        // V17.5: Backwards-compatibility normalizer for logs imported from older versions (V8..V17.2)
+        s.issues.forEach(iss => ensurePhotosArr(iss));
+        s.inventory.forEach(z => {
+            if (!Array.isArray(z.plants)) z.plants = [];
+            z.plants.forEach(p => {
+                if (!p.counts || typeof p.counts !== 'object') p.counts = { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 };
+                if (!Array.isArray(p.entries)) p.entries = [];
+                p.entries.forEach(e => ensurePhotosArr(e));
+            });
+        });
+        Object.values(s.logs).forEach(dl => {
+            if (!dl || typeof dl !== 'object') return;
+            if (!Array.isArray(dl.attendance)) dl.attendance = [];
+            if (!Array.isArray(dl.tasks)) dl.tasks = [];
+            if (!Array.isArray(dl.meters)) dl.meters = [];
+            if (!Array.isArray(dl.gauges)) dl.gauges = [];
+            if (!Array.isArray(dl.moisture)) dl.moisture = [1, 2, 3, 4, 5].map(n => ({ id: n, zone: '', pct: '', note: '' }));
+            if (!Array.isArray(dl.tools)) dl.tools = [];
+            if (!Array.isArray(dl.incidents)) dl.incidents = [];
+            if (!Array.isArray(dl.sdls)) dl.sdls = [];
+            if (!dl.machinery || typeof dl.machinery !== 'object') dl.machinery = { pumpHrs: '', genHrs: '' };
+            if (!dl.perf || typeof dl.perf !== 'object') dl.perf = { status: 'جيد', duration: '', zonesIrrigated: '', zonesManualEdit: false, pressureNotes: '', notes: '' };
+            if (!dl.oar || typeof dl.oar !== 'object') dl.oar = { obs: '', ana: '', rec: '' };
+            if (!dl.photoLinks || typeof dl.photoLinks !== 'object') dl.photoLinks = {};
+            if (!Array.isArray(dl.activityLog)) dl.activityLog = [];
+            if (!dl.secHistory || typeof dl.secHistory !== 'object') dl.secHistory = { att: [], tasks: [], tools: [], inv: [], issues: [] };
+            dl.tasks.forEach(t => {
+                ensurePhotosArr(t);
+                if (!Array.isArray(t.workers)) t.workers = [];
+                if (!t.zoneNotes || typeof t.zoneNotes !== 'object') t.zoneNotes = {};
+            });
+            dl.meters.forEach(m => ensurePhotosArr(m));
+            dl.incidents.forEach(ir => ensurePhotosArr(ir));
+            dl.sdls.forEach(sd => ensurePhotosArr(sd));
+        });
     });
 }
 
@@ -4869,101 +4915,607 @@ function confirmRadarTask(zoneName, desc, dur) {
     closeModal(); saveState(); renderTasks(getDayLog()); showToast(`✓ أُضيفت مهمة ري ${zoneName}`);
 }
 
-/* ================= Cumulative Outside Worker Payroll Summary ================= */
-function openPayrollModal() {
-    const startDefault = state.activeDate.slice(0, 8) + '01';
+/* ================= V17.5: Worker Weekly/Period Attendance Tracker & Payment Settlement Center ================= */
+let _payUiState = { preset: 'this_week', fromDate: '', toDate: '', typeFilter: 'all', search: '' };
+
+function getIraqWeekBounds(refDateStr = state.activeDate, weekOffset = 0) {
+    // Iraqi workweek: Saturday (6) -> Friday (5)
+    const d = new Date(refDateStr + 'T12:00:00');
+    const dow = d.getDay(); // 0=Sun..6=Sat
+    const daysSinceSat = (dow + 1) % 7; // Sat=0, Sun=1, Mon=2, Tue=3, Wed=4, Thu=5, Fri=6
+    const sat = new Date(d);
+    sat.setDate(d.getDate() - daysSinceSat + (weekOffset * 7));
+    const fri = new Date(sat);
+    fri.setDate(sat.getDate() + 6);
+    return { from: getLocalDateStr(sat), to: getLocalDateStr(fri) };
+}
+
+function getDateSpanArray(fromStr, toStr, maxDays = 62) {
+    const out = [];
+    if (!fromStr || !toStr || fromStr > toStr) return out;
+    const cur = new Date(fromStr + 'T12:00:00');
+    const end = new Date(toStr + 'T12:00:00');
+    while (cur <= end && out.length < maxDays) {
+        out.push(getLocalDateStr(cur));
+        cur.setDate(cur.getDate() + 1);
+    }
+    return out;
+}
+
+function getArabicShortDay(dateStr) {
+    const map = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+    const d = new Date(dateStr + 'T12:00:00');
+    return isNaN(d.getTime()) ? '' : map[d.getDay()];
+}
+
+function normalizeWorkerIdentityKey(rawName) {
+    const shortPart = (String(rawName || '').split('/')[1] || String(rawName || '')).trim();
+    return shortPart
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+}
+
+function getWorkerCurrentWeekDaysCount(rawName) {
+    const site = getSite();
+    const { from, to } = getIraqWeekBounds(state.activeDate, 0);
+    const key = normalizeWorkerIdentityKey(rawName);
+    let total = 0;
+    Object.entries(site.logs || {}).forEach(([dStr, dl]) => {
+        if (dStr < from || dStr > to) return;
+        const found = (dl.attendance || []).find(w => normalizeWorkerIdentityKey(w.name) === key);
+        if (found && !String(found.status || '').includes('Absent')) {
+            total += String(found.status || '').includes('Half Day') ? 0.5 : 1;
+        }
+    });
+    return total;
+}
+
+function computeWorkersPeriodReport(fromD, toD) {
+    const site = getSite();
+    const rate = parseFloat(state.company.outsideRate) || 25000;
+    if (!Array.isArray(site.workerPayments)) site.workerPayments = [];
+    const map = {};
+
+    const ensureRec = (rawName, typeStr) => {
+        const key = normalizeWorkerIdentityKey(rawName);
+        if (!key) return null;
+        if (!map[key]) {
+            const disp = (String(rawName || '').split('/')[1] || String(rawName || '')).trim();
+            map[key] = {
+                key,
+                fullName: rawName,
+                shortName: disp,
+                type: typeStr || 'Outside Worker  /  عامل خارجي',
+                workUnits: 0,
+                presentFull: 0,
+                halfDays: 0,
+                lateDays: 0,
+                absentDays: 0,
+                otHrs: 0,
+                dueIQD: 0,
+                paidIQD: 0,
+                balanceIQD: 0,
+                recordsByDate: {},
+                workedDates: [],
+                absentDates: [],
+                payments: [],
+                weeklyMap: {}
+            };
+        } else if (rawName.includes('/') && !map[key].fullName.includes('/')) {
+            map[key].fullName = rawName;
+            map[key].shortName = (rawName.split('/')[1] || rawName).trim();
+        }
+        return map[key];
+    };
+
+    const sortedLogDates = Object.keys(site.logs || {}).sort().filter(d => (!fromD || d >= fromD) && (!toD || d <= toD));
+
+    sortedLogDates.forEach(dStr => {
+        const dl = site.logs[dStr];
+        const wk = getIraqWeekBounds(dStr, 0);
+        const wkKey = `${wk.from}..${wk.to}`;
+        (dl.attendance || []).forEach(w => {
+            const rec = ensureRec(w.name, w.type);
+            if (!rec) return;
+            const st = String(w.status || 'Present / حاضر');
+            const isAbs = st.includes('Absent');
+            const isHalf = st.includes('Half Day');
+            const isLate = st.includes('Late');
+            const isOtSt = st.includes('Overtime');
+            const ot = parseFloat(w.ot) || 0;
+            const units = isAbs ? 0 : (isHalf ? 0.5 : 1);
+
+            rec.recordsByDate[dStr] = {
+                date: dStr,
+                dayAr: getArabicShortDay(dStr),
+                status: st,
+                code: isAbs ? 'abs' : (isHalf ? 'half' : (isLate ? 'late' : (isOtSt ? 'ot' : 'pres'))),
+                units,
+                tIn: isAbs ? '' : (w.tIn || '08:00'),
+                tOut: isAbs ? '' : (w.tOut || '16:00'),
+                ot,
+                note: w.note || '',
+                dflNum: dl.dflNum
+            };
+
+            if (!rec.weeklyMap[wkKey]) {
+                rec.weeklyMap[wkKey] = { from: wk.from, to: wk.to, units: 0, absent: 0, ot: 0, days: [] };
+            }
+            rec.weeklyMap[wkKey].days.push(rec.recordsByDate[dStr]);
+            rec.weeklyMap[wkKey].units += units;
+            rec.weeklyMap[wkKey].ot += ot;
+
+            if (isAbs) {
+                rec.absentDays++;
+                rec.absentDates.push(dStr);
+                rec.weeklyMap[wkKey].absent++;
+            } else {
+                rec.workUnits += units;
+                if (isHalf) rec.halfDays++;
+                else rec.presentFull++;
+                if (isLate) rec.lateDays++;
+                rec.otHrs += ot;
+                rec.workedDates.push(dStr);
+            }
+        });
+    });
+
+    // Attach payments recorded within [fromD..toD] (by payment date or covered period overlap)
+    site.workerPayments.forEach(pm => {
+        const pDate = pm.date || '';
+        const overlaps = (!fromD || pDate >= fromD || (pm.periodTo && pm.periodTo >= fromD))
+            && (!toD || pDate <= toD || (pm.periodFrom && pm.periodFrom <= toD));
+        if (!overlaps) return;
+        const rec = ensureRec(pm.workerName || pm.workerKey, 'Outside Worker  /  عامل خارجي');
+        if (!rec) return;
+        rec.payments.push(pm);
+        rec.paidIQD += (parseFloat(pm.amount) || 0);
+    });
+
+    const rows = Object.values(map).map(r => {
+        const isOut = String(r.type || '').includes('Outside') || String(r.type || '').includes('خارجي');
+        const otPay = isOut ? Math.round((rate / 7) * r.otHrs) : 0;
+        const dueIQD = isOut ? (Math.round(r.workUnits * rate) + otPay) : 0;
+        const balanceIQD = isOut ? (dueIQD - r.paidIQD) : 0;
+        const weeks = Object.values(r.weeklyMap).sort((a, b) => b.from.localeCompare(a.from));
+        r.payments.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        return { ...r, isOut, otPay, dueIQD, balanceIQD, weeks };
+    });
+
+    rows.sort((a, b) => (b.isOut - a.isOut) || (b.workUnits - a.workUnits) || a.shortName.localeCompare(b.shortName, 'ar'));
+    return { rows, sortedLogDates, rate };
+}
+
+function getPayrollRangeForPreset(preset) {
+    const activeD = state.activeDate;
+    const site = getSite();
+    if (preset === 'this_week') return getIraqWeekBounds(activeD, 0);
+    if (preset === 'last_week') return getIraqWeekBounds(activeD, -1);
+    if (preset === '7d') {
+        const d = new Date(activeD + 'T12:00:00');
+        d.setDate(d.getDate() - 6);
+        return { from: getLocalDateStr(d), to: activeD };
+    }
+    if (preset === 'this_month') {
+        return { from: activeD.slice(0, 8) + '01', to: activeD };
+    }
+    if (preset === 'last_month') {
+        const d = new Date(activeD.slice(0, 8) + '01T12:00:00');
+        d.setDate(0);
+        const to = getLocalDateStr(d);
+        return { from: to.slice(0, 8) + '01', to };
+    }
+    if (preset === 'all') {
+        const allD = Object.keys(site.logs || {}).sort();
+        return { from: allD[0] || activeD, to: allD[allD.length - 1] || activeD };
+    }
+    return { from: _payUiState.fromDate || activeD.slice(0, 8) + '01', to: _payUiState.toDate || activeD };
+}
+
+function setPayrollPreset(preset) {
+    _payUiState.preset = preset;
+    const rng = getPayrollRangeForPreset(preset);
+    _payUiState.fromDate = rng.from;
+    _payUiState.toDate = rng.to;
+    openPayrollModal(preset);
+}
+
+function openPayrollModal(preset = _payUiState.preset || 'this_week') {
+    _payUiState.preset = preset;
+    if (preset !== 'custom') {
+        const rng = getPayrollRangeForPreset(preset);
+        _payUiState.fromDate = rng.from;
+        _payUiState.toDate = rng.to;
+    }
+    const fromD = _payUiState.fromDate || state.activeDate;
+    const toD = _payUiState.toDate || state.activeDate;
+
     openModal(`
-        <h3 class="card-title">💰 كشف مستحقات العمال الخارجيين التراكمي</h3>
-        <div class="grid-2">
-            <div><label class="lbl">من تاريخ:</label><input type="date" id="payFrom" class="inp" value="${startDefault}" onchange="refreshPayrollTable()"></div>
-            <div><label class="lbl">إلى تاريخ:</label><input type="date" id="payTo" class="inp" value="${state.activeDate}" onchange="refreshPayrollTable()"></div>
+        <h3 class="card-title">📅 سجل دوام العمال والمستحقات</h3>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;">
+            <button type="button" class="btn btn-sm ${preset === 'this_week' ? 'btn-green' : 'btn-outline'}" onclick="setPayrollPreset('this_week')">هذا الأسبوع</button>
+            <button type="button" class="btn btn-sm ${preset === 'last_week' ? 'btn-green' : 'btn-outline'}" onclick="setPayrollPreset('last_week')">الأسبوع الماضي</button>
+            <button type="button" class="btn btn-sm ${preset === '7d' ? 'btn-blue' : 'btn-outline'}" onclick="setPayrollPreset('7d')">آخر 7 أيام</button>
+            <button type="button" class="btn btn-sm ${preset === 'this_month' ? 'btn-blue' : 'btn-outline'}" onclick="setPayrollPreset('this_month')">هذا الشهر</button>
+            <button type="button" class="btn btn-sm ${preset === 'last_month' ? 'btn-blue' : 'btn-outline'}" onclick="setPayrollPreset('last_month')">الشهر الماضي</button>
+            <button type="button" class="btn btn-sm ${preset === 'all' ? 'btn-purple' : 'btn-outline'}" onclick="setPayrollPreset('all')">كل الأرشيف</button>
+        </div>
+        <div class="grid-2" style="margin-bottom:6px;">
+            <div><label class="lbl">من تاريخ:</label><input type="date" id="payFrom" class="inp" style="margin:0;padding:6px;" value="${esc(fromD)}" onchange="_payUiState.preset='custom';_payUiState.fromDate=this.value;refreshPayrollTable()"></div>
+            <div><label class="lbl">إلى تاريخ:</label><input type="date" id="payTo" class="inp" style="margin:0;padding:6px;" value="${esc(toD)}" onchange="_payUiState.preset='custom';_payUiState.toDate=this.value;refreshPayrollTable()"></div>
+        </div>
+        <div style="display:flex;gap:5px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+            <input id="paySearchInp" class="inp" style="margin:0;padding:5px 8px;font-size:12px;flex:1;min-width:130px;" placeholder="🔍 بحث باسم العامل..." value="${esc(_payUiState.search || '')}" oninput="_payUiState.search=this.value;refreshPayrollTable()">
+            <span class="chip ${_payUiState.typeFilter === 'all' ? 'active' : ''}" style="margin:0;" onclick="_payUiState.typeFilter='all';openPayrollModal(_payUiState.preset)">الكل</span>
+            <span class="chip ${_payUiState.typeFilter === 'outside' ? 'active' : ''}" style="margin:0;" onclick="_payUiState.typeFilter='outside';openPayrollModal(_payUiState.preset)">خارجي</span>
+            <span class="chip ${_payUiState.typeFilter === 'emp' ? 'active' : ''}" style="margin:0;" onclick="_payUiState.typeFilter='emp';openPayrollModal(_payUiState.preset)">موظف</span>
         </div>
         <div id="payrollResultBox"></div>
-        <button class="btn btn-outline btn-full" style="margin-top:8px;" onclick="closeModal()">إغلاق</button>
+        <button class="btn btn-outline btn-full" style="margin-top:8px;margin-bottom:0;" onclick="closeModal()">إغلاق</button>
     `);
     refreshPayrollTable();
 }
 
 function refreshPayrollTable() {
     const site = getSite();
-    const fromD = document.getElementById('payFrom').value;
-    const toD = document.getElementById('payTo').value;
-    const rate = parseFloat(state.company.outsideRate) || 25000;
-    const summary = {};
+    const fromD = document.getElementById('payFrom')?.value || _payUiState.fromDate;
+    const toD = document.getElementById('payTo')?.value || _payUiState.toDate;
+    _payUiState.fromDate = fromD;
+    _payUiState.toDate = toD;
 
-    Object.entries(site.logs).forEach(([dStr, dl]) => {
-        if ((fromD && dStr < fromD) || (toD && dStr > toD)) return;
-        (dl.attendance || []).forEach(w => {
-            const key = w.name.trim();
-            if (!summary[key]) summary[key] = { name: key, type: w.type, days: 0, absent: 0, ot: 0 };
-            if (!w.status.includes('Absent')) {
-                summary[key].days++;
-                summary[key].ot += (parseFloat(w.ot) || 0);
-            } else {
-                summary[key].absent++;
-            }
-        });
+    const { rows, sortedLogDates } = computeWorkersPeriodReport(fromD, toD);
+    const q = (_payUiState.search || '').trim().toLowerCase();
+    const filtered = rows.filter(r => {
+        if (_payUiState.typeFilter === 'outside' && !r.isOut) return false;
+        if (_payUiState.typeFilter === 'emp' && r.isOut) return false;
+        if (q && !r.shortName.toLowerCase().includes(q) && !r.fullName.toLowerCase().includes(q)) return false;
+        return true;
     });
 
-    const rows = Object.values(summary);
-    let totalOutsideIQD = 0;
-    const lines = rows.map(r => {
-        const isOut = r.type.includes('Outside');
-        const pay = isOut ? r.days * rate : 0;
-        totalOutsideIQD += pay;
-        return { ...r, isOut, pay };
+    const spanDates = getDateSpanArray(fromD, toD, 14);
+    const showVisualGrid = spanDates.length > 0 && spanDates.length <= 14;
+
+    let totalDueIQD = 0, totalPaidIQD = 0, totalBalIQD = 0, totalUnits = 0;
+    filtered.forEach(r => {
+        totalUnits += r.workUnits;
+        if (r.isOut) { totalDueIQD += r.dueIQD; totalPaidIQD += r.paidIQD; totalBalIQD += r.balanceIQD; }
     });
 
-    latestPayrollWaText = `💰 كشف حضور ومستحقات (${site.name.split('/')[0].trim()})
-الفترة: ${fromD} إلى ${toD}
-` +
-        lines.map(r => `• ${r.name.split('/')[1] || r.name}: ${r.days} يوم | OT: ${r.ot}h` + (r.isOut ? ` | المستحق: ${r.pay.toLocaleString()} IQD` : ' (موظف)')).join('\n') +
-        `
+    latestPayrollWaText = `📅 *كشف دوام ومستحقات العمال — ${site.name.split('/')[0].trim()}*\n` +
+        `الفترة: ${fromD} إلى ${toD} (${sortedLogDates.length} أيام مسجّلة)\n\n` +
+        filtered.map(r => {
+            const dShort = r.workedDates.map(d => `${getArabicShortDay(d)} ${d.slice(5)}`).join('، ');
+            const payLine = r.isOut
+                ? ` | مستحق: ${r.dueIQD.toLocaleString()} | مستلم: ${r.paidIQD.toLocaleString()} | متبقي: ${r.balanceIQD.toLocaleString()} IQD`
+                : ' (موظف)';
+            return `• *${r.shortName}*: ${r.workUnits} يوم${r.absentDays ? ` (غياب ${r.absentDays})` : ''}${r.otHrs ? ` | OT ${r.otHrs}h` : ''}${payLine}` +
+                (dShort ? `\n   ↳ أيام الدوام: ${dShort}` : '');
+        }).join('\n') +
+        `\n\n💰 الإجمالي الخارجي: المستحق ${totalDueIQD.toLocaleString()} | المستلم ${totalPaidIQD.toLocaleString()} | المتبقي ${totalBalIQD.toLocaleString()} IQD`;
 
-الإجمالي للعمالة الخارجية: ${totalOutsideIQD.toLocaleString()} IQD`;
-
-    document.getElementById('payrollResultBox').innerHTML = `
-        <div style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:8px;background:#f8fafc;">
-            ${lines.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:12px;">لا توجد بيانات ضمن هذه الفترة</div>' :
-            lines.map(r => `
-                <div style="padding:6px 0;border-bottom:1px solid #e2e8f0;font-size:12px;display:flex;justify-content:space-between;align-items:center;">
-                    <div>
-                        <b>${esc(r.name.split('/')[1] || r.name)}</b>
-                        <div style="font-size:10.5px;color:var(--muted);">حضور: ${r.days} يوم | غياب: ${r.absent} | OT: ${r.ot}h</div>
-                    </div>
-                    <div style="font-weight:bold;color:${r.isOut ? 'var(--primary-dark)' : 'var(--blue)'};">
-                        ${r.isOut ? r.pay.toLocaleString() + ' IQD' : 'موظف ثابت'}
-                    </div>
-                </div>
-            `).join('')}
+    const box = document.getElementById('payrollResultBox');
+    if (!box) return;
+    box.innerHTML = `
+        <div class="grid-3" style="margin-bottom:8px;">
+            <div class="kpi-box"><div class="kpi-val" style="font-size:14px;">${totalDueIQD.toLocaleString()}</div><div class="kpi-sub">المستحق (IQD)</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="font-size:14px;color:var(--blue);">${totalPaidIQD.toLocaleString()}</div><div class="kpi-sub">المستلم (IQD)</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="font-size:14px;color:${totalBalIQD > 0 ? 'var(--orange)' : 'var(--primary)'};">${totalBalIQD.toLocaleString()}</div><div class="kpi-sub">المتبقي بذمة</div></div>
         </div>
-        <div style="font-weight:bold;font-size:13px;color:var(--primary-dark);margin-bottom:8px;text-align:center;">
-            إجمالي مستحقات العمالة الخارجية: ${totalOutsideIQD.toLocaleString()} IQD
+        <div style="max-height:290px;overflow-y:auto;margin-bottom:8px;">
+            ${filtered.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:16px;background:#f8fafc;border-radius:8px;">لا توجد بيانات حضور مسجلة ضمن هذه الفترة</div>' :
+            filtered.map(r => {
+                const gridHtml = showVisualGrid ? `
+                    <div class="wk-dot-row">
+                        ${spanDates.map(ds => {
+                            const rec = r.recordsByDate[ds];
+                            const cls = rec ? `d-${rec.code}` : '';
+                            const ico = !rec ? '—' : (rec.code === 'abs' ? '✕' : (rec.code === 'half' ? '½' : (rec.code === 'late' ? '⏰' : '✓')));
+                            return `<span class="wk-dot ${cls}" title="${ds} (${getArabicShortDay(ds)}): ${rec ? esc(rec.status) : 'غير مسجّل'}"><span>${getArabicShortDay(ds).slice(0, 3)}</span><span>${ds.slice(8)} ${ico}</span></span>`;
+                        }).join('')}
+                    </div>` : `
+                    <div style="font-size:10.5px;color:#475569;margin-top:4px;">
+                        ${r.weeks.slice(0, 4).map(wk => `<span class="badge" style="background:#f1f5f9;color:#334155;font-size:9.5px;margin-left:3px;">${wk.from.slice(5)}→${wk.to.slice(5)}: <b>${wk.units}ي</b></span>`).join('')}
+                    </div>`;
+                return `
+                <div class="pay-card ${!r.isOut ? 'is-emp' : (r.balanceIQD > 0 ? 'has-due' : '')}">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+                        <div style="flex:1;cursor:pointer;" onclick="openWorkerHistoryProfileModal('${esc(r.fullName)}', '${fromD}', '${toD}')">
+                            <b style="font-size:12.5px;color:var(--text);">👷 ${esc(r.shortName)}</b>
+                            <div style="font-size:10.5px;color:var(--muted);margin-top:1px;">
+                                داوم: <b style="color:var(--primary-dark);">${r.workUnits} يوم</b>${r.halfDays ? ` (نصف: ${r.halfDays})` : ''} | غياب: <b style="color:${r.absentDays ? 'var(--red)' : 'inherit'};">${r.absentDays}</b> | OT: <b>${r.otHrs}h</b>
+                            </div>
+                        </div>
+                        <div style="text-align:left;flex-shrink:0;">
+                            ${r.isOut ? `
+                                <div style="font-weight:bold;font-size:11.5px;color:var(--primary-dark);">مستحق: ${r.dueIQD.toLocaleString()}</div>
+                                <div style="font-size:10px;color:${r.balanceIQD > 0 ? 'var(--orange)' : 'var(--blue)'};font-weight:bold;">
+                                    ${r.paidIQD > 0 ? `أخذ: ${r.paidIQD.toLocaleString()} | ` : ''}${r.balanceIQD > 0 ? `باقي: ${r.balanceIQD.toLocaleString()}` : (r.dueIQD > 0 ? '✅ مسدّد' : '0')}
+                                </div>
+                            ` : `<span class="badge" style="background:#e0f2fe;color:#0369a1;font-size:10px;">موظف ثابت</span>`}
+                        </div>
+                    </div>
+                    ${gridHtml}
+                    <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;">
+                        <button type="button" class="btn btn-outline btn-sm" style="flex:1;padding:3px 6px;font-size:10.5px;" onclick="openWorkerHistoryProfileModal('${esc(r.fullName)}', '${fromD}', '${toD}')">📅 شوكت داوم وشوكت أخذ؟</button>
+                        ${r.isOut ? `<button type="button" class="btn btn-green btn-sm" style="padding:3px 8px;font-size:10.5px;" onclick="openRecordWorkerPaymentModal('${esc(r.fullName)}', ${Math.max(0, r.balanceIQD)}, '${fromD}', '${toD}')">💵 تسجيل تسليم</button>` : ''}
+                    </div>
+                </div>`;
+            }).join('')}
         </div>
-        <div class="grid-2">
-            <button class="btn btn-green btn-sm" onclick="copyPayrollWaText()">📋 نسخ الكشف</button>
-            <button class="btn btn-blue btn-sm" onclick="exportPayrollCSV('${fromD}', '${toD}')">📥 تصدير CSV</button>
+        <div class="grid-3">
+            <button class="btn btn-green btn-sm" onclick="copyPayrollWaText()">💬 نسخ واتساب</button>
+            <button class="btn btn-blue btn-sm" onclick="exportPayrollExcel('${fromD}', '${toD}')">📥 Excel تفصيلي</button>
+            <button class="btn btn-outline btn-sm" onclick="exportPayrollCSV('${fromD}', '${toD}')">📄 CSV</button>
         </div>
     `;
 }
 
-function copyPayrollWaText() { if (latestPayrollWaText) { navigator.clipboard.writeText(latestPayrollWaText); showToast('📋 تم نسخ كشف المستحقات!'); } }
-function exportPayrollCSV(fromD, toD) {
+function openWorkerHistoryProfileModal(workerFullName, fromD = '', toD = '') {
     const site = getSite();
-    const rate = parseFloat(state.company.outsideRate) || 25000;
-    const summary = {};
-    Object.entries(site.logs).forEach(([dStr, dl]) => {
-        if ((fromD && dStr < fromD) || (toD && dStr > toD)) return;
-        (dl.attendance || []).forEach(w => {
-            if (!summary[w.name]) summary[w.name] = { name: w.name, type: w.type, days: 0, absent: 0, ot: 0 };
-            if (!w.status.includes('Absent')) { summary[w.name].days++; summary[w.name].ot += (parseFloat(w.ot) || 0); }
-            else summary[w.name].absent++;
+    const allDates = Object.keys(site.logs || {}).sort();
+    const effFrom = fromD || allDates[0] || state.activeDate;
+    const effTo = toD || allDates[allDates.length - 1] || state.activeDate;
+    const { rows } = computeWorkersPeriodReport(effFrom, effTo);
+    const key = normalizeWorkerIdentityKey(workerFullName);
+    const rec = rows.find(r => r.key === key);
+
+    if (!rec) {
+        showToast('⚠️ لا توجد سجلات مسجّلة لهذا العامل ضمن الفترة');
+        return;
+    }
+
+    const weekSummaryLines = rec.weeks.map(wk => {
+        const daysTxt = wk.days.map(d => `${d.dayAr} ${d.date.slice(5)} (${d.code === 'abs' ? 'غائب' : (d.code === 'half' ? 'نصف يوم' : 'حاضر')})`).join('، ');
+        return `• أسبوع (${wk.from} ← ${wk.to}): ${wk.units} يوم${wk.absent ? ` | غياب ${wk.absent}` : ''}\n  ${daysTxt}`;
+    }).join('\n');
+    const paySummaryLines = rec.payments.length
+        ? '\n💵 *سجل التسليم والاستلام:*\n' + rec.payments.map(p => `• ${p.date}: ${Number(p.amount).toLocaleString()} IQD (${p.type === 'advance' ? 'سلفة' : 'تسليم أجور'})${p.note ? ' — ' + p.note : ''}`).join('\n')
+        : '';
+
+    window._latestSingleWorkerReport =
+        `👷 *ملف دوام ومستحقات: ${rec.shortName}*\n` +
+        `📅 الفترة: ${effFrom} إلى ${effTo}\n` +
+        `✅ مجموع أيام الدوام: ${rec.workUnits} يوم | ❌ غياب: ${rec.absentDays} | ⏰ OT: ${rec.otHrs}h\n` +
+        (rec.isOut ? `💰 المستحق: ${rec.dueIQD.toLocaleString()} | المستلم: ${rec.paidIQD.toLocaleString()} | المتبقي: ${rec.balanceIQD.toLocaleString()} IQD\n` : '') +
+        `\n📆 *التفصيل الأسبوعي:*\n${weekSummaryLines}${paySummaryLines}`;
+
+    const isAllRange = (!fromD && !toD);
+    openModal(`
+        <h3 class="card-title">👷 ملف العامل: ${esc(rec.shortName)}</h3>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;">
+            <span class="chip ${!isAllRange ? 'active' : ''}" style="margin:0;" onclick="const w=getIraqWeekBounds(state.activeDate,0);openWorkerHistoryProfileModal('${esc(workerFullName)}', w.from, w.to)">هذا الأسبوع</span>
+            <span class="chip" style="margin:0;" onclick="const w=getIraqWeekBounds(state.activeDate,-1);openWorkerHistoryProfileModal('${esc(workerFullName)}', w.from, w.to)">الأسبوع الماضي</span>
+            <span class="chip" style="margin:0;" onclick="openWorkerHistoryProfileModal('${esc(workerFullName)}', state.activeDate.slice(0,8)+'01', state.activeDate)">هذا الشهر</span>
+            <span class="chip ${isAllRange ? 'active' : ''}" style="margin:0;" onclick="openWorkerHistoryProfileModal('${esc(workerFullName)}', '', '')">كل الأرشيف</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:7px;">الفترة المعروضة: <b>${esc(effFrom)}</b> إلى <b>${esc(effTo)}</b></div>
+        <div class="grid-3" style="margin-bottom:8px;">
+            <div class="kpi-box"><div class="kpi-val">${rec.workUnits}</div><div class="kpi-sub">أيام الدوام</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="color:var(--red);">${rec.absentDays}</div><div class="kpi-sub">غياب | تأخير (${rec.lateDays})</div></div>
+            <div class="kpi-box"><div class="kpi-val" style="font-size:13px;color:${rec.balanceIQD > 0 ? 'var(--orange)' : 'var(--primary)'};">${rec.isOut ? rec.balanceIQD.toLocaleString() : rec.otHrs + 'h'}</div><div class="kpi-sub">${rec.isOut ? 'متبقي بذمة (IQD)' : 'أوفرتايم'}</div></div>
+        </div>
+        ${rec.isOut ? `
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:7px 9px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:11.5px;flex-wrap:wrap;gap:5px;">
+            <span>المستحق: <b>${rec.dueIQD.toLocaleString()}</b> | استلم: <b>${rec.paidIQD.toLocaleString()}</b> | الباقي: <b style="color:var(--orange);">${rec.balanceIQD.toLocaleString()} IQD</b></span>
+            <button class="btn btn-green btn-sm" onclick="openRecordWorkerPaymentModal('${esc(rec.fullName)}', ${Math.max(0, rec.balanceIQD)}, '${effFrom}', '${effTo}')">+ تسجيل تسليم / سلفة</button>
+        </div>` : ''}
+
+        <div style="max-height:270px;overflow-y:auto;margin-bottom:9px;">
+            <b style="font-size:12px;display:block;margin-bottom:4px;color:var(--primary-dark);">📆 تفصيل الدوام أسبوعياً (شوكت داوم وشوكت غاب):</b>
+            ${rec.weeks.length === 0 ? '<div style="font-size:11.5px;color:var(--muted);padding:8px;">لا توجد أيام حضور مسجلة</div>' :
+            rec.weeks.map(wk => `
+                <div class="meter-card" style="padding:7px 8px;margin-bottom:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:11.5px;">
+                        <b>📅 أسبوع ${esc(wk.from.slice(5))} ← ${esc(wk.to.slice(5))}</b>
+                        <span class="badge" style="background:#dcfce7;color:#166534;">${wk.units} يوم دوام${wk.absent ? ` • غياب ${wk.absent}` : ''}</span>
+                    </div>
+                    ${wk.days.map(d => {
+                        const stCol = d.code === 'abs' ? '#b91c1c' : (d.code === 'late' ? '#92400e' : (d.code === 'half' ? '#0369a1' : '#166534'));
+                        const stBg = d.code === 'abs' ? '#fee2e2' : (d.code === 'late' ? '#fef3c7' : (d.code === 'half' ? '#e0f2fe' : '#dcfce7'));
+                        return `
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;background:white;border:1px solid #e2e8f0;border-radius:6px;margin-bottom:3px;font-size:11px;cursor:pointer;" onclick="jumpToArchiveDate('${d.date}')" title="اضغط لفتح سجل هذا اليوم">
+                            <span><b>${esc(d.dayAr)} ${esc(d.date)}</b> <span style="color:var(--muted);">(DFL-${d.dflNum})</span></span>
+                            <span style="display:flex;align-items:center;gap:4px;">
+                                ${d.code !== 'abs' ? `<span style="color:var(--muted);">${esc(d.tIn)}–${esc(d.tOut)}${d.ot ? ` +${d.ot}h` : ''}</span>` : ''}
+                                <span class="badge" style="background:${stBg};color:${stCol};font-size:10px;padding:1px 6px;">${esc((d.status.split('/')[1] || d.status).trim())}</span>
+                            </span>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `).join('')}
+
+            ${rec.isOut ? `
+            <b style="font-size:12px;display:block;margin:8px 0 4px 0;color:var(--blue);">💵 سجل استلام الأجور والسلف (شوكت أخذ فلوسه):</b>
+            ${rec.payments.length === 0 ? '<div style="font-size:11.5px;color:var(--muted);background:#f8fafc;padding:8px;border-radius:7px;text-align:center;">لم يُسجّل أي تسليم أو سلفة ضمن هذه الفترة</div>' :
+            rec.payments.map(p => `
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:7px;padding:6px 8px;margin-bottom:4px;font-size:11.5px;">
+                    <div>
+                        <b>📅 ${esc(p.date)} — ${Number(p.amount).toLocaleString()} IQD</b>
+                        <span class="badge" style="background:white;color:var(--blue);font-size:9.5px;margin-right:4px;">${p.type === 'advance' ? 'سلفة' : 'تسليم أجور'}</span>
+                        ${p.periodFrom ? `<div style="font-size:10px;color:var(--muted);">عن الفترة: ${esc(p.periodFrom)} ← ${esc(p.periodTo || p.date)}</div>` : ''}
+                        ${p.note ? `<div style="font-size:10.5px;color:#334155;">📝 ${esc(p.note)}</div>` : ''}
+                    </div>
+                    <button type="button" class="btn btn-outline btn-sm" style="color:var(--red);padding:2px 6px;" onclick="deleteWorkerPayment('${p.id}', '${esc(rec.fullName)}', '${effFrom}', '${effTo}')">🗑️</button>
+                </div>
+            `).join('')}` : ''}
+        </div>
+        <div class="grid-2">
+            <button class="btn btn-green" onclick="navigator.clipboard.writeText(window._latestSingleWorkerReport);showToast('💬 تم نسخ كشف العامل للواتساب!')">💬 نسخ كشف العامل</button>
+            <button class="btn btn-outline" onclick="openPayrollModal(_payUiState.preset)">⬅️ رجوع للكشف</button>
+        </div>
+    `);
+}
+
+function openRecordWorkerPaymentModal(workerFullName, suggestedAmount = 0, periodFrom = '', periodTo = '') {
+    const shortName = (String(workerFullName || '').split('/')[1] || String(workerFullName || '')).trim();
+    openModal(`
+        <h3 class="card-title">💵 تسجيل تسليم / سلفة: ${esc(shortName)}</h3>
+        <div class="grid-2">
+            <div><label class="lbl">المبلغ (IQD):</label><input type="number" id="wpAmtInp" class="inp" style="font-weight:bold;font-size:15px;" value="${suggestedAmount || ''}" placeholder="مثلاً: 150000"></div>
+            <div><label class="lbl">تاريخ الاستلام:</label><input type="date" id="wpDateInp" class="inp" value="${esc(state.activeDate)}"></div>
+        </div>
+        <label class="lbl">نوع الحركة:</label>
+        <select id="wpTypeInp" class="inp">
+            <option value="pay">💵 تسليم أجور / تصفية حساب</option>
+            <option value="advance">💳 سلفة مسبقة</option>
+        </select>
+        <div class="grid-2">
+            <div><label class="lbl">عن الفترة من (اختياري):</label><input type="date" id="wpFromInp" class="inp" value="${esc(periodFrom)}"></div>
+            <div><label class="lbl">إلى (اختياري):</label><input type="date" id="wpToInp" class="inp" value="${esc(periodTo)}"></div>
+        </div>
+        <label class="lbl">ملاحظة:</label>
+        <input id="wpNoteInp" class="inp" placeholder="مثلاً: تسليم أسبوعي نقداً...">
+        <div class="grid-2">
+            <button class="btn btn-green" onclick="saveWorkerPayment('${esc(workerFullName)}')">💾 حفظ التسليم</button>
+            <button class="btn btn-outline" onclick="openWorkerHistoryProfileModal('${esc(workerFullName)}', '${esc(periodFrom)}', '${esc(periodTo)}')">إلغاء</button>
+        </div>
+    `);
+}
+
+function saveWorkerPayment(workerFullName) {
+    const amt = parseFloat(document.getElementById('wpAmtInp')?.value);
+    const pDate = document.getElementById('wpDateInp')?.value || state.activeDate;
+    const pType = document.getElementById('wpTypeInp')?.value || 'pay';
+    const pFrom = document.getElementById('wpFromInp')?.value || '';
+    const pTo = document.getElementById('wpToInp')?.value || '';
+    const note = (document.getElementById('wpNoteInp')?.value || '').trim();
+    if (!amt || isNaN(amt) || amt <= 0) { showToast('⚠️ أدخل مبلغاً صحيحاً'); return; }
+
+    pushUndo('تسجيل تسليم أجر عامل');
+    const site = getSite();
+    if (!Array.isArray(site.workerPayments)) site.workerPayments = [];
+    const payId = 'pay_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5);
+    const shortName = (String(workerFullName || '').split('/')[1] || String(workerFullName || '')).trim();
+    site.workerPayments.unshift({
+        id: payId,
+        workerKey: normalizeWorkerIdentityKey(workerFullName),
+        workerName: workerFullName,
+        date: pDate,
+        amount: Math.round(amt),
+        type: pType,
+        periodFrom: pFrom,
+        periodTo: pTo,
+        note
+    });
+    recordActivity({
+        sec: 'att',
+        label: `${pType === 'advance' ? 'سلفة' : 'تسليم أجر'} ${shortName}`,
+        before: '',
+        after: `${Math.round(amt).toLocaleString()} IQD (${pDate})`,
+        jump: { tab: 'att' },
+        revert: { type: 'payment_delete', payId }
+    });
+    saveState();
+    showToast(`✅ تم تسجيل ${pType === 'advance' ? 'سلفة' : 'تسليم'} ${Math.round(amt).toLocaleString()} IQD لـ ${shortName}`);
+    openWorkerHistoryProfileModal(workerFullName, pFrom || _payUiState.fromDate, pTo || _payUiState.toDate);
+}
+
+function deleteWorkerPayment(payId, workerFullName, fromD, toD) {
+    if (!confirm('حذف سجل هذا التسليم؟')) return;
+    pushUndo('حذف سجل تسليم أجر');
+    const site = getSite();
+    if (!Array.isArray(site.workerPayments)) return;
+    const idx = site.workerPayments.findIndex(x => x.id === payId);
+    if (idx === -1) return;
+    const removed = JSON.parse(JSON.stringify(site.workerPayments[idx]));
+    site.workerPayments.splice(idx, 1);
+    recordActivity({
+        sec: 'att',
+        label: `حذف تسليم أجر (${(removed.workerName.split('/')[1] || removed.workerName).trim()})`,
+        before: `${Number(removed.amount).toLocaleString()} IQD`,
+        after: 'محذوف',
+        flag: 'warn',
+        jump: { tab: 'att' },
+        revert: { type: 'payment_restore', payObj: removed }
+    });
+    saveState();
+    showToast('🗑️ تم حذف سجل التسليم');
+    openWorkerHistoryProfileModal(workerFullName, fromD, toD);
+}
+
+function copyPayrollWaText() {
+    if (latestPayrollWaText) {
+        navigator.clipboard.writeText(latestPayrollWaText).then(() => showToast('💬 تم نسخ كشف الدوام والمستحقات للواتساب!')).catch(() => showToast('⚠️ تعذر النسخ'));
+    }
+}
+
+async function exportPayrollExcel(fromD, toD) {
+    if (typeof ExcelJS === 'undefined') { showToast('⚠️ مكتبة ExcelJS غير محملة'); return; }
+    showToast('⏳ جاري توليد كشف الدوام والمستحقات (Excel تفصيلي)...');
+    const site = getSite();
+    const { rows, sortedLogDates, rate } = computeWorkersPeriodReport(fromD, toD);
+    const wb = new ExcelJS.Workbook();
+    const styleHdr = (ws, argb) => {
+        const r1 = ws.getRow(1);
+        r1.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        r1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: argb } };
+        r1.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        r1.height = 24;
+    };
+
+    // Sheet 1: Summary & Balances
+    const s1 = wb.addWorksheet('ملخص الدوام والمستحقات', { views: [{ rightToLeft: true }] });
+    s1.addRow(['اسم العامل', 'النوع', 'أيام الدوام', 'نصف يوم', 'غياب', 'تأخير', 'أوفرتايم (h)', 'اليومية (IQD)', 'المستحق (IQD)', 'المستلم (IQD)', 'المتبقي بذمة (IQD)', 'تواريخ الدوام']);
+    styleHdr(s1, 'FF15803D');
+    rows.forEach(r => {
+        const row = s1.addRow([
+            r.shortName, r.isOut ? 'خارجي' : 'موظف', r.workUnits, r.halfDays, r.absentDays, r.lateDays, r.otHrs,
+            r.isOut ? rate : 0, r.dueIQD, r.paidIQD, r.balanceIQD, r.workedDates.join(', ')
+        ]);
+        row.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    });
+    s1.columns = [{ width: 22 }, { width: 10 }, { width: 11 }, { width: 10 }, { width: 9 }, { width: 9 }, { width: 11 }, { width: 13 }, { width: 14 }, { width: 14 }, { width: 15 }, { width: 42 }];
+
+    // Sheet 2: Daily Matrix (Worker x Dates)
+    const s2 = wb.addWorksheet('جدول الأيام التفصيلي', { views: [{ rightToLeft: true }] });
+    const matDates = sortedLogDates.length ? sortedLogDates : getDateSpanArray(fromD, toD, 31);
+    s2.addRow(['اسم العامل', 'المجموع', ...matDates.map(d => `${getArabicShortDay(d)}\n${d.slice(5)}`)]);
+    styleHdr(s2, 'FF0284C7');
+    rows.forEach(r => {
+        const cells = matDates.map(d => {
+            const rec = r.recordsByDate[d];
+            if (!rec) return '-';
+            if (rec.code === 'abs') return 'غائب';
+            if (rec.code === 'half') return 'نصف يوم';
+            if (rec.code === 'late') return `متأخر (${rec.tIn})`;
+            return rec.ot ? `حاضر (+${rec.ot}h)` : 'حاضر';
+        });
+        const row = s2.addRow([r.shortName, r.workUnits, ...cells]);
+        row.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    });
+    s2.columns = [{ width: 22 }, { width: 10 }, ...matDates.map(() => ({ width: 11 }))];
+
+    // Sheet 3: Payments & Advances Log
+    const s3 = wb.addWorksheet('سجل الاستلام والسلف', { views: [{ rightToLeft: true }] });
+    s3.addRow(['التاريخ', 'العامل', 'النوع', 'المبلغ (IQD)', 'عن الفترة من', 'إلى', 'ملاحظات']);
+    styleHdr(s3, 'FF7C3AED');
+    rows.forEach(r => {
+        r.payments.forEach(p => {
+            const row = s3.addRow([p.date, r.shortName, p.type === 'advance' ? 'سلفة' : 'تسليم أجور', Number(p.amount) || 0, p.periodFrom || '', p.periodTo || '', p.note || '']);
+            row.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
         });
     });
-    let csv = '\uFEFFWorker Name,Type,Days Present,Days Absent,Overtime Hrs,Daily Rate IQD,Total Due IQD\n';
-    Object.values(summary).forEach(r => {
-        const isOut = r.type.includes('Outside');
-        csv += `"${r.name}","${r.type}",${r.days},${r.absent},${r.ot},${isOut ? rate : 0},${isOut ? r.days * rate : 0}\n`;
+    s3.columns = [{ width: 14 }, { width: 22 }, { width: 14 }, { width: 15 }, { width: 14 }, { width: 14 }, { width: 32 }];
+
+    const outBuf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([outBuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Attendance_Payroll_${fromD}_to_${toD}.xlsx`;
+    a.click();
+    showToast('✅ تم تنزيل ملف Excel التفصيلي للدوام والمستحقات (3 أوراق)!');
+}
+
+function exportPayrollCSV(fromD, toD) {
+    const site = getSite();
+    const { rows, rate } = computeWorkersPeriodReport(fromD, toD);
+    let csv = '\uFEFFWorker Name,Type,Work Days,Half Days,Days Absent,Late Days,Overtime Hrs,Daily Rate IQD,Total Due IQD,Paid IQD,Balance IQD,Worked Dates\n';
+    rows.forEach(r => {
+        csv += `"${r.fullName}","${r.type}",${r.workUnits},${r.halfDays},${r.absentDays},${r.lateDays},${r.otHrs},${r.isOut ? rate : 0},${r.dueIQD},${r.paidIQD},${r.balanceIQD},"${r.workedDates.join(' | ')}"\n`;
     });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -5454,7 +6006,7 @@ function applyCustomTime(targetType, targetIdx, targetInputId) {
     showToast('⏱️ تم ضبط الوقت: ' + formatted);
 }
 
-/* ================= V17.2: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
+/* ================= V17.5: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
 function pushUndo(actionLabel) {
     try {
         const snap = JSON.stringify(state);
@@ -5717,6 +6269,16 @@ function revertActivityEntry(aid) {
     } else if (rv.type === 'issue_status') {
         const iss = (site.issues || []).find(x => x.id === rv.issueId);
         if (iss) { iss.status = rv.oldStatus; iss.resolvedDate = rv.oldResolvedDate || ''; ok = true; }
+    } else if (rv.type === 'payment_delete' && rv.payId) {
+        if (Array.isArray(site.workerPayments)) {
+            const bLen = site.workerPayments.length;
+            site.workerPayments = site.workerPayments.filter(x => x.id !== rv.payId);
+            ok = site.workerPayments.length < bLen;
+        }
+    } else if (rv.type === 'payment_restore' && rv.payObj) {
+        if (!Array.isArray(site.workerPayments)) site.workerPayments = [];
+        site.workerPayments.unshift(JSON.parse(JSON.stringify(rv.payObj)));
+        ok = true;
     }
 
     if (!ok) {
@@ -6013,6 +6575,7 @@ function openFullArchiveModal() {
                 </div>`;
             }).join('')}
         </div>
+        <button class="btn btn-blue btn-full" style="margin-bottom:7px;padding:9px;font-size:12.5px;" onclick="closeModal();triggerDflExcelImport()">📊 استيراد ملفات DFL إكسيل للأرشيف (.xlsx)</button>
         <button class="btn btn-orange btn-full" style="margin-bottom:7px;padding:9px;font-size:12.5px;" onclick="promptRenumberArchiveDfl()">🔢 إعادة ترقيم تسلسل DFL للأرشيف</button>
         <button class="btn btn-outline btn-full" onclick="closeModal()">إغلاق</button>
     `);
@@ -6052,8 +6615,14 @@ function renderAttendance(log) {
         return `
         <div class="worker-item">
             <div class="worker-top">
-                <div style="flex:1;">
-                    <div style="font-weight:bold;font-size:13px;">${esc(w.name.split('/')[1] || w.name)}</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+                        <span style="font-weight:bold;font-size:13px;cursor:pointer;text-decoration:underline;text-decoration-color:#cbd5e1;" onclick="openWorkerHistoryProfileModal('${esc(w.name)}')" title="اضغط لعرض أيام دوام هذا العامل ومستحقاته">${esc(w.name.split('/')[1] || w.name)}</span>
+                        ${(() => {
+                            const wCnt = getWorkerCurrentWeekDaysCount(w.name);
+                            return `<span class="badge" style="cursor:pointer;font-size:9.5px;padding:1px 6px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;" onclick="openWorkerHistoryProfileModal('${esc(w.name)}')" title="أيام دوامه هذا الأسبوع (سبت–جمعة) — اضغط للتفاصيل">📅 ${wCnt} يوم/أسبوع</span>`;
+                        })()}
+                    </div>
                     <div style="font-size:10px;color:var(--muted);">${esc(w.type)}</div>
                 </div>
                 <div class="att-pills">
@@ -7261,7 +7830,7 @@ function setTaskStatus(idx, st) {
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
 }
 
-/* ================= V17.2: Advanced Multi-Notes & Saved Custom Notes Library ================= */
+/* ================= V17.5: Advanced Multi-Notes & Saved Custom Notes Library ================= */
 function stripAutoSuffixFromNote(rawStr, suffix) {
     let base = String(rawStr || '');
     if (suffix) {
@@ -7632,7 +8201,7 @@ function escalateTaskToIssue(idx) {
     saveState(); renderExportAndIssues(site, getDayLog()); showToast(`🚨 تم تصعيد العطل إلى متتبع المشاكل (${code})`);
 }
 
-/* ================= V17.2: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
+/* ================= V17.5: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
 function onNewTaskTypeChange(val) {
     const v = String(val || '');
     const irrBox = document.getElementById('mTaskIrrPresetsBox');
@@ -7781,7 +8350,7 @@ function saveNewTask(startImmediately = false) {
 }
 
 
-/* ================= V17.2: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V17.5: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
 function syncWorkerTimingNotesOnTask(t) {
     const wtMap = t.workerTimings || {};
     const autoParts = [];
@@ -9294,7 +9863,7 @@ function autoGenerateOAR() {
     saveState(); renderExportAndIssues(site, log); triggerAllAutoGrows(); showToast('🔄 تم توليد مسودة OAR تلقائياً');
 }
 
-/* ================= V17.2: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
+/* ================= V17.5: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
 function buildShiftWhatsAppText(level = 'quick') {
     const site = getSite();
     const log = getDayLog();
@@ -10429,7 +10998,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.2) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.5) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -10809,25 +11378,96 @@ function purgeOldPhotos() {
     saveState(); showToast(`🧹 تم تنظيف الصور القديمة${orphanCount ? ` وحذف ${orphanCount} صورة غير مستخدمة` : ''} بأمان`);
 }
 
-function saveMasterDbToPhoneDownloads() {
+let _bkExportScope = 'today';
+
+function saveMasterDbToPhoneDownloads(scope = _bkExportScope || 'today') {
+    _bkExportScope = scope;
+    const log = getDayLog();
+    const site = getSite();
+    const totalDays = Object.keys(site.logs || {}).length;
+    const scopeInfo = scope === 'today'
+        ? `سيُرسل سجل يوم <b>${state.activeDate} (DFL-${log.dflNum})</b> فقط — ملف خفيف جداً وسريع للدمج اليومي بين جهازين بدون المساس بباقي الأرشيف.`
+        : (scope === 'light'
+            ? `سيُرسل جميع الأيام (<b>${totalDays} يوم</b>) + الجرد + الملاحظات المحفوظة + روابط Drive بدون صور — حجم صغير وسريع للواتساب.`
+            : `سيُرسل القاعدة الكاملة مع جميع الصور الملتقطة (قد يكون حجم الملف كبيراً).`);
+
     openModal(`
-        <h3 class="card-title">📱 حفظ قاعدة البيانات بالتلفون</h3>
-        <p style="font-size:12px;color:var(--muted);margin-top:0;">اختر نوع النسخة الاحتياطية المناسبة:</p>
-        <button class="btn btn-green btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="closeModal();downloadFullBackup('TFF_Light_DB', false)">
-            <span>⚡ نسخة خفيفة وسريعة (بدون صور — موصى بها)</span>
-            <span style="font-size:10.5px;opacity:0.9;">تحفظ كل الأيام والمهام والعدادات والجرد والروابط بحجم صغير جداً</span>
-        </button>
-        <button class="btn btn-blue btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="closeModal();downloadFullBackup('TFF_Master_DB', true)">
-            <span>📦 نسخة كاملة شاملة الصور</span>
-            <span style="font-size:10.5px;opacity:0.9;">تضم جميع البيانات والصور (قد يكون حجمها كبيراً إذا الأرشيف طويل)</span>
-        </button>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إلغاء</button>
+        <h3 class="card-title">📤 إرسال / حفظ ملف الدمج والنسخة الاحتياطية</h3>
+        <label class="lbl">1️⃣ اختر البيانات المطلوب تصديرها:</label>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:9px;">
+            <button type="button" class="btn btn-sm ${scope === 'today' ? 'btn-green' : 'btn-outline'}" style="justify-content:space-between;padding:8px 10px;" onclick="saveMasterDbToPhoneDownloads('today')">
+                <span>📅 شغل اليوم فقط (DFL-${log.dflNum} — للدمج السريع)</span>
+                <span>${scope === 'today' ? '✓' : ''}</span>
+            </button>
+            <button type="button" class="btn btn-sm ${scope === 'light' ? 'btn-green' : 'btn-outline'}" style="justify-content:space-between;padding:8px 10px;" onclick="saveMasterDbToPhoneDownloads('light')">
+                <span>⚡ القاعدة الكاملة (خفيفة بدون صور — ${totalDays} يوم)</span>
+                <span>${scope === 'light' ? '✓' : ''}</span>
+            </button>
+            <button type="button" class="btn btn-sm ${scope === 'full' ? 'btn-blue' : 'btn-outline'}" style="justify-content:space-between;padding:8px 10px;" onclick="saveMasterDbToPhoneDownloads('full')">
+                <span>📦 القاعدة الكاملة مع الصور</span>
+                <span>${scope === 'full' ? '✓' : ''}</span>
+            </button>
+        </div>
+        <div style="font-size:11.5px;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:7px 9px;margin-bottom:10px;line-height:1.5;">
+            ${scopeInfo}
+        </div>
+        <label class="lbl">2️⃣ اختر طريقة الإرسال أو الحفظ:</label>
+        <button class="btn btn-green btn-full" style="padding:12px;margin-bottom:7px;" onclick="shareMergeBackupDirectly('${scope}')">💬 إرسال مباشر للواتساب / مشاركة (كبل بدون تحميل)</button>
+        <div class="grid-2" style="margin-bottom:7px;">
+            <button class="btn btn-blue" style="font-size:12px;" onclick="closeModal();downloadScopedBackupFile('${scope}', 'json')">📱 حفظ بالتلفون (.json)</button>
+            ${scope !== 'full' ? `<button class="btn btn-purple" style="font-size:12px;" onclick="copyMergeCodeText('${scope}')">📋 نسخ كود الدمج</button>` : `<button class="btn btn-outline" style="font-size:12px;" onclick="closeModal();downloadScopedBackupFile('full', 'txt')">📄 حفظ بصيغة (.txt)</button>`}
+        </div>
+        <button class="btn btn-outline btn-full" style="margin-bottom:0;" onclick="closeModal()">إغلاق</button>
     `);
 }
 
-function downloadFullBackup(customPrefix = 'TFF_FullBackup', includePhotos = true) {
-    const cloneState = JSON.parse(JSON.stringify(state));
+function buildBackupExportPayload(scope = 'light') {
+    const includePhotos = scope === 'full';
     const resArr = arr => includePhotos ? (arr || []).map(pid => getPhotoUrl(pid)).filter(Boolean) : [];
+
+    if (scope === 'today') {
+        const site = getSite();
+        const log = getDayLog();
+        const cleanLog = JSON.parse(JSON.stringify(log));
+        (cleanLog.tasks || []).forEach(t => t.photos = []);
+        (cleanLog.meters || []).forEach(m => m.photos = []);
+        (cleanLog.incidents || []).forEach(ir => ir.photos = []);
+        (cleanLog.sdls || []).forEach(sd => sd.photos = []);
+        const todayIssues = (site.issues || []).filter(i => i.status === 'Open' || i.date === state.activeDate).map(i => ({ ...JSON.parse(JSON.stringify(i)), photos: [] }));
+        const payload = {
+            schemaVersion: 'V17.5',
+            exportScope: 'single_day',
+            exportDate: state.activeDate,
+            activeSiteId: site.id,
+            activeDate: state.activeDate,
+            company: {
+                savedNotes: [...(state.company.savedNotes || [])],
+                customTasks: [...(state.company.customTasks || [])],
+                customTools: [...(state.company.customTools || [])],
+                speciesDict: { ...(state.company.speciesDict || {}) }
+            },
+            sites: {
+                [site.id]: {
+                    id: site.id,
+                    name: site.name,
+                    nextDfl: site.nextDfl,
+                    zones: [...(site.zones || [])],
+                    meters: JSON.parse(JSON.stringify(site.meters || [])),
+                    gauges: JSON.parse(JSON.stringify(site.gauges || [])),
+                    inventory: [],
+                    issues: todayIssues,
+                    logs: { [state.activeDate]: cleanLog }
+                }
+            }
+        };
+        const fileNameBase = `TFF_Merge_DFL${log.dflNum}_${state.activeDate}`;
+        const caption = `🔀 ملف دمج يوم ${state.activeDate} (DFL-${log.dflNum}) — ${site.name.split('/')[0].trim()}\nافتحه بالتطبيق من: الخلاصة ⬅️ استيراد / دمج ⬅️ دمج ذكي.`;
+        return { payload, jsonStr: JSON.stringify(payload), fileNameBase, caption };
+    }
+
+    const cloneState = JSON.parse(JSON.stringify(state));
+    cloneState.schemaVersion = 'V17.5';
+    cloneState.exportScope = includePhotos ? 'full_with_photos' : 'full_light';
     Object.values(cloneState.sites || {}).forEach(s => {
         (s.issues || []).forEach(iss => iss.photos = resArr(iss.photos));
         (s.inventory || []).forEach(z => (z.plants || []).forEach(p => (p.entries || []).forEach(e => e.photos = resArr(e.photos))));
@@ -10838,52 +11478,277 @@ function downloadFullBackup(customPrefix = 'TFF_FullBackup', includePhotos = tru
             (dl.sdls || []).forEach(sd => sd.photos = resArr(sd.photos));
         });
     });
-    const blob = new Blob([JSON.stringify(cloneState)], { type: 'application/json' });
+    const daysCnt = Object.keys(getSite().logs || {}).length;
+    const prefix = includePhotos ? 'TFF_Master_DB' : 'TFF_Light_Merge';
+    const fileNameBase = `${prefix}_${state.activeDate}`;
+    const caption = `💾 نسخة دمج/احتياطي (${daysCnt} يوم) — ${state.activeDate}\nافتحها بالتطبيق من: الخلاصة ⬅️ استيراد / دمج ⬅️ دمج ذكي.`;
+    return { payload: cloneState, jsonStr: JSON.stringify(cloneState), fileNameBase, caption };
+}
+
+async function shareMergeBackupDirectly(scope = 'today') {
+    const { jsonStr, fileNameBase, caption } = buildBackupExportPayload(scope);
+    // Use .txt MIME (text/plain) so Android Chrome & iOS Safari BOTH allow direct Web Share to WhatsApp/Telegram!
+    const txtName = `${fileNameBase}.txt`;
+    const fileObj = new File([jsonStr], txtName, { type: 'text/plain' });
+
+    if (navigator.canShare && navigator.share) {
+        try {
+            if (navigator.canShare({ files: [fileObj] })) {
+                closeModal();
+                await navigator.share({
+                    files: [fileObj],
+                    title: fileNameBase,
+                    text: caption
+                });
+                showToast('✅ تم إرسال ملف الدمج عبر المشاركة بنجاح!');
+                return;
+            }
+        } catch (err) {
+            if (err && err.name === 'AbortError') return;
+        }
+    }
+    // Fallback for desktop or browsers that restrict file sharing: download .txt + copy caption
+    closeModal();
+    const blob = new Blob([jsonStr], { type: 'text/plain;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `${customPrefix}_${state.activeDate}.json`;
+    a.download = txtName;
     a.click();
-    showToast(includePhotos ? '📦 تم حفظ النسخة الكاملة شاملة الصور بالتلفون!' : '⚡ تم حفظ النسخة الخفيفة السريعة بالتلفون!');
+    try { await navigator.clipboard.writeText(caption); } catch {}
+    showToast(`📥 تم حفظ ${txtName} بالتلفون (المتصفح لا يدعم المشاركة المباشرة)`);
 }
+
+function downloadScopedBackupFile(scope = 'light', ext = 'json') {
+    const { jsonStr, fileNameBase } = buildBackupExportPayload(scope);
+    const mime = ext === 'txt' ? 'text/plain;charset=utf-8' : 'application/json';
+    const blob = new Blob([jsonStr], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${fileNameBase}.${ext}`;
+    a.click();
+    showToast(scope === 'today' ? '📅 تم حفظ ملف دمج اليوم بالتلفون!' : (scope === 'full' ? '📦 تم حفظ النسخة الكاملة شاملة الصور!' : '⚡ تم حفظ النسخة الخفيفة بالتلفون!'));
+}
+
+async function copyMergeCodeText(scope = 'today') {
+    const { jsonStr } = buildBackupExportPayload(scope);
+    if (jsonStr.length > 450000) {
+        showToast('⚠️ حجم البيانات كبير للنسخ كنص — استخدم «💬 إرسال مباشر للواتساب» كملف');
+        return;
+    }
+    try {
+        await navigator.clipboard.writeText(jsonStr);
+        closeModal();
+        showToast('📋 تم نسخ كود الدمج! الصقه بالواتساب ويمكن استيراده من «لصق كود دمج»');
+    } catch {
+        showToast('⚠️ تعذر النسخ التلقائي — استخدم زر الإرسال المباشر كملف');
+    }
+}
+
+function downloadFullBackup(customPrefix = 'TFF_FullBackup', includePhotos = true) {
+    downloadScopedBackupFile(includePhotos ? 'full' : 'light', 'json');
+}
+
+function openImportMergeChoiceModal() {
+    openModal(`
+        <h3 class="card-title">📂 استيراد / دمج بيانات</h3>
+        <p style="font-size:12px;color:var(--muted);margin-top:0;line-height:1.55;">
+            يقبل ملفات <b>.txt</b> القادمة مباشرة من الواتساب وملفات <b>.json</b> القديمة والجديدة (من كل الإصدارات السابقة بدون أي مشكلة):
+        </p>
+        <button class="btn btn-green btn-full" style="padding:12px;margin-bottom:8px;" onclick="closeModal();triggerBackupRestore()">📁 اختيار ملف من التلفون (.txt أو .json)</button>
+        <button class="btn btn-blue btn-full" style="padding:11px;margin-bottom:8px;" onclick="closeModal();triggerDflExcelImport()">📊 استيراد ملفات DFL إكسيل (.xlsx — فردي أو جماعي)</button>
+        <button class="btn btn-purple btn-full" style="padding:10px;margin-bottom:8px;" onclick="openPasteMergeCodeModal()">📋 لصق كود دمج منسوخ من الواتساب</button>
+        <button class="btn btn-outline btn-full" style="margin-bottom:0;" onclick="closeModal()">إلغاء</button>
+    `);
+}
+
+function openPasteMergeCodeModal() {
+    openModal(`
+        <h3 class="card-title">📋 لصق كود الدمج النصي</h3>
+        <p style="font-size:11.5px;color:var(--muted);margin-top:0;">الصق النص المنسوخ من الواتساب هنا ثم اضغط متابعة للدمج الذكي:</p>
+        <textarea id="pasteMergeCodeInp" class="inp" rows="6" style="direction:ltr;font-size:11px;background:#f8fafc;" placeholder='{"sites":...}'></textarea>
+        <div class="grid-2">
+            <button class="btn btn-green" onclick="processPastedMergeCode()">🔀 تحليل ودمج</button>
+            <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+        </div>
+    `);
+}
+
+function processPastedMergeCode() {
+    const raw = (document.getElementById('pasteMergeCodeInp')?.value || '').trim();
+    if (!raw) { showToast('⚠️ الصق كود الدمج أولاً'); return; }
+    handleParsedBackupText(raw);
+}
+
 function triggerBackupRestore() { const i = document.getElementById('backupFileInput'); i.value = ''; i.click(); }
 function isDayLogSubstantive(dl) {
     if (!dl || typeof dl !== 'object') return false;
     if (Array.isArray(dl.tasks) && dl.tasks.length > 0) return true;
     if (Array.isArray(dl.meters) && dl.meters.some(m => m.curr !== '' && m.curr != null)) return true;
+    if (Array.isArray(dl.gauges) && dl.gauges.some(g => g.val !== '' && g.val != null)) return true;
+    if (Array.isArray(dl.tools) && dl.tools.length > 0) return true;
     if (Array.isArray(dl.incidents) && dl.incidents.length > 0) return true;
     if (Array.isArray(dl.sdls) && dl.sdls.length > 0) return true;
     if (dl.oar && (dl.oar.obs || dl.oar.ana || dl.oar.rec)) return true;
     return false;
 }
 
+function mergeMatchingTaskFields(ct, it) {
+    let changed = false;
+    // 1. Upgrade status if current task hasn't started yet and incoming has progress/completion/block
+    const cSt = String(ct.status || '');
+    const iSt = String(it.status || '');
+    if (cSt.includes('Not Started') && iSt && !iSt.includes('Not Started')) {
+        ct.status = it.status;
+        if (it.fixedStartTime && !ct.fixedStartTime) ct.fixedStartTime = it.fixedStartTime;
+        if (it.fixedEndTime && !ct.fixedEndTime) ct.fixedEndTime = it.fixedEndTime;
+        if (it.dur && (!ct.dur || ct.dur === '1:00 hr')) ct.dur = it.dur;
+        if (it.stoppedForToday) ct.stoppedForToday = true;
+        changed = true;
+    }
+    // 2. Merge workers if missing on current
+    if ((!Array.isArray(ct.workers) || ct.workers.length === 0) && Array.isArray(it.workers) && it.workers.length > 0) {
+        ct.workers = [...it.workers];
+        changed = true;
+    }
+    // 3. Merge general user notes cleanly (handles legacy plain t.note from older versions too!)
+    const curNotes = ensureTaskNotesList(ct);
+    const incNotes = getTaskUserNotes(it);
+    incNotes.forEach(nObj => {
+        const txt = String((nObj && nObj.text) || '').trim();
+        if (txt && !curNotes.some(x => String(x.text || '').trim() === txt)) {
+            curNotes.push({ id: nObj.id || ('n_m_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5)), text: txt });
+            changed = true;
+        }
+    });
+    // 4. Merge V17.2 independent per-zone notes cleanly without duplicates!
+    if (it.zoneNotes && typeof it.zoneNotes === 'object') {
+        if (!ct.zoneNotes || typeof ct.zoneNotes !== 'object') ct.zoneNotes = {};
+        Object.entries(it.zoneNotes).forEach(([zKey, zArr]) => {
+            if (!Array.isArray(zArr) || !zArr.length) return;
+            if (!Array.isArray(ct.zoneNotes[zKey])) ct.zoneNotes[zKey] = [];
+            zArr.forEach(nObj => {
+                const txt = String((nObj && nObj.text) || '').trim();
+                if (txt && !ct.zoneNotes[zKey].some(x => String(x.text || '').trim() === txt)) {
+                    ct.zoneNotes[zKey].push({ id: nObj.id || ('zn_m_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5)), text: txt });
+                    changed = true;
+                }
+            });
+        });
+    }
+    // 5. Fill missing tanker / agro / photos
+    if (it.isTanker && !ct.tankerLiters && it.tankerLiters) {
+        ct.tankerLiters = it.tankerLiters;
+        if (it.tankerPpm && !ct.tankerPpm) ct.tankerPpm = it.tankerPpm;
+        if (it.tankerTrips && (!ct.tankerTrips || it.tankerTrips > ct.tankerTrips)) ct.tankerTrips = it.tankerTrips;
+        changed = true;
+    }
+    if (!ct.agroName && it.agroName) { ct.agroName = it.agroName; ct.agroDose = it.agroDose || ''; changed = true; }
+    const cPh = ensurePhotosArr(ct);
+    const iPh = ensurePhotosArr(it);
+    if (cPh.length === 0 && iPh.length > 0) {
+        ct.photos = JSON.parse(JSON.stringify(iPh));
+        changed = true;
+    }
+    if (changed) rebuildTaskNoteFromList(ct);
+    return changed;
+}
+
 function mergeTwoDayLogsSafely(curLog, incLog) {
     let mergedTasks = 0;
-    // 1. Merge tasks without duplicates (by id or task+zones+desc signature)
+    let updatedTasks = 0;
+
+    // 1. Merge tasks without duplicates — AND deep-merge notes, zoneNotes, status & photos on matching tasks!
     if (!Array.isArray(curLog.tasks)) curLog.tasks = [];
-    const curIds = new Set(curLog.tasks.map(t => t.id).filter(Boolean));
-    const curSigs = new Set(curLog.tasks.map(t => `${(t.task || '').trim()}|${(t.zones || '').trim()}|${(t.desc || '').trim()}`));
-    (incLog.tasks || []).forEach(it => {
+    const findMatchingTask = it => {
+        if (it.id) {
+            const byId = curLog.tasks.find(t => t.id === it.id);
+            if (byId) return byId;
+        }
         const sig = `${(it.task || '').trim()}|${(it.zones || '').trim()}|${(it.desc || '').trim()}`;
-        if ((it.id && curIds.has(it.id)) || curSigs.has(sig)) return;
-        curLog.tasks.push(JSON.parse(JSON.stringify(it)));
-        if (it.id) curIds.add(it.id);
-        curSigs.add(sig);
+        return curLog.tasks.find(t => `${(t.task || '').trim()}|${(t.zones || '').trim()}|${(t.desc || '').trim()}` === sig) || null;
+    };
+    (incLog.tasks || []).forEach(it => {
+        const existing = findMatchingTask(it);
+        if (existing) {
+            if (mergeMatchingTaskFields(existing, it)) updatedTasks++;
+            return;
+        }
+        const cloned = JSON.parse(JSON.stringify(it));
+        ensurePhotosArr(cloned);
+        if (!cloned.zoneNotes || typeof cloned.zoneNotes !== 'object') cloned.zoneNotes = {};
+        curLog.tasks.push(cloned);
         mergedTasks++;
     });
-    // 2. Fill missing meter & gauge readings from incoming log
+
+    // 2. Merge Attendance (add missing workers & fill missing OT/notes)
+    if (!Array.isArray(curLog.attendance)) curLog.attendance = [];
+    (incLog.attendance || []).forEach(iw => {
+        const iShort = (String(iw.name || '').split('/')[1] || String(iw.name || '')).trim();
+        const cw = curLog.attendance.find(w => w.name === iw.name || (String(w.name || '').split('/')[1] || String(w.name || '')).trim() === iShort);
+        if (!cw) {
+            curLog.attendance.push(JSON.parse(JSON.stringify(iw)));
+        } else {
+            if (!cw.note && iw.note) cw.note = iw.note;
+            if ((!cw.ot || parseFloat(cw.ot) === 0) && parseFloat(iw.ot) > 0) cw.ot = iw.ot;
+        }
+    });
+
+    // 3. Fill missing Weather, Meter, Gauge, Moisture, Perf, Machinery, OAR & Drive Folder Link
+    if (incLog.weather && typeof incLog.weather === 'object') {
+        const cwx = ensureWeatherObj(curLog);
+        Object.keys(incLog.weather).forEach(k => {
+            if ((cwx[k] === '' || cwx[k] == null) && incLog.weather[k] !== '' && incLog.weather[k] != null) cwx[k] = incLog.weather[k];
+        });
+    }
     (incLog.meters || []).forEach(im => {
         const cm = (curLog.meters || []).find(x => x.id === im.id || x.name === im.name);
-        if (cm && (cm.curr === '' || cm.curr == null) && im.curr !== '' && im.curr != null) {
-            cm.curr = im.curr;
-            if (!cm.prev && im.prev) cm.prev = im.prev;
+        if (cm) {
+            if ((cm.curr === '' || cm.curr == null) && im.curr !== '' && im.curr != null) {
+                cm.curr = im.curr;
+                if (!cm.prev && im.prev) cm.prev = im.prev;
+            }
+            if (!cm.note && im.note) cm.note = im.note;
             if ((!cm.photos || !cm.photos.length) && Array.isArray(im.photos) && im.photos.length) cm.photos = JSON.parse(JSON.stringify(im.photos));
+        } else if (im && im.name) {
+            curLog.meters.push(JSON.parse(JSON.stringify(im)));
         }
     });
     (incLog.gauges || []).forEach(ig => {
         const cg = (curLog.gauges || []).find(x => x.id === ig.id || x.name === ig.name);
-        if (cg && (cg.val === '' || cg.val == null) && ig.val !== '' && ig.val != null) cg.val = ig.val;
+        if (cg && (cg.val === '' || cg.val == null) && ig.val !== '' && ig.val != null) {
+            cg.val = ig.val;
+            if (!cg.note && ig.note) cg.note = ig.note;
+        }
     });
-    // 3. Merge tools, incidents, sdls & photo links without duplicates
+    if (Array.isArray(incLog.moisture)) {
+        if (!Array.isArray(curLog.moisture)) curLog.moisture = [];
+        incLog.moisture.forEach((imo, i) => {
+            if (imo && (imo.zone || imo.pct !== '')) {
+                const cmo = curLog.moisture[i];
+                if (!cmo || (!cmo.zone && cmo.pct === '')) curLog.moisture[i] = JSON.parse(JSON.stringify(imo));
+            }
+        });
+    }
+    if (incLog.perf && typeof incLog.perf === 'object') {
+        if (!curLog.perf) curLog.perf = { status: 'جيد', duration: '', zonesIrrigated: '', zonesManualEdit: false, pressureNotes: '', notes: '' };
+        ['duration', 'zonesIrrigated', 'pressureNotes', 'notes'].forEach(k => {
+            if (!curLog.perf[k] && incLog.perf[k]) curLog.perf[k] = incLog.perf[k];
+        });
+    }
+    if (incLog.machinery && typeof incLog.machinery === 'object') {
+        if (!curLog.machinery) curLog.machinery = { pumpHrs: '', genHrs: '' };
+        if (!curLog.machinery.pumpHrs && incLog.machinery.pumpHrs) curLog.machinery.pumpHrs = incLog.machinery.pumpHrs;
+        if (!curLog.machinery.genHrs && incLog.machinery.genHrs) curLog.machinery.genHrs = incLog.machinery.genHrs;
+    }
+    if (incLog.oar && typeof incLog.oar === 'object') {
+        if (!curLog.oar) curLog.oar = { obs: '', ana: '', rec: '' };
+        ['obs', 'ana', 'rec'].forEach(k => {
+            if (!curLog.oar[k] && incLog.oar[k]) curLog.oar[k] = incLog.oar[k];
+        });
+    }
+    if (!curLog.driveFolderLink && incLog.driveFolderLink) curLog.driveFolderLink = incLog.driveFolderLink;
+
+    // 4. Merge tools, incidents, sdls, photoLinks & activityLog without duplicates
     if (!Array.isArray(curLog.tools)) curLog.tools = [];
     const toolNames = new Set(curLog.tools.map(x => `${x.name}|${x.qty}`));
     (incLog.tools || []).forEach(tl => {
@@ -10898,7 +11763,14 @@ function mergeTwoDayLogsSafely(curLog, incLog) {
     if (incLog.photoLinks && typeof incLog.photoLinks === 'object') {
         curLog.photoLinks = { ...incLog.photoLinks, ...(curLog.photoLinks || {}) };
     }
-    return mergedTasks;
+    if (Array.isArray(incLog.activityLog) && incLog.activityLog.length) {
+        if (!Array.isArray(curLog.activityLog)) curLog.activityLog = [];
+        const existingActIds = new Set(curLog.activityLog.map(x => x.id));
+        incLog.activityLog.forEach(a => { if (a && a.id && !existingActIds.has(a.id)) curLog.activityLog.push(JSON.parse(JSON.stringify(a))); });
+        curLog.activityLog.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+        if (curLog.activityLog.length > 120) curLog.activityLog.length = 120;
+    }
+    return { mergedTasks, updatedTasks };
 }
 
 function executeBackupSmartMerge() {
@@ -10909,6 +11781,30 @@ function executeBackupSmartMerge() {
     let addedDays = 0;
     let mergedSameDays = 0;
     let mergedTasksTotal = 0;
+    let updatedTasksTotal = 0;
+
+    // Merge company-level reusable libraries (savedNotes, customTasks, customTools, speciesDict) safely
+    if (incoming.company && typeof incoming.company === 'object') {
+        if (Array.isArray(incoming.company.savedNotes)) {
+            if (!Array.isArray(state.company.savedNotes)) state.company.savedNotes = [];
+            incoming.company.savedNotes.forEach(sn => {
+                if (sn && !state.company.savedNotes.includes(sn)) state.company.savedNotes.push(sn);
+            });
+        }
+        if (Array.isArray(incoming.company.customTasks)) {
+            incoming.company.customTasks.forEach(ct => {
+                if (ct && !state.company.customTasks.includes(ct)) state.company.customTasks.push(ct);
+            });
+        }
+        if (Array.isArray(incoming.company.customTools)) {
+            incoming.company.customTools.forEach(ctl => {
+                if (ctl && !state.company.customTools.includes(ctl)) state.company.customTools.push(ctl);
+            });
+        }
+        if (incoming.company.speciesDict && typeof incoming.company.speciesDict === 'object') {
+            state.company.speciesDict = { ...incoming.company.speciesDict, ...(state.company.speciesDict || {}) };
+        }
+    }
 
     Object.entries(incoming.sites).forEach(([sid, incSite]) => {
         if (!state.sites[sid]) {
@@ -10923,10 +11819,10 @@ function executeBackupSmartMerge() {
                 curSite.logs[dStr] = JSON.parse(JSON.stringify(incLog));
                 addedDays++;
             } else if (isDayLogSubstantive(incLog)) {
-                // Same-Day Two-Device Merge: combine tasks, readings, tools, IR/SDL from both devices without overwriting!
-                const addedT = mergeTwoDayLogsSafely(curSite.logs[dStr], incLog);
+                const res = mergeTwoDayLogsSafely(curSite.logs[dStr], incLog);
                 mergedSameDays++;
-                mergedTasksTotal += addedT;
+                mergedTasksTotal += res.mergedTasks;
+                updatedTasksTotal += res.updatedTasks;
             }
         });
         if (incSite.nextDfl && (!curSite.nextDfl || incSite.nextDfl > curSite.nextDfl)) {
@@ -10964,6 +11860,14 @@ function executeBackupSmartMerge() {
                 curSite.issues.push(JSON.parse(JSON.stringify(iss)));
             }
         });
+        // Merge worker payment settlements by id
+        if (!Array.isArray(curSite.workerPayments)) curSite.workerPayments = [];
+        const existingPayIds = new Set(curSite.workerPayments.map(x => x.id));
+        (incSite.workerPayments || []).forEach(pm => {
+            if (pm && pm.id && !existingPayIds.has(pm.id)) {
+                curSite.workerPayments.push(JSON.parse(JSON.stringify(pm)));
+            }
+        });
     });
 
     window._pendingBackupData = null;
@@ -10972,12 +11876,14 @@ function executeBackupSmartMerge() {
     closeModal();
     saveState();
     renderAll();
-    showToast(`✅ تم الدمج الذكي: أُضيف ${addedDays} أيام ودُمج ${mergedSameDays} أيام مشتركة (+${mergedTasksTotal} مهام) بأمان`);
+    const updTxt = updatedTasksTotal > 0 ? ` وتحديث ${updatedTasksTotal} مهام مشتركة` : '';
+    showToast(`✅ تم الدمج الذكي: +${addedDays} أيام، دمج ${mergedSameDays} أيام مشتركة (+${mergedTasksTotal} مهام${updTxt}) بأمان!`);
 }
 
 function executeBackupFullReplace() {
     const incoming = window._pendingBackupData;
     if (!incoming || !incoming.sites) return;
+    if (!confirm('⚠️ تنبيه: الاستبدال الكامل سيمسح بيانات الجهاز الحالية ويستبدلها بالملف المستورد. هل أنت متأكد؟')) return;
     pushUndo('استبدال كامل من نسخة احتياطية');
     state = incoming;
     window._pendingBackupData = null;
@@ -10986,42 +11892,962 @@ function executeBackupFullReplace() {
     closeModal();
     saveState();
     renderAll();
-    showToast('✓ تم استبدال البيانات بالكامل ونقل الصور للمخزن الكبير');
+    showToast('✓ تم استبدال البيانات بالكامل وترقيتها وتحديث المخزن');
+}
+
+function handleParsedBackupText(rawText) {
+    try {
+        const cleaned = String(rawText || '').trim().replace(/^\uFEFF/, '');
+        const parsed = JSON.parse(cleaned);
+        if (!parsed || !parsed.sites) { showToast('⚠️ الملف أو النص لا يحتوي على بيانات صالحة'); return; }
+        window._pendingBackupData = parsed;
+        const incDates = [];
+        let incTasksTotal = 0;
+        Object.values(parsed.sites).forEach(s => {
+            Object.entries(s.logs || {}).forEach(([d, dl]) => {
+                if (!incDates.includes(d)) incDates.push(d);
+                incTasksTotal += (dl && Array.isArray(dl.tasks)) ? dl.tasks.length : 0;
+            });
+        });
+        incDates.sort();
+        const isSingleDayFile = parsed.exportScope === 'single_day';
+        openModal(`
+            <h3 class="card-title">📂 ${isSingleDayFile ? 'دمج ملف يوم واحد (من الواتساب)' : 'استيراد / دمج النسخة الاحتياطية'}</h3>
+            <p style="font-size:12px;color:var(--muted);line-height:1.6;">
+                يحتوي الملف على سجلات <b>${incDates.length} أيام</b> (${esc(incDates.slice(-4).join('، '))}) وإجمالي <b>${incTasksTotal} مهام</b>.<br>
+                متوافق تلقائياً مع جميع التحديثات القديمة والجديدة (بما فيها الملاحظات المستقلة لكل منطقة).
+            </p>
+            <label style="display:block;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:7px 9px;margin-bottom:8px;font-size:11.5px;font-weight:bold;color:#0369a1;">
+                <input type="checkbox" id="chkMergeOverwriteMatching"> استبدال الأيام المتطابقة من الملف المستورد (عند تعديل تقرير قديم على جهاز آخر)
+            </label>
+            <button class="btn btn-green btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="executeBackupSmartMerge()">
+                <span>🔀 دمج ذكي (موصى به — يحافظ على كل شغلك)</span>
+                <span style="font-size:10.5px;opacity:0.9;">يدمج المهام والملاحظات والمناطق والقراءات والـ OAR والجرد بدون حذف أي بيانات</span>
+            </button>
+            ${!isSingleDayFile ? `
+            <button class="btn btn-orange btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="executeBackupFullReplace()">
+                <span>🔄 استبدال كامل (Replace All)</span>
+                <span style="font-size:10.5px;opacity:0.9;">يمسح جميع بيانات الجهاز الحالية ويستبدلها بالملف المستورد</span>
+            </button>` : `<div style="font-size:11px;color:#166534;background:#f0fdf4;border:1px solid #86efac;border-radius:7px;padding:6px 8px;margin-bottom:8px;">🛡️ حماية تلقائية: هذا ملف دمج يوم واحد فقط، لذا تم تعطيل «الاستبدال الكامل» لحماية أرشيفك.</div>`}
+            <button class="btn btn-outline btn-full" style="margin-bottom:0;" onclick="window._pendingBackupData=null;closeModal()">إلغاء</button>
+        `);
+    } catch {
+        showToast('⚠️ تعذر قراءة الملف — تأكد أنه ملف دمج (.txt أو .json) صحيح');
+    }
+}
+
+
+
+/* ================= V17.5: Universal Offline DFL Excel Importer (V03 Old & V04 New, Single & Batch) ================= */
+function triggerDflExcelImport() {
+    if (typeof ExcelJS === 'undefined') {
+        showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة');
+        return;
+    }
+    const inp = document.getElementById('dflExcelImportInput');
+    if (inp) { inp.value = ''; inp.click(); }
+}
+
+function xlCellRaw(cell) {
+    if (!cell) return null;
+    const v = cell.value;
+    if (v === null || v === undefined) return null;
+    if (typeof v === 'object' && !(v instanceof Date)) {
+        if (v.richText && Array.isArray(v.richText)) return v.richText.map(r => r.text || '').join('');
+        if (v.text !== undefined) return v.text;
+        if (v.result !== undefined) return v.result;
+    }
+    return v;
+}
+
+function xlCellText(cell) {
+    const v = xlCellRaw(cell);
+    if (v === null || v === undefined) return '';
+    if (v instanceof Date) {
+        const y = v.getUTCFullYear();
+        if (y >= 1970) {
+            return `${y}-${String(v.getUTCMonth() + 1).padStart(2, '0')}-${String(v.getUTCDate()).padStart(2, '0')}`;
+        }
+        return `${String(v.getUTCHours()).padStart(2, '0')}:${String(v.getUTCMinutes()).padStart(2, '0')}`;
+    }
+    return String(v).replace(/[\t\r]+/g, ' ').replace(/\s*\n\s*/g, '\n').trim();
+}
+
+function xlCellLink(cell) {
+    if (!cell || !cell.value || typeof cell.value !== 'object') return '';
+    return String(cell.value.hyperlink || '').trim();
+}
+
+function xlParseDateStr(cell, fallbackName = '') {
+    const v = xlCellRaw(cell);
+    if (v instanceof Date && !isNaN(v.getTime())) {
+        const y = v.getUTCFullYear();
+        if (y >= 1970) {
+            return `${y}-${String(v.getUTCMonth() + 1).padStart(2, '0')}-${String(v.getUTCDate()).padStart(2, '0')}`;
+        }
+    }
+    if (typeof v === 'number' && v > 25000 && v < 80000) {
+        const ms = Math.round((v - 25569) * 86400 * 1000);
+        const d = new Date(ms);
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+    }
+    const txt = xlCellText(cell);
+    const iso = txt.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+    if (iso) return `${iso[1]}-${String(iso[2]).padStart(2, '0')}-${String(iso[3]).padStart(2, '0')}`;
+    const dmy = txt.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+    if (dmy) return `${dmy[3]}-${String(dmy[2]).padStart(2, '0')}-${String(dmy[1]).padStart(2, '0')}`;
+    const fnIso = String(fallbackName || '').match(/(\d{4})[-_](\d{2})[-_](\d{2})/);
+    if (fnIso) return `${fnIso[1]}-${fnIso[2]}-${fnIso[3]}`;
+    return state.activeDate;
+}
+
+function xlParseTimeHHMM(cell, fallback = '') {
+    const v = xlCellRaw(cell);
+    if (v === null || v === undefined || v === '') return fallback;
+    if (v instanceof Date && !isNaN(v.getTime())) {
+        return `${String(v.getUTCHours()).padStart(2, '0')}:${String(v.getUTCMinutes()).padStart(2, '0')}`;
+    }
+    if (typeof v === 'number' && v >= 0 && v < 1.5) {
+        const mins = Math.round((v % 1) * 1440);
+        return `${String(Math.floor(mins / 60) % 24).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
+    }
+    const m = String(v).match(/(\d{1,2})\s*:\s*(\d{2})/);
+    if (m) return `${String(parseInt(m[1], 10) % 24).padStart(2, '0')}:${m[2]}`;
+    return fallback;
+}
+
+function xlParseDurationStr(cell) {
+    const v = xlCellRaw(cell);
+    if (v === null || v === undefined || v === '') return '1:00 hr';
+    if (v instanceof Date && !isNaN(v.getTime())) {
+        const h = v.getUTCHours();
+        const m = v.getUTCMinutes();
+        return (h === 0 && m === 0) ? '1:00 hr' : `${h}:${String(m).padStart(2, '0')} hr`;
+    }
+    if (typeof v === 'number' && v > 0 && v < 1) {
+        const totalM = Math.round(v * 1440);
+        return `${Math.floor(totalM / 60)}:${String(totalM % 60).padStart(2, '0')} hr`;
+    }
+    const s = String(v).trim();
+    const hm = s.match(/(\d+)\s*:\s*(\d+)/);
+    if (hm) return `${parseInt(hm[1], 10)}:${String(parseInt(hm[2], 10)).padStart(2, '0')} hr`;
+    const num = parseFloat(s);
+    if (!isNaN(num) && num > 0) {
+        const totalM = Math.round(num * 60);
+        return `${Math.floor(totalM / 60)}:${String(totalM % 60).padStart(2, '0')} hr`;
+    }
+    return '1:00 hr';
+}
+
+function xlNormalizeWeekdayName(raw) {
+    const s = String(raw || '').trim().toLowerCase();
+    if (!s || s.length < 3 || s.length > 22) return null;
+    const pairs = [
+        ['sun', 'Sunday'], ['أحد', 'Sunday'], ['احد', 'Sunday'],
+        ['mon', 'Monday'], ['إثنين', 'Monday'], ['اثنين', 'Monday'],
+        ['tue', 'Tuesday'], ['tus', 'Tuesday'], ['ثلاثاء', 'Tuesday'],
+        ['wed', 'Wednesday'], ['أربعاء', 'Wednesday'], ['اربعاء', 'Wednesday'],
+        ['thu', 'Thursday'], ['tur', 'Thursday'], ['خميس', 'Thursday'],
+        ['fri', 'Friday'], ['fra', 'Friday'], ['جمعة', 'Friday'], ['جمعه', 'Friday'],
+        ['sat', 'Saturday'], ['stu', 'Saturday'], ['سبت', 'Saturday']
+    ];
+    for (const [prefix, dayName] of pairs) {
+        if (s.startsWith(prefix)) return dayName;
+    }
+    return null;
+}
+
+function xlNormalizeArabicKey(s) {
+    return String(s || '')
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+}
+
+function xlMatchStaffName(rawName) {
+    const clean = String(rawName || '').replace(/[\t\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!clean) return '';
+    if (clean.includes('/')) return clean;
+    const normIn = xlNormalizeArabicKey(clean);
+    const pool = (state.company && state.company.staffPool) || [];
+    for (const st of pool) {
+        const arPart = (st.name.split('/')[1] || st.name).trim();
+        const normSt = xlNormalizeArabicKey(arPart);
+        if (normSt === normIn || (normIn.length >= 6 && normSt.startsWith(normIn))) {
+            return st.name;
+        }
+    }
+    return clean;
+}
+
+function xlMatchTaskName(rawTask) {
+    const clean = String(rawTask || '').trim();
+    if (!clean) return 'Other  /  أخرى';
+    const low = clean.toLowerCase();
+    const list = (state.company && state.company.customTasks) || MASTER_TASKS;
+    const exact = list.find(mt => mt.toLowerCase() === low);
+    if (exact) return exact;
+    const partial = list.find(mt => {
+        const en = mt.split('/')[0].trim().toLowerCase();
+        const ar = (mt.split('/')[1] || '').trim();
+        return (en && low.includes(en)) || (ar && clean.includes(ar));
+    });
+    return partial || clean;
+}
+
+function xlNormalizeAttStatus(raw) {
+    const s = String(raw || '').toLowerCase();
+    if (s.includes('absent') || s.includes('غائب')) return 'Absent / غائب';
+    if (s.includes('late') || s.includes('متأخر')) return 'Late / متأخر';
+    if (s.includes('half') || s.includes('نصف')) return 'Half Day / نصف يوم';
+    if (s.includes('overtime') || s.includes('أوفرتايم') || s.includes('اوفرتايم')) return 'Overtime / أوفرتايم';
+    return 'Present / حاضر';
+}
+
+function xlNormalizeTaskStatus(raw, hasWorkSignal) {
+    const s = String(raw || '').toLowerCase();
+    if (s.includes('complet') || s.includes('مكتمل')) return 'Completed / مكتمل';
+    if (s.includes('progress') || s.includes('جاري')) return 'In Progress / جاري';
+    if (s.includes('block') || s.includes('متوقف')) return 'Blocked / متوقف';
+    if (s.includes('not start') || s.includes('لم يبدأ')) return 'Not Started / لم يبدأ';
+    return hasWorkSignal ? 'Completed / مكتمل' : 'Not Started / لم يبدأ';
+}
+
+function xlExtractNumsAvg(raw, roundInt = false) {
+    if (raw === null || raw === undefined || raw === '') return '';
+    if (typeof raw === 'number') return roundInt ? Math.round(raw) : Math.round(raw * 10) / 10;
+    const matches = String(raw).match(/-?\d+(?:\.\d+)?/g);
+    if (!matches || !matches.length) return '';
+    const nums = matches.map(Number).filter(n => !isNaN(n));
+    if (!nums.length) return '';
+    const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+    return roundInt ? Math.round(avg) : Math.round(avg * 10) / 10;
+}
+
+function xlSplitWorkersString(raw, attendanceList) {
+    const txt = String(raw || '').trim();
+    if (!txt) return [];
+    if (/^team$/i.test(txt) || txt.includes('الفريق كامل')) return ['Team'];
+    const parts = txt.split(/[,،\/؛;|]+|\s+و\s+/).map(s => s.trim()).filter(Boolean);
+    const attShorts = (attendanceList || []).map(w => (w.name.split('/')[1] || w.name).trim());
+    const out = [];
+    parts.forEach(p => {
+        const normP = xlNormalizeArabicKey(p);
+        if (!normP) return;
+        const matched = attShorts.find(as => {
+            const na = xlNormalizeArabicKey(as);
+            return na === normP || (normP.length >= 5 && (na.startsWith(normP) || normP.startsWith(na)));
+        });
+        const finalName = matched || p;
+        if (!out.includes(finalName)) out.push(finalName);
+    });
+    return out;
+}
+
+function parseDflExcelWorkbook(wb, fileName = '') {
+    const site = getSite();
+    let ws = wb.getWorksheet('Daily Field Log');
+    if (!ws) {
+        ws = wb.worksheets.find(s => s.state !== 'hidden' && s.state !== 'veryHidden' && /daily|field|dfl/i.test(s.name))
+            || wb.worksheets.find(s => s.state !== 'hidden' && s.state !== 'veryHidden' && !s.name.startsWith('_'))
+            || wb.worksheets[0];
+    }
+    if (!ws) throw new Error('لم يتم العثور على ورقة Daily Field Log في الملف');
+
+    const maxR = Math.min(ws.rowCount || 200, 350);
+    const findSecRow = (regex, fromR = 1) => {
+        for (let r = fromR; r <= maxR; r++) {
+            const t = xlCellText(ws.getCell(r, 1));
+            if (regex.test(t)) return r;
+        }
+        return null;
+    };
+
+    // 1. Metadata
+    const f5Txt = xlCellText(ws.getCell('F5'));
+    const dflMatch = f5Txt.match(/\d+/) || String(fileName || '').match(/DFL[_-]?V?0*(\d+)/i);
+    const dflNum = dflMatch ? parseInt(dflMatch[0], 10) : (site.nextDfl || 1);
+    const dateStr = xlParseDateStr(ws.getCell('B7'), fileName);
+    const expectedDayEn = getDayNameEn(dateStr) || xlNormalizeWeekdayName(xlCellText(ws.getCell('F7'))) || 'Monday';
+    const siteNameExcel = xlCellText(ws.getCell('F6'));
+    const teamLeadExcel = xlCellText(ws.getCell('B8'));
+    const shiftExcel = xlCellText(ws.getCell('B9'));
+    const supervisorExcel = xlCellText(ws.getCell('F9'));
+    const rateRaw = xlCellText(ws.getCell('B10')).replace(/,/g, '');
+    const outsideRateExcel = parseFloat(rateRaw) || '';
+    const driveFolderLink = xlCellLink(ws.getCell('F10'));
+
+    // 2. Dynamic Section Anchors
+    const s1 = findSecRow(/^1\.\s+WEATHER/i, 1) || 11;
+    const s2 = findSecRow(/^2\.\s+WORKER\s+ATTENDANCE/i, s1) || 16;
+    const s3 = findSecRow(/^3\.\s+TASKS/i, s2) || 24;
+    const s4 = findSecRow(/^4\.\s+EQUIPMENT/i, s3) || 60;
+    const s5 = findSecRow(/^5\.\s+SITE\s+READINGS/i, s4) || (s4 + 6);
+    const s5A = findSecRow(/^5A\.\s+MOISTURE/i, s5) || (s5 + 1);
+    const s5B = findSecRow(/^5B\.\s+WATER\s+METERS/i, s5A) || (s5A + 7);
+    const s5C = findSecRow(/^5C\.\s+IRRIGATION\s+SYSTEM/i, s5B) || (s5B + 4);
+    const s5D = findSecRow(/^5D\.\s+BAR\s+GAUGES/i, s5C) || (s5C + 4);
+    const s6 = findSecRow(/^6\.\s+PLANTS\s+HEALTH/i, s5D) || (s5D + 8);
+    const s7 = findSecRow(/^7\.\s+INCIDENTS/i, s6) || (s6 + 7);
+    const s8 = findSecRow(/^8\.\s+PHOTO/i, s7) || (s7 + 6);
+    const s9 = findSecRow(/^9\.\s+TEAM\s+LEAD\s+OAR/i, s8) || (s8 + 8);
+    const s10 = findSecRow(/^10\.\s+SIGN-OFF/i, s9) || (s9 + 9);
+
+    // 3. Section 1: Weather
+    let wxRow = s1 + 2;
+    for (let r = s1 + 1; r < s2; r++) {
+        const aTxt = xlCellText(ws.getCell(r, 1));
+        if (/internet|google|الإنترنت/i.test(aTxt)) { wxRow = r; break; }
+    }
+    let tMin = xlExtractNumsAvg(xlCellRaw(ws.getCell(wxRow, 3)), false);
+    let tMax = xlExtractNumsAvg(xlCellRaw(ws.getCell(wxRow, 4)), false);
+    if (tMin !== '' && tMax !== '' && tMin > tMax) { const tmp = tMin; tMin = tMax; tMax = tmp; }
+    const windRawTxt = xlCellText(ws.getCell(wxRow, 5));
+    const windNum = xlExtractNumsAvg(windRawTxt, false);
+    const humRaw = xlCellRaw(ws.getCell(wxRow, 6));
+    const humVal = (typeof humRaw === 'number' && humRaw > 0 && humRaw <= 1) ? Math.round(humRaw * 100) : xlExtractNumsAvg(humRaw, true);
+    const uvVal = xlExtractNumsAvg(xlCellRaw(ws.getCell(wxRow, 7)), false);
+    const pressVal = xlExtractNumsAvg(xlCellRaw(ws.getCell(wxRow, 8)), true);
+    const precipTxt = xlCellText(ws.getCell(wxRow, 9));
+    const mmMatch = precipTxt.match(/(\d+(?:\.\d+)?)\s*mm/i);
+    const precipVal = mmMatch ? parseFloat(mmMatch[1]) : (xlExtractNumsAvg(precipTxt, false) || 0);
+    const wxNotesRaw = xlCellText(ws.getCell(wxRow, 11));
+    const weather = {
+        cond: xlCellText(ws.getCell(wxRow, 2)),
+        tMin, tMax,
+        wind: windNum,
+        hum: humVal,
+        uv: uvVal,
+        press: pressVal,
+        precip: precipVal,
+        time: xlParseTimeHHMM(ws.getCell(wxRow, 10), '08:00'),
+        notes: wxNotesRaw || (windRawTxt && /[A-Z]{1,3},/i.test(windRawTxt) ? windRawTxt : '')
+    };
+
+    // 4. Section 2: Attendance
+    const attendance = [];
+    for (let r = s2 + 1; r < s3; r++) {
+        const nameRaw = xlCellText(ws.getCell(r, 2));
+        if (!nameRaw || /worker name|اسم العامل/i.test(nameRaw)) continue;
+        const typeRaw = xlCellText(ws.getCell(r, 3));
+        const type = typeRaw
+            ? (typeRaw.toLowerCase().includes('employee') || typeRaw.includes('موظف') ? 'Employee  /  موظف'
+                : (typeRaw.toLowerCase().includes('intern') || typeRaw.includes('متدرب') ? 'Intern  /  متدرب' : typeRaw))
+            : 'Outside Worker  /  عامل خارجي';
+        const isEmp = type.includes('Employee') || type.includes('موظف');
+        const st = xlNormalizeAttStatus(xlCellText(ws.getCell(r, 4)));
+        const tIn = xlParseTimeHHMM(ws.getCell(r, 5), '08:00');
+        const tOut = xlParseTimeHHMM(ws.getCell(r, 6), isEmp ? '17:00' : '16:00');
+        const otNum = parseFloat(xlCellText(ws.getCell(r, 7))) || 0;
+        const note = xlCellText(ws.getCell(r, 8));
+        attendance.push({
+            id: `w_xl_${dateStr}_${r}`,
+            name: xlMatchStaffName(nameRaw),
+            type, status: st, tIn, tOut, ot: otNum, note
+        });
+    }
+
+    // 5. Section 3: Tasks (Handles V03 Two-Day Split + V04 Vertical Multi-Zone Merges + Per-Zone Notes!)
+    let taskHeaderRow = s3 + 2;
+    for (let r = s3 + 1; r < s4; r++) {
+        if (/task\s*\/|المهمة/i.test(xlCellText(ws.getCell(r, 2)))) { taskHeaderRow = r; break; }
+    }
+    let curDayBlock = null;
+    const seenDayBlocks = [];
+    const parsedTaskRows = [];
+    for (let r = taskHeaderRow + 1; r < s4; r++) {
+        const cA = ws.getCell(r, 1);
+        const aMaster = (cA.isMerged && cA.master) ? cA.master : cA;
+        const dayFound = xlNormalizeWeekdayName(xlCellText(aMaster));
+        if (dayFound) {
+            curDayBlock = dayFound;
+            if (!seenDayBlocks.includes(dayFound)) seenDayBlocks.push(dayFound);
+        }
+        const cB = ws.getCell(r, 2);
+        const cC = ws.getCell(r, 3);
+        const cD = ws.getCell(r, 4);
+        const cE = ws.getCell(r, 5);
+        const cG = ws.getCell(r, 7);
+        const cH = ws.getCell(r, 8);
+        const cK = ws.getCell(r, 11);
+        const cL = ws.getCell(r, 12);
+
+        const taskRaw = xlCellText(cB);
+        const descRaw = xlCellText(cC);
+        const zoneRaw = xlCellText(cD);
+        if (!taskRaw && !descRaw && !zoneRaw) continue;
+
+        const bMasterRow = (cB.isMerged && cB.master) ? cB.master.row : r;
+        const eMasterRow = (cE.isMerged && cE.master) ? cE.master.row : r;
+        const isVertMergedWithPrev = (bMasterRow < r && eMasterRow < r);
+
+        const dur = xlParseDurationStr(cE);
+        const workers = xlSplitWorkersString(xlCellText(cK), attendance);
+        const hasSignal = Boolean(xlCellText(cE) || workers.length > 0);
+        const status = xlNormalizeTaskStatus(xlCellText(cG), hasSignal);
+        const note = xlCellText(cH);
+        const photoRef = xlCellText(cL);
+        const photoLink = xlCellLink(cL);
+
+        parsedTaskRows.push({
+            rowNum: r,
+            dayBlock: curDayBlock,
+            isVertMergedWithPrev,
+            task: xlMatchTaskName(taskRaw),
+            desc: descRaw,
+            zone: zoneRaw || 'عام / General',
+            dur,
+            status,
+            workers,
+            note,
+            photoRef,
+            photoLink
+        });
+    }
+
+    const isV03TwoDayLayout = seenDayBlocks.length >= 2;
+    const buildTaskCardsFromRows = rowsList => {
+        const cards = [];
+        rowsList.forEach((rw, idx) => {
+            if (rw.isVertMergedWithPrev && cards.length > 0) {
+                const prev = cards[cards.length - 1];
+                if (!prev._zonesArr.includes(rw.zone)) prev._zonesArr.push(rw.zone);
+                prev._rowNotes.push({ zone: rw.zone, note: rw.note });
+                if (rw.photoLink && !prev._links.includes(rw.photoLink)) prev._links.push(rw.photoLink);
+            } else {
+                cards.push({
+                    _zonesArr: [rw.zone],
+                    _rowNotes: [{ zone: rw.zone, note: rw.note }],
+                    _links: rw.photoLink ? [rw.photoLink] : [],
+                    task: rw.task,
+                    desc: rw.desc,
+                    dur: rw.dur,
+                    status: rw.status,
+                    workers: rw.workers
+                });
+            }
+        });
+        return cards.map((c, idx) => {
+            const zonesStr = c._zonesArr.join(', ');
+            const nonEmptyNotes = c._rowNotes.map(x => x.note).filter(Boolean);
+            const uniqueNotes = Array.from(new Set(nonEmptyNotes));
+            let genNotesList = [];
+            const zoneNotes = {};
+            if (c._zonesArr.length > 1 && uniqueNotes.length > 1) {
+                // Distinct per-zone notes -> store cleanly inside V17.2 zoneNotes!
+                c._rowNotes.forEach(rn => {
+                    if (rn.note) {
+                        if (!zoneNotes[rn.zone]) zoneNotes[rn.zone] = [];
+                        if (!zoneNotes[rn.zone].some(x => x.text === rn.note)) {
+                            zoneNotes[rn.zone].push({ id: `zn_xl_${dateStr}_${idx}_${rn.zone}`, text: rn.note });
+                        }
+                    }
+                });
+            } else if (uniqueNotes.length === 1) {
+                genNotesList = uniqueNotes[0].split('\n').map(s => s.trim()).filter(Boolean)
+                    .map((txt, nI) => ({ id: `n_xl_${dateStr}_${idx}_${nI}`, text: txt }));
+            }
+            const isTanker = /tanker|حوضية|تنكر/i.test(`${c.desc} ${uniqueNotes.join(' ')}`);
+            const baseTask = {
+                id: `t_xl_${dateStr}_${idx}_${Math.random().toString(36).slice(2, 5)}`,
+                task: c.task,
+                desc: c.desc,
+                zones: zonesStr,
+                dur: c.dur,
+                fixedStartTime: '08:00',
+                fixedEndTime: '',
+                status: c.status,
+                workers: c.workers,
+                note: genNotesList.map(x => x.text).join('\n'),
+                notesList: genNotesList,
+                zoneNotes,
+                isTanker,
+                tankerCapacity: isTanker ? TANKER_FULL_CAPACITY : '',
+                tankerLiters: '',
+                tankerPrevTripsLiters: 0,
+                tankerTripHistory: [],
+                tankerPpm: '',
+                tankerVisual: 'Clear / صافية',
+                tankerTrips: 1,
+                agroName: '',
+                agroDose: '',
+                photos: [],
+                startTimeMs: null,
+                pausedTotalMs: 0,
+                pausedAtMs: null,
+                syncWithPrev: false
+            };
+            return baseTask;
+        });
+    };
+
+    let todayRows = parsedTaskRows;
+    let skippedYesterdayCount = 0;
+    if (isV03TwoDayLayout) {
+        const matched = parsedTaskRows.filter(rw => rw.dayBlock === expectedDayEn);
+        todayRows = matched.length > 0 ? matched : parsedTaskRows.filter(rw => rw.dayBlock === seenDayBlocks[seenDayBlocks.length - 1]);
+        skippedYesterdayCount = parsedTaskRows.length - todayRows.length;
+    }
+    const tasksTodayOnly = buildTaskCardsFromRows(todayRows);
+    const tasksAllBlocks = buildTaskCardsFromRows(parsedTaskRows);
+
+    // 6. Section 4: Equipment / Tools / Materials
+    const tools = [];
+    for (let r = s4 + 1; r < s5; r++) {
+        const name = xlCellText(ws.getCell(r, 2));
+        if (!name || /name\s*\/|الاسم/i.test(name)) continue;
+        const cat = xlCellText(ws.getCell(r, 3)) || 'Tool / أداة';
+        const qtyNum = parseFloat(xlCellText(ws.getCell(r, 4)));
+        const cond = xlCellText(ws.getCell(r, 5)) || 'Good / جيد';
+        const note = xlCellText(ws.getCell(r, 6));
+        tools.push({ name, cat, qty: isNaN(qtyNum) ? 1 : qtyNum, cond, note });
+    }
+
+    // 7. Section 5A: Moisture
+    const moisture = [];
+    for (let r = s5A + 1; r < s5B; r++) {
+        const z = xlCellText(ws.getCell(r, 2));
+        const pct = xlCellText(ws.getCell(r, 4));
+        const note = xlCellText(ws.getCell(r, 5));
+        if (!z || /zone\s*\/|المنطقة/i.test(z)) continue;
+        moisture.push({ id: moisture.length + 1, zone: z, pct: pct !== '' ? (parseFloat(pct) || '') : '', note });
+    }
+    while (moisture.length < 5) moisture.push({ id: moisture.length + 1, zone: '', pct: '', note: '' });
+
+    // 8. Section 5B: Water Meters (Handles blank meter name on old V03 row 1 -> maps to primary site meter!)
+    const meters = [];
+    const primaryMeter = (site.meters && site.meters[0]) || { id: 'm1', name: 'Serious of B1 Tank 2', lastReading: 0 };
+    for (let r = s5B + 1; r < s5C; r++) {
+        const mNameRaw = xlCellText(ws.getCell(r, 2));
+        if (/meter id|اسم العداد/i.test(mNameRaw)) continue;
+        const visual = xlCellText(ws.getCell(r, 5)) || 'Clear / صافية';
+        const prevTxt = xlCellText(ws.getCell(r, 6));
+        const currTxt = xlCellText(ws.getCell(r, 7));
+        const note = xlCellText(ws.getCell(r, 9));
+        if (!mNameRaw && prevTxt === '' && currTxt === '' && !note) continue;
+        const isFirst = meters.length === 0;
+        const matchedSiteM = (site.meters || []).find(sm => mNameRaw && sm.name.toLowerCase() === mNameRaw.toLowerCase()) || (isFirst ? primaryMeter : null);
+        const mId = matchedSiteM ? matchedSiteM.id : `m_xl_${meters.length + 1}`;
+        const mName = mNameRaw || (matchedSiteM ? matchedSiteM.name : `Water Meter ${meters.length + 1}`);
+        const isFaulty = /faulty|عاطل/i.test(note);
+        meters.push({
+            id: mId,
+            name: mName,
+            status: isFaulty ? 'faulty' : 'working',
+            prev: prevTxt !== '' && !isNaN(parseFloat(prevTxt)) ? parseFloat(prevTxt) : 0,
+            curr: currTxt !== '' && !isNaN(parseFloat(currTxt)) ? parseFloat(currTxt) : '',
+            prevManual: prevTxt !== '',
+            visual,
+            note,
+            photos: []
+        });
+    }
+    if (meters.length === 0) {
+        (site.meters || [primaryMeter]).forEach(sm => {
+            meters.push({ id: sm.id, name: sm.name, status: 'working', prev: sm.lastReading || 0, curr: '', visual: 'Clear / صافية', note: '', photos: [] });
+        });
+    }
+
+    // 9. Section 5C: Irrigation Performance
+    const perf = { status: 'جيد', duration: '', zonesIrrigated: '', zonesManualEdit: false, pressureNotes: '', notes: '' };
+    for (let r = s5C + 1; r < s5D; r++) {
+        const lbl = xlCellText(ws.getCell(r, 1));
+        if (/system status|حالة النظام/i.test(lbl)) {
+            const stV = xlCellText(ws.getCell(r, 2));
+            const durV = xlCellText(ws.getCell(r, 5));
+            if (stV) perf.status = stV;
+            if (durV) perf.duration = durV.replace(/\s*hrs?/i, '').trim();
+        } else if (/zones irrigated|المناطق المروية/i.test(lbl)) {
+            const zV = xlCellText(ws.getCell(r, 2));
+            const pV = xlCellText(ws.getCell(r, 5));
+            if (zV) { perf.zonesIrrigated = zV; perf.zonesManualEdit = true; }
+            if (pV) perf.pressureNotes = pV;
+        } else if (/performance notes|ملاحظات الأداء/i.test(lbl)) {
+            const nV = xlCellText(ws.getCell(r, 2));
+            if (nV) perf.notes = nV;
+        }
+    }
+
+    // 10. Section 5D: Bar Gauges
+    const gauges = [];
+    for (let r = s5D + 1; r < s6; r++) {
+        const gName = xlCellText(ws.getCell(r, 2));
+        if (!gName || /gauge name|اسم المقياس/i.test(gName)) continue;
+        const valTxt = xlCellText(ws.getCell(r, 3));
+        const normTxt = xlCellText(ws.getCell(r, 5));
+        const gNote = xlCellText(ws.getCell(r, 7));
+        const siteG = (site.gauges || []).find(sg => sg.name.toLowerCase() === gName.toLowerCase());
+        gauges.push({
+            id: siteG ? siteG.id : `g_xl_${gauges.length + 1}`,
+            name: gName,
+            normal: parseFloat(normTxt) || (siteG ? siteG.normal : 2.0),
+            val: valTxt !== '' && !isNaN(parseFloat(valTxt)) ? parseFloat(valTxt) : '',
+            note: gNote
+        });
+    }
+    if (gauges.length === 0) {
+        (site.gauges || []).forEach(sg => gauges.push({ id: sg.id, name: sg.name, normal: sg.normal, val: '', note: '' }));
+    }
+
+    // 11. Section 6: Plants Health (optional import into inventory)
+    const plantsHealth = [];
+    for (let r = s6 + 1; r < s7; r++) {
+        const pName = xlCellText(ws.getCell(r, 2));
+        if (!pName || /النبات|plant/i.test(pName) && /scientific|العلمي/i.test(xlCellText(ws.getCell(r, 4)))) continue;
+        const sci = xlCellText(ws.getCell(r, 4));
+        const hSt = xlCellText(ws.getCell(r, 5));
+        const signs = xlCellText(ws.getCell(r, 6));
+        const pZone = xlCellText(ws.getCell(r, 8)) || 'عام / General';
+        if (pName || signs) plantsHealth.push({ plantName: pName || sci || 'نبات', scientificName: sci, healthStatus: hSt, signs, zone: pZone });
+    }
+
+    // 12. Section 7: Incidents & Issues
+    const sec7Issues = [];
+    for (let r = s7 + 1; r < s8; r++) {
+        const desc = xlCellText(ws.getCell(r, 2));
+        if (!desc || /brief description|وصف مختصر/i.test(desc)) continue;
+        const sev = xlCellText(ws.getCell(r, 6)) || 'Medium / متوسط';
+        const refCode = xlCellText(ws.getCell(r, 7));
+        sec7Issues.push({ desc, severity: sev, refCode });
+    }
+
+    // 13. Section 8: Photo References & Drive Links
+    const photoRefs = [];
+    for (let r = s8 + 1; r < s9; r++) {
+        const fName = xlCellText(ws.getCell(r, 2));
+        if (!fName || /file name|اسم الملف/i.test(fName)) continue;
+        photoRefs.push({
+            fileName: fName,
+            link: xlCellLink(ws.getCell(r, 2)),
+            section: xlCellText(ws.getCell(r, 5)),
+            desc: xlCellText(ws.getCell(r, 8))
+        });
+    }
+
+    // 14. Section 9: OAR (Dynamic OBS/ANA/REC label search)
+    const oar = { obs: '', ana: '', rec: '' };
+    const isOarPlaceholder = txt => !txt || /^(complete at end|if supervisor|describe |what caused|what must|obs|ana|rec)/i.test(txt);
+    for (let r = s9 + 1; r < s10; r++) {
+        const aTxt = xlCellText(ws.getCell(r, 1)).toUpperCase();
+        if (aTxt === 'OBS' && r + 1 < s10) {
+            const v = xlCellText(ws.getCell(r + 1, 1)) || xlCellText(ws.getCell(r + 1, 2));
+            if (!isOarPlaceholder(v)) oar.obs = v;
+        } else if (aTxt === 'ANA' && r + 1 < s10) {
+            const v = xlCellText(ws.getCell(r + 1, 1)) || xlCellText(ws.getCell(r + 1, 2));
+            if (!isOarPlaceholder(v)) oar.ana = v;
+        } else if (aTxt === 'REC' && r + 1 < s10) {
+            const v = xlCellText(ws.getCell(r + 1, 1)) || xlCellText(ws.getCell(r + 1, 2));
+            if (!isOarPlaceholder(v)) oar.rec = v;
+        }
+    }
+
+    // 15. Optional Incident Report & Site Deviation Log sheets (skip untouched blank templates!)
+    const incidents = [];
+    const sdls = [];
+    wb.worksheets.forEach(sh => {
+        if (/^Incident Report/i.test(sh.name)) {
+            const iType = xlCellText(sh.getCell('D19'));
+            const iAction = xlCellText(sh.getCell('B39'));
+            const iTimeline = xlCellText(sh.getCell('D31'));
+            if ((iType && !/^type/i.test(iType)) || (iAction && !/^describe/i.test(iAction)) || iTimeline) {
+                incidents.push({
+                    code: xlCellText(sh.getCell('G5')) || `IR-${dflNum}`,
+                    time: xlParseTimeHHMM(sh.getCell('G7'), '09:00'),
+                    severity: xlCellText(sh.getCell('D12')) || 'Moderate / متوسط',
+                    zone: xlCellText(sh.getCell('G16')) || 'عام / General',
+                    type: iType || 'Incident',
+                    persons: xlCellText(sh.getCell('C23')),
+                    impact: xlCellText(sh.getCell('G23')),
+                    timeline: iTimeline,
+                    action: iAction,
+                    medical: xlCellText(sh.getCell('D45')) || 'No / لا',
+                    hospital: xlCellText(sh.getCell('G46')),
+                    witnesses: xlCellText(sh.getCell('C51')),
+                    obs: isOarPlaceholder(xlCellText(sh.getCell('B95'))) ? '' : xlCellText(sh.getCell('B95')),
+                    ana: isOarPlaceholder(xlCellText(sh.getCell('B97'))) ? '' : xlCellText(sh.getCell('B97')),
+                    rec: isOarPlaceholder(xlCellText(sh.getCell('B99'))) ? '' : xlCellText(sh.getCell('B99')),
+                    photos: []
+                });
+            }
+        } else if (/^Site Deviation Log/i.test(sh.name)) {
+            const sSubj = xlCellText(sh.getCell('D15'));
+            const sObs = xlCellText(sh.getCell('B31'));
+            if (sSubj || (sObs && !isOarPlaceholder(sObs))) {
+                sdls.push({
+                    code: xlCellText(sh.getCell('G5')) || `SDL-${dflNum}`,
+                    time: xlParseTimeHHMM(sh.getCell('G7'), '08:00'),
+                    status: xlCellText(sh.getCell('D11')) || 'Open / مفتوح',
+                    severity: xlCellText(sh.getCell('G11')) || 'Moderate / متوسط',
+                    subject: sSubj || 'Site Deviation',
+                    zone: xlCellText(sh.getCell('D16')) || 'عام / General',
+                    type: xlCellText(sh.getCell('D17')) || 'Other / أخرى',
+                    party: xlCellText(sh.getCell('D18')) || '',
+                    authority: xlCellText(sh.getCell('D19')) || '',
+                    obs: isOarPlaceholder(sObs) ? '' : sObs,
+                    ana: isOarPlaceholder(xlCellText(sh.getCell('B33'))) ? '' : xlCellText(sh.getCell('B33')),
+                    rec: isOarPlaceholder(xlCellText(sh.getCell('B35'))) ? '' : xlCellText(sh.getCell('B35')),
+                    photos: []
+                });
+            }
+        }
+    });
+
+    return {
+        fileName,
+        dflNum,
+        dateStr,
+        dayEn: expectedDayEn,
+        siteNameExcel,
+        teamLeadExcel,
+        shiftExcel,
+        supervisorExcel,
+        outsideRateExcel,
+        driveFolderLink,
+        isV03TwoDayLayout,
+        skippedYesterdayCount,
+        weather,
+        attendance,
+        tasksTodayOnly,
+        tasksAllBlocks,
+        tools,
+        moisture,
+        meters,
+        perf,
+        gauges,
+        plantsHealth,
+        sec7Issues,
+        photoRefs,
+        oar,
+        incidents,
+        sdls
+    };
+}
+
+async function onDflExcelFilesSelected(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    if (typeof ExcelJS === 'undefined') {
+        showToast('⚠️ مكتبة ExcelJS غير محملة — افتح التطبيق بالإنترنت مرة واحدة');
+        return;
+    }
+    showToast(`⏳ جاري قراءة وتحليل ${files.length} ملف DFL إكسيل...`);
+    const parsedList = [];
+    const errors = [];
+
+    for (const f of files) {
+        try {
+            const ab = await f.arrayBuffer();
+            const wb = new ExcelJS.Workbook();
+            await wb.xlsx.load(ab);
+            const rec = parseDflExcelWorkbook(wb, f.name);
+            parsedList.push(rec);
+        } catch (err) {
+            console.error(err);
+            errors.push(`${f.name}: ${err.message}`);
+        }
+    }
+
+    if (!parsedList.length) {
+        showToast('⚠️ تعذر قراءة الملفات المختارة — تأكد أنها ملفات DFL بصيغة .xlsx');
+        return;
+    }
+
+    parsedList.sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+    window._pendingExcelImports = parsedList;
+    openDflExcelImportPreviewModal(parsedList, errors);
+}
+
+function openDflExcelImportPreviewModal(list, errors = []) {
+    const site = getSite();
+    const hasV03 = list.some(x => x.isV03TwoDayLayout);
+    const hasExisting = list.some(x => site.logs[x.dateStr] && isDayLogSubstantive(site.logs[x.dateStr]));
+    const totalExtras = list.reduce((s, x) => s + x.plantsHealth.length + x.sec7Issues.length, 0);
+
+    openModal(`
+        <h3 class="card-title">📊 معاينة استيراد ملفات DFL (${list.length} ملف)</h3>
+        ${errors.length ? `<div style="background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;padding:7px;border-radius:7px;font-size:11px;margin-bottom:7px;">⚠️ تعذر قراءة ${errors.length} ملف: ${esc(errors.join(' | '))}</div>` : ''}
+        <p style="font-size:11.5px;color:var(--muted);margin-top:0;">تم التعرف على القالب والأقسام تلقائياً — راجع السجلات ثم اضغط اعتماد لتحويلها إلى البرنامج:</p>
+        <div style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:9px;padding:6px;margin-bottom:9px;background:#f8fafc;">
+            ${list.map((rec, idx) => {
+                const exists = !!(site.logs[rec.dateStr] && isDayLogSubstantive(site.logs[rec.dateStr]));
+                const mTxt = rec.meters.filter(m => m.curr !== '' || m.prev).map(m => `${m.prev}→${m.curr !== '' ? m.curr : '?'}`).join(' | ');
+                return `
+                <label style="display:flex;align-items:flex-start;gap:7px;background:white;border:1px solid ${exists ? '#fcd34d' : '#e2e8f0'};border-radius:8px;padding:7px;margin-bottom:5px;cursor:pointer;">
+                    <input type="checkbox" class="xl-imp-chk" value="${idx}" checked style="margin-top:3px;width:15px;height:15px;">
+                    <div style="flex:1;font-size:11.5px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;flex-wrap:wrap;">
+                            <b>📅 ${esc(rec.dateStr)} — DFL-${rec.dflNum}</b>
+                            <span class="badge" style="font-size:10px;background:${exists ? '#fef3c7' : '#dcfce7'};color:${exists ? '#92400e' : '#166534'};">${exists ? '⚠️ موجود مسبقاً' : '🆕 يوم جديد'}</span>
+                        </div>
+                        <div style="color:#334155;font-size:11px;margin-top:2px;">
+                            👷 حضور: <b>${rec.attendance.length}</b> | 📋 مهام: <b>${rec.tasksTodayOnly.length}</b>${rec.skippedYesterdayCount ? ` <span style="color:var(--blue);">(تجاهل ${rec.skippedYesterdayCount} مهام أمس)</span>` : ''} | 🧰 معدات: <b>${rec.tools.length}</b>
+                        </div>
+                        <div style="color:var(--muted);font-size:10.5px;">
+                            ${mTxt ? `💧 العداد: ${esc(mTxt)}` : '💧 بدون قراءة عداد'}${rec.weather.tMax !== '' ? ` | 🌤️ ${rec.weather.tMin}–${rec.weather.tMax}°C` : ''}${rec.sec7Issues.length ? ` | ⚠️ مشاكل: ${rec.sec7Issues.length}` : ''}${rec.plantsHealth.length ? ` | 🌿 نباتات: ${rec.plantsHealth.length}` : ''}
+                        </div>
+                    </div>
+                </label>`;
+            }).join('')}
+        </div>
+        ${hasV03 ? `
+        <label style="display:block;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:7px 9px;margin-bottom:6px;font-size:11.5px;font-weight:bold;color:#0369a1;">
+            <input type="checkbox" id="chkXlTodayOnly" checked> ✂️ تجاهل مهام الأمس المكررة بقالب V03 القديم (استيراد مهام اليوم فقط — موصى به)
+        </label>` : ''}
+        ${hasExisting ? `
+        <label style="display:block;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 9px;margin-bottom:6px;font-size:11.5px;font-weight:bold;color:#92400e;">
+            <input type="checkbox" id="chkXlOverwrite"> 🔄 استبدال الأيام الموجودة مسبقاً ببيانات ملف الإكسيل (إذا لم يُحدد: يتم الدمج الذكي)
+        </label>` : ''}
+        ${totalExtras > 0 ? `
+        <label style="display:block;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:7px 9px;margin-bottom:8px;font-size:11.5px;font-weight:bold;color:#166534;">
+            <input type="checkbox" id="chkXlImportExtras" checked> 🌿 استيراد ملاحظات صحة النباتات والمشاكل (الأقسام 6 و 7)
+        </label>` : ''}
+        <div class="grid-2">
+            <button class="btn btn-green" onclick="confirmDflExcelImport()">📥 استيراد للبرنامج الآن</button>
+            <button class="btn btn-outline" onclick="window._pendingExcelImports=null;closeModal()">إلغاء</button>
+        </div>
+    `);
+}
+
+function confirmDflExcelImport() {
+    const list = window._pendingExcelImports;
+    if (!Array.isArray(list) || !list.length) return;
+    const selectedIdxs = Array.from(document.querySelectorAll('.xl-imp-chk:checked')).map(c => parseInt(c.value, 10)).filter(n => !isNaN(n) && list[n]);
+    if (!selectedIdxs.length) { showToast('⚠️ حدد ملفاً واحداً على الأقل'); return; }
+
+    const todayOnlyV03 = document.getElementById('chkXlTodayOnly') ? document.getElementById('chkXlTodayOnly').checked : true;
+    const overwriteExisting = document.getElementById('chkXlOverwrite') ? document.getElementById('chkXlOverwrite').checked : false;
+    const importExtras = document.getElementById('chkXlImportExtras') ? document.getElementById('chkXlImportExtras').checked : true;
+
+    pushUndo(`استيراد ${selectedIdxs.length} ملفات DFL إكسيل`);
+    const site = getSite();
+    let addedCnt = 0, mergedCnt = 0, totalTasksImported = 0;
+    let lastDateImported = '';
+    let maxDflSeen = site.nextDfl || 1;
+
+    selectedIdxs.forEach(idx => {
+        const rec = list[idx];
+        const chosenTasks = JSON.parse(JSON.stringify(todayOnlyV03 ? rec.tasksTodayOnly : rec.tasksAllBlocks));
+        totalTasksImported += chosenTasks.length;
+
+        const newDayLog = {
+            dflNum: rec.dflNum,
+            weather: JSON.parse(JSON.stringify(rec.weather)),
+            attendance: JSON.parse(JSON.stringify(rec.attendance)),
+            tasks: chosenTasks,
+            meters: JSON.parse(JSON.stringify(rec.meters)),
+            gauges: JSON.parse(JSON.stringify(rec.gauges)),
+            machinery: { pumpHrs: '', genHrs: '' },
+            moisture: JSON.parse(JSON.stringify(rec.moisture)),
+            perf: JSON.parse(JSON.stringify(rec.perf)),
+            tools: JSON.parse(JSON.stringify(rec.tools)),
+            incidents: JSON.parse(JSON.stringify(rec.incidents)),
+            sdls: JSON.parse(JSON.stringify(rec.sdls)),
+            driveFolderLink: rec.driveFolderLink || '',
+            photoLinks: {},
+            secHistory: { att: [], tasks: [], tools: [], inv: [], issues: [] },
+            activityLog: [{
+                id: 'act_xl_' + Date.now() + '_' + idx,
+                ts: Date.now(),
+                time: formatTime24FromMs(Date.now()),
+                sec: 'export',
+                label: `استيراد من ملف Excel (${rec.fileName})`,
+                before: '',
+                after: `DFL-${rec.dflNum} (${chosenTasks.length} مهام)`,
+                flag: '',
+                jump: null,
+                revert: null,
+                reverted: false
+            }],
+            oar: JSON.parse(JSON.stringify(rec.oar))
+        };
+
+        // Ensure irrigated zones auto-fill if empty in old Excel
+        if (!newDayLog.perf.zonesIrrigated) {
+            const irrZones = [];
+            chosenTasks.forEach(t => {
+                if (t.task.includes('Irrigation') && t.status.includes('Completed')) {
+                    (t.zones || '').split(',').map(z => z.trim()).filter(Boolean).forEach(z => {
+                        if (!irrZones.includes(z)) irrZones.push(z);
+                    });
+                }
+            });
+            if (irrZones.length) newDayLog.perf.zonesIrrigated = irrZones.join(', ');
+        }
+
+        const existing = site.logs[rec.dateStr];
+        if (!existing || !isDayLogSubstantive(existing) || overwriteExisting) {
+            site.logs[rec.dateStr] = newDayLog;
+            addedCnt++;
+        } else {
+            mergeTwoDayLogsSafely(existing, newDayLog);
+            mergedCnt++;
+        }
+
+        // Import Section 7 Issues & Section 6 Plants Health cleanly without duplicates
+        if (importExtras) {
+            (rec.sec7Issues || []).forEach((iss, iI) => {
+                const existsIss = (site.issues || []).some(x => x.date === rec.dateStr && x.desc === iss.desc);
+                if (!existsIss) {
+                    site.issues.unshift({
+                        id: `iss_xl_${rec.dateStr}_${iI}`,
+                        code: iss.refCode || `ISS-${rec.dflNum}-${iI + 1}`,
+                        date: rec.dateStr,
+                        zone: 'عام / General',
+                        severity: iss.severity || 'Medium / متوسط',
+                        desc: iss.desc,
+                        status: 'Open',
+                        photos: []
+                    });
+                }
+            });
+            (rec.plantsHealth || []).forEach((ph, pI) => {
+                let zObj = (site.inventory || []).find(z => z.name.toLowerCase() === ph.zone.toLowerCase());
+                if (!zObj) {
+                    zObj = { id: 'z_xl_' + Date.now() + '_' + pI, name: ph.zone, plants: [] };
+                    site.inventory.push(zObj);
+                }
+                const pDisplayName = ph.scientificName ? `${ph.plantName} (${ph.scientificName})` : ph.plantName;
+                let pObj = (zObj.plants || []).find(p => p.name === pDisplayName);
+                if (!pObj) {
+                    pObj = { id: 'p_xl_' + Date.now() + '_' + pI, name: pDisplayName, counts: { c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 }, entries: [], note: ph.signs || '' };
+                    zObj.plants.push(pObj);
+                }
+                const condId = /سيء|حرج|هالك|مكسور|broken/i.test(`${ph.healthStatus} ${ph.signs}`) ? 'c6' : 'c5';
+                const entId = `e_xl_${rec.dateStr}_${pI}`;
+                if (!(pObj.entries || []).some(e => e.id === entId)) {
+                    pObj.entries.push({ id: entId, date: rec.dateStr, condId, height: null, photos: [] });
+                    pObj.counts[condId] = (pObj.counts[condId] || 0) + 1;
+                }
+                if (ph.scientificName && state.company && state.company.speciesDict) {
+                    state.company.speciesDict[pDisplayName] = ph.scientificName;
+                }
+            });
+        }
+
+        if (rec.dflNum >= maxDflSeen) maxDflSeen = rec.dflNum + 1;
+        lastDateImported = rec.dateStr;
+    });
+
+    if (maxDflSeen > (site.nextDfl || 0)) site.nextDfl = maxDflSeen;
+    if (lastDateImported) state.activeDate = lastDateImported;
+
+    window._pendingExcelImports = null;
+    normalizeState();
+    (site.meters || []).forEach(sm => syncSiteMeterLastReading(site, sm.id, sm.name));
+    closeModal();
+    saveState();
+    renderAll();
+    showToast(`✅ تم تحويل واستيراد ${addedCnt + mergedCnt} تقارير DFL (${totalTasksImported} مهام) — فتح سجل يوم ${state.activeDate}`);
 }
 
 function onBackupFileLoaded(e) {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
     const r = new FileReader();
-    r.onload = ev => {
-        try {
-            const parsed = JSON.parse(ev.target.result);
-            if (!parsed || !parsed.sites) { showToast('⚠️ ملف غير صالح'); return; }
-            window._pendingBackupData = parsed;
-            const incDates = [];
-            Object.values(parsed.sites).forEach(s => Object.keys(s.logs || {}).forEach(d => { if (!incDates.includes(d)) incDates.push(d); }));
-            incDates.sort();
-            openModal(`
-                <h3 class="card-title">📂 استيراد / دمج النسخة الاحتياطية</h3>
-                <p style="font-size:12px;color:var(--muted);line-height:1.6;">
-                    يحتوي الملف على سجلات <b>${incDates.length} أيام</b> (${esc(incDates.slice(-4).join('، '))}).<br>
-                    اختر طريقة الاستيراد المناسبة:
-                </p>
-                <label style="display:block;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:7px 9px;margin-bottom:8px;font-size:11.5px;font-weight:bold;color:#0369a1;">
-                    <input type="checkbox" id="chkMergeOverwriteMatching"> تحديث الأيام المتطابقة من الملف المستورد (عند تعديل تقرير قديم على الحاسبة)
-                </label>
-                <button class="btn btn-green btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="executeBackupSmartMerge()">
-                    <span>🔀 دمج ذكي (موصى به — يحافظ على شغل اليوم)</span>
-                    <span style="font-size:10.5px;opacity:0.9;">يدمج مهام وقراءات نفس اليوم بين جهازين ويضيف الأيام الناقصة والجرد بدون حذف شغلك</span>
-                </button>
-                <button class="btn btn-orange btn-full" style="margin-bottom:8px;flex-direction:column;padding:10px;" onclick="executeBackupFullReplace()">
-                    <span>🔄 استبدال كامل (Replace All)</span>
-                    <span style="font-size:10.5px;opacity:0.9;">يمسح جميع بيانات الجهاز الحالية ويستبدلها بالملف المستورد</span>
-                </button>
-                <button class="btn btn-outline btn-full" onclick="window._pendingBackupData=null;closeModal()">إلغاء</button>
-            `);
-        } catch { showToast('⚠️ ملف غير صالح'); }
-    };
+    r.onload = ev => handleParsedBackupText(ev.target.result);
     r.readAsText(f);
 }
 
@@ -11079,7 +12905,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.2 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.5 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
