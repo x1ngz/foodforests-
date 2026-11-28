@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V17.8</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V17.9</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,7 +42,7 @@
         .dfl-box { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; }
         .dfl-num { background: white; color: var(--primary-dark); border: none; border-radius: 5px; width: 48px; padding: 3px 4px; font-weight: bold; text-align: center; font-size: 13px; }
 
-        /* V17.8: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
+        /* V17.9: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
         .note-item-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-right: 3px solid var(--blue); border-radius: 7px; padding: 5px 8px; margin-bottom: 4px; font-size: 12px; line-height: 1.45; }
         .note-item-card.is-blocked-note { background: #fff5f5; border-color: #fecaca; border-right-color: var(--red); color: #7f1d1d; font-weight: 600; }
         .note-item-card.is-zone-note { background: #f5f3ff; border-color: #ddd6fe; border-right-color: var(--purple); }
@@ -60,7 +60,7 @@
         .att-pill.st-half { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
         .att-pill.st-ot { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
 
-        /* V17.8: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
+        /* V17.9: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
         .slim-act-bar {
             display: flex; align-items: center; justify-content: space-between; gap: 6px;
             background: #ffffff; border: 1px solid #cbd5e1; border-right: 4px solid var(--blue);
@@ -81,7 +81,7 @@
         .export-stamp.st-none { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
         .export-stamp.st-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
         .export-stamp.st-stale { background: #fef3c7; color: #92400e; border: 1.5px solid #f59e0b; }
-        /* V17.8: Worker Weekly Attendance Matrix & Payment Settlement UI */
+        /* V17.9: Worker Weekly Attendance Matrix & Payment Settlement UI */
         .wk-dot-row { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
         .wk-dot { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 34px; padding: 2px 4px; border-radius: 6px; font-size: 9.5px; font-weight: bold; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; line-height: 1.25; }
         .wk-dot.d-pres { background: #dcfce7; color: #166534; border-color: #86efac; }
@@ -92,7 +92,7 @@
         .pay-card { background: white; border: 1px solid #cbd5e1; border-right: 4px solid var(--primary); border-radius: 9px; padding: 8px 9px; margin-bottom: 7px; font-size: 12px; }
         .pay-card.is-emp { border-right-color: var(--blue); }
         .pay-card.has-due { border-right-color: var(--orange); }
-        /* V17.8: Isolated Old-DFL Correction Workshop Banner & Audit Cards */
+        /* V17.9: Isolated Old-DFL Correction Workshop Banner & Audit Cards */
         .workshop-banner {
             background: linear-gradient(135deg, #7c2d12, #c2410c);
             color: white; border-radius: 10px; padding: 9px 11px; margin-bottom: 9px;
@@ -103,7 +103,7 @@
         .shift-pill { display: inline-flex; align-items: center; gap: 2px; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 99px; cursor: pointer; border: 1px solid transparent; }
         .shift-pill.am { background: #fef9c3; color: #854d0e; border-color: #fde047; }
         .shift-pill.pm { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
-        /* V17.8: Unified Auto-Notes Visual Cards & Photo Watermark Toggle */
+        /* V17.9: Unified Auto-Notes Visual Cards & Photo Watermark Toggle */
         .note-item-card.is-auto-pause { background: #fffbeb; border-color: #fde68a; border-right-color: var(--orange); }
         .note-item-card.is-auto-worker { background: #f0f9ff; border-color: #bae6fd; border-right-color: var(--blue); }
         .note-item-card.is-auto-tanker { background: #ecfeff; border-color: #a5f3fc; border-right-color: #0891b2; }
@@ -113,6 +113,12 @@
         .auto-note-tag.t-worker { background: #dbeafe; color: #1e40af; }
         .auto-note-tag.t-tanker { background: #cffafe; color: #155e75; }
         .auto-note-tag.t-overtime { background: #ede9fe; color: #5b21b6; }
+        /* V17.9: Interactive Weather Hourly Strip & Pause Log Timeline */
+        .wx-hour-strip { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 9px; padding: 7px 8px; margin-bottom: 8px; }
+        .wx-hour-chip { display: inline-flex; flex-direction: column; align-items: center; padding: 4px 8px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-size: 10.5px; font-weight: bold; color: var(--text); cursor: pointer; line-height: 1.3; }
+        .wx-hour-chip.active { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 2px 5px rgba(2,132,199,0.28); }
+        .pause-history-strip { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 7px; padding: 4px 7px; margin-bottom: 5px; font-size: 10.5px; color: #92400e; font-weight: 600; cursor: pointer; }
+        .tmc-pause-row { background: white; border: 1px solid #fde68a; border-radius: 8px; padding: 6px; margin-bottom: 5px; }
 
         /* Timer Alert Bar */
         .timer-alert-bar { background: #fef2f2; border-bottom: 2px solid #ef4444; color: #991b1b; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 78px; z-index: 950; }
@@ -317,7 +323,7 @@
                 <button class="icon-btn" onclick="openActivityLogModal('all')" title="سجل آخر الحركات والحماية من الأخطاء">📜</button>
                 <button class="icon-btn" onclick="openAnalyticsCenterModal('blind','7d')" title="مركز الإحصائيات والتحليل الذكي">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V17.8 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V17.9 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -444,6 +450,7 @@
                     <h3 class="card-title">🌤️ الأحوال الجوية (القسم 1 — الحلة)</h3>
                     <button class="btn btn-blue btn-sm" onclick="fetchHillaWeather(true)">🔄 جلب طقس الحلة</button>
                 </div>
+                <div id="wxHourSelectorBox"></div>
                 <div class="grid-2">
                     <div><label class="lbl">الأحوال (Conditions):</label><input id="wxCond" class="inp" placeholder="Clear / صافي" onchange="updateWeatherField('cond', this.value)"></div>
                     <div><label class="lbl">وقت القراءة (Time):</label><input id="wxTime" class="inp" placeholder="08:00" onchange="updateWeatherField('time', this.value)"></div>
@@ -639,7 +646,7 @@
                 </div>
             </div>
 
-            <!-- V17.8: Clean 3-Step Day-Closing & Export Hub -->
+            <!-- V17.9: Clean 3-Step Day-Closing & Export Hub -->
             <div class="card" style="border-top:4px solid var(--primary);">
                 <div class="card-head" style="margin-bottom:8px;">
                     <h3 class="card-title">📤 مركز إقفال وتصدير اليوم</h3>
@@ -688,7 +695,7 @@
                 </div>
             </div>
 
-            <!-- V17.8: Direct WhatsApp Merge Sync & Database Backup Card -->
+            <!-- V17.9: Direct WhatsApp Merge Sync & Database Backup Card -->
             <div class="card" style="padding:11px 13px;border-top:3px solid var(--blue);">
                 <div class="card-head" style="margin-bottom:7px;padding-bottom:6px;">
                     <h3 class="card-title" style="font-size:13.5px;">🔀 المزامنة والدمج والنسخ الاحتياطي</h3>
@@ -963,7 +970,7 @@ let state = {
 
 
 
-/* ================= V17.8: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V17.9: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -1085,7 +1092,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V17.8: Task Presets Manager ================= */
+/* ================= V17.9: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1175,7 +1182,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V17.8: DFL Readiness Progress Bar ================= */
+/* ================= V17.9: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1215,7 +1222,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V17.8: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
+/* ================= V17.9: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
 let _anState = { tab: 'blind', period: '7d', fromDate: '', toDate: '' };
 
 function getAnalyticsDateRange(site, period, customFrom = '', customTo = '') {
@@ -2102,49 +2109,154 @@ function mapWmoCodeToBilingual(code) {
     return 'Clear / صافي';
 }
 
-async function fetchHillaWeather(manualTrigger = false) {
+function getWmoEmoji(code) {
+    const c = Number(code);
+    if (c === 0) return '☀️';
+    if ([1, 2].includes(c)) return '🌤️';
+    if (c === 3) return '☁️';
+    if ([45, 48].includes(c)) return '🌫️';
+    if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(c)) return '🌧️';
+    if ([95, 96, 99].includes(c)) return '⛈️';
+    return '🌤️';
+}
+
+function getWeatherHourIndex(wx) {
+    if (wx && typeof wx.selectedHour === 'number' && wx.selectedHour >= 0 && wx.selectedHour <= 23) return wx.selectedHour;
+    const m = String((wx && wx.time) || '08:00').match(/^(\d{1,2})/);
+    const h = m ? parseInt(m[1], 10) : 8;
+    return isNaN(h) ? 8 : Math.max(0, Math.min(23, h));
+}
+
+function applyWeatherHourSnapshot(log, hourInt) {
+    const wx = ensureWeatherObj(log);
+    const h = Math.max(0, Math.min(23, parseInt(hourInt, 10) || 0));
+    const hStr = `${String(h).padStart(2, '0')}:00`;
+    wx.selectedHour = h;
+    wx.time = hStr;
+    const hr = wx.hourly;
+    if (hr && Array.isArray(hr.temp) && hr.temp.length > h) {
+        const tempAtH = hr.temp[h] != null ? Math.round(hr.temp[h] * 10) / 10 : '';
+        wx.hourTemp = tempAtH;
+        if (hr.code && hr.code[h] != null) wx.cond = mapWmoCodeToBilingual(hr.code[h]);
+        if (hr.wind && hr.wind[h] != null) wx.wind = Math.round(hr.wind[h] * 10) / 10;
+        if (hr.hum && hr.hum[h] != null) wx.hum = Math.round(hr.hum[h]);
+        if (hr.uv && hr.uv[h] != null) wx.uv = Math.round(hr.uv[h] * 10) / 10;
+        if (hr.press && hr.press[h] != null) wx.press = Math.round(hr.press[h]);
+        if (hr.precip && hr.precip[h] != null) wx.precip = Math.round(hr.precip[h] * 10) / 10;
+        wx.notes = tempAtH !== '' ? `Temp @ ${hStr}: ${tempAtH}°C (Mahawil)` : `Auto-fetched (Mahawil @ ${hStr})`;
+        return true;
+    }
+    return false;
+}
+
+async function selectWeatherHour(hourVal) {
     const log = getDayLog();
     const wx = ensureWeatherObj(log);
-    if (!manualTrigger && wx.cond && wx.tMax !== '') return;
+    const h = hourVal === 'now' ? new Date().getHours() : Math.max(0, Math.min(23, parseInt(hourVal, 10) || 8));
+    if (wx.hourly && Array.isArray(wx.hourly.temp) && wx.hourly.temp.length > h) {
+        applyWeatherHourSnapshot(log, h);
+        saveState();
+        renderReadingsAndTools(log);
+        const hStr = `${String(h).padStart(2, '0')}:00`;
+        showToast(`🌤️ تم تحديث قراءات الطقس لساعة ${hStr}${wx.hourTemp !== '' ? ` (${wx.hourTemp}°C)` : ''}`);
+    } else if (navigator.onLine) {
+        await fetchHillaWeather(true, h);
+    } else {
+        wx.selectedHour = h;
+        wx.time = `${String(h).padStart(2, '0')}:00`;
+        saveState();
+        renderReadingsAndTools(log);
+        showToast(`🕒 تم ضبط وقت القراءة إلى ${wx.time} (بدون إنترنت لتحديث الأرقام)`);
+    }
+}
+
+function renderWeatherInteractiveStrip(log) {
+    const box = document.getElementById('wxHourSelectorBox');
+    if (!box) return;
+    const wx = ensureWeatherObj(log);
+    const selH = getWeatherHourIndex(wx);
+    const nowH = new Date().getHours();
+    const hr = wx.hourly && Array.isArray(wx.hourly.temp) ? wx.hourly : null;
+    const quickHours = [8, 10, 12, 14, 16];
+    const hourOpts = Array.from({ length: 24 }, (_, h) => {
+        const hh = `${String(h).padStart(2, '0')}:00`;
+        const tTag = (hr && hr.temp[h] != null) ? ` — ${Math.round(hr.temp[h])}°C` : '';
+        return `<option value="${h}" ${selH === h ? 'selected' : ''}>${hh}${tTag}</option>`;
+    }).join('');
+    const selTemp = (hr && hr.temp[selH] != null) ? (Math.round(hr.temp[selH] * 10) / 10) : (wx.hourTemp ?? '');
+
+    box.innerHTML = `
+    <div class="wx-hour-strip">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+            <span style="font-size:11px;font-weight:bold;color:#0369a1;">🕒 اختر ساعة القراءة (تحديث تفاعلي فوري):</span>
+            <select class="inp" style="width:auto;min-width:112px;margin:0;padding:3px 6px;font-size:11px;font-weight:bold;background:white;" onchange="selectWeatherHour(this.value)">
+                ${hourOpts}
+            </select>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+            ${quickHours.map(h => {
+                const hh = `${String(h).padStart(2, '0')}:00`;
+                const ico = (hr && hr.code && hr.code[h] != null) ? getWmoEmoji(hr.code[h]) : '🕒';
+                const tStr = (hr && hr.temp[h] != null) ? `${Math.round(hr.temp[h])}°` : '';
+                return `<span class="wx-hour-chip ${selH === h ? 'active' : ''}" onclick="selectWeatherHour(${h})"><span>${ico} ${hh}</span>${tStr ? `<span style="font-size:10px;opacity:0.9;">${tStr}</span>` : ''}</span>`;
+            }).join('')}
+            <span class="wx-hour-chip ${selH === nowH && !quickHours.includes(nowH) ? 'active' : ''}" style="border-color:#0284c7;" onclick="selectWeatherHour('now')"><span>⚡ الآن</span><span style="font-size:10px;">${String(nowH).padStart(2, '0')}:00</span></span>
+        </div>
+        ${selTemp !== '' ? `<div style="margin-top:5px;font-size:11px;color:#0369a1;font-weight:bold;">🌡️ الحرارة الساعة <b>${String(selH).padStart(2, '0')}:00</b>: <b>${selTemp}°C</b> | الصغرى/العظمى لليوم: <b>${wx.tMin ?? '-'}° / ${wx.tMax ?? '-'}°C</b></div>` : ''}
+    </div>`;
+}
+
+async function fetchHillaWeather(manualTrigger = false, targetHour = null) {
+    const log = getDayLog();
+    const wx = ensureWeatherObj(log);
+    const hasHourly = !!(wx.hourly && Array.isArray(wx.hourly.temp) && wx.hourly.temp.length >= 24);
+    if (!manualTrigger && wx.cond && wx.tMax !== '' && hasHourly) return;
     if (!navigator.onLine) {
-        if (manualTrigger) showToast('⚠️ لا يوجد اتصال بالإنترنت — استخدم الأزرار السريعة للطقس');
+        if (manualTrigger) showToast('⚠️ لا يوجد اتصال بالإنترنت — يمكنك إدخال قراءات الطقس يدوياً');
         return;
     }
-    if (manualTrigger) showToast('⏳ جاري جلب طقس الحلة الكامل...');
+    if (manualTrigger) showToast('⏳ جاري جلب طقس الحلة (24 ساعة تفاعلية)...');
     try {
         const d = state.activeDate;
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=32.6105&longitude=44.3828&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,uv_index,weather_code&timezone=Asia%2FBaghdad&start_date=${d}&end_date=${d}`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=32.6105&longitude=44.3828&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,uv_index,precipitation,weather_code&timezone=Asia%2FBaghdad&start_date=${d}&end_date=${d}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (data && data.daily && data.daily.time && data.daily.time.length > 0) {
-            const humArr = (data.hourly && data.hourly.relative_humidity_2m) || [];
-            const pressArr = (data.hourly && data.hourly.surface_pressure) || [];
-            const avgHum = humArr.length ? Math.round(humArr.reduce((a, b) => a + b, 0) / humArr.length) : 45;
-            const avgPress = pressArr.length ? Math.round(pressArr.reduce((a, b) => a + b, 0) / pressArr.length) : 1015;
-            const hHum = data.hourly && data.hourly.relative_humidity_2m ? data.hourly.relative_humidity_2m[8] : undefined;
-            const hPress = data.hourly && data.hourly.surface_pressure ? data.hourly.surface_pressure[8] : undefined;
-            const hWind = data.hourly && data.hourly.wind_speed_10m ? data.hourly.wind_speed_10m[8] : undefined;
-            const hUv = data.hourly && data.hourly.uv_index ? data.hourly.uv_index[8] : undefined;
-            const hCode = data.hourly && data.hourly.weather_code ? data.hourly.weather_code[8] : data.daily.weather_code[0];
+            const hObj = data.hourly || {};
+            const chosenHour = targetHour !== null
+                ? Math.max(0, Math.min(23, parseInt(targetHour, 10) || 8))
+                : getWeatherHourIndex(wx);
             log.weather = {
-                cond: mapWmoCodeToBilingual(hCode !== undefined ? hCode : data.daily.weather_code[0]),
+                cond: mapWmoCodeToBilingual(data.daily.weather_code[0]),
                 tMin: Math.round(data.daily.temperature_2m_min[0] * 10) / 10,
                 tMax: Math.round(data.daily.temperature_2m_max[0] * 10) / 10,
-                wind: Math.round(((hWind !== undefined ? hWind : data.daily.wind_speed_10m_max[0]) || 0) * 10) / 10,
-                hum: hHum !== undefined ? Math.round(hHum) : avgHum,
-                uv: Math.round(((hUv !== undefined ? hUv : data.daily.uv_index_max[0]) || 3) * 10) / 10,
-                press: hPress !== undefined ? Math.round(hPress) : avgPress,
+                wind: Math.round((data.daily.wind_speed_10m_max[0] || 0) * 10) / 10,
+                hum: 45,
+                uv: Math.round((data.daily.uv_index_max[0] || 3) * 10) / 10,
+                press: 1015,
                 precip: Math.round((data.daily.precipitation_sum[0] || 0) * 10) / 10,
-                time: '08:00',
-                notes: 'Auto-fetched (Mahawil @ 08:00)'
+                time: `${String(chosenHour).padStart(2, '0')}:00`,
+                selectedHour: chosenHour,
+                hourTemp: '',
+                notes: '',
+                hourly: {
+                    temp: hObj.temperature_2m || [],
+                    hum: hObj.relative_humidity_2m || [],
+                    press: hObj.surface_pressure || [],
+                    wind: hObj.wind_speed_10m || [],
+                    uv: hObj.uv_index || [],
+                    precip: hObj.precipitation || [],
+                    code: hObj.weather_code || []
+                }
             };
+            applyWeatherHourSnapshot(log, chosenHour);
             saveState();
             renderReadingsAndTools(log);
-            if (manualTrigger) showToast('✅ تم جلب وتعبئة جميع بيانات طقس الحلة!');
+            if (manualTrigger) showToast(`✅ تم جلب طقس الحلة التفاعلي (الساعة ${log.weather.time})!`);
         }
     } catch {
-        if (manualTrigger) showToast('⚠️ تعذر جلب الطقس تلقائياً — يمكنك تعبئته يدوياً أو بالأزرار السريعة');
+        if (manualTrigger) showToast('⚠️ تعذر جلب الطقس تلقائياً — يمكنك تعبئته يدوياً');
     }
 }
 
@@ -2437,7 +2549,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V17.8: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
+/* ================= V17.9: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
 function computeLogExportSignature(log, site = getSite(), dateStr = state.activeDate) {
     if (!log) return '';
     try {
@@ -2856,7 +2968,7 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
                 ws.getCell(`D${r}`).value = w.status;
                 ws.getCell(`E${r}`).value = w.status.includes('Absent') ? '' : w.tIn;
                 ws.getCell(`F${r}`).value = w.status.includes('Absent') ? '' : w.tOut;
-                ws.getCell(`G${r}`).value = parseFloat(w.ot) || 0;
+                ws.getCell(`G${r}`).value = (parseFloat(w.ot) > 0) ? parseFloat(w.ot) : null;
                 ws.getCell(`H${r}`).value = w.note || '';
                 rowObj.height = calcAutoRowHeight([[w.name, 26], [w.note, 34]], 34);
             } else {
@@ -3169,7 +3281,7 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
         if (ws.rowCount > finalLastRow) {
             ws.spliceRows(finalLastRow + 1, ws.rowCount - finalLastRow);
         }
-        // V17.8: Center ALL text horizontally & vertically (middle) across Daily Field Log safely (preserving colors/fills/borders!)
+        // V17.9: Center ALL text horizontally & vertically (middle) across Daily Field Log safely (preserving colors/fills/borders!)
         for (let rr = 1; rr <= finalLastRow; rr++) {
             const rowObj = ws.getRow(rr);
             for (let cc = 1; cc <= 12; cc++) {
@@ -3603,7 +3715,7 @@ function normalizeState() {
         if (!Array.isArray(s.workerPayments)) s.workerPayments = [];
         if (!s.logs || typeof s.logs !== 'object') s.logs = {};
         if (!s.nextDfl) s.nextDfl = 187;
-        // V17.8: Backwards-compatibility normalizer for logs imported from older versions (V8..V17.2)
+        // V17.9: Backwards-compatibility normalizer for logs imported from older versions (V8..V17.2)
         s.issues.forEach(iss => ensurePhotosArr(iss));
         s.inventory.forEach(z => {
             if (!Array.isArray(z.plants)) z.plants = [];
@@ -3818,7 +3930,7 @@ function getDayLog(dateStr = state.activeDate) {
             dflNum: assignedDfl,
             attendance: state.company.staffPool.map((s, idx) => ({
                 id: 'w_' + idx + '_' + Date.now(), name: s.name, type: s.type,
-                status: 'Present / حاضر', tIn: s.tIn || '08:00', tOut: s.tOut || '16:00', ot: 0, note: ''
+                status: 'Present / حاضر', tIn: s.tIn || '08:00', tOut: s.tOut || '16:00', ot: '', note: ''
             })),
             tasks: [],
             meters: site.meters.map(m => {
@@ -4051,7 +4163,7 @@ function isTaskCappedByShiftEnd(t, nowMs = Date.now(), dateStr = state.activeDat
         return false;
     }
     const todayStr = getLocalDateStr(nowMs);
-    // V17.8: Live In-Progress tasks on TODAY keep counting past shift end (only past forgotten days or explicit capAtShiftEnd cap!)
+    // V17.9: Live In-Progress tasks on TODAY keep counting past shift end (only past forgotten days or explicit capAtShiftEnd cap!)
     if (dateStr === todayStr && !t.capAtShiftEnd) {
         return false;
     }
@@ -4088,7 +4200,9 @@ function toggleTaskStoppedForToday(tIdx) {
         t.fixedEndTime = '';
         t.pausedAtMs = null;
         if (!t.fixedStartTime) t.fixedStartTime = '08:00';
+        const prevStopEnd = t.fixedEndTime || '';
         t.startTimeMs = hhmmToDateMs(t.fixedStartTime, state.activeDate) || now;
+        stampWorkersOnTaskLifecycle(t, log, 'start', prevStopEnd);
         logSectionHistory('tasks', 'status', `استكمال العمل بالمهمة الجارية: ${t.zones}`, { taskId: t.id });
         showToast(`▶️ تم استكمال العمل بالمهمة الجارية (${t.zones})`);
     } else {
@@ -4122,6 +4236,7 @@ function toggleTaskStoppedForToday(tIdx) {
         t.frozenAtMs = endMs;
         const netMs = getTaskNetElapsedMs(t, endMs);
         if (netMs > 0) t.dur = formatMsAsHrMin(netMs);
+        stampWorkersOnTaskLifecycle(t, log, 'finish');
         logSectionHistory('tasks', 'status', `انتهى وقت العمل (تبقى جاري): ${t.zones} (${t.fixedStartTime || '08:00'}–${t.fixedEndTime} | ${t.dur})`, { taskId: t.id });
         showToast(`⏹️ توقف العمل لنهاية الدوام (${t.fixedStartTime || '08:00'}–${t.fixedEndTime} | ${t.dur}) — تبقى جاري واحتُسبت للعمال`);
     }
@@ -4183,7 +4298,7 @@ function getTaskActiveIntervals(t, nowMs = Date.now(), dateStr = state.activeDat
             const capMs = getTaskShiftEndCapMs(t, dateStr);
             const eodMax = hhmmToDateMs('23:59', dateStr);
             if (dateStr === todayStr) {
-                // V17.8: Live task today keeps recording EVERY minute past planned end & past shift end!
+                // V17.9: Live task today keeps recording EVERY minute past planned end & past shift end!
                 eMs = eodMax ? Math.min(nowMs, eodMax) : nowMs;
                 if (t.capAtShiftEnd && capMs && eMs > capMs) eMs = capMs;
             } else {
@@ -4216,15 +4331,24 @@ function getTaskActiveIntervals(t, nowMs = Date.now(), dateStr = state.activeDat
         const bw = getBreakWindowMs(dateStr);
         parts = subtractIntervalRange(parts, bw.startMs, bw.endMs);
     }
-    if (t.manualPauseFrom && t.manualPauseTo) {
-        const mpS = hhmmToDateMs(t.manualPauseFrom, dateStr);
-        const mpE = hhmmToDateMs(t.manualPauseTo, dateStr);
-        if (mpS && mpE && mpE > mpS) {
-            parts = subtractIntervalRange(parts, mpS, mpE);
+    if (Array.isArray(t.pauseLog) && t.pauseLog.length > 0) {
+        t.pauseLog.forEach(pl => {
+            if (!pl || !pl.from || !pl.to) return;
+            const ps = hhmmToDateMs(pl.from, dateStr);
+            const pe = hhmmToDateMs(pl.to, dateStr);
+            if (ps && pe && pe > ps) parts = subtractIntervalRange(parts, ps, pe);
+        });
+    } else {
+        if (t.manualPauseFrom && t.manualPauseTo) {
+            const mpS = hhmmToDateMs(t.manualPauseFrom, dateStr);
+            const mpE = hhmmToDateMs(t.manualPauseTo, dateStr);
+            if (mpS && mpE && mpE > mpS) {
+                parts = subtractIntervalRange(parts, mpS, mpE);
+            }
         }
-    }
-    if (t.pausedTotalMs && t.pausedTotalMs > 0) {
-        parts = deductPausedMsFromIntervals(parts, t.pausedTotalMs);
+        if (t.pausedTotalMs && t.pausedTotalMs > 0) {
+            parts = deductPausedMsFromIntervals(parts, t.pausedTotalMs);
+        }
     }
 
     return parts.filter(([a, b]) => b > a);
@@ -4317,20 +4441,133 @@ function toggleTaskIgnoreBreak(tIdx) {
     showToast(t.ignoreBreak ? '⏸️ تم إيقاف خصم الاستراحة (يدوي) لهذه المهمة' : '☕ تم تفعيل الخصم التلقائي للاستراحة لهذه المهمة');
 }
 
+function ensureTaskPauseLog(t) {
+    if (!t) return [];
+    if (!Array.isArray(t.pauseLog)) {
+        t.pauseLog = [];
+        if (t.manualPauseFrom && t.manualPauseTo) {
+            t.pauseLog.push({
+                id: 'pl_legacy_man',
+                from: t.manualPauseFrom,
+                to: t.manualPauseTo,
+                reason: t.manualPauseReason || '',
+                autoKey: 'pause_manual'
+            });
+        }
+        if (t.pausedAtMs) {
+            const pKey = t.pauseActiveKey || ('pause_' + t.pausedAtMs);
+            t.pauseActiveKey = pKey;
+            t.pauseLog.push({
+                id: 'pl_live_' + t.pausedAtMs,
+                from: formatTime24FromMs(t.pausedAtMs),
+                to: '',
+                reason: t.pauseReason || '',
+                autoKey: pKey
+            });
+        }
+    }
+    return t.pauseLog;
+}
+
+function recomputePausedTotalMsFromLog(t, dateStr = state.activeDate) {
+    if (!t || !Array.isArray(t.pauseLog)) return 0;
+    let totalMs = 0;
+    t.pauseLog.forEach(pl => {
+        if (!pl || !pl.from || !pl.to) return;
+        const ps = hhmmToDateMs(pl.from, dateStr);
+        const pe = hhmmToDateMs(pl.to, dateStr);
+        if (ps && pe && pe > ps) {
+            const brkOv = t.ignoreBreak ? 0 : getBreakOverlapMs(ps, pe, dateStr);
+            totalMs += Math.max(0, (pe - ps) - brkOv);
+        }
+    });
+    t.pausedTotalMs = totalMs;
+    return totalMs;
+}
+
+function syncPauseLogAutoNotes(t, forceRestore = false, dateStr = state.activeDate) {
+    if (!t) return;
+    const pLog = ensureTaskPauseLog(t);
+    const activeKeys = new Set();
+    pLog.forEach((pl, idx) => {
+        if (!pl || !pl.from) return;
+        const aKey = pl.autoKey || ('pause_log_' + (pl.id || idx));
+        pl.autoKey = aKey;
+        activeKeys.add(aKey);
+        const rsn = String(pl.reason || '').trim();
+        let txt = '';
+        if (pl.to) {
+            const ps = hhmmToDateMs(pl.from, dateStr);
+            const pe = hhmmToDateMs(pl.to, dateStr);
+            const brkOv = (ps && pe && pe > ps && !t.ignoreBreak) ? getBreakOverlapMs(ps, pe, dateStr) : 0;
+            const mins = (ps && pe && pe > ps) ? Math.round(Math.max(0, (pe - ps) - brkOv) / 60000) : 0;
+            const durLbl = mins >= 1 ? `${mins} د` : 'أقل من دقيقة';
+            txt = `توقف مؤقت (${pl.from}–${pl.to} | ${durLbl})${rsn ? ' — ' + rsn : ''}`;
+        } else {
+            txt = `توقف مؤقت بدءاً من ${pl.from}${rsn ? ' — ' + rsn : ''}`;
+        }
+        upsertAutoNoteOnTask(t, { autoKey: aKey, autoType: 'pause', text: txt, forceRestore });
+    });
+
+    // Remove stale pause auto-notes no longer in pauseLog
+    const list = ensureTaskNotesList(t);
+    const cleaned = list.filter(x => {
+        if (!x || !x.autoKey || x.autoType !== 'pause') return true;
+        return activeKeys.has(x.autoKey);
+    });
+    if (cleaned.length !== list.length) {
+        t.notesList = cleaned;
+        rebuildTaskNoteFromList(t);
+    }
+}
+
+function getTaskPauseDisplayList(t, dateStr = state.activeDate) {
+    if (!t) return [];
+    const list = [];
+    if (Array.isArray(t.pauseLog) && t.pauseLog.length > 0) {
+        t.pauseLog.forEach(pl => {
+            if (!pl || !pl.from) return;
+            let mins = 0;
+            if (pl.to) {
+                const ps = hhmmToDateMs(pl.from, dateStr);
+                const pe = hhmmToDateMs(pl.to, dateStr);
+                const brkOv = (ps && pe && pe > ps && !t.ignoreBreak) ? getBreakOverlapMs(ps, pe, dateStr) : 0;
+                if (ps && pe && pe > ps) mins = Math.round(Math.max(0, (pe - ps) - brkOv) / 60000);
+            }
+            list.push({ from: pl.from, to: pl.to || '', mins, reason: pl.reason || '' });
+        });
+    } else {
+        if (t.manualPauseFrom && t.manualPauseTo) {
+            const ps = hhmmToDateMs(t.manualPauseFrom, dateStr);
+            const pe = hhmmToDateMs(t.manualPauseTo, dateStr);
+            const mins = (ps && pe && pe > ps) ? Math.round((pe - ps) / 60000) : 0;
+            list.push({ from: t.manualPauseFrom, to: t.manualPauseTo, mins, reason: t.manualPauseReason || '' });
+        }
+        if (t.pausedAtMs) {
+            list.push({ from: formatTime24FromMs(t.pausedAtMs), to: '', mins: 0, reason: t.pauseReason || '' });
+        }
+    }
+    return list;
+}
+
 function finalizeOpenTaskPause(t, endMs = Date.now()) {
     if (!t || !t.pausedAtMs) return;
-    const rawGap = Math.max(0, endMs - t.pausedAtMs);
-    const brkOv = t.ignoreBreak ? 0 : getBreakOverlapMs(t.pausedAtMs, endMs, state.activeDate);
-    const netPauseMs = Math.max(0, rawGap - brkOv);
-    const netPauseMins = Math.round(netPauseMs / 60000);
-    t.pausedTotalMs = (t.pausedTotalMs || 0) + netPauseMs;
     const pFromStr = formatTime24FromMs(t.pausedAtMs);
     const pToStr = formatTime24FromMs(endMs);
     const reason = (t.pauseReason || '').trim();
     const pKey = t.pauseActiveKey || ('pause_' + t.pausedAtMs);
-    const durLabel = netPauseMins >= 1 ? `${netPauseMins} د` : 'أقل من دقيقة';
-    const finalTxt = `توقف مؤقت (${pFromStr}–${pToStr} | ${durLabel})${reason ? ' — ' + reason : ''}`;
-    upsertAutoNoteOnTask(t, { autoKey: pKey, autoType: 'pause', text: finalTxt, forceRestore: true });
+    const pLog = ensureTaskPauseLog(t);
+    let openItem = pLog.find(x => x && (x.autoKey === pKey || !x.to));
+    if (openItem) {
+        openItem.from = pFromStr;
+        openItem.to = pToStr;
+        openItem.reason = reason;
+        openItem.autoKey = pKey;
+    } else {
+        pLog.push({ id: 'pl_' + endMs, from: pFromStr, to: pToStr, reason, autoKey: pKey });
+    }
+    recomputePausedTotalMsFromLog(t);
+    syncPauseLogAutoNotes(t, true);
     t.pausedAtMs = null;
     t.pauseReason = '';
     t.pauseActiveKey = '';
@@ -4432,8 +4669,9 @@ function confirmTaskPauseWithReason(tIdx, reasonText, customPauseHHMM = '') {
     t.pauseReason = cleanReason;
     t.pauseActiveKey = 'pause_' + now;
     const startStr = formatTime24FromMs(effPauseMs);
-    const liveNoteTxt = `توقف مؤقت بدءاً من ${startStr}${cleanReason ? ' — ' + cleanReason : ''}`;
-    upsertAutoNoteOnTask(t, { autoKey: t.pauseActiveKey, autoType: 'pause', text: liveNoteTxt, forceRestore: true });
+    const pLog = ensureTaskPauseLog(t);
+    pLog.push({ id: 'pl_' + now, from: startStr, to: '', reason: cleanReason, autoKey: t.pauseActiveKey });
+    syncPauseLogAutoNotes(t, true);
     closeModal();
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
     showToast(`⏸️ توقف مؤقت بدءاً من ${startStr}${cleanReason ? ' (' + cleanReason + ')' : ''} — حُفظ بالملاحظات`);
@@ -4451,12 +4689,11 @@ function quickShiftActivePauseMins(tIdx, deltaMins) {
     const reason = (t.pauseReason || '').trim();
     const pKey = t.pauseActiveKey || ('pause_' + nextMs);
     t.pauseActiveKey = pKey;
-    upsertAutoNoteOnTask(t, {
-        autoKey: pKey,
-        autoType: 'pause',
-        text: `توقف مؤقت بدءاً من ${startStr}${reason ? ' — ' + reason : ''}`,
-        forceRestore: true
-    });
+    const pLog = ensureTaskPauseLog(t);
+    let openItem = pLog.find(x => x && (x.autoKey === pKey || !x.to));
+    if (openItem) { openItem.from = startStr; openItem.reason = reason; }
+    else pLog.push({ id: 'pl_' + nextMs, from: startStr, to: '', reason, autoKey: pKey });
+    syncPauseLogAutoNotes(t, true);
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
     showToast(`🕒 تم تعديل ساعة التوقف المؤقت إلى ${startStr} (تحديث صافي العداد والملاحظة)`);
 }
@@ -4516,12 +4753,11 @@ function saveEditActivePause(tIdx) {
     const pKey = t.pauseActiveKey || ('pause_' + effMs);
     t.pauseActiveKey = pKey;
     const finalStr = formatTime24FromMs(effMs);
-    upsertAutoNoteOnTask(t, {
-        autoKey: pKey,
-        autoType: 'pause',
-        text: `توقف مؤقت بدءاً من ${finalStr}${rsnVal ? ' — ' + rsnVal : ''}`,
-        forceRestore: true
-    });
+    const pLog = ensureTaskPauseLog(t);
+    let openItem = pLog.find(x => x && (x.autoKey === pKey || !x.to));
+    if (openItem) { openItem.from = finalStr; openItem.reason = rsnVal; }
+    else pLog.push({ id: 'pl_' + effMs, from: finalStr, to: '', reason: rsnVal, autoKey: pKey });
+    syncPauseLogAutoNotes(t, true);
     closeModal();
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
     showToast(`✅ تم إرجاع ساعة التوقف المؤقت إلى ${finalStr}`);
@@ -4760,7 +4996,7 @@ function clampIntervalsToAttendanceWindow(parts, shortName, extraTaskOtHrs = 0) 
     const eodMs = hhmmToDateMs('23:59', state.activeDate);
     const maxPartEnd = parts.reduce((mx, [, b]) => Math.max(mx, b), 0);
     if (manualTaskOt > 0 || maxPartEnd > attOutMs) {
-        // V17.8: Never silently cut off actual recorded overtime past shift end — allow up to 23:59!
+        // V17.9: Never silently cut off actual recorded overtime past shift end — allow up to 23:59!
         attOutMs = eodMs || Math.max(attOutMs + Math.round(manualTaskOt * 3600000), maxPartEnd);
     } else if (wOtHrs > 0) {
         attOutMs += Math.round(wOtHrs * 3600000);
@@ -4816,18 +5052,27 @@ function getWorkerIntervalsForTask(t, shortName, nowMs = Date.now()) {
             return { intervals: [], mins: 0, rawMins: 0, labelRange: '', wt };
         }
         let cleanParts = t.ignoreBreak ? [[sMs, eMs]] : subtractBreakFromInterval(sMs, eMs, state.activeDate);
-        if (t.manualPauseFrom && t.manualPauseTo) {
-            const mpS = hhmmToDateMs(t.manualPauseFrom, state.activeDate);
-            const mpE = hhmmToDateMs(t.manualPauseTo, state.activeDate);
-            if (mpS && mpE && mpE > mpS) cleanParts = subtractIntervalRange(cleanParts, mpS, mpE);
+        if (Array.isArray(t.pauseLog) && t.pauseLog.length > 0) {
+            t.pauseLog.forEach(pl => {
+                if (!pl || !pl.from || !pl.to) return;
+                const ps = hhmmToDateMs(pl.from, state.activeDate);
+                const pe = hhmmToDateMs(pl.to, state.activeDate);
+                if (ps && pe && pe > ps) cleanParts = subtractIntervalRange(cleanParts, ps, pe);
+            });
+        } else {
+            if (t.manualPauseFrom && t.manualPauseTo) {
+                const mpS = hhmmToDateMs(t.manualPauseFrom, state.activeDate);
+                const mpE = hhmmToDateMs(t.manualPauseTo, state.activeDate);
+                if (mpS && mpE && mpE > mpS) cleanParts = subtractIntervalRange(cleanParts, mpS, mpE);
+            }
+            if (t.pausedTotalMs && t.pausedTotalMs > 0) {
+                cleanParts = deductPausedMsFromIntervals(cleanParts, t.pausedTotalMs);
+            }
         }
         if (wt.awayFrom && wt.awayTo) {
             const awS = hhmmToDateMs(wt.awayFrom, state.activeDate);
             const awE = hhmmToDateMs(wt.awayTo, state.activeDate);
             if (awS && awE && awE > awS) cleanParts = subtractIntervalRange(cleanParts, awS, awE);
-        }
-        if (t.pausedTotalMs && t.pausedTotalMs > 0) {
-            cleanParts = deductPausedMsFromIntervals(cleanParts, t.pausedTotalMs);
         }
         cleanParts = clampIntervalsToAttendanceWindow(cleanParts, shortName, taskOtHrs);
         cleanParts = deductPausedMsFromIntervals(cleanParts, wtPausedMs);
@@ -5163,7 +5408,7 @@ function confirmRadarTask(zoneName, desc, dur) {
     closeModal(); saveState(); renderTasks(getDayLog()); showToast(`✓ أُضيفت مهمة ري ${zoneName}`);
 }
 
-/* ================= V17.8: Worker Weekly/Period Attendance Tracker & Payment Settlement Center ================= */
+/* ================= V17.9: Worker Weekly/Period Attendance Tracker & Payment Settlement Center ================= */
 let _payUiState = { preset: 'this_week', fromDate: '', toDate: '', typeFilter: 'all', search: '' };
 
 function getIraqWeekBounds(refDateStr = state.activeDate, weekOffset = 0) {
@@ -5870,25 +6115,27 @@ function openTaskTimeControlModal(tIdx) {
                 <button type="button" id="tmcBrkOffBtn" class="btn btn-sm ${t.ignoreBreak ? 'btn-orange' : 'btn-outline'}" onclick="setTmcBreakMode(true, ${tIdx})">⏸️ إيقاف الخصم (يدوي)</button>
             </div>
             <input type="hidden" id="tmcIgnoreBreakVal" value="${t.ignoreBreak ? '1' : '0'}">
-            <div class="grid-2" style="margin-bottom:5px;">
-                <div>
-                    <label class="lbl">توقف مؤقت إضافي (من):</label>
-                    <input type="time" id="tmcPauseFrom" class="inp" style="margin:0;padding:5px;text-align:center;" value="${esc(t.manualPauseFrom || '')}" oninput="updateTaskTimeControlPreview(${tIdx})">
-                </div>
-                <div>
-                    <label class="lbl">توقف مؤقت إضافي (إلى):</label>
-                    <input type="time" id="tmcPauseTo" class="inp" style="margin:0;padding:5px;text-align:center;" value="${esc(t.manualPauseTo || '')}" oninput="updateTaskTimeControlPreview(${tIdx})">
-                </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <label class="lbl" style="margin:0;color:#92400e;">⏸️ فترات التوقف المؤقت (تعديل من – إلى – السبب):</label>
+                <button type="button" class="btn btn-outline btn-sm" style="background:white;padding:2px 7px;font-size:10.5px;" onclick="addTmcPauseRow(${tIdx})">+ إضافة توقف</button>
             </div>
-            <input type="text" id="tmcPauseReason" class="inp" style="margin-bottom:6px;padding:5px 8px;font-size:11.5px;background:white;" value="${esc(t.manualPauseReason || '')}" placeholder="سبب التوقف المؤقت (اختياري — يُكتب تلقائياً بالملاحظات)">
-            ${livePausedMins > 0 ? `
+            <div id="tmcPauseRowsWrap" style="margin-bottom:6px;">
+                ${(() => {
+                    const pLog = ensureTaskPauseLog(t);
+                    if (!pLog.length) {
+                        return `<div id="tmcNoPauseMsg" style="font-size:11px;color:var(--muted);background:white;border:1px dashed #fde68a;border-radius:7px;padding:5px 8px;text-align:center;">لا توجد فترات توقف مسجّلة — اضغط «+ إضافة توقف» عند الحاجة</div>`;
+                    }
+                    return pLog.map((pl, pI) => buildTmcPauseRowHtml(pI, pl, tIdx)).join('');
+                })()}
+            </div>
+            ${livePausedMins > 0 && (!Array.isArray(t.pauseLog) || t.pauseLog.length === 0) ? `
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#92400e;background:white;border:1px dashed #fcd34d;border-radius:7px;padding:4px 8px;margin-bottom:6px;">
-                <span>⏸️ توقف مؤقت سابق مسجّل: <b>${livePausedMins} دقيقة</b></span>
+                <span>⏸️ توقف مؤقت قديم مسجّل: <b>${livePausedMins} دقيقة</b></span>
                 <label style="font-weight:bold;"><input type="checkbox" id="tmcClearLivePauseChk" onchange="updateTaskTimeControlPreview(${tIdx})"> تصفير</label>
             </div>` : ''}
             <div style="display:flex;align-items:center;gap:8px;margin-top:6px;background:white;border:1px solid #fcd34d;border-radius:7px;padding:6px 8px;">
                 <label class="lbl" style="margin:0;flex:1;color:#78350f;">⏰ أوفرتايم يدوي للمهمة (ساعات OT):</label>
-                <input type="number" id="tmcOtHrs" class="inp" step="0.5" min="0" max="12" style="width:74px;margin:0;padding:4px;text-align:center;font-weight:bold;" value="${parseFloat(t.manualOt) || 0}" oninput="updateTaskTimeControlPreview(${tIdx})">
+                <input type="number" id="tmcOtHrs" class="inp" step="0.5" min="0" max="12" style="width:74px;margin:0;padding:4px;text-align:center;font-weight:bold;" value="${(parseFloat(t.manualOt) > 0) ? parseFloat(t.manualOt) : ''}" placeholder="—" oninput="updateTaskTimeControlPreview(${tIdx})">
             </div>
             <label style="display:block;font-size:11px;font-weight:bold;color:#78350f;margin-top:5px;">
                 <input type="checkbox" id="tmcSyncOtToAtt"> إضافة ساعات الأوفرتايم أعلاه لخانة OT بالحضور للعمال المحددين
@@ -5929,11 +6176,16 @@ function openTaskTimeControlModal(tIdx) {
                             </div>
                         </div>
                         <div id="tmcWkFields_${wI}" style="display:${checked ? 'block' : 'none'};margin-top:6px;">
-                            <div style="display:flex;gap:5px;align-items:center;font-size:11px;margin-bottom:5px;">
-                                <span>أجا:</span>
-                                <input type="time" id="tmcWkFrom_${wI}" class="inp" style="margin:0;padding:3px 5px;flex:1;font-weight:bold;" value="${esc(wFrom)}" placeholder="${esc(startVal)}">
-                                <span>ترك:</span>
-                                <input type="time" id="tmcWkTo_${wI}" class="inp" style="margin:0;padding:3px 5px;flex:1;font-weight:bold;" value="${esc(wTo)}" placeholder="${esc(endVal || 'نهاية الدوام')}">
+                            <div style="display:flex;gap:4px;align-items:center;font-size:11px;margin-bottom:4px;">
+                                <span>بدأ:</span>
+                                <input type="time" id="tmcWkFrom_${wI}" class="inp" style="margin:0;padding:3px 5px;flex:1;font-weight:bold;" value="${esc(wFrom || (checked ? startVal : ''))}" placeholder="${esc(startVal)}">
+                                <span>انتهى:</span>
+                                <input type="time" id="tmcWkTo_${wI}" class="inp" style="margin:0;padding:3px 5px;flex:1;font-weight:bold;" value="${esc(wTo || (checked && endVal ? endVal : ''))}" placeholder="${esc(endVal || 'جاري')}">
+                            </div>
+                            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;">
+                                <span class="chip" style="margin:0;padding:1px 6px;font-size:9.5px;background:white;" onclick="document.getElementById('tmcWkFrom_${wI}').value=document.getElementById('tmcStart')?.value||'${esc(startVal)}'">من البداية (${esc(startVal)})</span>
+                                <span class="chip" style="margin:0;padding:1px 6px;font-size:9.5px;background:#e0f2fe;color:#0369a1;" onclick="document.getElementById('tmcWkFrom_${wI}').value='${esc(nowStr)}'">بدأ الآن (${esc(nowStr)})</span>
+                                <span class="chip" style="margin:0;padding:1px 6px;font-size:9.5px;background:#fef3c7;color:#92400e;" onclick="document.getElementById('tmcWkTo_${wI}').value='${esc(nowStr)}'">انتهى الآن (${esc(nowStr)})</span>
                             </div>
                             ${otherTasks.length > 0 ? `
                             <div style="display:flex;gap:5px;align-items:center;font-size:11px;">
@@ -5983,6 +6235,55 @@ function resetTmcWorkerInputs(wI) {
     showToast('🧹 تم مسح التوقيت/الانتقال المخصص لهذا العامل — اضغط حفظ للاعتماد');
 }
 
+function buildTmcPauseRowHtml(pI, pl, tIdx) {
+    const isLiveOpen = !pl.to;
+    return `
+    <div class="tmc-pause-row" data-pidx="${pI}" data-autokey="${esc(pl.autoKey || '')}" data-pid="${esc(pl.id || ('pl_' + Date.now() + '_' + pI))}">
+        <div style="display:flex;gap:4px;align-items:center;font-size:11px;margin-bottom:4px;">
+            <span style="font-weight:bold;color:#92400e;">من:</span>
+            <input type="time" class="inp tmc-pl-from" style="margin:0;padding:3px 4px;flex:1;font-weight:bold;text-align:center;" value="${esc(pl.from || '')}" oninput="updateTaskTimeControlPreview(${tIdx})">
+            <span style="font-weight:bold;color:#92400e;">إلى:</span>
+            <input type="time" class="inp tmc-pl-to" style="margin:0;padding:3px 4px;flex:1;font-weight:bold;text-align:center;" value="${esc(pl.to || '')}" placeholder="${isLiveOpen ? 'ما زال متوقفاً' : ''}" oninput="updateTaskTimeControlPreview(${tIdx})">
+            <button type="button" class="btn btn-outline btn-sm" style="color:var(--red);padding:2px 6px;" onclick="removeTmcPauseRow(this, ${tIdx})" title="حذف فترة التوقف">✕</button>
+        </div>
+        <input type="text" class="inp tmc-pl-reason" style="margin:0;padding:3px 6px;font-size:11px;background:#f8fafc;" value="${esc(pl.reason || '')}" placeholder="سبب التوقف المؤقت (اختياري)...">
+    </div>`;
+}
+
+function addTmcPauseRow(tIdx) {
+    const wrap = document.getElementById('tmcPauseRowsWrap');
+    if (!wrap) return;
+    const emptyMsg = document.getElementById('tmcNoPauseMsg');
+    if (emptyMsg) emptyMsg.remove();
+    const nowMs = Date.now();
+    const fromDefault = formatTime24FromMs(nowMs - 15 * 60000);
+    const toDefault = formatTime24FromMs(nowMs);
+    const idx = wrap.querySelectorAll('.tmc-pause-row').length;
+    const div = document.createElement('div');
+    div.innerHTML = buildTmcPauseRowHtml(idx, { id: 'pl_' + nowMs, from: fromDefault, to: toDefault, reason: '', autoKey: 'pause_' + nowMs }, tIdx);
+    wrap.appendChild(div.firstElementChild);
+    updateTaskTimeControlPreview(tIdx);
+}
+
+function removeTmcPauseRow(btn, tIdx) {
+    const row = btn.closest('.tmc-pause-row');
+    if (row) row.remove();
+    updateTaskTimeControlPreview(tIdx);
+}
+
+function collectTmcPauseRowsFromDom() {
+    const out = [];
+    document.querySelectorAll('#tmcPauseRowsWrap .tmc-pause-row').forEach((row, idx) => {
+        const from = (row.querySelector('.tmc-pl-from')?.value || '').trim();
+        const to = (row.querySelector('.tmc-pl-to')?.value || '').trim();
+        const reason = (row.querySelector('.tmc-pl-reason')?.value || '').trim();
+        const autoKey = row.dataset.autokey || ('pause_log_' + Date.now() + '_' + idx);
+        const id = row.dataset.pid || ('pl_' + Date.now() + '_' + idx);
+        if (from) out.push({ id, from, to, reason, autoKey });
+    });
+    return out;
+}
+
 function toggleTmcWorkerRow(chk) {
     const wI = chk.dataset.widx;
     const box = document.getElementById(`tmcWkBox_${wI}`);
@@ -5991,6 +6292,26 @@ function toggleTmcWorkerRow(chk) {
     if (box) {
         box.style.background = chk.checked ? '#f0fdf4' : 'white';
         box.style.borderColor = chk.checked ? '#86efac' : '#e2e8f0';
+    }
+    if (chk.checked) {
+        const fromInp = document.getElementById(`tmcWkFrom_${wI}`);
+        const toInp = document.getElementById(`tmcWkTo_${wI}`);
+        const taskStartStr = document.getElementById('tmcStart')?.value || '08:00';
+        const taskEndStr = document.getElementById('tmcEnd')?.value || '';
+        if (fromInp && !fromInp.value) {
+            const nowMs = Date.now();
+            const todayStr = getLocalDateStr(nowMs);
+            const tStartMs = hhmmToDateMs(taskStartStr, state.activeDate);
+            // Smart default: if live task started >3 mins ago today, default newly added worker to NOW!
+            if (!taskEndStr && state.activeDate === todayStr && tStartMs && (nowMs - tStartMs) > 3 * 60000) {
+                fromInp.value = formatTime24FromMs(nowMs);
+            } else {
+                fromInp.value = taskStartStr;
+            }
+        }
+        if (toInp && !toInp.value && taskEndStr) {
+            toInp.value = taskEndStr;
+        }
     }
 }
 
@@ -6031,22 +6352,26 @@ function updateTaskTimeControlPreview(tIdx) {
     const sStr = document.getElementById('tmcStart')?.value || '08:00';
     const eStr = document.getElementById('tmcEnd')?.value || '';
     const ignBrk = document.getElementById('tmcIgnoreBreakVal')?.value === '1';
-    const pFrom = document.getElementById('tmcPauseFrom')?.value || '';
-    const pTo = document.getElementById('tmcPauseTo')?.value || '';
+    const pauseRows = collectTmcPauseRowsFromDom();
     const liveOt = Math.max(0, parseFloat(document.getElementById('tmcOtHrs')?.value) || 0);
     const clearLivePause = !!document.getElementById('tmcClearLivePauseChk')?.checked;
     const t = getDayLog().tasks[tIdx] || {};
 
+    const openRow = pauseRows.find(r => r.from && !r.to);
     const sMs = hhmmToDateMs(sStr, state.activeDate);
     let eMs = eStr ? hhmmToDateMs(eStr, state.activeDate) : null;
     let liveMode = false;
     if (!eMs) {
         liveMode = true;
-        const capMs = getTaskShiftEndCapMs({ ...t, manualOt: liveOt, fixedEndTime: '' }, state.activeDate);
-        const nowMs = Date.now();
-        const todayStr = getLocalDateStr(nowMs);
-        const eodMax = hhmmToDateMs('23:59', state.activeDate);
-        eMs = (state.activeDate === todayStr) ? (eodMax ? Math.min(nowMs, eodMax) : nowMs) : (capMs || nowMs);
+        if (openRow) {
+            eMs = hhmmToDateMs(openRow.from, state.activeDate) || Date.now();
+        } else {
+            const capMs = getTaskShiftEndCapMs({ ...t, manualOt: liveOt, fixedEndTime: '' }, state.activeDate);
+            const nowMs = Date.now();
+            const todayStr = getLocalDateStr(nowMs);
+            const eodMax = hhmmToDateMs('23:59', state.activeDate);
+            eMs = (state.activeDate === todayStr) ? (eodMax ? Math.min(nowMs, eodMax) : nowMs) : (capMs || nowMs);
+        }
     }
     if (!sMs || !eMs || eMs <= sMs) {
         box.textContent = '⚠️ حدد ساعة النهاية أكبر من ساعة البداية';
@@ -6057,12 +6382,14 @@ function updateTaskTimeControlPreview(tIdx) {
         const bw = getBreakWindowMs(state.activeDate);
         parts = subtractIntervalRange(parts, bw.startMs, bw.endMs);
     }
-    if (pFrom && pTo) {
-        const mpS = hhmmToDateMs(pFrom, state.activeDate);
-        const mpE = hhmmToDateMs(pTo, state.activeDate);
-        if (mpS && mpE && mpE > mpS) parts = subtractIntervalRange(parts, mpS, mpE);
-    }
-    if (!clearLivePause && t.pausedTotalMs && t.pausedTotalMs > 0) {
+    pauseRows.forEach(pl => {
+        if (pl.from && pl.to) {
+            const ps = hhmmToDateMs(pl.from, state.activeDate);
+            const pe = hhmmToDateMs(pl.to, state.activeDate);
+            if (ps && pe && pe > ps) parts = subtractIntervalRange(parts, ps, pe);
+        }
+    });
+    if (!pauseRows.length && !clearLivePause && t.pausedTotalMs && t.pausedTotalMs > 0) {
         parts = deductPausedMsFromIntervals(parts, t.pausedTotalMs);
     }
     const netMins = Math.round(parts.reduce((acc, [a, b]) => acc + (b - a), 0) / 60000);
@@ -6079,9 +6406,7 @@ function saveTaskTimeControl(tIdx) {
     const sStr = document.getElementById('tmcStart')?.value || '08:00';
     let eStr = document.getElementById('tmcEnd')?.value || '';
     const ignBrk = document.getElementById('tmcIgnoreBreakVal')?.value === '1';
-    const pFrom = document.getElementById('tmcPauseFrom')?.value || '';
-    const pTo = document.getElementById('tmcPauseTo')?.value || '';
-    const pReason = (document.getElementById('tmcPauseReason')?.value || '').trim();
+    const editedPauseRows = collectTmcPauseRowsFromDom();
     const manualOt = Math.max(0, parseFloat(document.getElementById('tmcOtHrs')?.value) || 0);
     const syncOtToAtt = !!document.getElementById('tmcSyncOtToAtt')?.checked;
     const clearLivePause = !!document.getElementById('tmcClearLivePauseChk')?.checked;
@@ -6089,26 +6414,16 @@ function saveTaskTimeControl(tIdx) {
 
     t.fixedStartTime = sStr;
     t.ignoreBreak = ignBrk;
-    t.manualPauseFrom = (pFrom && pTo && pTo > pFrom) ? pFrom : '';
-    t.manualPauseTo = (pFrom && pTo && pTo > pFrom) ? pTo : '';
-    t.manualPauseReason = t.manualPauseFrom ? pReason : '';
+    t.manualPauseFrom = '';
+    t.manualPauseTo = '';
+    t.manualPauseReason = '';
     t.manualOt = manualOt;
+
+    // Save full editable pauseLog cleanly!
+    t.pauseLog = editedPauseRows.filter(pl => pl.from && (!pl.to || pl.to > pl.from));
     if (clearLivePause) {
         t.pausedTotalMs = 0;
-        removeAutoNotesByPrefix(t, 'pause_1');
-    }
-    if (t.manualPauseFrom && t.manualPauseTo) {
-        const mpS = hhmmToDateMs(t.manualPauseFrom, state.activeDate);
-        const mpE = hhmmToDateMs(t.manualPauseTo, state.activeDate);
-        const mpMins = (mpS && mpE && mpE > mpS) ? Math.round((mpE - mpS) / 60000) : 0;
-        upsertAutoNoteOnTask(t, {
-            autoKey: 'pause_manual',
-            autoType: 'pause',
-            text: `توقف مؤقت (${t.manualPauseFrom}–${t.manualPauseTo}${mpMins ? ' | ' + mpMins + ' د' : ''})${pReason ? ' — ' + pReason : ''}`,
-            forceRestore: true
-        });
-    } else {
-        removeAutoNoteByKey(t, 'pause_manual');
+        t.pauseLog = [];
     }
 
     const isProg = !!(t.status && t.status.includes('Progress'));
@@ -6121,18 +6436,38 @@ function saveTaskTimeControl(tIdx) {
         t.stoppedForToday = wantStopped;
         t.fixedEndTime = eStr;
         t.startTimeMs = hhmmToDateMs(sStr, state.activeDate) || Date.now();
+
+        const openPauseRow = t.pauseLog.find(pl => pl.from && !pl.to);
         if (wantStopped || eStr) {
-            if (t.pausedAtMs) finalizeOpenTaskPause(t, hhmmToDateMs(eStr, state.activeDate) || Date.now());
-        } else if (t.pausedAtMs) {
-            // Preserve active pause while adjusting workers/start time, clamping if start moved forward
-            t.pausedAtMs = clampPauseStartMsForTask(t, t.pausedAtMs, Date.now());
+            if (openPauseRow) openPauseRow.to = eStr || formatTime24FromMs(Date.now());
+            t.pausedAtMs = null;
+            t.pauseReason = '';
+            t.pauseActiveKey = '';
+        } else if (openPauseRow) {
+            const reqMs = hhmmToDateMs(openPauseRow.from, state.activeDate) || Date.now();
+            const clampedMs = clampPauseStartMsForTask(t, reqMs, Date.now());
+            openPauseRow.from = formatTime24FromMs(clampedMs);
+            t.pausedAtMs = clampedMs;
+            t.pauseReason = openPauseRow.reason || '';
+            t.pauseActiveKey = openPauseRow.autoKey || ('pause_' + clampedMs);
+        } else {
+            t.pausedAtMs = null;
+            t.pauseReason = '';
+            t.pauseActiveKey = '';
         }
         t.timerFrozen = !!(wantStopped || eStr);
         t.frozenAtMs = eStr ? hhmmToDateMs(eStr, state.activeDate) : null;
     } else {
         t.fixedEndTime = eStr;
         t.stoppedForToday = false;
+        // Close any open pause on non-running tasks using task end time
+        t.pauseLog.forEach(pl => { if (pl.from && !pl.to) pl.to = eStr || formatTime24FromMs(Date.now()); });
+        t.pausedAtMs = null;
+        t.pauseReason = '';
+        t.pauseActiveKey = '';
     }
+    recomputePausedTotalMsFromLog(t);
+    syncPauseLogAutoNotes(t, true);
 
     // Recalculate exact net duration if end time is given
     const sMs = hhmmToDateMs(sStr, state.activeDate);
@@ -6224,20 +6559,19 @@ function saveTaskTimeControl(tIdx) {
                 note: `من (${t.zones})`
             };
             syncWorkerTimingNotesOnTask(destTask, true);
-        } else if (fVal || tVal) {
+        } else {
             cleanupPrevDestTransfer('');
+            const autoFrom = fVal || sStr;
+            const autoTo = tVal || (eStr || '');
             t.workerTimings[shortName] = {
-                from: fVal,
-                to: tVal,
-                mode: prevWt.mode === 'from_moved' || prevWt.mode === 'from_roundtrip' ? prevWt.mode : 'normal',
+                from: autoFrom,
+                to: autoTo,
+                mode: (prevWt.mode === 'from_moved' || prevWt.mode === 'from_roundtrip') ? prevWt.mode : 'normal',
                 srcTaskId: prevWt.srcTaskId || '',
                 srcZones: prevWt.srcZones || '',
                 reason: prevWt.reason || '',
                 note: prevWt.mode === 'normal' ? (prevWt.note || '') : ''
             };
-        } else {
-            cleanupPrevDestTransfer('');
-            delete t.workerTimings[shortName];
         }
     });
 
@@ -6305,7 +6639,7 @@ function applyCustomTime(targetType, targetIdx, targetInputId) {
     showToast('⏱️ تم ضبط الوقت: ' + formatted);
 }
 
-/* ================= V17.8: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
+/* ================= V17.9: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
 function pushUndo(actionLabel) {
     try {
         const snap = JSON.stringify(state);
@@ -6899,7 +7233,7 @@ function renderAttendance(log) {
 
     document.getElementById('attKpiStrip').innerHTML = `
         <div class="kpi-box"><div class="kpi-val">${presentCount}/${log.attendance.length}</div><div class="kpi-sub">الحضور اليوم</div></div>
-        <div class="kpi-box"><div class="kpi-val">${totalOt}h</div><div class="kpi-sub">أوفرتايم</div></div>
+        <div class="kpi-box"><div class="kpi-val">${totalOt > 0 ? totalOt + 'h' : '—'}</div><div class="kpi-sub">أوفرتايم</div></div>
         <div class="kpi-box"><div class="kpi-val">${cost.toLocaleString()}</div><div class="kpi-sub">كلفة خارجية (IQD)</div></div>
     `;
 
@@ -6959,7 +7293,7 @@ function renderAttendance(log) {
                         <option value="__CUSTOM__">⏰ مخصص...</option>
                     </select>
                 </span>
-                <span>OT: <input type="number" step="0.5" class="time-mini" style="width:44px;" value="${w.ot || 0}" onchange="updateWorkerField(${idx},'ot',this.value)"></span>
+                <span>OT: <input type="number" step="0.5" min="0" class="time-mini" style="width:44px;" value="${(parseFloat(w.ot) > 0) ? esc(w.ot) : ''}" placeholder="—" onchange="updateWorkerField(${idx},'ot',this.value)"></span>
                 <span class="badge" style="cursor:pointer;background:${isOver ? '#fef3c7' : '#e0f2fe'};color:${isOver ? '#92400e' : '#0369a1'};" onclick="openWorkerHoursModal(${idx})" title="اضغط لعرض مهام العامل والانتقال إليها">
                     ⏱️ بالمهام: ${wStat.workedFormatted} (${wStat.workedMins} د) / ${wStat.shiftFormatted} ${isOver ? `(+${wStat.diffFormatted})` : ''}
                 </span>
@@ -7133,7 +7467,7 @@ function updateWorkerField(idx, k, v) {
     const log = getDayLog();
     const w = log.attendance[idx];
     const oldVal = w[k];
-    w[k] = v;
+    w[k] = (k === 'ot') ? ((parseFloat(v) > 0) ? parseFloat(v) : '') : v;
     const sn = (w.name.split('/')[1] || w.name).trim();
     recordActivity({ sec: 'att', label: `${k === 'ot' ? 'أوفرتايم' : k} ${sn}`, before: String(oldVal ?? 0), after: String(v), jump: { tab: 'att' }, revert: { type: 'worker_field', workerId: w.id, field: k, oldVal } });
     saveState(); renderAttendance(log); renderTasks(log);
@@ -7172,7 +7506,7 @@ function copyYesterdayCrew() {
     if (!prevDate || !site.logs[prevDate].attendance.length) { showToast('⚠️ لا يوجد سجل كادر سابق'); return; }
     pushUndo('نسخ كادر الأمس');
     getDayLog().attendance = JSON.parse(JSON.stringify(site.logs[prevDate].attendance)).map((w, i) => ({
-        ...w, id: 'w_' + i + '_' + Date.now(), ot: 0, note: ''
+        ...w, id: 'w_' + i + '_' + Date.now(), ot: '', note: ''
     }));
     logSectionHistory('att', 'copy', 'نسخ كادر الأمس بالكامل', {});
     saveState(); renderAttendance(getDayLog()); showToast('📋 تم نسخ كادر الأمس');
@@ -7218,7 +7552,7 @@ function confirmAddWorker() {
     pushUndo('إضافة عامل: ' + name);
     const tOut = type.includes('Outside') ? '16:00' : '17:00';
     const wid = 'w_' + Date.now();
-    getDayLog().attendance.push({ id: wid, name, type, status: 'Present / حاضر', tIn: '08:00', tOut, ot: 0, note: '' });
+    getDayLog().attendance.push({ id: wid, name, type, status: 'Present / حاضر', tIn: '08:00', tOut, ot: '', note: '' });
     if (document.getElementById('newWSavePool').checked && !state.company.staffPool.some(s => s.name === name)) {
         state.company.staffPool.push({ name, type, tIn: '08:00', tOut });
     }
@@ -7254,6 +7588,15 @@ function copyWorkersFromPrevTask(idx) {
     }
     pushUndo('نسخ عمال المهمة السابقة');
     tasks[idx].workers = [...prev.workers];
+    const logObj = getDayLog();
+    const tCur = tasks[idx];
+    const isRunNow = !!(tCur.status && tCur.status.includes('Progress') && !tCur.fixedEndTime && !tCur.stoppedForToday);
+    const defaultFrom = isRunNow ? formatTime24FromMs(Date.now()) : (tCur.fixedStartTime || formatTime24FromMs(Date.now()));
+    if (!tCur.workerTimings) tCur.workerTimings = {};
+    resolveAssignedWorkerShortNames(tCur, logObj).forEach(wn => {
+        if (!tCur.workerTimings[wn]) tCur.workerTimings[wn] = { from: defaultFrom, to: tCur.fixedEndTime || '', mode: 'normal', note: '' };
+    });
+    syncWorkerTimingNotesOnTask(tCur);
     logSectionHistory('tasks', 'workers', `نسخ عمال (${prev.workers.join(' / ')}) إلى ${tasks[idx].zones}`, { taskId: tasks[idx].id });
     saveState(); renderTasks(getDayLog()); renderAttendance(getDayLog());
     showToast(`👥 تم تعيين (${prev.workers.join(' / ')}) للمهمة`);
@@ -7523,7 +7866,21 @@ function renderTasks(log) {
         else if (isNotSt) cardClass += ' is-notstarted';
         else if (isDone) cardClass += ' is-done';
 
+        const pauseDispList = getTaskPauseDisplayList(t);
+        const pauseSummaryTxt = pauseDispList.length
+            ? pauseDispList.map(p => p.to ? `توقف ${p.from} ↩️ عاد ${p.to}${p.mins ? ' (' + p.mins + ' د)' : ''}` : `متوقف منذ ${p.from}`).join(' | ')
+            : '';
+
         if (isDoneCollapsed) {
+            const wtMap = t.workerTimings || {};
+            const wSummary = (t.workers && t.workers.length)
+                ? (t.workers.includes('Team')
+                    ? `Team (${timeRangeStr})`
+                    : t.workers.map(wn => {
+                        const wt = wtMap[wn];
+                        return (wt && (wt.from || wt.to)) ? `${wn} (${wt.from || ''}–${wt.to || ''})` : wn;
+                    }).join(' / '))
+                : 'بدون عمال';
             return `
             <div id="taskCard_${idx}" class="card ${cardClass}" style="padding:10px 12px;margin-bottom:9px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -7536,9 +7893,11 @@ function renderTasks(log) {
                         <button class="btn btn-outline btn-sm" style="background:white;color:#166534;border-color:#86efac;padding:3px 7px;" onclick="toggleDoneCardExpand('${t.id}')">▼ تعديل</button>
                     </div>
                 </div>
-                <div style="font-size:11.5px;color:#166534;margin-top:5px;display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
-                    <span>${esc(t.desc)} • ⏱️ <b>${esc(timeRangeStr)} (${esc(repDurStr)})</b> • 👷 ${esc(wNames)}${photos.length ? ` • 📸 ${photos.length}` : ''}</span>
-                    ${t.note ? `<span style="color:#15803d;">📝 ${esc(t.note)}</span>` : ''}
+                <div style="font-size:11.5px;color:#166534;margin-top:5px;display:flex;flex-direction:column;gap:3px;">
+                    <div>${esc(t.desc)} • ⏱️ <b>${esc(timeRangeStr)} (${esc(repDurStr)})</b>${photos.length ? ` • 📸 ${photos.length}` : ''}</div>
+                    <div style="font-size:11px;color:#0369a1;">👷 ${esc(wSummary)}</div>
+                    ${pauseSummaryTxt ? `<div style="font-size:10.5px;color:#92400e;background:#fffbeb;border:1px dashed #fcd34d;border-radius:6px;padding:2px 6px;display:inline-block;" onclick="openTaskTimeControlModal(${idx})">⏸️ ${esc(pauseSummaryTxt)}</div>` : ''}
+                    ${t.note ? `<div style="color:#15803d;font-size:11px;">📝 ${esc(t.note)}</div>` : ''}
                 </div>
             </div>`;
         }
@@ -7633,18 +7992,45 @@ function renderTasks(log) {
             </div>`;
             })() : ''}
 
+            ${pauseDispList.length > 0 ? `
+            <div class="pause-history-strip" onclick="openTaskTimeControlModal(${idx})" title="اضغط لتعديل فترات التوقف المؤقت">
+                <span>⏸️ سجل التوقف:</span>
+                ${pauseDispList.map(p => `<span style="background:white;border:1px solid #fde68a;border-radius:5px;padding:1px 6px;">${p.to ? `توقف ${esc(p.from)} ↩️ عاد ${esc(p.to)}${p.mins ? ` (${p.mins} د)` : ''}` : `متوقف منذ ${esc(p.from)}`}${p.reason ? ` • ${esc(p.reason)}` : ''}</span>`).join('')}
+                <span style="margin-right:auto;color:var(--blue);">✏️ تعديل</span>
+            </div>` : ''}
+
             <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:4px;">
                 <span class="chip" onclick="openTaskTimeControlModal(${idx})" style="background:#e0f2fe;color:#0369a1;border-color:#7dd3fc;">👷 ${(t.workers && t.workers.length) ? `العمال (${t.workers.includes('Team') ? 'Team' : t.workers.length})` : '+ عمال'}</span>
                 ${(() => {
                     const wtMap = t.workerTimings || {};
                     const wList = t.workers || [];
-                    const displayWorkers = wList.includes('Team') ? Object.keys(wtMap) : wList;
-                    return displayWorkers.map(wn => {
-                        const wt = wtMap[wn];
-                        const isRt = wt && wt.mode === 'roundtrip';
-                        const isMv = wt && wt.mode === 'moved';
-                        const timeTag = (wt && (wt.from || wt.to))
-                            ? ` (${esc(wt.from || '')}${wt.to ? '–' + esc(wt.to) : ''})`
+                    const taskStartFallback = t.fixedStartTime || (t.startTimeMs ? formatTime24FromMs(t.startTimeMs) : '');
+                    const taskEndFallback = t.fixedEndTime || '';
+                    if (wList.includes('Team')) {
+                        const customKeys = Object.keys(wtMap).filter(wn => {
+                            const wt = wtMap[wn];
+                            return wt && (wt.mode === 'moved' || wt.mode === 'roundtrip' || (wt.from && wt.from !== taskStartFallback) || (wt.to && taskEndFallback && wt.to !== taskEndFallback));
+                        });
+                        const teamChip = `<span class="chip" onclick="openTaskTimeControlModal(${idx})" style="background:#f0fdf4;color:#166534;border-color:#86efac;">👥 الفريق كامل (${esc(taskStartFallback || '08:00')}${taskEndFallback ? '–' + esc(taskEndFallback) : '…'})</span>`;
+                        const extraChips = customKeys.map(wn => {
+                            const wt = wtMap[wn];
+                            const isRt = wt.mode === 'roundtrip', isMv = wt.mode === 'moved';
+                            const bg = isRt ? '#fef3c7' : (isMv ? '#f3e8ff' : '#e0f2fe');
+                            const col = isRt ? '#92400e' : (isMv ? '#6b21a8' : '#0369a1');
+                            const brd = isRt ? '#fcd34d' : (isMv ? '#d8b4fe' : '#7dd3fc');
+                            const tm = wt.from ? (wt.to ? `${wt.from}–${wt.to}` : `بدأ ${wt.from}`) : '';
+                            return `<span class="chip" onclick="openTaskTimeControlModal(${idx})" style="background:${bg};color:${col};border-color:${brd};">👤 ${esc(wn)}${tm ? ' (' + esc(tm) + ')' : ''}</span>`;
+                        }).join('');
+                        return teamChip + extraChips;
+                    }
+                    return wList.map(wn => {
+                        const wt = wtMap[wn] || {};
+                        const isRt = wt.mode === 'roundtrip';
+                        const isMv = wt.mode === 'moved';
+                        const fStr = wt.from || taskStartFallback;
+                        const toStr = wt.to || taskEndFallback;
+                        const timeTag = fStr
+                            ? (toStr ? ` (${esc(fStr)}–${esc(toStr)})` : ` (بدأ ${esc(fStr)})`)
                             : '';
                         const bg = isRt ? '#fef3c7' : (isMv ? '#f3e8ff' : '#f0fdf4');
                         const col = isRt ? '#92400e' : (isMv ? '#6b21a8' : '#166534');
@@ -8077,7 +8463,7 @@ function setTaskStatus(idx, st) {
     const nowMins = nowDate.getHours() * 60 + nowDate.getMinutes();
 
     if (st.includes('Progress') && !oldSt.includes('Progress')) {
-        // V17.8: Preserve original planned duration & never snap afternoon/OT starts back to 08:00!
+        // V17.9: Preserve original planned duration & never snap afternoon/OT starts back to 08:00!
         if (!t.plannedDur) t.plannedDur = t.dur || '1:00 hr';
         t.fixedEndTime = '';
         t.stoppedForToday = false;
@@ -8093,6 +8479,7 @@ function setTaskStatus(idx, st) {
             }
         }
         t.startTimeMs = hhmmToDateMs(t.fixedStartTime, state.activeDate) || now;
+        stampWorkersOnTaskLifecycle(t, log, 'start', oldSnap.fixedEndTime || '');
         showToast(`▶️ المهمة قيد التنفيذ (بدأت ${t.fixedStartTime})`);
     } else if (st.includes('Completed')) {
         if (t.pausedAtMs) finalizeOpenTaskPause(t, now);
@@ -8137,6 +8524,7 @@ function setTaskStatus(idx, st) {
         t.pausedAtMs = null;
         t.timerFrozen = false;
         t.frozenAtMs = null;
+        stampWorkersOnTaskLifecycle(t, log, 'finish');
         showToast(overShiftMins > 0
             ? `✅ اكتملت المهمة (${t.fixedStartTime} – ${t.fixedEndTime} | ${t.dur} | ⏰ +${formatMsAsHrMin(overShiftMins * 60000)} بعد الدوام)`
             : `✅ اكتملت المهمة (${t.fixedStartTime} – ${t.fixedEndTime || ''} | ${t.dur})`);
@@ -8145,6 +8533,8 @@ function setTaskStatus(idx, st) {
         if (oldSt.includes('Progress')) {
             const netMs = getTaskNetElapsedMs(t, now);
             if (netMs > 0) t.dur = formatMsAsHrMin(netMs);
+            if (!t.fixedEndTime) t.fixedEndTime = formatTime24FromMs(now);
+            stampWorkersOnTaskLifecycle(t, log, 'finish');
         }
         t.stoppedForToday = false;
         t.startTimeMs = null;
@@ -8172,7 +8562,7 @@ function setTaskStatus(idx, st) {
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
 }
 
-/* ================= V17.8: Advanced Multi-Notes & Saved Custom Notes Library ================= */
+/* ================= V17.9: Advanced Multi-Notes & Saved Custom Notes Library ================= */
 function stripAutoSuffixFromNote(rawStr, suffix) {
     let base = String(rawStr || '');
     if (suffix) {
@@ -8256,7 +8646,7 @@ function removeAutoNotesByPrefix(t, prefix) {
 }
 
 function getTaskAutoOnlySummary(t) {
-    // V17.8: All new auto-notes live visibly inside notesList/zoneNotes; show only legacy hidden suffix if any old record hasn't migrated yet
+    // V17.9: All new auto-notes live visibly inside notesList/zoneNotes; show only legacy hidden suffix if any old record hasn't migrated yet
     const parts = [];
     const list = Array.isArray(t.notesList) ? t.notesList : [];
     const hasVisibleTanker = list.some(x => x && x.autoType === 'tanker') || getAllTaskZoneNoteEntries(t).some(x => x.autoType === 'tanker');
@@ -8635,7 +9025,7 @@ function escalateTaskToIssue(idx) {
     saveState(); renderExportAndIssues(site, getDayLog()); showToast(`🚨 تم تصعيد العطل إلى متتبع المشاكل (${code})`);
 }
 
-/* ================= V17.8: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
+/* ================= V17.9: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
 function onNewTaskTypeChange(val) {
     const v = String(val || '');
     const irrBox = document.getElementById('mTaskIrrPresetsBox');
@@ -8768,6 +9158,7 @@ function saveNewTask(startImmediately = false) {
         startTimeMs: startImmediately ? (hhmmToDateMs(startTimeVal, state.activeDate) || now) : null,
         pausedTotalMs: 0, pausedAtMs: null
     };
+    if (pickedWorkers.length > 0) stampWorkersOnTaskLifecycle(newTask, log, 'start');
     log.tasks.push(newTask);
     if (agroName) {
         log.tools.push({ name: agroName, cat: 'Material / مادة', qty: 1, cond: 'Good / جيد', note: agroDose });
@@ -8784,7 +9175,52 @@ function saveNewTask(startImmediately = false) {
 }
 
 
-/* ================= V17.8: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+/* ================= V17.9: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+
+function resolveAssignedWorkerShortNames(t, log = getDayLog()) {
+    const wList = (t && Array.isArray(t.workers)) ? t.workers : [];
+    if (wList.includes('Team')) {
+        return (log.attendance || [])
+            .filter(w => !String(w.status || '').includes('Absent'))
+            .map(w => (w.name.split('/')[1] || w.name).trim())
+            .filter(Boolean);
+    }
+    return wList.filter(Boolean);
+}
+
+function stampWorkersOnTaskLifecycle(t, log = getDayLog(), mode = 'sync', prevFrozenEnd = '') {
+    if (!t) return;
+    const names = resolveAssignedWorkerShortNames(t, log);
+    if (!names.length) return;
+    if (!t.workerTimings || typeof t.workerTimings !== 'object') t.workerTimings = {};
+    const taskStart = t.fixedStartTime || (t.startTimeMs ? formatTime24FromMs(t.startTimeMs) : '08:00');
+    const taskEnd = t.fixedEndTime || formatTime24FromMs(Date.now());
+
+    names.forEach(wn => {
+        const cur = t.workerTimings[wn];
+        if (mode === 'start') {
+            if (!cur) {
+                t.workerTimings[wn] = { from: taskStart, to: '', mode: 'normal', note: '' };
+            } else {
+                if (!cur.from) cur.from = taskStart;
+                if (prevFrozenEnd && cur.to === prevFrozenEnd && cur.mode !== 'moved') {
+                    cur.to = '';
+                }
+            }
+        } else if (mode === 'finish') {
+            if (!cur) {
+                t.workerTimings[wn] = { from: taskStart, to: taskEnd, mode: 'normal', note: '' };
+            } else {
+                if (!cur.from) cur.from = taskStart;
+                if (!cur.to && cur.mode !== 'moved') {
+                    cur.to = taskEnd;
+                }
+            }
+        }
+    });
+    syncWorkerTimingNotesOnTask(t);
+}
+
 function syncWorkerTimingNotesOnTask(t, forceRestore = false) {
     if (!t) return;
     // Clear legacy hidden autoNoteSuffix cleanly so all worker notes live visibly inside notesList!
@@ -8814,8 +9250,19 @@ function syncWorkerTimingNotesOnTask(t, forceRestore = false) {
             const supRng = (wt.from || wt.to) ? ` (${wt.from || ''}–${wt.to || ''})` : '';
             txt = `إسناد مؤقت من ${wn} قادماً من (${srcZ || 'مهمة سابقة'})${supRng}${reasonStr ? ' — ' + reasonStr : ''}`;
         } else if (wt.from || wt.to) {
-            const rng = `${wt.from || t.fixedStartTime || '08:00'}–${wt.to || t.fixedEndTime || 'نهاية المهمة'}`;
-            txt = `${wn}: عمل في المهمة (${rng})${reasonStr ? ' — ' + reasonStr : ''}`;
+            const taskStart = t.fixedStartTime || (t.startTimeMs ? formatTime24FromMs(t.startTimeMs) : '08:00');
+            const taskEnd = t.fixedEndTime || '';
+            const joinedDiff = !!(wt.from && taskStart && wt.from !== taskStart);
+            const leftDiff = !!(wt.to && (!taskEnd || wt.to !== taskEnd));
+            // Only add an auto-note for normal workers when their timing differs from the full task window (or has a reason)
+            if (joinedDiff || leftDiff || reasonStr) {
+                if (joinedDiff && !wt.to) {
+                    txt = `انضم ${wn} إلى المهمة الساعة ${wt.from}${reasonStr ? ' — ' + reasonStr : ''}`;
+                } else {
+                    const rng = `${wt.from || taskStart}–${wt.to || taskEnd || 'نهاية المهمة'}`;
+                    txt = `${wn}: عمل في المهمة (${rng})${reasonStr ? ' — ' + reasonStr : ''}`;
+                }
+            }
         }
 
         if (txt) {
@@ -8969,7 +9416,7 @@ function saveTankerDispensed(tIdx) {
         const newTankerLine = `تم استعمال ${litersFmt} لتر من مياه الحوضية${tripTagAr} في منطقة (${targetZoneLabel})${ppmAr}${visNoteAr}${remAr}${moveAr} / Used ${litersFmt} L of tanker water${tripTagEn} in (${targetZoneLabel})${ppmEn}${visNoteEn}${remEn}${moveEn}`;
         const tripAutoKey = tkZoneScope !== '__ALL__' ? `tanker_trip_${tripNum}_${tkZoneScope}` : `tanker_trip_${tripNum}`;
 
-        // V17.8: Store visibly inside notesList/zoneNotes as editable auto-note!
+        // V17.9: Store visibly inside notesList/zoneNotes as editable auto-note!
         upsertAutoNoteOnTask(t, {
             autoKey: tripAutoKey,
             autoType: 'tanker',
@@ -9112,6 +9559,7 @@ function renderReadingsAndTools(log) {
         document.getElementById('wxPrecip').value = wx.precip !== '' ? wx.precip : '';
         document.getElementById('wxNotes').value = wx.notes || '';
     }
+    renderWeatherInteractiveStrip(log);
     document.getElementById('moistureContainer').innerHTML = log.moisture.map((mo, idx) => `
         <div style="display:flex;gap:5px;margin-bottom:5px;">
             <input list="globalZonesList" class="inp" style="margin:0;padding:6px;flex:1;" value="${esc(mo.zone)}" placeholder="المنطقة ${mo.id}" onchange="updateMoisture(${idx},'zone',this.value)">
@@ -10332,7 +10780,7 @@ function autoGenerateOAR() {
     saveState(); renderExportAndIssues(site, log); triggerAllAutoGrows(); showToast('🔄 تم توليد مسودة OAR تلقائياً');
 }
 
-/* ================= V17.8: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
+/* ================= V17.9: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
 function buildShiftWhatsAppText(level = 'quick') {
     const site = getSite();
     const log = getDayLog();
@@ -10478,7 +10926,7 @@ function buildDflPreviewInnerHtml() {
         <b style="display:block;margin-bottom:3px;color:#166534;">👷 القسم 2 — حضور الكادر (${presList.length}/${log.attendance.length}):</b>
         <table style="width:100%;border-collapse:collapse;text-align:center;background:white;margin-bottom:8px;font-size:10.5px;" border="1">
             <tr style="background:#dcfce7;font-weight:bold;"><td>#</td><td>الاسم</td><td>النوع</td><td>الحالة</td><td>دخول</td><td>خروج</td><td>OT</td></tr>
-            ${(log.attendance || []).map((w, i) => `<tr><td>${i + 1}</td><td>${esc((w.name.split('/')[1] || w.name).trim())}</td><td>${esc((w.type.split('/')[1] || w.type).trim())}</td><td>${esc((w.status.split('/')[1] || w.status).trim())}</td><td>${w.status.includes('Absent') ? '-' : esc(w.tIn)}</td><td>${w.status.includes('Absent') ? '-' : esc(w.tOut)}</td><td>${w.ot || 0}</td></tr>`).join('')}
+            ${(log.attendance || []).map((w, i) => `<tr><td>${i + 1}</td><td>${esc((w.name.split('/')[1] || w.name).trim())}</td><td>${esc((w.type.split('/')[1] || w.type).trim())}</td><td>${esc((w.status.split('/')[1] || w.status).trim())}</td><td>${w.status.includes('Absent') ? '-' : esc(w.tIn)}</td><td>${w.status.includes('Absent') ? '-' : esc(w.tOut)}</td><td>${(parseFloat(w.ot) > 0) ? esc(w.ot) : ''}</td></tr>`).join('')}
         </table>
 
         <b style="display:block;margin-bottom:3px;color:#166534;">📋 القسم 3 — جدول المهام اليومية:</b>
@@ -11467,7 +11915,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.8) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.9) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -11952,7 +12400,7 @@ function buildBackupExportPayload(scope = 'light') {
         (cleanLog.sdls || []).forEach(sd => sd.photos = []);
         const todayIssues = (site.issues || []).filter(i => i.status === 'Open' || i.date === state.activeDate).map(i => ({ ...JSON.parse(JSON.stringify(i)), photos: [] }));
         const payload = {
-            schemaVersion: 'V17.8',
+            schemaVersion: 'V17.9',
             exportScope: 'single_day',
             exportDate: state.activeDate,
             activeSiteId: site.id,
@@ -11983,7 +12431,7 @@ function buildBackupExportPayload(scope = 'light') {
     }
 
     const cloneState = JSON.parse(JSON.stringify(state));
-    cloneState.schemaVersion = 'V17.8';
+    cloneState.schemaVersion = 'V17.9';
     cloneState.exportScope = includePhotos ? 'full_with_photos' : 'full_light';
     Object.values(cloneState.sites || {}).forEach(s => {
         (s.issues || []).forEach(iss => iss.photos = resArr(iss.photos));
@@ -12455,7 +12903,7 @@ function handleParsedBackupText(rawText) {
 
 
 
-/* ================= V17.8: Smart Universal DFL Importer (V03 Two-Shift + V04 Single), Correction Workshop & Error Auditor ================= */
+/* ================= V17.9: Smart Universal DFL Importer (V03 Two-Shift + V04 Single), Correction Workshop & Error Auditor ================= */
 function getPrevDateStr(dateStr = state.activeDate) {
     const d = new Date(dateStr + 'T12:00:00');
     d.setDate(d.getDate() - 1);
@@ -13795,7 +14243,7 @@ function confirmDflExcelImport() {
     }
 }
 
-/* ================= V17.8: Smart Old-DFL Error Auditor & 1-Tap Fix Jumper ================= */
+/* ================= V17.9: Smart Old-DFL Error Auditor & 1-Tap Fix Jumper ================= */
 function runDflSiteAudit(site = getSite()) {
     const items = [];
     const dates = Object.keys(site.logs || {}).sort();
@@ -14034,7 +14482,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.8 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.9 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
