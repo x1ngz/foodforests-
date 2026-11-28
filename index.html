@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غابات الغذاء - إدارة العمليات الميدانية V17.6</title>
+    <title>غابات الغذاء - إدارة العمليات الميدانية V17.8</title>
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#15803d">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,7 +42,7 @@
         .dfl-box { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: bold; }
         .dfl-num { background: white; color: var(--primary-dark); border: none; border-radius: 5px; width: 48px; padding: 3px 4px; font-weight: bold; text-align: center; font-size: 13px; }
 
-        /* V17.6: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
+        /* V17.8: Advanced Multi-Notes, Grouped Zone Picker & Unified Analytics */
         .note-item-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-right: 3px solid var(--blue); border-radius: 7px; padding: 5px 8px; margin-bottom: 4px; font-size: 12px; line-height: 1.45; }
         .note-item-card.is-blocked-note { background: #fff5f5; border-color: #fecaca; border-right-color: var(--red); color: #7f1d1d; font-weight: 600; }
         .note-item-card.is-zone-note { background: #f5f3ff; border-color: #ddd6fe; border-right-color: var(--purple); }
@@ -60,7 +60,7 @@
         .att-pill.st-half { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
         .att-pill.st-ot { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
 
-        /* V17.6: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
+        /* V17.8: Slim 1-Line Activity & Mistake-Protection Bar + Export Hub */
         .slim-act-bar {
             display: flex; align-items: center; justify-content: space-between; gap: 6px;
             background: #ffffff; border: 1px solid #cbd5e1; border-right: 4px solid var(--blue);
@@ -81,7 +81,7 @@
         .export-stamp.st-none { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
         .export-stamp.st-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
         .export-stamp.st-stale { background: #fef3c7; color: #92400e; border: 1.5px solid #f59e0b; }
-        /* V17.6: Worker Weekly Attendance Matrix & Payment Settlement UI */
+        /* V17.8: Worker Weekly Attendance Matrix & Payment Settlement UI */
         .wk-dot-row { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
         .wk-dot { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 34px; padding: 2px 4px; border-radius: 6px; font-size: 9.5px; font-weight: bold; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; line-height: 1.25; }
         .wk-dot.d-pres { background: #dcfce7; color: #166534; border-color: #86efac; }
@@ -92,7 +92,7 @@
         .pay-card { background: white; border: 1px solid #cbd5e1; border-right: 4px solid var(--primary); border-radius: 9px; padding: 8px 9px; margin-bottom: 7px; font-size: 12px; }
         .pay-card.is-emp { border-right-color: var(--blue); }
         .pay-card.has-due { border-right-color: var(--orange); }
-        /* V17.6: Isolated Old-DFL Correction Workshop Banner & Audit Cards */
+        /* V17.8: Isolated Old-DFL Correction Workshop Banner & Audit Cards */
         .workshop-banner {
             background: linear-gradient(135deg, #7c2d12, #c2410c);
             color: white; border-radius: 10px; padding: 9px 11px; margin-bottom: 9px;
@@ -103,6 +103,16 @@
         .shift-pill { display: inline-flex; align-items: center; gap: 2px; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 99px; cursor: pointer; border: 1px solid transparent; }
         .shift-pill.am { background: #fef9c3; color: #854d0e; border-color: #fde047; }
         .shift-pill.pm { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+        /* V17.8: Unified Auto-Notes Visual Cards & Photo Watermark Toggle */
+        .note-item-card.is-auto-pause { background: #fffbeb; border-color: #fde68a; border-right-color: var(--orange); }
+        .note-item-card.is-auto-worker { background: #f0f9ff; border-color: #bae6fd; border-right-color: var(--blue); }
+        .note-item-card.is-auto-tanker { background: #ecfeff; border-color: #a5f3fc; border-right-color: #0891b2; }
+        .note-item-card.is-auto-overtime { background: #f5f3ff; border-color: #ddd6fe; border-right-color: var(--purple); }
+        .auto-note-tag { display: inline-block; font-size: 9.5px; font-weight: bold; padding: 1px 6px; border-radius: 5px; margin-left: 4px; white-space: nowrap; background: #e2e8f0; color: #334155; }
+        .auto-note-tag.t-pause { background: #fef3c7; color: #92400e; }
+        .auto-note-tag.t-worker { background: #dbeafe; color: #1e40af; }
+        .auto-note-tag.t-tanker { background: #cffafe; color: #155e75; }
+        .auto-note-tag.t-overtime { background: #ede9fe; color: #5b21b6; }
 
         /* Timer Alert Bar */
         .timer-alert-bar { background: #fef2f2; border-bottom: 2px solid #ef4444; color: #991b1b; padding: 8px 12px; font-size: 12px; font-weight: bold; display: none; justify-content: space-between; align-items: center; gap: 8px; position: sticky; top: 78px; z-index: 950; }
@@ -307,7 +317,7 @@
                 <button class="icon-btn" onclick="openActivityLogModal('all')" title="سجل آخر الحركات والحماية من الأخطاء">📜</button>
                 <button class="icon-btn" onclick="openAnalyticsCenterModal('blind','7d')" title="مركز الإحصائيات والتحليل الذكي">📊</button>
                 <button class="icon-btn" onclick="openFullArchiveModal()" title="أرشيف الأيام">📅</button>
-                <span id="savePill" class="save-pill">✓ V17.6 جاهز</span>
+                <span id="savePill" class="save-pill">✓ V17.8 جاهز</span>
                 <button class="icon-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
             </div>
         </div>
@@ -629,7 +639,7 @@
                 </div>
             </div>
 
-            <!-- V17.6: Clean 3-Step Day-Closing & Export Hub -->
+            <!-- V17.8: Clean 3-Step Day-Closing & Export Hub -->
             <div class="card" style="border-top:4px solid var(--primary);">
                 <div class="card-head" style="margin-bottom:8px;">
                     <h3 class="card-title">📤 مركز إقفال وتصدير اليوم</h3>
@@ -678,7 +688,7 @@
                 </div>
             </div>
 
-            <!-- V17.6: Direct WhatsApp Merge Sync & Database Backup Card -->
+            <!-- V17.8: Direct WhatsApp Merge Sync & Database Backup Card -->
             <div class="card" style="padding:11px 13px;border-top:3px solid var(--blue);">
                 <div class="card-head" style="margin-bottom:7px;padding-bottom:6px;">
                     <h3 class="card-title" style="font-size:13.5px;">🔀 المزامنة والدمج والنسخ الاحتياطي</h3>
@@ -953,7 +963,7 @@ let state = {
 
 
 
-/* ================= V17.6: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
+/* ================= V17.8: Task Presets, Fuel & Stock Tracker, Readiness Bar, Dashboard & Signature Pad ================= */
 const DEFAULT_TASK_PRESETS = [
     {
         id: 'tp_fert',
@@ -1075,7 +1085,7 @@ function deleteStockItem(idx) {
     saveState(); openStockManagerModal(); renderReadingsAndTools(getDayLog());
 }
 
-/* ================= V17.6: Task Presets Manager ================= */
+/* ================= V17.8: Task Presets Manager ================= */
 function ensureTaskPresets() {
     if (!Array.isArray(state.company.taskPresets) || !state.company.taskPresets.length) {
         state.company.taskPresets = JSON.parse(JSON.stringify(DEFAULT_TASK_PRESETS));
@@ -1165,7 +1175,7 @@ function deleteTaskPreset(idx) {
     saveState(); openTaskPresetsModal();
 }
 
-/* ================= V17.6: DFL Readiness Progress Bar ================= */
+/* ================= V17.8: DFL Readiness Progress Bar ================= */
 function renderDflReadinessBar(site, log) {
     const box = document.getElementById('dflReadinessBox');
     if (!box) return;
@@ -1205,7 +1215,7 @@ function renderDflReadinessBar(site, log) {
     </div>`;
 }
 
-/* ================= V17.6: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
+/* ================= V17.8: Unified Advanced Analytics & Blind-Spot Intelligence Center ================= */
 let _anState = { tab: 'blind', period: '7d', fromDate: '', toDate: '' };
 
 function getAnalyticsDateRange(site, period, customFrom = '', customTo = '') {
@@ -2427,7 +2437,7 @@ function toggleTaskSyncWithPrev(idx) {
     renderTasks(getDayLog());
 }
 
-/* ================= V17.6: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
+/* ================= V17.8: Export Stamp Signature & Reusable Offline ExcelJS Builder ================= */
 function computeLogExportSignature(log, site = getSite(), dateStr = state.activeDate) {
     if (!log) return '';
     try {
@@ -3159,7 +3169,7 @@ async function buildDflExcelForDate(targetDate = state.activeDate) {
         if (ws.rowCount > finalLastRow) {
             ws.spliceRows(finalLastRow + 1, ws.rowCount - finalLastRow);
         }
-        // V17.6: Center ALL text horizontally & vertically (middle) across Daily Field Log safely (preserving colors/fills/borders!)
+        // V17.8: Center ALL text horizontally & vertically (middle) across Daily Field Log safely (preserving colors/fills/borders!)
         for (let rr = 1; rr <= finalLastRow; rr++) {
             const rowObj = ws.getRow(rr);
             for (let cc = 1; cc <= 12; cc++) {
@@ -3554,6 +3564,7 @@ function normalizeState() {
     if (!state.company.breakStart) state.company.breakStart = '12:00';
     if (!state.company.breakEnd) state.company.breakEnd = '13:00';
     if (!state.company.dflReportMode) state.company.dflReportMode = 'single_day';
+    if (typeof state.company.photoWatermark !== 'boolean') state.company.photoWatermark = true;
     if (!Array.isArray(state.company.supervisors) || !state.company.supervisors.length) state.company.supervisors = ['Maitham Ibrahim'];
 
     if (!state.sites || typeof state.sites !== 'object' || !Object.keys(state.sites).length) {
@@ -3592,7 +3603,7 @@ function normalizeState() {
         if (!Array.isArray(s.workerPayments)) s.workerPayments = [];
         if (!s.logs || typeof s.logs !== 'object') s.logs = {};
         if (!s.nextDfl) s.nextDfl = 187;
-        // V17.6: Backwards-compatibility normalizer for logs imported from older versions (V8..V17.2)
+        // V17.8: Backwards-compatibility normalizer for logs imported from older versions (V8..V17.2)
         s.issues.forEach(iss => ensurePhotosArr(iss));
         s.inventory.forEach(z => {
             if (!Array.isArray(z.plants)) z.plants = [];
@@ -4039,8 +4050,26 @@ function isTaskCappedByShiftEnd(t, nowMs = Date.now(), dateStr = state.activeDat
     if (!t || !t.status || !t.status.includes('Progress') || t.pausedAtMs || t.fixedEndTime || t.stoppedForToday || t.timerFrozen) {
         return false;
     }
+    const todayStr = getLocalDateStr(nowMs);
+    // V17.8: Live In-Progress tasks on TODAY keep counting past shift end (only past forgotten days or explicit capAtShiftEnd cap!)
+    if (dateStr === todayStr && !t.capAtShiftEnd) {
+        return false;
+    }
     const capMs = getTaskShiftEndCapMs(t, dateStr);
     return !!(capMs && nowMs >= capMs);
+}
+
+function getTaskOverShiftMs(t, nowMs = Date.now(), dateStr = state.activeDate) {
+    if (!t || !t.status || !t.status.includes('Progress') || t.pausedAtMs || t.stoppedForToday || t.fixedEndTime || t.timerFrozen) {
+        return 0;
+    }
+    const todayStr = getLocalDateStr(nowMs);
+    if (dateStr !== todayStr || t.capAtShiftEnd) return 0;
+    const baseCapMs = getTaskShiftEndCapMs({ ...t, fixedEndTime: '', manualOt: 0 }, dateStr);
+    if (!baseCapMs || nowMs <= baseCapMs) return 0;
+    const eodMax = hhmmToDateMs('23:59', dateStr);
+    const effEnd = eodMax ? Math.min(nowMs, eodMax) : nowMs;
+    return Math.max(0, effEnd - baseCapMs);
 }
 
 function toggleTaskStoppedForToday(tIdx) {
@@ -4085,10 +4114,7 @@ function toggleTaskStoppedForToday(tIdx) {
             }
         }
         if (t.pausedAtMs) {
-            const pGap = Math.max(0, endMs - t.pausedAtMs);
-            const brkOv = t.ignoreBreak ? 0 : getBreakOverlapMs(t.pausedAtMs, endMs, state.activeDate);
-            t.pausedTotalMs = (t.pausedTotalMs || 0) + Math.max(0, pGap - brkOv);
-            t.pausedAtMs = null;
+            finalizeOpenTaskPause(t, endMs);
         }
         t.fixedEndTime = formatTime24FromMs(endMs);
         t.stoppedForToday = true;
@@ -4155,16 +4181,18 @@ function getTaskActiveIntervals(t, nowMs = Date.now(), dateStr = state.activeDat
         } else {
             const todayStr = getLocalDateStr(nowMs);
             const capMs = getTaskShiftEndCapMs(t, dateStr);
+            const eodMax = hhmmToDateMs('23:59', dateStr);
             if (dateStr === todayStr) {
-                eMs = nowMs;
-                if (capMs && eMs > capMs) eMs = capMs;
+                // V17.8: Live task today keeps recording EVERY minute past planned end & past shift end!
+                eMs = eodMax ? Math.min(nowMs, eodMax) : nowMs;
+                if (t.capAtShiftEnd && capMs && eMs > capMs) eMs = capMs;
             } else {
-                // Past or future date In-Progress task uses full shift cap so hours never vanish
+                // Past or future date In-Progress task uses shift cap so forgotten old days don't inflate
                 eMs = capMs || addNetWorkMinsSkippingBreak(sMs, parseDurationToMins(t.dur) || 60, dateStr);
-            }
-            if (capMs && sMs >= capMs) {
-                const fallbackStart = hhmmToDateMs('08:00', dateStr);
-                if (fallbackStart && fallbackStart < capMs) sMs = fallbackStart;
+                if (capMs && sMs >= capMs) {
+                    const fallbackStart = hhmmToDateMs('08:00', dateStr);
+                    if (fallbackStart && fallbackStart < capMs) sMs = fallbackStart;
+                }
             }
         }
     } else {
@@ -4289,6 +4317,25 @@ function toggleTaskIgnoreBreak(tIdx) {
     showToast(t.ignoreBreak ? '⏸️ تم إيقاف خصم الاستراحة (يدوي) لهذه المهمة' : '☕ تم تفعيل الخصم التلقائي للاستراحة لهذه المهمة');
 }
 
+function finalizeOpenTaskPause(t, endMs = Date.now()) {
+    if (!t || !t.pausedAtMs) return;
+    const rawGap = Math.max(0, endMs - t.pausedAtMs);
+    const brkOv = t.ignoreBreak ? 0 : getBreakOverlapMs(t.pausedAtMs, endMs, state.activeDate);
+    const netPauseMs = Math.max(0, rawGap - brkOv);
+    const netPauseMins = Math.round(netPauseMs / 60000);
+    t.pausedTotalMs = (t.pausedTotalMs || 0) + netPauseMs;
+    const pFromStr = formatTime24FromMs(t.pausedAtMs);
+    const pToStr = formatTime24FromMs(endMs);
+    const reason = (t.pauseReason || '').trim();
+    const pKey = t.pauseActiveKey || ('pause_' + t.pausedAtMs);
+    const durLabel = netPauseMins >= 1 ? `${netPauseMins} د` : 'أقل من دقيقة';
+    const finalTxt = `توقف مؤقت (${pFromStr}–${pToStr} | ${durLabel})${reason ? ' — ' + reason : ''}`;
+    upsertAutoNoteOnTask(t, { autoKey: pKey, autoType: 'pause', text: finalTxt, forceRestore: true });
+    t.pausedAtMs = null;
+    t.pauseReason = '';
+    t.pauseActiveKey = '';
+}
+
 function toggleTaskPause(tIdx) {
     const log = getDayLog();
     const t = log.tasks[tIdx];
@@ -4297,31 +4344,39 @@ function toggleTaskPause(tIdx) {
     if (!t.startTimeMs) t.startTimeMs = hhmmToDateMs(t.fixedStartTime || '08:00', state.activeDate) || now;
     if (t.pausedAtMs) {
         pushUndo('استئناف مؤقت مهمة');
-        const rawGap = Math.max(0, now - t.pausedAtMs);
-        const brkOv = t.ignoreBreak ? 0 : getBreakOverlapMs(t.pausedAtMs, now, state.activeDate);
-        const netPauseMins = Math.round(Math.max(0, rawGap - brkOv) / 60000);
-        t.pausedTotalMs = (t.pausedTotalMs || 0) + Math.max(0, rawGap - brkOv);
-        const pFromStr = formatTime24FromMs(t.pausedAtMs);
-        const pToStr = formatTime24FromMs(now);
-        const reason = t.pauseReason || '';
-        t.pausedAtMs = null;
-        t.pauseReason = '';
-        if (reason && netPauseMins >= 1) {
-            const formalEntry = `توقف مؤقت (${pFromStr}-${pToStr} - ${reason})`;
-            const list = ensureTaskNotesList(t);
-            list.push({ id: 'n_ps_' + now, text: formalEntry });
-            rebuildTaskNoteFromList(t);
-        }
+        finalizeOpenTaskPause(t, now);
         saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
-        showToast('▶️ تم استئناف العمل والمؤقت');
+        showToast('▶️ تم استئناف العمل وتحديث ملاحظة التوقف تلقائياً');
     } else {
         openPauseReasonModal(tIdx);
     }
 }
 
+function clampPauseStartMsForTask(t, candidateMs, nowMs = Date.now()) {
+    const startMs = hhmmToDateMs(t.fixedStartTime || '', state.activeDate) || t.startTimeMs || hhmmToDateMs('05:00', state.activeDate) || 0;
+    const minMs = startMs ? (startMs + 60000) : 0;
+    const eodMax = hhmmToDateMs('23:59', state.activeDate) || nowMs;
+    const todayStr = getLocalDateStr(nowMs);
+    const maxMs = (state.activeDate === todayStr) ? nowMs : eodMax;
+    let res = candidateMs || nowMs;
+    if (res > maxMs) res = maxMs;
+    if (minMs && res < minMs) res = Math.min(minMs, maxMs);
+    return res;
+}
+
+function shiftPauseModalTimeInput(deltaMins) {
+    const inp = document.getElementById('pauseStartTimeInp');
+    if (!inp) return;
+    const nowMs = Date.now();
+    const baseMs = hhmmToDateMs(inp.value || '', state.activeDate) || nowMs;
+    const nextMs = deltaMins === 0 ? nowMs : Math.min(nowMs, baseMs + deltaMins * 60000);
+    inp.value = formatTime24FromMs(nextMs);
+}
+
 function openPauseReasonModal(tIdx) {
     const t = getDayLog().tasks[tIdx];
     if (!t) return;
+    const nowStr = formatTime24FromMs(Date.now());
     const reasons = [
         { lbl: '⚡ انقطاع الكهرباء', val: 'انقطاع التيار الكهربائي' },
         { lbl: '🔧 كسر أو تسريب أنبوب', val: 'إصلاح كسر أو تسريب في أنبوب الري' },
@@ -4330,28 +4385,146 @@ function openPauseReasonModal(tIdx) {
         { lbl: '🚚 انتظار تنكر / مواد', val: 'انتظار وصول المياه أو المواد' }
     ];
     openModal(`
-        <h3 class="card-title">⏸️ سبب التوقف المؤقت (${esc(t.zones)})</h3>
-        <p style="font-size:11.5px;color:var(--muted);margin-top:0;">اختر سبب التوقف لتوثيقه تلقائياً بالملاحظات عند الاستئناف (أو أوقف بدون سبب):</p>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
-            ${reasons.map(r => `<button class="btn btn-outline" style="justify-content:flex-start;" onclick="confirmTaskPauseWithReason(${tIdx}, '${esc(r.val)}')">${r.lbl}</button>`).join('')}
-            <button class="btn btn-orange" onclick="confirmTaskPauseWithReason(${tIdx}, '')">⏸️ إيقاف مؤقت بدون ذكر سبب</button>
+        <h3 class="card-title">⏸️ توقف مؤقت للمهمة (${esc(t.zones)})</h3>
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:9px;padding:8px;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;">
+                <label class="lbl" style="margin:0;color:#92400e;">🕒 توقفت الساعة (عدّلها إذا نسيت الإيقاف):</label>
+                <input type="time" id="pauseStartTimeInp" class="inp" style="width:112px;margin:0;padding:4px 6px;font-weight:bold;text-align:center;background:white;" value="${esc(nowStr)}">
+            </div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                <span class="chip" style="margin:0;background:white;" onclick="shiftPauseModalTimeInput(-15)">-15 د</span>
+                <span class="chip" style="margin:0;background:white;" onclick="shiftPauseModalTimeInput(-30)">-30 د</span>
+                <span class="chip" style="margin:0;background:white;" onclick="shiftPauseModalTimeInput(-60)">-1 س</span>
+                <span class="chip" style="margin:0;background:#e0f2fe;color:#0369a1;" onclick="shiftPauseModalTimeInput(0)">الآن (${esc(nowStr)})</span>
+            </div>
         </div>
-        <button class="btn btn-outline btn-full" onclick="closeModal()">إلغاء</button>
+        <p style="font-size:11px;color:var(--muted);margin:0 0 6px 0;">اختر السبب لتوثيق التوقف فوراً في ملاحظات المهمة:</p>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;">
+            ${reasons.map(r => `<button class="btn btn-outline" style="justify-content:flex-start;padding:7px 10px;font-size:12px;" onclick="confirmTaskPauseWithReason(${tIdx}, '${esc(r.val)}', document.getElementById('pauseStartTimeInp')?.value || '')">${r.lbl}</button>`).join('')}
+        </div>
+        <label class="lbl">أو اكتب سبباً خاصاً (اختياري):</label>
+        <div style="display:flex;gap:5px;margin-bottom:7px;">
+            <div class="inp-wrap" style="margin:0;flex:1;">
+                <input id="pauseCustomReasonInp" class="inp" placeholder="مثلاً: فحص صمام خط B2...">
+                <button class="clr-btn" onclick="quickClearField('pauseCustomReasonInp')">✕</button>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="startDictation('pauseCustomReasonInp')">🎤</button>
+        </div>
+        <div class="grid-2" style="margin-bottom:6px;">
+            <button class="btn btn-orange" style="font-size:12px;" onclick="confirmTaskPauseWithReason(${tIdx}, (document.getElementById('pauseCustomReasonInp')?.value || '').trim(), document.getElementById('pauseStartTimeInp')?.value || '')">⏸️ إيقاف مع السبب</button>
+            <button class="btn btn-outline" style="font-size:12px;" onclick="confirmTaskPauseWithReason(${tIdx}, '', document.getElementById('pauseStartTimeInp')?.value || '')">⏸️ إيقاف بدون سبب</button>
+        </div>
+        <button class="btn btn-outline btn-full" style="margin-bottom:0;" onclick="closeModal()">إلغاء</button>
     `);
 }
 
-function confirmTaskPauseWithReason(tIdx, reasonText) {
+function confirmTaskPauseWithReason(tIdx, reasonText, customPauseHHMM = '') {
     pushUndo('إيقاف مؤقت لمهمة');
     const log = getDayLog();
     const t = log.tasks[tIdx];
     if (!t) return;
     const now = Date.now();
     if (!t.startTimeMs) t.startTimeMs = hhmmToDateMs(t.fixedStartTime || '08:00', state.activeDate) || now;
-    t.pausedAtMs = now;
-    t.pauseReason = reasonText || '';
+    const requestedMs = customPauseHHMM ? (hhmmToDateMs(customPauseHHMM, state.activeDate) || now) : now;
+    const effPauseMs = clampPauseStartMsForTask(t, requestedMs, now);
+    const cleanReason = String(reasonText || '').trim();
+    t.pausedAtMs = effPauseMs;
+    t.pauseReason = cleanReason;
+    t.pauseActiveKey = 'pause_' + now;
+    const startStr = formatTime24FromMs(effPauseMs);
+    const liveNoteTxt = `توقف مؤقت بدءاً من ${startStr}${cleanReason ? ' — ' + cleanReason : ''}`;
+    upsertAutoNoteOnTask(t, { autoKey: t.pauseActiveKey, autoType: 'pause', text: liveNoteTxt, forceRestore: true });
     closeModal();
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
-    showToast(reasonText ? `⏸️ تم إيقاف المؤقت (${reasonText})` : '⏸️ تم إيقاف المؤقت مؤقتاً');
+    showToast(`⏸️ توقف مؤقت بدءاً من ${startStr}${cleanReason ? ' (' + cleanReason + ')' : ''} — حُفظ بالملاحظات`);
+}
+
+function quickShiftActivePauseMins(tIdx, deltaMins) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t || !t.pausedAtMs) return;
+    pushUndo('تعديل ساعة التوقف المؤقت');
+    const now = Date.now();
+    const nextMs = clampPauseStartMsForTask(t, t.pausedAtMs + deltaMins * 60000, now);
+    t.pausedAtMs = nextMs;
+    const startStr = formatTime24FromMs(nextMs);
+    const reason = (t.pauseReason || '').trim();
+    const pKey = t.pauseActiveKey || ('pause_' + nextMs);
+    t.pauseActiveKey = pKey;
+    upsertAutoNoteOnTask(t, {
+        autoKey: pKey,
+        autoType: 'pause',
+        text: `توقف مؤقت بدءاً من ${startStr}${reason ? ' — ' + reason : ''}`,
+        forceRestore: true
+    });
+    saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
+    showToast(`🕒 تم تعديل ساعة التوقف المؤقت إلى ${startStr} (تحديث صافي العداد والملاحظة)`);
+}
+
+function openEditActivePauseModal(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t || !t.pausedAtMs) return;
+    const curPauseStr = formatTime24FromMs(t.pausedAtMs);
+    const nowStr = formatTime24FromMs(Date.now());
+    const startStr = t.fixedStartTime || (t.startTimeMs ? formatTime24FromMs(t.startTimeMs) : '08:00');
+    openModal(`
+        <h3 class="card-title">🕒 تعديل ساعة التوقف المؤقت (${esc(t.zones)})</h3>
+        <p style="font-size:11.5px;color:var(--muted);margin-top:0;">بداية المهمة: <b>${esc(startStr)}</b> — اختر الوقت الحقيقي الذي توقفت فيه لخصم الوقت المنسي تلقائياً:</p>
+        <input type="time" id="editActivePauseTimeInp" class="inp" style="font-size:18px;font-weight:bold;text-align:center;" value="${esc(curPauseStr)}">
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:9px;">
+            <span class="chip" style="margin:0;" onclick="shiftEditActivePauseInput(-15)">-15 د</span>
+            <span class="chip" style="margin:0;" onclick="shiftEditActivePauseInput(-30)">-30 د</span>
+            <span class="chip" style="margin:0;" onclick="shiftEditActivePauseInput(-60)">-1 س</span>
+            <span class="chip" style="margin:0;" onclick="shiftEditActivePauseInput(15)">+15 د</span>
+            <span class="chip" style="margin:0;background:#e0f2fe;color:#0369a1;" onclick="document.getElementById('editActivePauseTimeInp').value='${esc(nowStr)}'">الآن (${esc(nowStr)})</span>
+        </div>
+        <label class="lbl">سبب التوقف المؤقت (اختياري):</label>
+        <div class="inp-wrap">
+            <input id="editActivePauseReasonInp" class="inp" value="${esc(t.pauseReason || '')}" placeholder="مثلاً: انقطاع كهرباء / انتقال مؤقت...">
+            <button class="clr-btn" onclick="quickClearField('editActivePauseReasonInp')">✕</button>
+        </div>
+        <div class="grid-2">
+            <button class="btn btn-green" onclick="saveEditActivePause(${tIdx})">💾 حفظ ساعة التوقف</button>
+            <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+        </div>
+    `);
+}
+
+function shiftEditActivePauseInput(deltaMins) {
+    const inp = document.getElementById('editActivePauseTimeInp');
+    if (!inp) return;
+    const nowMs = Date.now();
+    const baseMs = hhmmToDateMs(inp.value || '', state.activeDate) || nowMs;
+    const nextMs = Math.min(nowMs, baseMs + deltaMins * 60000);
+    inp.value = formatTime24FromMs(nextMs);
+}
+
+function saveEditActivePause(tIdx) {
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
+    if (!t || !t.pausedAtMs) return;
+    const tmVal = document.getElementById('editActivePauseTimeInp')?.value || '';
+    const rsnVal = (document.getElementById('editActivePauseReasonInp')?.value || '').trim();
+    if (!tmVal) { showToast('⚠️ حدد ساعة التوقف أولاً'); return; }
+    pushUndo('تعديل وقت وسبب التوقف المؤقت');
+    const now = Date.now();
+    const reqMs = hhmmToDateMs(tmVal, state.activeDate) || now;
+    const effMs = clampPauseStartMsForTask(t, reqMs, now);
+    t.pausedAtMs = effMs;
+    t.pauseReason = rsnVal;
+    const pKey = t.pauseActiveKey || ('pause_' + effMs);
+    t.pauseActiveKey = pKey;
+    const finalStr = formatTime24FromMs(effMs);
+    upsertAutoNoteOnTask(t, {
+        autoKey: pKey,
+        autoType: 'pause',
+        text: `توقف مؤقت بدءاً من ${finalStr}${rsnVal ? ' — ' + rsnVal : ''}`,
+        forceRestore: true
+    });
+    closeModal();
+    saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
+    showToast(`✅ تم إرجاع ساعة التوقف المؤقت إلى ${finalStr}`);
 }
 
 function toggleSectionCollapse(bodyId, icoId) {
@@ -4403,36 +4576,37 @@ function isTaskPassiveIrrigation(t) {
 
 function getTaskLiveProgressMeta(t, now = Date.now()) {
     const netMs = getTaskNetElapsedMs(t, now);
-    const targetMins = parseDurationToMins(t.dur) || 60;
+    const targetMins = parseDurationToMins(t.plannedDur || t.dur) || 60;
     const targetMs = targetMins * 60000;
     const isIrr = !!(t.task && t.task.includes('Irrigation'));
     const isActivelyRunning = !!(t.status && t.status.includes('Progress') && !t.stoppedForToday && !t.fixedEndTime && !t.pausedAtMs && !isTaskCappedByShiftEnd(t, now));
     const pct = targetMs > 0 ? Math.min(100, Math.round((netMs / targetMs) * 100)) : 0;
     const remMs = targetMs - netMs;
     const remMins = Math.ceil(remMs / 60000);
-    let barColor = '#16a34a';
+    const overShiftMs = getTaskOverShiftMs(t, now);
+    let barColor = isIrr ? '#16a34a' : '#0284c7';
     let statusBadge = '';
-    if (isIrr) {
-        if (remMs <= 0) {
-            barColor = '#dc2626';
-            const overSecs = Math.floor(Math.abs(remMs) / 1000);
-            const om = Math.floor(overSecs / 60);
-            const os = overSecs % 60;
-            statusBadge = `تجاوز بـ ${om}:${String(os).padStart(2, '0')}`;
-        } else if (remMs <= 5 * 60000) {
-            barColor = '#d97706';
-            const rm = Math.floor(remMs / 60000);
-            const rs = Math.floor((remMs % 60000) / 1000);
-            statusBadge = `متبقي ${rm}:${String(rs).padStart(2, '0')} د`;
-        } else {
-            const rm = Math.floor(remMs / 60000);
-            const rs = Math.floor((remMs % 60000) / 1000);
-            statusBadge = `متبقي ${rm}:${String(rs).padStart(2, '0')} د`;
-        }
-    } else {
-        barColor = '#0284c7';
+
+    if (remMs <= 0) {
+        barColor = '#dc2626';
+        const overSecs = Math.floor(Math.abs(remMs) / 1000);
+        const oh = Math.floor(overSecs / 3600);
+        const om = Math.floor((overSecs % 3600) / 60);
+        const os = overSecs % 60;
+        const overFmt = oh > 0 ? `${oh}:${String(om).padStart(2, '0')}:${String(os).padStart(2, '0')}` : `${om}:${String(os).padStart(2, '0')}`;
+        statusBadge = `تجاوز المحدد بـ +${overFmt}`;
+    } else if (isIrr) {
+        if (remMs <= 5 * 60000) barColor = '#d97706';
+        const rm = Math.floor(remMs / 60000);
+        const rs = Math.floor((remMs % 60000) / 1000);
+        statusBadge = `متبقي ${rm}:${String(rs).padStart(2, '0')} د`;
     }
-    return { netMs, targetMs, targetMins, isIrr, isActivelyRunning, pct, remMs, remMins, barColor, statusBadge };
+    if (overShiftMs >= 60000) {
+        barColor = '#7c3aed';
+        const shiftOverBadge = `⏰ +${formatMsAsHrMin(overShiftMs)} بعد الدوام`;
+        statusBadge = statusBadge ? `${statusBadge} • ${shiftOverBadge}` : shiftOverBadge;
+    }
+    return { netMs, targetMs, targetMins, isIrr, isActivelyRunning, pct, remMs, remMins, overShiftMs, barColor, statusBadge };
 }
 
 function formatTaskLiveTimerLabel(t, now = Date.now()) {
@@ -4441,7 +4615,7 @@ function formatTaskLiveTimerLabel(t, now = Date.now()) {
     const hmsStr = formatMsAsHrMinSec(meta.netMs);
     if (t.stoppedForToday) return `⏹️ توقف بنهاية الدوام — تبقى جاري (${t.fixedStartTime || '08:00'} – ${t.fixedEndTime || ''} | ${hmStr})`;
     if (t.fixedEndTime) return `⏱️ مثبت: ${hmStr} (${t.fixedStartTime || '08:00'} – ${t.fixedEndTime})`;
-    if (t.pausedAtMs) return `⏸️ متوقف مؤقتاً (${hmStr})${t.pauseReason ? ' — ' + t.pauseReason : ''}`;
+    if (t.pausedAtMs) return `⏸️ متوقف مؤقتاً منذ ${formatTime24FromMs(t.pausedAtMs)} (الصافي ${hmStr})${t.pauseReason ? ' — ' + t.pauseReason : ''}`;
     if (isTaskCappedByShiftEnd(t, now)) return `⏱️ محسوب لغاية نهاية الدوام (${hmStr})`;
     if (isNowInDailyBreak(now) && !t.ignoreBreak) return `☕ استراحة الظهر (${hmStr})`;
     return `⏱️ ${hmsStr}${meta.statusBadge ? ' • ' + meta.statusBadge : ''}`;
@@ -4502,6 +4676,13 @@ function updateLiveTimersDomOnly() {
             const meta = getTaskLiveProgressMeta(t, now);
             el.style.width = `${meta.pct}%`;
             el.style.backgroundColor = meta.barColor;
+        }
+    });
+    document.querySelectorAll('[data-live-range-id]').forEach(el => {
+        const tid = el.getAttribute('data-live-range-id');
+        const t = log.tasks.find(x => x.id === tid);
+        if (t && t.status.includes('Progress')) {
+            el.textContent = `⏱️ ${getTaskDisplayTimeRangeStr(t, now)} (${getTaskReportDurationStr(t, now)}) | مخصص ✏️`;
         }
     });
     updateStickyMiniTimerBar(log, now);
@@ -4577,9 +4758,10 @@ function clampIntervalsToAttendanceWindow(parts, shortName, extraTaskOtHrs = 0) 
     const wOtHrs = parseFloat(wRec.ot) || 0;
     const manualTaskOt = parseFloat(extraTaskOtHrs) || 0;
     const eodMs = hhmmToDateMs('23:59', state.activeDate);
-    if (manualTaskOt > 0) {
-        // Explicit manual OT on this task allows evening/after-gap work up to 23:59 without clipping
-        attOutMs = eodMs || (attOutMs + Math.round(manualTaskOt * 3600000));
+    const maxPartEnd = parts.reduce((mx, [, b]) => Math.max(mx, b), 0);
+    if (manualTaskOt > 0 || maxPartEnd > attOutMs) {
+        // V17.8: Never silently cut off actual recorded overtime past shift end — allow up to 23:59!
+        attOutMs = eodMs || Math.max(attOutMs + Math.round(manualTaskOt * 3600000), maxPartEnd);
     } else if (wOtHrs > 0) {
         attOutMs += Math.round(wOtHrs * 3600000);
         if (eodMs && attOutMs > eodMs) attOutMs = eodMs;
@@ -4981,7 +5163,7 @@ function confirmRadarTask(zoneName, desc, dur) {
     closeModal(); saveState(); renderTasks(getDayLog()); showToast(`✓ أُضيفت مهمة ري ${zoneName}`);
 }
 
-/* ================= V17.6: Worker Weekly/Period Attendance Tracker & Payment Settlement Center ================= */
+/* ================= V17.8: Worker Weekly/Period Attendance Tracker & Payment Settlement Center ================= */
 let _payUiState = { preset: 'this_week', fromDate: '', toDate: '', typeFilter: 'all', search: '' };
 
 function getIraqWeekBounds(refDateStr = state.activeDate, weekOffset = 0) {
@@ -5688,7 +5870,7 @@ function openTaskTimeControlModal(tIdx) {
                 <button type="button" id="tmcBrkOffBtn" class="btn btn-sm ${t.ignoreBreak ? 'btn-orange' : 'btn-outline'}" onclick="setTmcBreakMode(true, ${tIdx})">⏸️ إيقاف الخصم (يدوي)</button>
             </div>
             <input type="hidden" id="tmcIgnoreBreakVal" value="${t.ignoreBreak ? '1' : '0'}">
-            <div class="grid-2" style="margin-bottom:6px;">
+            <div class="grid-2" style="margin-bottom:5px;">
                 <div>
                     <label class="lbl">توقف مؤقت إضافي (من):</label>
                     <input type="time" id="tmcPauseFrom" class="inp" style="margin:0;padding:5px;text-align:center;" value="${esc(t.manualPauseFrom || '')}" oninput="updateTaskTimeControlPreview(${tIdx})">
@@ -5698,6 +5880,7 @@ function openTaskTimeControlModal(tIdx) {
                     <input type="time" id="tmcPauseTo" class="inp" style="margin:0;padding:5px;text-align:center;" value="${esc(t.manualPauseTo || '')}" oninput="updateTaskTimeControlPreview(${tIdx})">
                 </div>
             </div>
+            <input type="text" id="tmcPauseReason" class="inp" style="margin-bottom:6px;padding:5px 8px;font-size:11.5px;background:white;" value="${esc(t.manualPauseReason || '')}" placeholder="سبب التوقف المؤقت (اختياري — يُكتب تلقائياً بالملاحظات)">
             ${livePausedMins > 0 ? `
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#92400e;background:white;border:1px dashed #fcd34d;border-radius:7px;padding:4px 8px;margin-bottom:6px;">
                 <span>⏸️ توقف مؤقت سابق مسجّل: <b>${livePausedMins} دقيقة</b></span>
@@ -5754,20 +5937,23 @@ function openTaskTimeControlModal(tIdx) {
                             </div>
                             ${otherTasks.length > 0 ? `
                             <div style="display:flex;gap:5px;align-items:center;font-size:11px;">
-                                <select id="tmcWkDest_${wI}" class="inp" style="margin:0;padding:3px 5px;flex:1;font-size:11px;" onchange="document.getElementById('tmcWkTrOpts_${wI}').style.display=(this.value!==''?'flex':'none')">
+                                <select id="tmcWkDest_${wI}" class="inp" style="margin:0;padding:3px 5px;flex:1;font-size:11px;" onchange="document.getElementById('tmcWkTrOpts_${wI}').style.display=(this.value!==''?'block':'none')">
                                     <option value="">— مستمر هنا (بدون انتقال) —</option>
                                     ${otherTasks.map(x => `<option value="${x.oi}" ${selDestIdx === String(x.oi) ? 'selected' : ''}>انتقل إلى #${x.oi + 1}: ${esc((x.ot.task.split('/')[1] || x.ot.task).trim())} [${esc(x.ot.zones)}]</option>`).join('')}
                                 </select>
                             </div>
-                            <div id="tmcWkTrOpts_${wI}" style="display:${selDestIdx !== '' ? 'flex' : 'none'};gap:5px;align-items:center;margin-top:5px;font-size:11px;">
-                                <select id="tmcWkTrMode_${wI}" class="inp" style="margin:0;padding:3px;flex:1;font-size:10.5px;" onchange="document.getElementById('tmcWkRetWrap_${wI}').style.display=(this.value==='roundtrip'?'flex':'none')">
-                                    <option value="moved" ${!isRtMode ? 'selected' : ''}>انتقال كامل من ساعة الترك</option>
-                                    <option value="roundtrip" ${isRtMode ? 'selected' : ''}>انتقال مؤقت وعودة</option>
-                                </select>
-                                <div id="tmcWkRetWrap_${wI}" style="display:${isRtMode ? 'flex' : 'none'};align-items:center;gap:3px;">
-                                    <span>رجع:</span>
-                                    <input type="time" id="tmcWkRet_${wI}" class="inp" style="margin:0;padding:3px;width:88px;" value="${esc(wAwayTo)}">
+                            <div id="tmcWkTrOpts_${wI}" style="display:${selDestIdx !== '' ? 'block' : 'none'};margin-top:5px;font-size:11px;">
+                                <div style="display:flex;gap:5px;align-items:center;margin-bottom:4px;">
+                                    <select id="tmcWkTrMode_${wI}" class="inp" style="margin:0;padding:3px;flex:1;font-size:10.5px;" onchange="document.getElementById('tmcWkRetWrap_${wI}').style.display=(this.value==='roundtrip'?'flex':'none')">
+                                        <option value="moved" ${!isRtMode ? 'selected' : ''}>انتقال كامل من ساعة الترك</option>
+                                        <option value="roundtrip" ${isRtMode ? 'selected' : ''}>انتقال مؤقت وعودة</option>
+                                    </select>
+                                    <div id="tmcWkRetWrap_${wI}" style="display:${isRtMode ? 'flex' : 'none'};align-items:center;gap:3px;">
+                                        <span>رجع:</span>
+                                        <input type="time" id="tmcWkRet_${wI}" class="inp" style="margin:0;padding:3px;width:88px;" value="${esc(wAwayTo)}">
+                                    </div>
                                 </div>
+                                <input type="text" id="tmcWkTrReason_${wI}" class="inp" style="margin:0;padding:3px 6px;font-size:10.5px;background:white;" value="${esc(wt.reason || '')}" placeholder="سبب النقل اختياري (مثلاً: إسناد / عطل)...">
                             </div>` : ''}
                         </div>
                     </div>`;
@@ -5859,7 +6045,8 @@ function updateTaskTimeControlPreview(tIdx) {
         const capMs = getTaskShiftEndCapMs({ ...t, manualOt: liveOt, fixedEndTime: '' }, state.activeDate);
         const nowMs = Date.now();
         const todayStr = getLocalDateStr(nowMs);
-        eMs = (state.activeDate === todayStr) ? Math.min(nowMs, capMs || nowMs) : (capMs || nowMs);
+        const eodMax = hhmmToDateMs('23:59', state.activeDate);
+        eMs = (state.activeDate === todayStr) ? (eodMax ? Math.min(nowMs, eodMax) : nowMs) : (capMs || nowMs);
     }
     if (!sMs || !eMs || eMs <= sMs) {
         box.textContent = '⚠️ حدد ساعة النهاية أكبر من ساعة البداية';
@@ -5894,6 +6081,7 @@ function saveTaskTimeControl(tIdx) {
     const ignBrk = document.getElementById('tmcIgnoreBreakVal')?.value === '1';
     const pFrom = document.getElementById('tmcPauseFrom')?.value || '';
     const pTo = document.getElementById('tmcPauseTo')?.value || '';
+    const pReason = (document.getElementById('tmcPauseReason')?.value || '').trim();
     const manualOt = Math.max(0, parseFloat(document.getElementById('tmcOtHrs')?.value) || 0);
     const syncOtToAtt = !!document.getElementById('tmcSyncOtToAtt')?.checked;
     const clearLivePause = !!document.getElementById('tmcClearLivePauseChk')?.checked;
@@ -5903,8 +6091,25 @@ function saveTaskTimeControl(tIdx) {
     t.ignoreBreak = ignBrk;
     t.manualPauseFrom = (pFrom && pTo && pTo > pFrom) ? pFrom : '';
     t.manualPauseTo = (pFrom && pTo && pTo > pFrom) ? pTo : '';
+    t.manualPauseReason = t.manualPauseFrom ? pReason : '';
     t.manualOt = manualOt;
-    if (clearLivePause) t.pausedTotalMs = 0;
+    if (clearLivePause) {
+        t.pausedTotalMs = 0;
+        removeAutoNotesByPrefix(t, 'pause_1');
+    }
+    if (t.manualPauseFrom && t.manualPauseTo) {
+        const mpS = hhmmToDateMs(t.manualPauseFrom, state.activeDate);
+        const mpE = hhmmToDateMs(t.manualPauseTo, state.activeDate);
+        const mpMins = (mpS && mpE && mpE > mpS) ? Math.round((mpE - mpS) / 60000) : 0;
+        upsertAutoNoteOnTask(t, {
+            autoKey: 'pause_manual',
+            autoType: 'pause',
+            text: `توقف مؤقت (${t.manualPauseFrom}–${t.manualPauseTo}${mpMins ? ' | ' + mpMins + ' د' : ''})${pReason ? ' — ' + pReason : ''}`,
+            forceRestore: true
+        });
+    } else {
+        removeAutoNoteByKey(t, 'pause_manual');
+    }
 
     const isProg = !!(t.status && t.status.includes('Progress'));
     if (isProg) {
@@ -5916,7 +6121,12 @@ function saveTaskTimeControl(tIdx) {
         t.stoppedForToday = wantStopped;
         t.fixedEndTime = eStr;
         t.startTimeMs = hhmmToDateMs(sStr, state.activeDate) || Date.now();
-        t.pausedAtMs = null;
+        if (wantStopped || eStr) {
+            if (t.pausedAtMs) finalizeOpenTaskPause(t, hhmmToDateMs(eStr, state.activeDate) || Date.now());
+        } else if (t.pausedAtMs) {
+            // Preserve active pause while adjusting workers/start time, clamping if start moved forward
+            t.pausedAtMs = clampPauseStartMsForTask(t, t.pausedAtMs, Date.now());
+        }
         t.timerFrozen = !!(wantStopped || eStr);
         t.frozenAtMs = eStr ? hhmmToDateMs(eStr, state.activeDate) : null;
     } else {
@@ -5958,9 +6168,21 @@ function saveTaskTimeControl(tIdx) {
         const tVal = document.getElementById(`tmcWkTo_${wI}`)?.value || '';
         const destVal = document.getElementById(`tmcWkDest_${wI}`)?.value;
 
+        const cleanupPrevDestTransfer = (newDestId = '') => {
+            if (prevWt && prevWt.destTaskId && prevWt.destTaskId !== newDestId) {
+                const oldDest = (log.tasks || []).find(x => x.id === prevWt.destTaskId);
+                if (oldDest && oldDest.workerTimings && oldDest.workerTimings[shortName]) {
+                    delete oldDest.workerTimings[shortName];
+                    syncWorkerTimingNotesOnTask(oldDest);
+                }
+            }
+        };
+
         if (destVal !== undefined && destVal !== '' && log.tasks[parseInt(destVal, 10)]) {
             const destTask = log.tasks[parseInt(destVal, 10)];
+            cleanupPrevDestTransfer(destTask.id);
             const trMode = document.getElementById(`tmcWkTrMode_${wI}`)?.value || 'moved';
+            const trReason = (document.getElementById(`tmcWkTrReason_${wI}`)?.value || '').trim();
             const trTime = tVal || formatTime24FromMs(Date.now());
             const retTime = trMode === 'roundtrip' ? (document.getElementById(`tmcWkRet_${wI}`)?.value || trTime) : '';
 
@@ -5972,6 +6194,8 @@ function saveTaskTimeControl(tIdx) {
                     awayTo: retTime,
                     mode: 'roundtrip',
                     destTaskId: destTask.id,
+                    destZones: destTask.zones,
+                    reason: trReason,
                     note: `إلى (${destTask.zones})`
                 };
             } else {
@@ -5980,6 +6204,8 @@ function saveTaskTimeControl(tIdx) {
                     to: trTime,
                     mode: 'moved',
                     destTaskId: destTask.id,
+                    destZones: destTask.zones,
+                    reason: trReason,
                     note: `إلى (${destTask.zones})`
                 };
             }
@@ -5991,19 +6217,26 @@ function saveTaskTimeControl(tIdx) {
             destTask.workerTimings[shortName] = {
                 from: trTime,
                 to: trMode === 'roundtrip' ? retTime : '',
-                mode: trMode === 'roundtrip' ? 'roundtrip' : 'normal',
+                mode: trMode === 'roundtrip' ? 'from_roundtrip' : 'from_moved',
+                srcTaskId: t.id,
+                srcZones: t.zones,
+                reason: trReason,
                 note: `من (${t.zones})`
             };
-            syncWorkerTimingNotesOnTask(destTask);
+            syncWorkerTimingNotesOnTask(destTask, true);
         } else if (fVal || tVal) {
-            // Normal custom arrival/departure (clears any canceled transfer/roundtrip cleanly!)
+            cleanupPrevDestTransfer('');
             t.workerTimings[shortName] = {
                 from: fVal,
                 to: tVal,
-                mode: 'normal',
+                mode: prevWt.mode === 'from_moved' || prevWt.mode === 'from_roundtrip' ? prevWt.mode : 'normal',
+                srcTaskId: prevWt.srcTaskId || '',
+                srcZones: prevWt.srcZones || '',
+                reason: prevWt.reason || '',
                 note: prevWt.mode === 'normal' ? (prevWt.note || '') : ''
             };
         } else {
+            cleanupPrevDestTransfer('');
             delete t.workerTimings[shortName];
         }
     });
@@ -6014,7 +6247,7 @@ function saveTaskTimeControl(tIdx) {
         t.workers = selectedNames;
     }
 
-    syncWorkerTimingNotesOnTask(t);
+    syncWorkerTimingNotesOnTask(t, true);
     syncIrrigatedZonesFromTasks(false);
     logSectionHistory('tasks', 'edit', `ضبط وقت ${t.zones}: ${sStr}${eStr ? '–' + eStr : ''} (${getTaskReportDurationStr(t)})`, { taskId: t.id });
     closeModal();
@@ -6072,7 +6305,7 @@ function applyCustomTime(targetType, targetIdx, targetInputId) {
     showToast('⏱️ تم ضبط الوقت: ' + formatted);
 }
 
-/* ================= V17.6: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
+/* ================= V17.8: Smart Activity Log, Mistake Protection, Undo/Redo & Targeted Revert ================= */
 function pushUndo(actionLabel) {
     try {
         const snap = JSON.stringify(state);
@@ -7354,7 +7587,7 @@ function renderTasks(log) {
 
             <!-- Row 3: Unified Time Control Pill + Break Toggle + Workers + Photos -->
             <div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:6px;">
-                <button type="button" class="btn btn-blue btn-sm" style="border-radius:99px;padding:5px 10px;font-size:11.5px;" onclick="openTaskTimeControlModal(${idx})" title="تعديل وقت المهمة، الاستراحة، الأوفرتايم، وأوقات العمال">
+                <button type="button" class="btn btn-blue btn-sm" style="border-radius:99px;padding:5px 10px;font-size:11.5px;" onclick="openTaskTimeControlModal(${idx})" title="تعديل وقت المهمة، الاستراحة، الأوفرتايم، وأوقات العمال" ${isProg ? `data-live-range-id="${t.id}"` : ''}>
                     ⏱️ ${esc(timeRangeStr)} (${esc(repDurStr)}) | مخصص ✏️
                 </button>
                 <span class="chip" style="margin:0;background:${t.ignoreBreak ? '#fef3c7' : '#f1f5f9'};color:${t.ignoreBreak ? '#92400e' : '#475569'};border-color:${t.ignoreBreak ? '#f59e0b' : 'var(--border)'};" onclick="toggleTaskIgnoreBreak(${idx})" title="اضغط للتبديل بين خصم الاستراحة تلقائياً أو إيقافه يدوياً">
@@ -7384,10 +7617,18 @@ function renderTasks(log) {
                     <div class="live-progress-bar" data-live-prog-id="${t.id}" style="width:${lMeta.pct}%;background-color:${lMeta.barColor};"></div>
                 </div>
                 <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:3px;">
+                    ${t.pausedAtMs ? `
+                    <span style="font-size:10px;color:#92400e;font-weight:bold;">توقفت قبل:</span>
+                    <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:#fffbeb;color:#92400e;border-color:#fcd34d;" onclick="quickShiftActivePauseMins(${idx}, -15)">-15 د</span>
+                    <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:#fffbeb;color:#92400e;border-color:#fcd34d;" onclick="quickShiftActivePauseMins(${idx}, -30)">-30 د</span>
+                    <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:#fffbeb;color:#92400e;border-color:#fcd34d;" onclick="quickShiftActivePauseMins(${idx}, -60)">-1 س</span>
+                    <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:#fef3c7;color:#92400e;border-color:#f59e0b;" onclick="openEditActivePauseModal(${idx})">🕒 تعديل ساعة التوقف ✏️</span>
+                    ` : `
                     <span style="font-size:10px;color:var(--muted);font-weight:bold;">بدأت قبل:</span>
                     <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:white;" onclick="quickShiftTaskStartMins(${idx}, -15)">-15 د</span>
                     <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:white;" onclick="quickShiftTaskStartMins(${idx}, -30)">-30 د</span>
                     <span class="chip" style="margin:0;padding:2px 7px;font-size:10px;background:white;" onclick="quickShiftTaskStartMins(${idx}, -60)">-1 س</span>
+                    `}
                 </div>` : ''}
             </div>`;
             })() : ''}
@@ -7473,22 +7714,32 @@ function renderTasks(log) {
                 const zEntries = getAllTaskZoneNoteEntries(t);
                 const totalNotesCnt = uNotes.length + zEntries.length;
                 const autoExtra = getTaskAutoOnlySummary(t);
-                const genHtml = uNotes.map((nObj, nI) => `
-                    <div class="note-item-card ${isBlock ? 'is-blocked-note' : ''}">
-                        <span style="flex:1;word-break:break-word;">📝 ${esc(nObj.text)}</span>
+                const genHtml = uNotes.map((nObj, nI) => {
+                    const isAuto = !!nObj.autoKey;
+                    const am = isAuto ? getAutoNoteMeta(nObj.autoType) : null;
+                    const cls = isAuto ? am.cardCls : (isBlock ? 'is-blocked-note' : '');
+                    const prefix = isAuto ? `<span class="auto-note-tag ${am.tagCls}">${am.ico} ${am.lbl}</span>` : '📝 ';
+                    return `
+                    <div class="note-item-card ${cls}">
+                        <span style="flex:1;word-break:break-word;">${prefix}${esc(nObj.text)}</span>
                         <div style="display:flex;gap:3px;flex-shrink:0;">
                             <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;" onclick="editSingleTaskNote(${idx}, ${nI}, '__ALL__')" title="تعديل">✏️</button>
                             <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${nI}, null, '__ALL__')" title="حذف">✕</button>
                         </div>
-                    </div>`).join('');
-                const perZoneHtml = zEntries.map(item => `
-                    <div class="note-item-card is-zone-note">
-                        <span style="flex:1;word-break:break-word;"><span class="zone-note-tag">📍 ${esc(item.zone)}</span>${esc(item.text)}</span>
+                    </div>`;
+                }).join('');
+                const perZoneHtml = zEntries.map(item => {
+                    const isAuto = !!item.autoKey;
+                    const am = isAuto ? getAutoNoteMeta(item.autoType) : null;
+                    return `
+                    <div class="note-item-card ${isAuto ? am.cardCls : 'is-zone-note'}">
+                        <span style="flex:1;word-break:break-word;"><span class="zone-note-tag">📍 ${esc(item.zone)}</span>${isAuto ? `<span class="auto-note-tag ${am.tagCls}">${am.ico}</span>` : ''}${esc(item.text)}</span>
                         <div style="display:flex;gap:3px;flex-shrink:0;">
                             <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;" onclick="editSingleTaskNote(${idx}, ${item.nIdx}, '${esc(item.zone)}')" title="تعديل">✏️</button>
                             <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${item.nIdx}, null, '${esc(item.zone)}')" title="حذف">✕</button>
                         </div>
-                    </div>`).join('');
+                    </div>`;
+                }).join('');
                 const notesHtml = genHtml + perZoneHtml;
                 const multiZoneHint = zList.length > 1 ? ' (عام أو لكل منطقة)' : '';
 
@@ -7669,9 +7920,15 @@ function refillTankerTrip(idx) {
     t.tankerCapacity = TANKER_FULL_CAPACITY;
     t.tankerLiters = '';
     t.tankerNextZone = '';
+    upsertAutoNoteOnTask(t, {
+        autoKey: 'tanker_total',
+        autoType: 'tanker',
+        text: `إعادة تعبئة الحوضية — بدء النقلة #${t.tankerTrips} بسعة 24,000 لتر (المصروف السابق: ${(parseFloat(t.tankerPrevTripsLiters) || 0).toLocaleString()} لتر) / Refilled tanker for Trip #${t.tankerTrips}`,
+        forceRestore: true
+    });
     logSectionHistory('tasks', 'tanker', `تعبئة نقلة #${t.tankerTrips} لـ ${t.zones} (السابق: ${(parseFloat(t.tankerPrevTripsLiters) || 0).toLocaleString()} L)`, { taskId: t.id });
     saveState(); renderTasks(getDayLog()); renderReadingsAndTools(getDayLog());
-    showToast(`🔄 تم حفظ النقلة #${prevTripNum} وبدء النقلة #${t.tankerTrips} بسعة 24,000 لتر`);
+    showToast(`🔄 تم حفظ النقلة #${prevTripNum} وتوثيق بدء النقلة #${t.tankerTrips} بالملاحظات`);
 }
 
 function scrollToTaskCard(idx) {
@@ -7820,7 +8077,8 @@ function setTaskStatus(idx, st) {
     const nowMins = nowDate.getHours() * 60 + nowDate.getMinutes();
 
     if (st.includes('Progress') && !oldSt.includes('Progress')) {
-        // Bug 4 Fix: Clear old completion/frozen end time so live timer resumes cleanly
+        // V17.8: Preserve original planned duration & never snap afternoon/OT starts back to 08:00!
+        if (!t.plannedDur) t.plannedDur = t.dur || '1:00 hr';
         t.fixedEndTime = '';
         t.stoppedForToday = false;
         t.timerFrozen = false;
@@ -7828,16 +8086,7 @@ function setTaskStatus(idx, st) {
         t.pausedAtMs = null;
 
         if (!t.fixedStartTime) {
-            // Bug 5 Fix: Determine effective shift end for assigned workers (16:00 for outside/unassigned, 17:00 if permanent-only)
-            let cutoffMins = 16 * 60;
-            const wList = t.workers || [];
-            if (wList.length > 0 && !wList.includes('Team')) {
-                const assignedRecs = (log.attendance || []).filter(w => wList.includes((w.name.split('/')[1] || w.name).trim()));
-                if (assignedRecs.length > 0 && assignedRecs.every(w => (w.tOut || '16:00') >= '17:00')) {
-                    cutoffMins = 17 * 60;
-                }
-            }
-            if (state.activeDate === todayStr && nowMins >= 8 * 60 && nowMins < cutoffMins) {
+            if (state.activeDate === todayStr && nowMins >= 5 * 60) {
                 t.fixedStartTime = formatTime24FromMs(now);
             } else {
                 t.fixedStartTime = '08:00';
@@ -7846,15 +8095,33 @@ function setTaskStatus(idx, st) {
         t.startTimeMs = hhmmToDateMs(t.fixedStartTime, state.activeDate) || now;
         showToast(`▶️ المهمة قيد التنفيذ (بدأت ${t.fixedStartTime})`);
     } else if (st.includes('Completed')) {
+        if (t.pausedAtMs) finalizeOpenTaskPause(t, now);
         if (!t.fixedStartTime) {
             t.fixedStartTime = t.startTimeMs ? formatTime24FromMs(t.startTimeMs) : '08:00';
         }
+        let overShiftMins = 0;
         if (oldSt.includes('Progress')) {
             const netMs = getTaskNetElapsedMs(t, now);
             if (netMs > 0) t.dur = formatMsAsHrMin(netMs);
             if (!t.fixedEndTime) {
                 const parts = getTaskActiveIntervals(t, now);
-                if (parts.length > 0) t.fixedEndTime = formatTime24FromMs(parts[parts.length - 1][1]);
+                if (parts.length > 0) {
+                    const realEndMs = parts[parts.length - 1][1];
+                    t.fixedEndTime = formatTime24FromMs(realEndMs);
+                    const baseCapMs = getTaskShiftEndCapMs({ ...t, fixedEndTime: '', manualOt: 0 }, state.activeDate);
+                    if (baseCapMs && realEndMs > baseCapMs + 4 * 60000) {
+                        overShiftMins = Math.round((realEndMs - baseCapMs) / 60000);
+                        t.afterHoursMins = overShiftMins;
+                        const otHrsCalc = +(overShiftMins / 60).toFixed(2);
+                        if (!(parseFloat(t.manualOt) > 0)) t.manualOt = otHrsCalc;
+                        upsertAutoNoteOnTask(t, {
+                            autoKey: 'overtime_shift',
+                            autoType: 'overtime',
+                            text: `استمرار العمل بعد انتهاء الدوام حتى ${t.fixedEndTime} (+${formatMsAsHrMin(overShiftMins * 60000)})`,
+                            forceRestore: true
+                        });
+                    }
+                }
             }
         }
         if (!t.fixedEndTime) {
@@ -7870,8 +8137,11 @@ function setTaskStatus(idx, st) {
         t.pausedAtMs = null;
         t.timerFrozen = false;
         t.frozenAtMs = null;
-        showToast(`✅ اكتملت المهمة (${t.fixedStartTime} – ${t.fixedEndTime || ''} | ${t.dur})`);
+        showToast(overShiftMins > 0
+            ? `✅ اكتملت المهمة (${t.fixedStartTime} – ${t.fixedEndTime} | ${t.dur} | ⏰ +${formatMsAsHrMin(overShiftMins * 60000)} بعد الدوام)`
+            : `✅ اكتملت المهمة (${t.fixedStartTime} – ${t.fixedEndTime || ''} | ${t.dur})`);
     } else if (st.includes('Blocked')) {
+        if (t.pausedAtMs) finalizeOpenTaskPause(t, now);
         if (oldSt.includes('Progress')) {
             const netMs = getTaskNetElapsedMs(t, now);
             if (netMs > 0) t.dur = formatMsAsHrMin(netMs);
@@ -7902,7 +8172,7 @@ function setTaskStatus(idx, st) {
     saveState(); renderTasks(log); renderAttendance(log); checkTaskTimers();
 }
 
-/* ================= V17.6: Advanced Multi-Notes & Saved Custom Notes Library ================= */
+/* ================= V17.8: Advanced Multi-Notes & Saved Custom Notes Library ================= */
 function stripAutoSuffixFromNote(rawStr, suffix) {
     let base = String(rawStr || '');
     if (suffix) {
@@ -7913,13 +8183,90 @@ function stripAutoSuffixFromNote(rawStr, suffix) {
     return base;
 }
 
+function getAutoNoteMeta(autoType) {
+    if (autoType === 'pause') return { ico: '⏸️', lbl: 'توقف تلقائي', cardCls: 'is-auto-pause', tagCls: 't-pause' };
+    if (autoType === 'worker') return { ico: '👷', lbl: 'حركة كادر', cardCls: 'is-auto-worker', tagCls: 't-worker' };
+    if (autoType === 'tanker') return { ico: '🚚', lbl: 'تنكر تلقائي', cardCls: 'is-auto-tanker', tagCls: 't-tanker' };
+    if (autoType === 'overtime') return { ico: '⏰', lbl: 'وقت إضافي', cardCls: 'is-auto-overtime', tagCls: 't-overtime' };
+    return { ico: '⚡', lbl: 'تلقائي', cardCls: '', tagCls: '' };
+}
+
+function upsertAutoNoteOnTask(t, { autoKey, autoType = 'auto', text = '', zone = '__ALL__', forceRestore = false } = {}) {
+    if (!t || !autoKey) return;
+    const clean = String(text || '').trim();
+    if (!clean) {
+        removeAutoNoteByKey(t, autoKey, zone);
+        return;
+    }
+    if (!Array.isArray(t.dismissedAutoNotes)) t.dismissedAutoNotes = [];
+    if (forceRestore) {
+        t.dismissedAutoNotes = t.dismissedAutoNotes.filter(k => k !== autoKey);
+    } else if (t.dismissedAutoNotes.includes(autoKey)) {
+        return;
+    }
+    const isZone = zone && zone !== '__ALL__';
+    const list = isZone ? ensureZoneNotesList(t, zone) : ensureTaskNotesList(t);
+    const existing = list.find(x => x && x.autoKey === autoKey);
+    if (existing) {
+        if (!existing.userEdited || forceRestore) {
+            existing.text = clean;
+            existing.autoType = autoType;
+            if (forceRestore) existing.userEdited = false;
+        }
+    } else {
+        list.push({
+            id: 'an_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+            text: clean,
+            autoKey,
+            autoType,
+            userEdited: false
+        });
+    }
+    if (!isZone) rebuildTaskNoteFromList(t);
+}
+
+function removeAutoNoteByKey(t, autoKey, zone = '__ALL__') {
+    if (!t || !autoKey) return;
+    if (zone && zone !== '__ALL__') {
+        if (t.zoneNotes && Array.isArray(t.zoneNotes[zone])) {
+            t.zoneNotes[zone] = t.zoneNotes[zone].filter(x => !x || x.autoKey !== autoKey);
+            if (t.zoneNotes[zone].length === 0) delete t.zoneNotes[zone];
+        }
+        return;
+    }
+    const list = ensureTaskNotesList(t);
+    const before = list.length;
+    t.notesList = list.filter(x => !x || x.autoKey !== autoKey);
+    if (t.notesList.length !== before) rebuildTaskNoteFromList(t);
+    if (t.zoneNotes && typeof t.zoneNotes === 'object') {
+        Object.keys(t.zoneNotes).forEach(zk => {
+            if (Array.isArray(t.zoneNotes[zk])) {
+                t.zoneNotes[zk] = t.zoneNotes[zk].filter(x => !x || x.autoKey !== autoKey);
+                if (t.zoneNotes[zk].length === 0) delete t.zoneNotes[zk];
+            }
+        });
+    }
+}
+
+function removeAutoNotesByPrefix(t, prefix) {
+    if (!t || !prefix) return;
+    const list = ensureTaskNotesList(t);
+    t.notesList = list.filter(x => !x || !x.autoKey || !String(x.autoKey).startsWith(prefix));
+    rebuildTaskNoteFromList(t);
+}
+
 function getTaskAutoOnlySummary(t) {
+    // V17.8: All new auto-notes live visibly inside notesList/zoneNotes; show only legacy hidden suffix if any old record hasn't migrated yet
     const parts = [];
-    const base = stripAutoSuffixFromNote(t.note, t.autoNoteSuffix);
-    base.split('\n').forEach(line => {
-        const s = line.trim();
-        if (s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية')) parts.push(s.split(' / ')[0]);
-    });
+    const list = Array.isArray(t.notesList) ? t.notesList : [];
+    const hasVisibleTanker = list.some(x => x && x.autoType === 'tanker') || getAllTaskZoneNoteEntries(t).some(x => x.autoType === 'tanker');
+    if (!hasVisibleTanker) {
+        const base = stripAutoSuffixFromNote(t.note, t.autoNoteSuffix);
+        base.split('\n').forEach(line => {
+            const s = line.trim();
+            if (s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية')) parts.push(s.split(' / ')[0]);
+        });
+    }
     if (t.autoNoteSuffix) parts.push(t.autoNoteSuffix);
     return parts.join(' | ');
 }
@@ -7943,7 +8290,7 @@ function getAllTaskZoneNoteEntries(t) {
         seenKeys.add(z);
         getZoneSpecificNotes(t, z).forEach((nObj, nIdx) => {
             if (nObj && String(nObj.text || '').trim()) {
-                out.push({ zone: z, nIdx, id: nObj.id, text: nObj.text });
+                out.push({ zone: z, nIdx, id: nObj.id, text: nObj.text, autoKey: nObj.autoKey || '', autoType: nObj.autoType || '' });
             }
         });
     });
@@ -7951,7 +8298,7 @@ function getAllTaskZoneNoteEntries(t) {
         if (seenKeys.has(zk)) return;
         getZoneSpecificNotes(t, zk).forEach((nObj, nIdx) => {
             if (nObj && String(nObj.text || '').trim()) {
-                out.push({ zone: zk, nIdx, id: nObj.id, text: nObj.text });
+                out.push({ zone: zk, nIdx, id: nObj.id, text: nObj.text, autoKey: nObj.autoKey || '', autoType: nObj.autoType || '' });
             }
         });
     });
@@ -7966,13 +8313,16 @@ function getTaskHasAnyNotes(t) {
 
 function getTaskNoteForZone(t, zoneName) {
     if (!t) return '';
+    const userObjList = getTaskUserNotes(t);
+    const zoneObjList = getZoneSpecificNotes(t, zoneName);
+    const hasStructuredTanker = userObjList.some(x => x && x.autoType === 'tanker') || getAllTaskZoneNoteEntries(t).some(x => x.autoType === 'tanker');
     const cleanBase = stripAutoSuffixFromNote(t.note, t.autoNoteSuffix);
-    const tankerLines = cleanBase.split('\n').map(s => s.trim()).filter(s => s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية'));
-    const genLines = getTaskUserNotes(t).map(x => String(x.text || '').trim()).filter(Boolean);
-    const zoneLines = getZoneSpecificNotes(t, zoneName).map(x => String(x.text || '').trim()).filter(Boolean);
+    const legacyTankerLines = hasStructuredTanker ? [] : cleanBase.split('\n').map(s => s.trim()).filter(s => s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية'));
+    const genLines = userObjList.map(x => String(x.text || '').trim()).filter(Boolean);
+    const zoneLines = zoneObjList.map(x => String(x.text || '').trim()).filter(Boolean);
 
     const allLines = [];
-    [...genLines, ...zoneLines, ...tankerLines].forEach(ln => {
+    [...genLines, ...zoneLines, ...legacyTankerLines].forEach(ln => {
         if (ln && !allLines.includes(ln)) allLines.push(ln);
     });
     let combined = allLines.join('\n');
@@ -8002,10 +8352,13 @@ function getTaskUserNotes(t) {
 }
 
 function rebuildTaskNoteFromList(t) {
+    const listArr = Array.isArray(t.notesList) ? t.notesList : [];
+    const hasStructuredTanker = listArr.some(x => x && x.autoType === 'tanker');
     const cleanBase = stripAutoSuffixFromNote(t.note, t.autoNoteSuffix);
-    const tankerLines = cleanBase.split('\n').map(s => s.trim()).filter(s => s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية'));
-    const userLines = (Array.isArray(t.notesList) ? t.notesList : []).map(x => String(x.text || '').trim()).filter(Boolean);
-    const allLines = [...userLines, ...tankerLines];
+    const legacyTankerLines = hasStructuredTanker ? [] : cleanBase.split('\n').map(s => s.trim()).filter(s => s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية'));
+    const userLines = listArr.map(x => String(x.text || '').trim()).filter(Boolean);
+    const allLines = [];
+    [...userLines, ...legacyTankerLines].forEach(ln => { if (ln && !allLines.includes(ln)) allLines.push(ln); });
     let combined = allLines.join('\n');
     if (t.autoNoteSuffix) {
         combined = combined ? `${combined} | ${t.autoNoteSuffix}` : t.autoNoteSuffix;
@@ -8080,7 +8433,7 @@ function editSingleTaskNote(idx, nIdx, scope = '__ALL__') {
     const oldNote = t.note || '';
     const prevTxt = list[nIdx].text;
     const clean = applySpellAndDictationGuard(updated.trim()).text;
-    if (clean) list[nIdx].text = clean;
+    if (clean) { list[nIdx].text = clean; if (list[nIdx].autoKey) list[nIdx].userEdited = true; }
     else {
         list.splice(nIdx, 1);
         if (isZoneScope && list.length === 0) delete t.zoneNotes[scope];
@@ -8108,7 +8461,12 @@ function deleteSingleTaskNote(idx, nIdx, reopenCat = null, scope = '__ALL__') {
     const oldZoneNotes = JSON.parse(JSON.stringify(t.zoneNotes || {}));
     const oldNote = t.note || '';
     const list = isZoneScope ? ensureZoneNotesList(t, scope) : ensureTaskNotesList(t);
-    const removedTxt = (list[nIdx] && list[nIdx].text) || '';
+    const removedObj = list[nIdx] || null;
+    const removedTxt = (removedObj && removedObj.text) || '';
+    if (removedObj && removedObj.autoKey) {
+        if (!Array.isArray(t.dismissedAutoNotes)) t.dismissedAutoNotes = [];
+        if (!t.dismissedAutoNotes.includes(removedObj.autoKey)) t.dismissedAutoNotes.push(removedObj.autoKey);
+    }
     list.splice(nIdx, 1);
     if (isZoneScope) {
         if (list.length === 0) delete t.zoneNotes[scope];
@@ -8214,14 +8572,18 @@ function openTaskNotesModal(idx, activeCat = 'saved', activeScope = '__ALL__') {
         <div style="margin-bottom:8px;">
             <label class="lbl">${isZoneScope ? `📍 الملاحظات المستقلة لمنطقة (${esc(scope)}) (${curNotes.length}):` : `🌐 الملاحظات المضافة ${scopeTargetLabel} (${curNotes.length}):`}</label>
             ${curNotes.length === 0 ? `<div style="font-size:11.5px;color:var(--muted);padding:6px;background:#f8fafc;border-radius:7px;">لا توجد ملاحظات ${isZoneScope ? `خاصة بمنطقة (${esc(scope)})` : 'مضافة'} بعد</div>` :
-            curNotes.map((nObj, nI) => `
-                <div class="note-item-card ${isZoneScope ? 'is-zone-note' : ''}">
-                    <span style="flex:1;">${isZoneScope ? `<span class="zone-note-tag">📍 ${esc(scope)}</span>` : '• '}${esc(nObj.text)}</span>
+            curNotes.map((nObj, nI) => {
+                const isAuto = !!nObj.autoKey;
+                const am = isAuto ? getAutoNoteMeta(nObj.autoType) : null;
+                return `
+                <div class="note-item-card ${isAuto ? am.cardCls : (isZoneScope ? 'is-zone-note' : '')}">
+                    <span style="flex:1;">${isZoneScope ? `<span class="zone-note-tag">📍 ${esc(scope)}</span>` : ''}${isAuto ? `<span class="auto-note-tag ${am.tagCls}">${am.ico} ${am.lbl}</span>` : (isZoneScope ? '' : '• ')}${esc(nObj.text)}</span>
                     <div style="display:flex;gap:3px;flex-shrink:0;">
                         <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;" onclick="closeModal();editSingleTaskNote(${idx}, ${nI}, '${esc(scope)}')">✏️</button>
                         <button type="button" class="btn btn-outline btn-sm" style="padding:1px 5px;font-size:10px;color:var(--red);" onclick="deleteSingleTaskNote(${idx}, ${nI}, '${activeCat}', '${esc(scope)}')">✕</button>
                     </div>
-                </div>`).join('')}
+                </div>`;
+            }).join('')}
         </div>
 
         <label class="lbl">اكتب ملاحظة جديدة ${scopeTargetLabel}:</label>
@@ -8273,7 +8635,7 @@ function escalateTaskToIssue(idx) {
     saveState(); renderExportAndIssues(site, getDayLog()); showToast(`🚨 تم تصعيد العطل إلى متتبع المشاكل (${code})`);
 }
 
-/* ================= V17.6: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
+/* ================= V17.8: Upgraded Add Task Modal (Multi-Zone Grid, Smart Agro/Irr, Direct Crew & Start Now) ================= */
 function onNewTaskTypeChange(val) {
     const v = String(val || '');
     const irrBox = document.getElementById('mTaskIrrPresetsBox');
@@ -8422,56 +8784,56 @@ function saveNewTask(startImmediately = false) {
 }
 
 
-/* ================= V17.6: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
-function syncWorkerTimingNotesOnTask(t) {
+/* ================= V17.8: Per-Worker Timing Modal & Formal Auto-Note Sync ================= */
+function syncWorkerTimingNotesOnTask(t, forceRestore = false) {
+    if (!t) return;
+    // Clear legacy hidden autoNoteSuffix cleanly so all worker notes live visibly inside notesList!
+    if (t.autoNoteSuffix) {
+        t.note = stripAutoSuffixFromNote(t.note, t.autoNoteSuffix);
+        t.autoNoteSuffix = '';
+    }
     const wtMap = t.workerTimings || {};
-    const autoParts = [];
+    const activeKeys = new Set();
+
     Object.entries(wtMap).forEach(([wn, wt]) => {
         if (!wt) return;
-        const cleanWtNote = String(wt.note || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim();
-        const rangeStr = (wt.awayFrom && wt.awayTo)
-            ? `مغادرة مؤقتة ${wt.awayFrom}-${wt.awayTo}`
-            : ((wt.from || wt.to) ? `${wt.from || ''}${wt.to ? '-' + wt.to : ''}` : '');
-        if (wt.mode === 'roundtrip') {
-            autoParts.push(`${wn}: انتقال مؤقت للإسناد ثم العودة لاستكمال المهمة (${rangeStr})${cleanWtNote ? ' - ' + cleanWtNote : ''}`.trim());
-        } else if (wt.mode === 'moved') {
-            autoParts.push(`${wn}: انتقل من المنطقة إلى مهمة أخرى (${rangeStr})${cleanWtNote ? ' - ' + cleanWtNote : ''}`.trim());
-        } else if (rangeStr || cleanWtNote) {
-            autoParts.push(`${wn} (${rangeStr}${cleanWtNote ? ' - ' + cleanWtNote : ''})`.trim());
+        const aKey = `worker_${wn}`;
+        const reasonStr = String(wt.reason || '').trim();
+        const destZ = wt.destZones || String(wt.note || '').replace(/^إلى\s*\(|\)$/g, '').trim();
+        const srcZ = wt.srcZones || String(wt.note || '').replace(/^من\s*\(|\)$/g, '').trim();
+        let txt = '';
+
+        if (wt.mode === 'moved') {
+            txt = `انتقل ${wn} إلى مهمة (${destZ || 'أخرى'})${wt.to ? ' الساعة ' + wt.to : ''}${reasonStr ? ' — ' + reasonStr : ''}`;
+        } else if (wt.mode === 'from_moved') {
+            txt = `انضم ${wn} قادماً من مهمة (${srcZ || 'سابقة'})${wt.from ? ' الساعة ' + wt.from : ''}${reasonStr ? ' — ' + reasonStr : ''}`;
+        } else if (wt.mode === 'roundtrip') {
+            const awayRng = (wt.awayFrom || wt.awayTo) ? ` (${wt.awayFrom || ''}–${wt.awayTo || ''})` : '';
+            txt = `غادر ${wn} مؤقتاً لإسناد (${destZ || 'مهمة أخرى'})${awayRng} ثم عاد للاستكمال${reasonStr ? ' — ' + reasonStr : ''}`;
+        } else if (wt.mode === 'from_roundtrip') {
+            const supRng = (wt.from || wt.to) ? ` (${wt.from || ''}–${wt.to || ''})` : '';
+            txt = `إسناد مؤقت من ${wn} قادماً من (${srcZ || 'مهمة سابقة'})${supRng}${reasonStr ? ' — ' + reasonStr : ''}`;
+        } else if (wt.from || wt.to) {
+            const rng = `${wt.from || t.fixedStartTime || '08:00'}–${wt.to || t.fixedEndTime || 'نهاية المهمة'}`;
+            txt = `${wn}: عمل في المهمة (${rng})${reasonStr ? ' — ' + reasonStr : ''}`;
+        }
+
+        if (txt) {
+            activeKeys.add(aKey);
+            upsertAutoNoteOnTask(t, { autoKey: aKey, autoType: 'worker', text: txt, forceRestore });
         }
     });
 
-    let baseNote = String(t.note || '');
-    // 1. Strip the exact previously appended autoNoteSuffix if present
-    if (t.autoNoteSuffix) {
-        if (baseNote === t.autoNoteSuffix) {
-            baseNote = '';
-        } else if (baseNote.endsWith(' | ' + t.autoNoteSuffix)) {
-            baseNote = baseNote.slice(0, -(' | ' + t.autoNoteSuffix).length).trim();
-        } else if (baseNote.includes(t.autoNoteSuffix)) {
-            baseNote = baseNote.replace(t.autoNoteSuffix, '').replace(/^\s*\|\s*|\s*\|\s*$/g, '').trim();
-        }
-    }
-    // 2. Strip legacy auto-generated worker timing/transfer segments cleanly
-    baseNote = baseNote.replace(/\s*\|\s*👥\s*[\s\S]*$/g, '').replace(/^👥\s*[\s\S]*$/g, '').trim();
-    const segments = baseNote.split(/\s*\|\s*/).filter(seg => {
-        if (!seg) return false;
-        if (seg.includes('انتقال مؤقت للإسناد ثم العودة لاستكمال المهمة')) return false;
-        if (seg.includes('انتقل من المنطقة إلى مهمة أخرى')) return false;
-        if (seg.includes('منقول من (')) return false;
-        if (/\(\d{1,2}:\d{2}(?:-\d{1,2}:\d{2})?(?:\s*-\s*من\s*\([^)]+\))?\)$/.test(seg.trim())) return false;
-        return true;
+    // Clean up removed/reset worker auto-notes
+    const list = ensureTaskNotesList(t);
+    const cleaned = list.filter(x => {
+        if (!x || !x.autoKey || !String(x.autoKey).startsWith('worker_')) return true;
+        return activeKeys.has(x.autoKey);
     });
-    const cleanBase = segments.join(' | ').trim();
-
-    if (autoParts.length > 0) {
-        const autoStr = autoParts.join(' ؛ ');
-        t.autoNoteSuffix = autoStr;
-        t.note = cleanBase ? `${cleanBase} | ${autoStr}` : autoStr;
-    } else {
-        t.autoNoteSuffix = '';
-        t.note = cleanBase;
+    if (cleaned.length !== list.length) {
+        t.notesList = cleaned;
     }
+    rebuildTaskNoteFromList(t);
 }
 
 /* ================= Tanker Pre-Start (24,000 L Capacity) & Finish Dispensed Modals ================= */
@@ -8531,13 +8893,21 @@ function saveTankerPreCapacity(tIdx) {
 function openTankerFinishModal(tIdx) {
     const t = getDayLog().tasks[tIdx];
     const cap = parseFloat(t.tankerCapacity) || 24000;
+    const zList = getTaskZonesArr(t);
+    const hasMulti = zList.length > 1;
     openModal(`
-        <h3 class="card-title">💧 تسجيل كمية الصرف عند الانتهاء</h3>
-        <p style="font-size:12px;color:var(--muted);">السعة المسجلة قبل البدء: <b>${cap.toLocaleString()} L</b></p>
+        <h3 class="card-title">💧 تسجيل كمية الصرف عند الانتهاء (${esc(t.zones)})</h3>
+        <p style="font-size:12px;color:var(--muted);margin-top:0;">السعة قبل البدء: <b>${cap.toLocaleString()} L</b> ${(t.tankerTrips || 1) > 1 ? `| <b>النقلة #${t.tankerTrips}</b>` : ''}</p>
+        ${hasMulti ? `
+        <label class="lbl">📍 نطاق ملاحظة الصرف (عام لكل المناطق أو منطقة محددة):</label>
+        <select id="tkZoneScope" class="inp" style="font-weight:bold;">
+            <option value="__ALL__">🌐 عام لكل مناطق المهمة (${esc(t.zones)})</option>
+            ${zList.map(z => `<option value="${esc(z)}">📍 منطقة (${esc(z)}) فقط</option>`).join('')}
+        </select>` : ''}
         <label class="lbl">الكمية المصروفة فعلياً (لتر):</label>
         <div style="margin-bottom:8px;">
-            <span class="chip" onclick="document.getElementById('tkDisp').value=${cap}">صرف كامل السعة (${cap.toLocaleString()} L)</span>
-            <span class="chip" onclick="document.getElementById('tkDisp').value=18000">ثلاثة أرباع (18,000 L)</span>
+            <span class="chip" onclick="document.getElementById('tkDisp').value=${cap}">كامل السعة (${cap.toLocaleString()} L)</span>
+            <span class="chip" onclick="document.getElementById('tkDisp').value=18000">18,000 L</span>
             <span class="chip" onclick="document.getElementById('tkDisp').value=12000">نصف (12,000 L)</span>
             <span class="chip" onclick="document.getElementById('tkDisp').value=6000">ربع (6,000 L)</span>
             <span class="chip" onclick="document.getElementById('tkDisp').value=10000">10,000 L</span>
@@ -8555,7 +8925,7 @@ function openTankerFinishModal(tIdx) {
         <select id="tkVis" class="inp">
             ${WATER_VISUAL_OPTIONS.map(v => `<option value="${esc(v)}" ${(t.tankerVisual || 'Clear / صافية') === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}
         </select>
-        <label class="lbl">🚚 انتقل التنكر إلى المنطقة التالية (اختياري — يُوثّق رسمياً في الملاحظات):</label>
+        <label class="lbl">🚚 انتقل التنكر إلى المنطقة التالية (اختياري — يُوثّق على المهمتين تلقائياً):</label>
         <div class="inp-wrap">
             <input id="tkNextZone" list="globalZonesList" class="inp" value="${esc(t.tankerNextZone || '')}" placeholder="مثلاً: B2 (اتركه فارغاً إذا انتهت الحوضية هنا)">
             <button class="clr-btn" onclick="quickClearField('tkNextZone')">✕</button>
@@ -8565,10 +8935,14 @@ function openTankerFinishModal(tIdx) {
 }
 function saveTankerDispensed(tIdx) {
     pushUndo('تسجيل كمية صرف التنكر');
-    const t = getDayLog().tasks[tIdx];
+    const log = getDayLog();
+    const t = log.tasks[tIdx];
     if (!t.tankerCapacity) t.tankerCapacity = TANKER_FULL_CAPACITY;
     const capNum = parseFloat(t.tankerCapacity) || TANKER_FULL_CAPACITY;
     const dispNum = parseFloat(document.getElementById('tkDisp').value) || 0;
+    const tkZoneScope = document.getElementById('tkZoneScope')?.value || '__ALL__';
+    const targetZoneLabel = (tkZoneScope && tkZoneScope !== '__ALL__') ? tkZoneScope : t.zones;
+
     t.tankerLiters = dispNum;
     t.tankerPpm = document.getElementById('tkPpm').value.trim();
     t.tankerVisual = document.getElementById('tkVis').value;
@@ -8587,44 +8961,67 @@ function saveTankerDispensed(tIdx) {
         const visAr = (visParts[1] || visEn).trim();
         const visNoteAr = visAr ? `، نقاوة الماء: ${visAr}` : '';
         const visNoteEn = visEn ? `, water: ${visEn}` : '';
-        const remAr = remL > 0 ? `، والمتبقي في الحوضية ${remL.toLocaleString()} لتر` : '';
-        const remEn = remL > 0 ? `, remaining ${remL.toLocaleString()} L` : '';
-        const moveAr = t.tankerNextZone ? `، وانتقل التنكر من منطقة (${t.zones}) إلى منطقة (${t.tankerNextZone})` : '';
-        const moveEn = t.tankerNextZone ? `, transferred from (${t.zones}) to (${t.tankerNextZone})` : '';
+        const remAr = remL > 0 ? `، والمتبقي في الحوضية ${remL.toLocaleString()} لتر` : '، وتم تفريغ الحوضية بالكامل';
+        const remEn = remL > 0 ? `, remaining ${remL.toLocaleString()} L` : ', tanker emptied';
+        const moveAr = t.tankerNextZone ? `، وانتقل التنكر من (${targetZoneLabel}) إلى (${t.tankerNextZone})` : '';
+        const moveEn = t.tankerNextZone ? `, moved from (${targetZoneLabel}) to (${t.tankerNextZone})` : '';
 
-        const newTankerLine = `تم استعمال ${litersFmt} لتر من مياه الحوضية${tripTagAr} في منطقة (${t.zones})${ppmAr}${visNoteAr}${remAr}${moveAr} / Used ${litersFmt} L of tanker water${tripTagEn} in (${t.zones})${ppmEn}${visNoteEn}${remEn}${moveEn}`;
+        const newTankerLine = `تم استعمال ${litersFmt} لتر من مياه الحوضية${tripTagAr} في منطقة (${targetZoneLabel})${ppmAr}${visNoteAr}${remAr}${moveAr} / Used ${litersFmt} L of tanker water${tripTagEn} in (${targetZoneLabel})${ppmEn}${visNoteEn}${remEn}${moveEn}`;
+        const tripAutoKey = tkZoneScope !== '__ALL__' ? `tanker_trip_${tripNum}_${tkZoneScope}` : `tanker_trip_${tripNum}`;
 
-        // Preserve manual notes, previous tanker trips, AND modern worker timing notes cleanly
-        let baseNote = String(t.note || '');
-        if (t.autoNoteSuffix) {
-            if (baseNote === t.autoNoteSuffix) baseNote = '';
-            else if (baseNote.endsWith(' | ' + t.autoNoteSuffix)) baseNote = baseNote.slice(0, -(' | ' + t.autoNoteSuffix).length).trim();
-            else if (baseNote.includes(t.autoNoteSuffix)) baseNote = baseNote.replace(t.autoNoteSuffix, '').replace(/^\s*\|\s*|\s*\|\s*$/g, '').trim();
-        }
-        baseNote = baseNote.replace(/\s*\|\s*👥\s*[\s\S]*$/g, '').replace(/^👥\s*[\s\S]*$/g, '').trim();
+        // V17.8: Store visibly inside notesList/zoneNotes as editable auto-note!
+        upsertAutoNoteOnTask(t, {
+            autoKey: tripAutoKey,
+            autoType: 'tanker',
+            text: newTankerLine,
+            zone: tkZoneScope,
+            forceRestore: true
+        });
 
-        const otherLines = baseNote
-            .split('\n')
-            .map(s => s.trim())
-            .filter(s => {
-                if (!s) return false;
-                const isTankerAutoLine = s.startsWith('تم استعمال ') && s.includes('من مياه الحوضية');
-                if (!isTankerAutoLine) return true;
-                if (tripNum > 1) {
-                    return !s.includes(`(النقلة #${tripNum})`);
-                }
-                // For Trip #1, replace only previous Trip #1 line (lines without النقلة #2/#3)
-                return /\(النقلة #\d+\)/.test(s);
+        // Multi-trip summary auto-note
+        const totalAllTripsL = getTaskTotalTankerLiters(t);
+        if (tripNum > 1 && totalAllTripsL > dispNum) {
+            upsertAutoNoteOnTask(t, {
+                autoKey: 'tanker_total',
+                autoType: 'tanker',
+                text: `إجمالي صرف الحوضية: ${totalAllTripsL.toLocaleString()} لتر على ${tripNum} نقلات${remL > 0 ? ` | المتبقي حالياً: ${remL.toLocaleString()} لتر` : ''} / Total tanker: ${totalAllTripsL.toLocaleString()} L (${tripNum} trips)`,
+                forceRestore: true
             });
-        otherLines.push(newTankerLine);
-        t.note = otherLines.join('\n');
-        syncWorkerTimingNotesOnTask(t);
+        } else {
+            removeAutoNoteByKey(t, 'tanker_total');
+        }
 
-        logSectionHistory('tasks', 'tanker', `صرف تنكر ${t.zones}: ${litersFmt} L`, { taskId: t.id });
+        // Cross-task tanker transfer receipt linking!
+        const prevRecvKey = `tanker_recv_${t.id}`;
+        (log.tasks || []).forEach((ot, oi) => {
+            if (oi === tIdx) return;
+            removeAutoNoteByKey(ot, prevRecvKey);
+        });
+        if (t.tankerNextZone) {
+            const nextZLow = t.tankerNextZone.toLowerCase();
+            const targetTask = (log.tasks || []).find((ot, oi) =>
+                oi !== tIdx && ot.isTanker && getTaskZonesArr(ot).some(z => z.toLowerCase() === nextZLow)
+            );
+            if (targetTask) {
+                const recvCap = remL > 0 ? remL : TANKER_FULL_CAPACITY;
+                if (!targetTask.tankerLiters) targetTask.tankerCapacity = recvCap;
+                upsertAutoNoteOnTask(targetTask, {
+                    autoKey: prevRecvKey,
+                    autoType: 'tanker',
+                    text: `استلام الحوضية قادماً من منطقة (${targetZoneLabel}) بسعة متبقية ${recvCap.toLocaleString()} لتر${t.tankerPpm ? ` (الملوحة: ${t.tankerPpm} ppm)` : ''} / Received tanker from (${targetZoneLabel}) with ${recvCap.toLocaleString()} L`,
+                    forceRestore: true
+                });
+            }
+        }
+
+        syncWorkerTimingNotesOnTask(t);
+        logSectionHistory('tasks', 'tanker', `صرف تنكر ${targetZoneLabel}: ${litersFmt} L`, { taskId: t.id });
     }
-    closeModal(); saveState(); renderTasks(getDayLog()); renderReadingsAndTools(getDayLog());
+    closeModal(); saveState(); renderTasks(log); renderReadingsAndTools(log);
     if (dispNum > capNum) {
         showToast(`⚠️ تنبيه: الكمية المصروفة (${dispNum.toLocaleString()} L) أكبر من سعة الحوضية (${capNum.toLocaleString()} L)`);
+    } else if (dispNum > 0) {
+        showToast(`🚚 تم توثيق صرف ${dispNum.toLocaleString()} لتر في ملاحظات المهمة تلقائياً`);
     }
 }
 
@@ -9935,7 +10332,7 @@ function autoGenerateOAR() {
     saveState(); renderExportAndIssues(site, log); triggerAllAutoGrows(); showToast('🔄 تم توليد مسودة OAR تلقائياً');
 }
 
-/* ================= V17.6: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
+/* ================= V17.8: 2-Level WhatsApp Brief (Quick / Detailed) & Full DFL Preview + PDF Print ================= */
 function buildShiftWhatsAppText(level = 'quick') {
     const site = getSite();
     const log = getDayLog();
@@ -11070,7 +11467,7 @@ async function exportLightweightDFL() {
     `);
 }
 
-/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.6) & Voice Dictation ================= */
+/* ================= Camera, Multi-Gallery (Zone + Time Stamp V17.8) & Voice Dictation ================= */
 function resolvePhotoStampLocation(photoCtx) {
     if (!photoCtx) return '';
     const { type, ctx, selectedZone } = photoCtx;
@@ -11129,8 +11526,25 @@ function setPendingPhotoZone(zVal, chipEl) {
     }
 }
 
+function togglePendingPhotoWatermark(withWm) {
+    if (pendingPhotoCtx) pendingPhotoCtx.withWatermark = !!withWm;
+    if (state.company) {
+        state.company.photoWatermark = !!withWm;
+        saveState();
+    }
+    const bOn = document.getElementById('wmToggleOnBtn');
+    const bOff = document.getElementById('wmToggleOffBtn');
+    if (bOn) bOn.className = `btn btn-sm ${withWm ? 'btn-green' : 'btn-outline'}`;
+    if (bOff) bOff.className = `btn btn-sm ${!withWm ? 'btn-orange' : 'btn-outline'}`;
+    const barBox = document.getElementById('photoStampPreviewBar');
+    const cleanBox = document.getElementById('photoCleanPreviewNote');
+    if (barBox) barBox.style.display = withWm ? 'block' : 'none';
+    if (cleanBox) cleanBox.style.display = withWm ? 'none' : 'block';
+}
+
 function openPhotoSourceChoice(type, ctx) {
-    pendingPhotoCtx = { type, ctx, selectedZone: '' };
+    const defaultWm = (state.company && typeof state.company.photoWatermark === 'boolean') ? state.company.photoWatermark : true;
+    pendingPhotoCtx = { type, ctx, selectedZone: '', withWatermark: defaultWm };
     const log = getDayLog();
     let multiZones = [];
     if (type === 'task' && log.tasks && log.tasks[ctx]) {
@@ -11154,8 +11568,18 @@ function openPhotoSourceChoice(type, ctx) {
                 ${multiZones.map(z => `<span class="chip photo-zone-chip" onclick="setPendingPhotoZone('${esc(z)}', this)">📍 ${esc(z)}</span>`).join('')}
             </div>
         </div>` : ''}
-        <div style="background:#0f172a;color:#fde047;border-radius:8px;padding:7px 9px;font-size:11px;font-weight:bold;margin-bottom:9px;direction:ltr;text-align:left;border-top:3px solid #22c55e;">
+        <div style="margin-bottom:8px;">
+            <label class="lbl">🏷️ شريط المعلومات على الصورة:</label>
+            <div class="grid-2">
+                <button type="button" id="wmToggleOnBtn" class="btn btn-sm ${defaultWm ? 'btn-green' : 'btn-outline'}" onclick="togglePendingPhotoWatermark(true)">🏷️ مع شريط المعلومات</button>
+                <button type="button" id="wmToggleOffBtn" class="btn btn-sm ${!defaultWm ? 'btn-orange' : 'btn-outline'}" onclick="togglePendingPhotoWatermark(false)">🖼️ بدون شريط (نظيفة)</button>
+            </div>
+        </div>
+        <div id="photoStampPreviewBar" style="display:${defaultWm ? 'block' : 'none'};background:#0f172a;color:#fde047;border-radius:8px;padding:7px 9px;font-size:11px;font-weight:bold;margin-bottom:9px;direction:ltr;text-align:left;border-top:3px solid #22c55e;">
             🏷️ <span id="photoStampPreviewText">${esc(previewParts.join(' | '))}</span>
+        </div>
+        <div id="photoCleanPreviewNote" style="display:${defaultWm ? 'none' : 'block'};background:#fff7ed;color:#9a3412;border:1px dashed #fdba74;border-radius:8px;padding:7px 9px;font-size:11.5px;font-weight:bold;margin-bottom:9px;text-align:center;">
+            🖼️ ستُحفظ الصورة نظيفة بدون أي شريط معلومات أو كتابة عليها
         </div>
         <div class="grid-2">
             <button class="btn btn-blue" onclick="closeModal();triggerFileInp('camFileInput')">📸 التقاط بالكاميرا</button>
@@ -11166,7 +11590,8 @@ function openPhotoSourceChoice(type, ctx) {
 }
 function triggerInlineModalPhoto(inpId) {
     const zVal = (document.getElementById('irZone')?.value || document.getElementById('sdlZone')?.value || '').trim();
-    pendingPhotoCtx = { type: 'inline_modal', ctx: 0, selectedZone: zVal };
+    const defaultWm = (state.company && typeof state.company.photoWatermark === 'boolean') ? state.company.photoWatermark : true;
+    pendingPhotoCtx = { type: 'inline_modal', ctx: 0, selectedZone: zVal, withWatermark: defaultWm };
     triggerFileInp(inpId);
 }
 function renderInlineModalPhotoStrip() {
@@ -11182,7 +11607,7 @@ function removeInlineModalPhoto(pid) {
 }
 function triggerFileInp(id) { const el = document.getElementById(id); el.value = ''; el.click(); }
 
-function stampSingleFile(file, locationTag = '') {
+function stampSingleFile(file, locationTag = '', withWatermark = true) {
     return new Promise(resolve => {
         const reader = new FileReader();
         reader.onload = ev => {
@@ -11199,30 +11624,32 @@ function stampSingleFile(file, locationTag = '') {
                 const g = c.getContext('2d');
                 g.drawImage(img, 0, 0, w, h);
 
-                const now = new Date();
-                const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-                const parts = [getSite().name.split('/')[0].trim()];
-                if (locationTag) parts.push(locationTag);
-                parts.push(`${state.activeDate} ${timeStr}`);
-                parts.push(`DFL-${getDayLog().dflNum}`);
-                const stampText = parts.join(' | ');
+                if (withWatermark) {
+                    const now = new Date();
+                    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                    const parts = [getSite().name.split('/')[0].trim()];
+                    if (locationTag) parts.push(locationTag);
+                    parts.push(`${state.activeDate} ${timeStr}`);
+                    parts.push(`DFL-${getDayLog().dflNum}`);
+                    const stampText = parts.join(' | ');
 
-                let fs = Math.max(24, Math.round(Math.max(w, h * 0.7) * 0.030));
-                g.font = `bold ${fs}px sans-serif`;
-                const maxTextWidth = w - 40;
-                const measured = g.measureText(stampText).width;
-                if (measured > maxTextWidth && measured > 0) {
-                    fs = Math.max(15, Math.floor(fs * (maxTextWidth / measured)));
+                    let fs = Math.max(24, Math.round(Math.max(w, h * 0.7) * 0.030));
                     g.font = `bold ${fs}px sans-serif`;
-                }
+                    const maxTextWidth = w - 40;
+                    const measured = g.measureText(stampText).width;
+                    if (measured > maxTextWidth && measured > 0) {
+                        fs = Math.max(15, Math.floor(fs * (maxTextWidth / measured)));
+                        g.font = `bold ${fs}px sans-serif`;
+                    }
 
-                const barH = Math.round(fs * 2.4);
-                g.fillStyle = 'rgba(15,23,42,0.86)';
-                g.fillRect(0, h - barH, w, barH);
-                g.fillStyle = '#22c55e';
-                g.fillRect(0, h - barH, w, 5);
-                g.fillStyle = '#fde047';
-                g.fillText(stampText, 20, h - Math.round(barH * 0.35));
+                    const barH = Math.round(fs * 2.4);
+                    g.fillStyle = 'rgba(15,23,42,0.86)';
+                    g.fillRect(0, h - barH, w, barH);
+                    g.fillStyle = '#22c55e';
+                    g.fillRect(0, h - barH, w, 5);
+                    g.fillStyle = '#fde047';
+                    g.fillText(stampText, 20, h - Math.round(barH * 0.35));
+                }
 
                 resolve(c.toDataURL('image/jpeg', 0.88));
             };
@@ -11238,12 +11665,15 @@ async function onPhotoSelected(e) {
     const currentCtx = pendingPhotoCtx;
     const { type, ctx } = currentCtx;
     const locationTag = resolvePhotoStampLocation(currentCtx);
+    const withWm = (typeof currentCtx.withWatermark === 'boolean')
+        ? currentCtx.withWatermark
+        : ((state.company && typeof state.company.photoWatermark === 'boolean') ? state.company.photoWatermark : true);
     pendingPhotoCtx = null;
 
-    showToast(`⏳ جاري معالجة وختم ${files.length} صورة...`);
+    showToast(withWm ? `⏳ جاري معالجة وختم ${files.length} صورة...` : `⏳ جاري تجهيز ${files.length} صورة نظيفة بدون شريط...`);
     const stampedUrls = [];
     for (const f of files) {
-        const b64 = await stampSingleFile(f, locationTag);
+        const b64 = await stampSingleFile(f, locationTag, withWm);
         stampedUrls.push(savePhotoToStore(b64));
     }
 
@@ -11275,7 +11705,7 @@ async function onPhotoSelected(e) {
         const ent = p ? (p.entries || []).find(x => x.id === ctx.entryId) : null;
         if (ent) ensurePhotosArr(ent).push(...stampedUrls);
     }
-    saveState(); renderAll(); showToast(`📸 تم حفظ وختم ${stampedUrls.length} صورة بنجاح`);
+    saveState(); renderAll(); showToast(withWm ? `📸 تم حفظ وختم ${stampedUrls.length} صورة بنجاح` : `🖼️ تم حفظ ${stampedUrls.length} صورة نظيفة بدون شريط معلومات`);
 }
 
 function removePhotoFromItem(type, idx, photoIdx) {
@@ -11378,6 +11808,9 @@ function openSettingsModal() {
             </select>
             <div style="font-size:10.5px;color:#15803d;margin-top:4px;line-height:1.4;">يبقى البرنامج على نظام اليوم الواحد (V04)؛ ولا يظهر تقسيم الشفتين إلا إذا فعّلته من هنا.</div>
         </div>
+        <label style="display:flex;align-items:center;gap:6px;background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:8px;margin-bottom:7px;font-size:12px;font-weight:bold;color:#854d0e;cursor:pointer;">
+            <input type="checkbox" id="stPhotoWatermark" ${state.company.photoWatermark !== false ? 'checked' : ''}> 🏷️ طباعة شريط المعلومات على الصور (الموقع، المنطقة، التاريخ والوقت)
+        </label>
         <label style="display:flex;align-items:center;gap:6px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:8px;margin-bottom:9px;font-size:12px;font-weight:bold;color:#0369a1;cursor:pointer;">
             <input type="checkbox" id="stShowActBar" ${state.company.showActivityBar !== false ? 'checked' : ''}> 📜 إظهار شريط «آخر حركة والتراجع السريع» أعلى الشاشة
         </label>
@@ -11403,6 +11836,8 @@ function saveSettings() {
     if (actChk) state.company.showActivityBar = actChk.checked;
     const modeSel = document.getElementById('stDflMode');
     if (modeSel) state.company.dflReportMode = modeSel.value || 'single_day';
+    const wmChk = document.getElementById('stPhotoWatermark');
+    if (wmChk) state.company.photoWatermark = wmChk.checked;
     const zArr = document.getElementById('stSiteZones').value.split(',').map(s => s.trim()).filter(Boolean);
     if (zArr.length) getSite().zones = zArr;
     closeModal(); saveState(); renderAll(); showToast('✓ تم حفظ الإعدادات');
@@ -11517,7 +11952,7 @@ function buildBackupExportPayload(scope = 'light') {
         (cleanLog.sdls || []).forEach(sd => sd.photos = []);
         const todayIssues = (site.issues || []).filter(i => i.status === 'Open' || i.date === state.activeDate).map(i => ({ ...JSON.parse(JSON.stringify(i)), photos: [] }));
         const payload = {
-            schemaVersion: 'V17.6',
+            schemaVersion: 'V17.8',
             exportScope: 'single_day',
             exportDate: state.activeDate,
             activeSiteId: site.id,
@@ -11548,7 +11983,7 @@ function buildBackupExportPayload(scope = 'light') {
     }
 
     const cloneState = JSON.parse(JSON.stringify(state));
-    cloneState.schemaVersion = 'V17.6';
+    cloneState.schemaVersion = 'V17.8';
     cloneState.exportScope = includePhotos ? 'full_with_photos' : 'full_light';
     Object.values(cloneState.sites || {}).forEach(s => {
         (s.issues || []).forEach(iss => iss.photos = resArr(iss.photos));
@@ -12020,7 +12455,7 @@ function handleParsedBackupText(rawText) {
 
 
 
-/* ================= V17.6: Smart Universal DFL Importer (V03 Two-Shift + V04 Single), Correction Workshop & Error Auditor ================= */
+/* ================= V17.8: Smart Universal DFL Importer (V03 Two-Shift + V04 Single), Correction Workshop & Error Auditor ================= */
 function getPrevDateStr(dateStr = state.activeDate) {
     const d = new Date(dateStr + 'T12:00:00');
     d.setDate(d.getDate() - 1);
@@ -12093,9 +12528,10 @@ function renderWorkshopBanner() {
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;">
             <button class="btn btn-sm" style="background:white;color:#9a3412;" onclick="openDflAuditModal()">🔍 فحص الأخطاء (${auditRes.items.length})</button>
-            <button class="btn btn-sm" style="background:#16a34a;color:white;" onclick="openBatchExportModal()">📦 تصدير المصحّح (ZIP)</button>
-            <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;" onclick="returnFromWorkshopToMainSite()">↩️ رجوع لموقعي</button>
-            <button class="btn btn-sm" style="background:rgba(220,38,38,0.85);color:white;" onclick="deleteWorkshopSite()">🗑️ حذف الورشة</button>
+            <button class="btn btn-sm" style="background:#0284c7;color:white;" onclick="openTransferWorkshopToMainModal()">📤 نقل لموقعي الأساسي</button>
+            <button class="btn btn-sm" style="background:#16a34a;color:white;" onclick="openBatchExportModal()">📦 تصدير (ZIP)</button>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;" onclick="returnFromWorkshopToMainSite()">↩️ رجوع</button>
+            <button class="btn btn-sm" style="background:rgba(220,38,38,0.85);color:white;" onclick="deleteWorkshopSite()">🗑️ حذف</button>
         </div>
     </div>`;
 }
@@ -12113,6 +12549,156 @@ function returnFromWorkshopToMainSite() {
     saveState();
     renderAll();
     showToast('↩️ تم الرجوع إلى موقعك الأساسي: ' + state.sites[targetId].name);
+}
+
+
+function getWorkshopTargetMainSite() {
+    const wsSite = state.sites && state.sites.dfl_workshop;
+    if (wsSite && wsSite.sourceSiteId && state.sites[wsSite.sourceSiteId] && !state.sites[wsSite.sourceSiteId].isWorkshop) {
+        return state.sites[wsSite.sourceSiteId];
+    }
+    return Object.values(state.sites || {}).find(s => !s.isWorkshop) || null;
+}
+
+function openTransferWorkshopToMainModal() {
+    const wsSite = state.sites && state.sites.dfl_workshop;
+    const mainSite = getWorkshopTargetMainSite();
+    if (!wsSite || !mainSite) {
+        showToast('⚠️ لم يتم العثور على الورشة أو الموقع الأساسي');
+        return;
+    }
+    const wsDates = Object.keys(wsSite.logs || {}).sort();
+    if (!wsDates.length) {
+        showToast('⚠️ لا توجد أيام داخل الورشة لنقلها');
+        return;
+    }
+    const wsExtrasCount = (wsSite.issues || []).length + (wsSite.inventory || []).reduce((s, z) => s + (z.plants || []).length, 0);
+    const hasConflict = wsDates.some(d => mainSite.logs[d] && isDayLogSubstantive(mainSite.logs[d]));
+
+    openModal(`
+        <h3 class="card-title">📤 نقل الأيام المصحّحة إلى موقعك الأساسي</h3>
+        <p style="font-size:11.5px;color:var(--muted);margin-top:0;line-height:1.5;">
+            الوجهة: <b>${esc(mainSite.name)}</b><br>
+            🔒 <b>قفل الحماية مفعّل:</b> لن يتأثر يومك الحالي ولا تسلسل أرقام <b>DFL</b> الجديدة (الحالي: <b>DFL-${mainSite.nextDfl}</b>) ولا قراءات العدادات الحديثة.
+        </p>
+        <div style="display:flex;gap:4px;margin-bottom:6px;">
+            <span class="chip" style="margin:0;" onclick="document.querySelectorAll('.ws-tr-chk').forEach(c=>c.checked=true)">☑️ تحديد الكل (${wsDates.length})</span>
+            <span class="chip" style="margin:0;" onclick="document.querySelectorAll('.ws-tr-chk').forEach(c=>c.checked=false)">✕ إلغاء</span>
+        </div>
+        <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:9px;padding:6px;margin-bottom:8px;background:#f8fafc;">
+            ${wsDates.map(d => {
+                const dl = wsSite.logs[d];
+                const existsInMain = !!(mainSite.logs[d] && isDayLogSubstantive(mainSite.logs[d]));
+                return `
+                <label style="display:flex;align-items:center;justify-content:space-between;gap:6px;background:white;border:1px solid ${existsInMain ? '#fcd34d' : '#e2e8f0'};border-radius:7px;padding:6px 8px;margin-bottom:4px;font-size:11.5px;cursor:pointer;">
+                    <span>
+                        <input type="checkbox" class="ws-tr-chk" value="${esc(d)}" checked>
+                        <b>📅 ${esc(d)}</b> — DFL-${dl.dflNum}
+                        <span style="color:var(--muted);font-size:10.5px;">(${(dl.attendance || []).length} حضور • ${(dl.tasks || []).length} مهام)</span>
+                    </span>
+                    <span class="badge" style="font-size:9.5px;background:${existsInMain ? '#fef3c7' : '#dcfce7'};color:${existsInMain ? '#92400e' : '#166534'};">${existsInMain ? '⚠️ موجود' : '🆕 جديد'}</span>
+                </label>`;
+            }).join('')}
+        </div>
+        ${hasConflict ? `
+        <label style="display:block;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:6px 9px;margin-bottom:6px;font-size:11px;font-weight:bold;color:#92400e;">
+            <input type="checkbox" id="chkWsTrOverwrite"> 🔄 استبدال الأيام الموجودة مسبقاً بنسخة الورشة المصحّحة (بدون تحديد: دمج ذكي آمن)
+        </label>` : ''}
+        ${wsExtrasCount > 0 ? `
+        <label style="display:block;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:6px 9px;margin-bottom:6px;font-size:11px;font-weight:bold;color:#166534;">
+            <input type="checkbox" id="chkWsTrExtras" checked> 🌿 نقل المشاكل وملاحظات النباتات المصحّحة أيضاً (${wsExtrasCount})
+        </label>` : ''}
+        <label style="display:block;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:6px 9px;margin-bottom:9px;font-size:11px;font-weight:bold;color:#991b1b;">
+            <input type="checkbox" id="chkWsDeleteAfter"> 🗑️ حذف الورشة تلقائياً بعد إتمام النقل بنجاح
+        </label>
+        <div class="grid-2">
+            <button class="btn btn-green" onclick="confirmTransferWorkshopToMain()">📤 نقل لموقعي الآن</button>
+            <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+        </div>
+    `);
+}
+
+function confirmTransferWorkshopToMain() {
+    const wsSite = state.sites && state.sites.dfl_workshop;
+    const mainSite = getWorkshopTargetMainSite();
+    if (!wsSite || !mainSite) return;
+
+    const selectedDates = Array.from(document.querySelectorAll('.ws-tr-chk:checked')).map(c => c.value).sort();
+    if (!selectedDates.length) {
+        showToast('⚠️ حدد يوماً واحداً على الأقل للنقل');
+        return;
+    }
+
+    const overwrite = !!document.getElementById('chkWsTrOverwrite')?.checked;
+    const transferExtras = document.getElementById('chkWsTrExtras') ? document.getElementById('chkWsTrExtras').checked : true;
+    const deleteAfter = !!document.getElementById('chkWsDeleteAfter')?.checked;
+
+    pushUndo(`نقل ${selectedDates.length} أيام مصحّحة من الورشة لموقع ${mainSite.name}`);
+
+    const mainDatesBefore = Object.keys(mainSite.logs || {}).sort();
+    const newestMainBefore = mainDatesBefore[mainDatesBefore.length - 1] || '';
+    const savedNextDfl = mainSite.nextDfl || 1;
+    let added = 0, merged = 0;
+
+    selectedDates.forEach(dStr => {
+        const srcLog = wsSite.logs[dStr];
+        if (!srcLog) return;
+        const cloned = JSON.parse(JSON.stringify(srcLog));
+        const existing = mainSite.logs[dStr];
+        if (!existing || !isDayLogSubstantive(existing) || overwrite) {
+            mainSite.logs[dStr] = cloned;
+            added++;
+        } else {
+            mergeTwoDayLogsSafely(existing, cloned);
+            merged++;
+        }
+    });
+
+    if (transferExtras) {
+        if (!Array.isArray(mainSite.issues)) mainSite.issues = [];
+        (wsSite.issues || []).forEach(iss => {
+            const exists = mainSite.issues.some(x => x.date === iss.date && x.desc === iss.desc);
+            if (!exists) mainSite.issues.unshift(JSON.parse(JSON.stringify(iss)));
+        });
+        if (!Array.isArray(mainSite.inventory)) mainSite.inventory = [];
+        (wsSite.inventory || []).forEach(z => {
+            let tz = mainSite.inventory.find(x => x.name.toLowerCase() === z.name.toLowerCase());
+            if (!tz) {
+                mainSite.inventory.push(JSON.parse(JSON.stringify(z)));
+            } else {
+                (z.plants || []).forEach(p => {
+                    if (!tz.plants.some(tp => tp.name === p.name)) {
+                        tz.plants.push(JSON.parse(JSON.stringify(p)));
+                    }
+                });
+            }
+        });
+    }
+
+    // Strict Protection Lock on Main Site nextDfl & activeDate
+    const maxTransferredDfl = Math.max(0, ...selectedDates.map(d => parseInt((wsSite.logs[d] && wsSite.logs[d].dflNum) || 0, 10) || 0));
+    const newestTransferred = selectedDates[selectedDates.length - 1] || '';
+    if (!newestMainBefore || newestTransferred >= newestMainBefore) {
+        mainSite.nextDfl = Math.max(savedNextDfl, maxTransferredDfl + 1);
+    } else {
+        mainSite.nextDfl = savedNextDfl;
+    }
+
+    (mainSite.meters || []).forEach(sm => syncSiteMeterLastReading(mainSite, sm.id, sm.name));
+
+    if (deleteAfter) {
+        delete state.sites.dfl_workshop;
+    }
+    state.activeSiteId = mainSite.id;
+    const finalMainDates = Object.keys(mainSite.logs || {}).sort();
+    state.activeDate = newestMainBefore || finalMainDates[finalMainDates.length - 1] || getLocalDateStr();
+    activeInvZoneId = null;
+
+    normalizeState();
+    closeModal();
+    saveState();
+    renderAll();
+    showToast(`✅ تم نقل ${added + merged} أيام مصحّحة إلى ${mainSite.name.split('/')[0].trim()} (مع حماية كاملة لبياناتك الجديدة)`);
 }
 
 function deleteWorkshopSite() {
@@ -13209,7 +13795,7 @@ function confirmDflExcelImport() {
     }
 }
 
-/* ================= V17.6: Smart Old-DFL Error Auditor & 1-Tap Fix Jumper ================= */
+/* ================= V17.8: Smart Old-DFL Error Auditor & 1-Tap Fix Jumper ================= */
 function runDflSiteAudit(site = getSite()) {
     const items = [];
     const dates = Object.keys(site.logs || {}).sort();
@@ -13380,7 +13966,9 @@ function openDflAuditModal() {
             <button class="btn btn-green" onclick="closeModal();openBatchExportModal()">📦 تصدير كل المصحّح (ZIP)</button>
             <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
         </div>
-        ${site.isWorkshop ? `<button class="btn btn-outline btn-full" style="margin:0;color:#9a3412;border-color:#fdba74;" onclick="closeModal();returnFromWorkshopToMainSite()">↩️ الرجوع إلى موقعي الأساسي</button>` : ''}
+        ${site.isWorkshop ? `
+        <button class="btn btn-blue btn-full" style="margin-bottom:6px;padding:10px;font-size:12.5px;" onclick="closeModal();openTransferWorkshopToMainModal()">📤 نقل الأيام المصحّحة إلى موقعي الأساسي (بقفل حماية)</button>
+        <button class="btn btn-outline btn-full" style="margin:0;color:#9a3412;border-color:#fdba74;" onclick="closeModal();returnFromWorkshopToMainSite()">↩️ الرجوع إلى موقعي الأساسي</button>` : ''}
     `);
 }
 
@@ -13446,7 +14034,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
                 reg.update().catch(() => {});
                 const pill = document.getElementById('savePill');
-                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.6 أوفلاين';
+                if (pill && pill.textContent.includes('جاهز')) pill.textContent = '✓ V17.8 أوفلاين';
             }).catch(() => {});
         }
     } catch (e) {}
